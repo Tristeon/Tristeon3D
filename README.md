@@ -1,9 +1,7 @@
 # Tristeon
-A 3D Engine built by two Game Engineering students.
-
+Tristeon is an open source game engine built from scratch by two game engineering students.
 
 ![screenshot of the editor](https://i.imgur.com/0CCvybQ.png)
-
 
 Tristeon uses the following third-party libraries:
 * [ImGui](https://github.com/ocornut/imgui)
@@ -14,19 +12,36 @@ Tristeon uses the following third-party libraries:
 * [Vulkan](https://github.com/KhronosGroup/Vulkan-Hpp)
 * [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
 
-**Features**
-* Flexible engine framework
-* 3D Mesh rendering
-* Materials with diffuse textures
+# Features
+* Modular and clean engine framework
 * Entity-component system
-* Object serialization, in-house type introspection
-* Asset browser
-* Scene editor/GameObject hierarchy
-* Object inspector
-* Cameras
-* Visual debugging tools
+* Fully documented
+* Serialization
+  * In-house type introspection
+  * Scenes/Objects stored as json objects
+  * Simple data (de)serialization
+* Rendering
+  * Forward rendering
+  * Vulkan backend
+  * Shader-Material system
+  * Diffuse textures
+  * 3D Mesh rendering
+  * Camera component based rendering
+  * Visual debugging tools
+* Editor
+  * Asset browser
+  * Scene editor
+  * GameObject hierarchy
+  * Object inspector
+* Input
+  * Mouse/keyboard support
+  * Built in keymapping
+* Utility
+  * Vector2/3
+  * Quaternion
+  * Console
 
-**Roadmap**
+# Roadmap
 
 Near future:
 * PBR with textures and image based lighting
@@ -34,17 +49,34 @@ Near future:
 * Flexible shader property system
 * Shadow mapping
 * Normal and emission maps
+
+Planned:
+* In-Editor console logging
 * Image effect system including:
   * SSAO
   * Bloom
-  
-Planned:
+* Outline rendering for selected objects
+* Pixel-perfect object selection
 * Skinned mesh rendering
-* 3D animations
+* Skeletal animations
 * Anti-aliasing
 * HDR
 * Shadow cascades
 * UI Rendering
+* In-Editor Vulkan shader compilation
 
-**Engine design**
+# Engine architecture
 <img src="Documents/Engine Architecture/Tristeon Core Architecture.png">
+
+# Authors
+Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress.com/)
+Tristan Metz - Engine tool programmer (https://tristanmetz.software/)
+
+# Contribute
+Don't hesitate to contribute. You can contribute to the development of Tristeon by:
+* Submitting an issue 
+* Submitting a pull request
+
+# Credits
+* [Vulkan tutorial by Alexander Overvoorde](https://vulkan-tutorial.com/)
+* [Vulkan examples by Sascha Willems](https://github.com/SaschaWillems/Vulkan)
