@@ -14,6 +14,7 @@ Tristeon is an open source game engine built from scratch by two game engineerin
 * Rendering
   * Forward rendering
   * Vulkan backend
+  * PBR Shading (In development)
   * Shader-Material system
   * Diffuse textures
   * 3D Mesh rendering
@@ -35,6 +36,29 @@ Tristeon is an open source game engine built from scratch by two game engineerin
   * Vector2/3
   * Quaternion
   * Console
+  * Properties
+  * Delegates
+  * vector
+* Mesh Loading
+  * Vertices
+  * UVs
+  * Normals
+  * Over 40 file formats including: 
+    * FBX
+    * OBJ
+    * 3DS
+    * blend
+* Image Loading
+  * Formats:
+    * JPEG
+    * PNG
+    * TGA
+    * BMP
+    * PSD
+    * GIF
+    * HDR
+    * PIC
+    * PNM
 
 # Roadmap
 
