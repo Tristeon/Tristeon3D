@@ -24,6 +24,10 @@ Tristeon is an open source game engine built from scratch by two game engineerin
   * Scene editor
   * GameObject hierarchy
   * Object inspector
+* Scene management
+  * Saving
+  * Loading
+  * Editing
 * Input
   * Mouse/keyboard support
   * Built in keymapping
@@ -79,6 +83,6 @@ Tristeon uses the following third-party libraries:
 * [Vulkan](https://github.com/KhronosGroup/Vulkan-Hpp)
 * [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
 
-Tutorials/Resources:
+Other resources:
 * [Vulkan tutorial by Alexander Overvoorde](https://vulkan-tutorial.com/)
 * [Vulkan examples by Sascha Willems](https://github.com/SaschaWillems/Vulkan)
