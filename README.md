@@ -26,6 +26,7 @@ Tristeon uses the following third-party libraries:
 * Cameras
 
 **Roadmap**
+
 Near future:
 * PBR with textures and image based lighting
 * Point/Spot/Directional lights
@@ -43,3 +44,6 @@ Planned:
 * HDR
 * Shadow cascades
 * UI Rendering
+
+**Engine design**
+<img src="Documents/Engine Architecture/Tristeon Core Architecture.png">
