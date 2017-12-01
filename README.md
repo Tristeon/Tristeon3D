@@ -24,6 +24,7 @@ Tristeon uses the following third-party libraries:
 * Scene editor/GameObject hierarchy
 * Object inspector
 * Cameras
+* Visual debugging tools
 
 **Roadmap**
 
