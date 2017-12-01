@@ -3,15 +3,6 @@ Tristeon is an open source game engine built from scratch by two game engineerin
 
 ![screenshot of the editor](https://i.imgur.com/0CCvybQ.png)
 
-Tristeon uses the following third-party libraries:
-* [ImGui](https://github.com/ocornut/imgui)
-* [Assimp](https://github.com/assimp/assimp)
-* [glm](https://github.com/g-truc/glm)
-* [GLFW](https://github.com/glfw/glfw)
-* [stb](https://github.com/nothings/stb)
-* [Vulkan](https://github.com/KhronosGroup/Vulkan-Hpp)
-* [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
-
 # Features
 * Modular and clean engine framework
 * Entity-component system
@@ -78,5 +69,16 @@ Don't hesitate to contribute. You can contribute to the development of Tristeon 
 * Submitting a pull request
 
 # Credits
+
+Tristeon uses the following third-party libraries:
+* [ImGui](https://github.com/ocornut/imgui)
+* [Assimp](https://github.com/assimp/assimp)
+* [glm](https://github.com/g-truc/glm)
+* [GLFW](https://github.com/glfw/glfw)
+* [stb](https://github.com/nothings/stb)
+* [Vulkan](https://github.com/KhronosGroup/Vulkan-Hpp)
+* [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
+
+Tutorials/Resources:
 * [Vulkan tutorial by Alexander Overvoorde](https://vulkan-tutorial.com/)
 * [Vulkan examples by Sascha Willems](https://github.com/SaschaWillems/Vulkan)
