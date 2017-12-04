@@ -2,8 +2,7 @@
 #include <string>
 
 /**
- * \brief Currently typename is not implemented yet thus currently the class is obsolete
- * but will remain for further planned implementations
+ * \brief Currently the interospection interface is not implemented yet, but will remain for further planned implementations
  */
 class IntrospectionInterface
 {
