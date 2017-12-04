@@ -20,7 +20,7 @@ template <typename T>
 void JsonSerializer::serialize(const std::string& path, T& obj)
 {
 	//Convert the object instance to json data
-	nlohmann::json output = obj->serialize();
+	nlohmann::json output = obj.serialize();
 
 	//check if there is anything serialized
 	if (output.is_null()) {
