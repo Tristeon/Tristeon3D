@@ -57,6 +57,7 @@ Near future:
 * Normal and emission maps
 
 Planned:
+* Automized serialization
 * In-Editor console logging
 * Image effect system including:
   * SSAO
