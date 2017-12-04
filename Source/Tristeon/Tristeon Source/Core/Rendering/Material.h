@@ -6,6 +6,8 @@
 #include "Editor/TypeRegister.h"
 #include <filesystem>
 #include <Misc/Property.h>
+#include "ShaderFile.h"
+#include "Editor/JsonSerializer.h"
 
 namespace Tristeon
 {
@@ -62,6 +64,12 @@ namespace Tristeon
 				 * \brief Setup textures initializes all the textures and uploads them to the GPU. API specific.
 				 */
 				virtual void setupTextures() = 0;
+
+				/**
+				 * \brief Function callback used to rebuild the shader pipeline when we've changed ShaderFile
+				 */
+				virtual void rebuildShader() = 0;
+
 				/**
 				 * \brief The diffuse texture of the object
 				 */
@@ -75,11 +83,21 @@ namespace Tristeon
 				 * \brief Keeps track of wether the material is done setting up (important for image loading / unloading on image change)
 				 */
 				bool prepared = false;
+				/**
+				* \brief The shaderfile, loaded using shaderFilePath
+				*/
+				std::unique_ptr<ShaderFile> shader;
 			private:
+				
 				/**
 				 * \brief The path to the diffuse image
 				 */
 				std::string diffusePath;
+
+				/**
+				 * \brief The filepath to the shader file
+				 */
+				std::string shaderFilePath;
 
 				REGISTER_TYPE_H(Material)
 			};
@@ -90,6 +108,7 @@ namespace Tristeon
 				j["typeID"] = typeid(Material).name();
 				j["diffusePath"] = diffusePath;
 				j["diffuseColor"] = diffuseColor.serialize();
+				j["shaderFilePath"] = shaderFilePath;
 				return j;
 			}
 
@@ -101,6 +120,14 @@ namespace Tristeon
 				diffusePath = diffusePathValue;
 
 				diffuseColor.deserialize(json["diffuseColor"]);
+
+				const std::string shaderFilePathValue = json["shaderFilePath"];
+				if (shaderFilePath != shaderFilePathValue)
+				{
+					shader = std::unique_ptr<ShaderFile>(JsonSerializer::deserialize<ShaderFile>(shaderFilePath));
+					rebuildShader();
+				}
+				shaderFilePath = shaderFilePathValue;
 			}
 		}
 	}

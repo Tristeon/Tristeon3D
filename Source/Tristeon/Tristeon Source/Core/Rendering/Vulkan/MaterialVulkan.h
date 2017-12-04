@@ -70,6 +70,8 @@ namespace Tristeon
 					 * \param uniformBuffer The newly active memory
 					 */
 					void setActiveUniformBufferMemory(vk::DeviceMemory uniformBuffer);
+
+					void rebuildShader() override;
 				private:
 					/**
 					 * \brief The active uniform buffer memory

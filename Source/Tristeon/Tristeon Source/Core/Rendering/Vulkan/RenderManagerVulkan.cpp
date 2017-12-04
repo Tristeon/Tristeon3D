@@ -108,6 +108,23 @@ namespace Tristeon
 					VulkanFrame::submit(vulkan->device, swapchain->getSwapchain(), renderFinished, vulkan->presentQueue, index);
 				}
 
+				Pipeline* RenderManager::getPipeline(ShaderFile file)
+				{
+					Vulkan::RenderManager* rm = (Vulkan::RenderManager*)instance;
+
+					for (Pipeline* p : rm->pipelines)
+					{
+						if (p->getShaderFile().getNameID() == file.getNameID())
+						{
+							return p;
+						}
+					}
+				
+					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass);
+					rm->pipelines.push_back(p);
+					return p;
+				}
+
 				void RenderManager::renderScene()
 				{
 					if (!inPlayMode)

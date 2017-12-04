@@ -59,8 +59,7 @@ namespace Tristeon
 				j["directory"] = directory;
 				j["vertexName"] = vertexName;
 				j["fragmentName"] = fragmentName;
-
-				//TODO: Serialize properties
+				j["properties"] = properties;
 				return j;
 			}
 
@@ -78,7 +77,8 @@ namespace Tristeon
 				const std::string tempFragmentName = json["fragmentName"];
 				fragmentName = tempFragmentName;
 
-				//TODO: deserialize properties
+				const std::map<std::string, DataType> propertiesValue = json["properties"];
+				properties = propertiesValue;
 			}
 		}
 	}
