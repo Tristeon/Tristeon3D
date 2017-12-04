@@ -43,22 +43,9 @@ Tristeon is an open source game engine built from scratch by two game engineerin
   * Vertices
   * UVs
   * Normals
-  * Over 40 file formats including: 
-    * FBX
-    * OBJ
-    * 3DS
-    * blend
+  * Over 40 file formats including FBX, OBJ, 3DS and blend
 * Image Loading
-  * Formats:
-    * JPEG
-    * PNG
-    * TGA
-    * BMP
-    * PSD
-    * GIF
-    * HDR
-    * PIC
-    * PNM
+  * Formats: JPG, PNG, TGA, BMP, PSD and more
 
 # Roadmap
 
@@ -89,6 +76,7 @@ Planned:
 
 # Authors
 Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress.com/)
+
 Tristan Metz - Engine tool programmer (https://tristanmetz.software/)
 
 # Contribute
