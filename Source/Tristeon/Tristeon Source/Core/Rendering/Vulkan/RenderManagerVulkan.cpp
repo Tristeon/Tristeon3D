@@ -501,6 +501,10 @@ namespace Tristeon
 					if (!std::experimental::filesystem::exists(filePath))
 						return nullptr;
 
+					//Our materials can only be .mat files
+					if (std::experimental::filesystem::path(filePath).extension() != ".mat")
+						return nullptr;
+					
 					//Try to find the material
 					Vulkan::Material* m = JsonSerializer::deserialize<Vulkan::Material>(filePath);
 					if (m == nullptr)
@@ -515,4 +519,4 @@ namespace Tristeon
 			}
 		}
 	}
-}	
+}
