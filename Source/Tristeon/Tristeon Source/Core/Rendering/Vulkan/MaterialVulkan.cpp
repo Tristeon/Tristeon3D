@@ -11,6 +11,7 @@
 #include "HelperClasses/Pipeline.h"
 #include "Core/BindingData.h"
 #include "Misc/Hardware/Keyboard.h"
+#include "RenderManagerVulkan.h"
 
 namespace Tristeon
 {
@@ -65,6 +66,12 @@ namespace Tristeon
 				void Material::setActiveUniformBufferMemory(vk::DeviceMemory uniformBuffer)
 				{
 					uniformBufferMem = uniformBuffer;
+				}
+
+				void Material::rebuildShader()
+				{
+					Vulkan::RenderManager::getPipeline(*shader.get());
+
 				}
 
 				void Material::cleanup() const

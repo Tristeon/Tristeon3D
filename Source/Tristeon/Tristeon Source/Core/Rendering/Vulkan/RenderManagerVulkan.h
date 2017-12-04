@@ -122,6 +122,7 @@ namespace Tristeon
 					 */
 					void render() override;
 					
+					static Pipeline* getPipeline(ShaderFile file);
 				protected:
 					/**
 					 * \brief Returns a material serialized from the given filepath

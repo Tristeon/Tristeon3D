@@ -60,6 +60,10 @@ namespace Tristeon
 				 */
 				std::string getPath(RenderAPI api, ShaderType type) const;
 				
+				/**
+				 * \return Gets the name id of the shaderfile 
+				 */
+				std::string getNameID() const { return nameID; }
 			private:
 				/**
 				 * \brief ShaderFiles can be identified by their nameID
@@ -92,7 +96,6 @@ namespace Tristeon
 				std::map<std::string, DataType> properties;
 
 				REGISTER_TYPE_H(ShaderFile)
-
 			};
 		}
 	}

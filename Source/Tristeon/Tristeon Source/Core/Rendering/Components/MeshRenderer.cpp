@@ -43,16 +43,18 @@ namespace Tristeon
 			void MeshRenderer::deserialize(nlohmann::json json)
 			{
 				const std::string meshFilePathValue = json["meshPath"];
-				if (meshFilePath != meshFilePathValue)
+				const unsigned int submeshIDValue = json["subMeshID"];
+
+				if (meshFilePath != meshFilePathValue || subMeshID != submeshIDValue)
 				{
 					if (std::experimental::filesystem::exists(meshFilePathValue))
-						mesh = Data::MeshBatch::getSubMesh(meshFilePathValue, subMeshID);
+						mesh = Data::MeshBatch::getSubMesh(meshFilePathValue, submeshIDValue);
 					else
 						mesh = Data::SubMesh();
 				}
-				meshFilePath = meshFilePathValue;
 
-				subMeshID = json["subMeshID"];
+				meshFilePath = meshFilePathValue;
+				subMeshID = submeshIDValue;
 
 				const std::string materialPathValue = json["materialPath"];
 				if (materialPath != materialPathValue)

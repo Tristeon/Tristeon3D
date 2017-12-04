@@ -108,6 +108,23 @@ namespace Tristeon
 					VulkanFrame::submit(vulkan->device, swapchain->getSwapchain(), renderFinished, vulkan->presentQueue, index);
 				}
 
+				Pipeline* RenderManager::getPipeline(ShaderFile file)
+				{
+					Vulkan::RenderManager* rm = (Vulkan::RenderManager*)instance;
+
+					for (Pipeline* p : rm->pipelines)
+					{
+						if (p->getShaderFile().getNameID() == file.getNameID())
+						{
+							return p;
+						}
+					}
+				
+					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass);
+					rm->pipelines.push_back(p);
+					return p;
+				}
+
 				void RenderManager::renderScene()
 				{
 					if (!inPlayMode)
@@ -501,6 +518,10 @@ namespace Tristeon
 					if (!std::experimental::filesystem::exists(filePath))
 						return nullptr;
 
+					//Our materials can only be .mat files
+					if (std::experimental::filesystem::path(filePath).extension() != ".mat")
+						return nullptr;
+					
 					//Try to find the material
 					Vulkan::Material* m = JsonSerializer::deserialize<Vulkan::Material>(filePath);
 					if (m == nullptr)
@@ -515,4 +536,4 @@ namespace Tristeon
 			}
 		}
 	}
-}	
+}

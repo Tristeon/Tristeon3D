@@ -81,6 +81,11 @@ namespace Tristeon
 					 * \param renderPass The renderpass this pipeline is bound to
 					 */
 					void rebuild(vk::Extent2D extent, vk::RenderPass renderPass);
+
+					/**
+					 * \return Returns the shaderfile currently owned by pipeline 
+					 */
+					ShaderFile getShaderFile() const { return file; }
 				private:
 					void createDescriptorLayout();
 					/**
