@@ -70,8 +70,6 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 Tristeon::Core::Rendering::Vulkan::EditorGrid::~EditorGrid()
 {
 	//Cleanup
-	mr.reset();
-	mr = nullptr;
 	delete material;
 	delete pipeline;
 	delete object;

@@ -9,7 +9,7 @@ public:
 	 * \param path the filepath that is used to create the file 
 	 * \param obj the object that is turned into json
 	 */
-	template <typename T> static void serialize(const std::string& path, T* obj);
+	template <typename T> static void serialize(const std::string& path, T& obj);
 	/**
 	 * \brief Create an instance with type T using the given filepath
 	 */
@@ -17,7 +17,7 @@ public:
 };
 
 template <typename T>
-void JsonSerializer::serialize(const std::string& path, T* obj)
+void JsonSerializer::serialize(const std::string& path, T& obj)
 {
 	//Convert the object instance to json data
 	nlohmann::json output = obj->serialize();
@@ -61,7 +61,9 @@ T* JsonSerializer::deserialize(const std::string& path)
 	}
 
 	//Create instance of the type that is specified in the json file under the "typeID" member
-	Serializable* deserializedObject = static_cast<Serializable*>(TypeRegister::createInstance(input["typeID"]));
+	auto instance = TypeRegister::createInstance(input["typeID"]);
+	Serializable* deserializedObject = static_cast<Serializable*>(instance.get());
+	instance.release();
 	//Load json data into the instance
 	deserializedObject->deserialize(input);
 	//Cast into the desired type

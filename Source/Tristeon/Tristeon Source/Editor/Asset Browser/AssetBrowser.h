@@ -32,7 +32,7 @@ namespace Tristeon
 			 * \brief The item manager is in charge of displaying the fileitems of the current folder that has been
 			 * opened in the asset browser and managing their interactions
 			 */
-			std::shared_ptr<FileItemManager> itemManager;
+			std::unique_ptr<FileItemManager> itemManager;
 			/**
 			 * \brief The folder hierarchy is in charge of drawing the folder structure of the asset folder
 			 */

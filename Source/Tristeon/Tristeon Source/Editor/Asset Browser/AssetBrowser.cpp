@@ -22,7 +22,7 @@ AssetBrowser::AssetBrowser()
 	rootFolder->setup(true);
 
 	//Set asset browser view to the asset folder (rootfolder)
-	itemManager = std::make_shared<FileItemManager>();
+	itemManager = std::make_unique<FileItemManager>();
 	itemManager->setView(rootFolder.get());
 }
 
@@ -56,7 +56,7 @@ void AssetBrowser::onGui()
 
 	//Draw folder hierarchy
 	ImGui::BeginChild("Left panel", ImVec2(150, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-	folderHierarchy.drawHierarchy(rootFolder,itemManager);
+	folderHierarchy.drawHierarchy(rootFolder,itemManager.get());
 	ImGui::EndChild();
 
 	ImGui::SameLine();

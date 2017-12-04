@@ -28,8 +28,8 @@ void Tristeon::Editor::SceneWindow::onGui()
 		moveCamera();
 	}
 
-		//Set input for the gizmos settings
-		setInputMode();
+	//Set input for the gizmos settings
+	setInputMode();
 
 	//Draws the scene
 	drawScene();

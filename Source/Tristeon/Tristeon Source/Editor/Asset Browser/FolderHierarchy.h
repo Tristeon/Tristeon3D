@@ -19,7 +19,7 @@ namespace Tristeon
 			/**
 			 * \brief Draws folder structure of rootfolder
 			 */
-			void drawHierarchy(std::shared_ptr<FolderItem> rootFolder, std::shared_ptr<FileItemManager> itemManager);
+			void drawHierarchy(std::shared_ptr<FolderItem> rootFolder, FileItemManager* itemManager);
 		private:
 			int selected = 0;
 		};

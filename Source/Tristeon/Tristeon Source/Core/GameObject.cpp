@@ -11,7 +11,7 @@ namespace Tristeon
 		GameObject::GameObject()
 		{
 			//Create transform
-			_transform = std::make_shared<Transform>();
+			_transform = std::make_unique<Transform>();
 			//Increment instance count of the current scene
 			Scenes::SceneManager::getActiveScene()->instanceCount++;
 		}
@@ -19,7 +19,7 @@ namespace Tristeon
 		GameObject::GameObject(bool reg)
 		{
 			//Create transform
-			_transform = std::make_shared<Transform>();
+			_transform = std::make_unique<Transform>();
 
 			if (reg)
 			{
@@ -46,8 +46,9 @@ namespace Tristeon
 			output["tag"] = tag;
 			output["transform"] = _transform->serialize();
 			nlohmann::json serializedComponents = nlohmann::json::array_t();
-			for (auto component : components)
-				serializedComponents.push_back(component->serialize());
+			for (int i = 0; i < components.size(); ++i)
+				serializedComponents.push_back(components[i]->serialize());
+
 			output["components"] = serializedComponents;
 			return output;
 		}
@@ -69,14 +70,14 @@ namespace Tristeon
 
 				//Create an instance using the given typeid, this creates an instance of the type
 				//which was serialized using its unique ID thus to retrieve the type.
-				auto* serializable = TypeRegister::createInstance(serializedComponent["typeID"]);
-				//Extra steps for clarity
-				Components::Component* component = (Components::Component*) serializable;
+				auto serializable = TypeRegister::createInstance(serializedComponent["typeID"]);
+				Components::Component* component = (Components::Component*) serializable.get();
 				component->init();
 				component->setup(this);
-				std::shared_ptr<Components::Component> sharedComponent(component);
+				serializable.release();
+				std::unique_ptr<Components::Component> sharedComponent(component);
 				sharedComponent->deserialize(serializedComponent);
-				components.push_back(sharedComponent);
+				components.push_back(std::move(sharedComponent));
 			}
 		}
 	}

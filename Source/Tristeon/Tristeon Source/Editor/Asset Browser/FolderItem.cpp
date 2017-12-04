@@ -54,7 +54,7 @@ void FolderItem::createItem(string name, FolderItem* folder, string extension)
 
 	this->name = name;
 	this->filepath = filePath;
-	JsonSerializer::serialize(filepath + name + ".meta", this);
+	JsonSerializer::serialize(filepath + name + ".meta", *this);
 	fs::create_directory(string(filepath + name).c_str());
 }
 
@@ -140,7 +140,8 @@ void FolderItem::setup(bool doChildren)
 		nlohmann::json input;
 		stream >> input;
 		auto deserializedObject = TypeRegister::createInstance(input["typeID"]);
-		fileItemToAdd = (FileItem*)deserializedObject;
+		fileItemToAdd = (FileItem*) deserializedObject.get();
+		deserializedObject.release();
 		fileItemToAdd->parent = this;
 
 		//Load meta data into the fileitem
@@ -160,7 +161,7 @@ void FolderItem::setup(bool doChildren)
 	setupDone = true;
 }
 
-void FolderItem::drawHierarchy(std::shared_ptr<FileItemManager> itemManager)
+void FolderItem::drawHierarchy(FileItemManager* itemManager)
 {
 	int nodeClicked = -1;	// Temporary storage of what node we have clicked to process selection at the end of the loop
 	for (int i = 0; i < children.size(); i++)

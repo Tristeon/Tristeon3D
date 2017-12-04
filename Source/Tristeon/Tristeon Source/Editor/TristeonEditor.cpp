@@ -95,7 +95,7 @@ namespace Tristeon
 	{
 		Core::VulkanBindingData *vkBinding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData);
 		this->vkDevice = vkBinding->device;
-		this->engine = engine;
+		this->engine = std::unique_ptr<Core::Engine>(engine);
 
 		bindImGui(vkBinding);
 		initFontsImGui(vkBinding);
@@ -193,7 +193,7 @@ namespace Tristeon
 		{
 			Core::Rendering::Vulkan::EditorData* data = dynamic_cast<Core::Rendering::Vulkan::EditorData*>(msg.userData);
 			if (data != nullptr)
-				this->editorCamera = data;
+				this->editorCamera = std::unique_ptr<Core::Rendering::Vulkan::EditorData>(data);
 		});
 
 		renderable = new Core::Rendering::UIRenderable();

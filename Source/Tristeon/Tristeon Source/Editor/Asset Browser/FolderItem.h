@@ -61,7 +61,7 @@ namespace Tristeon
 			/**
 			 * \brief Draws a node tree of the parent-child structure of the folder
 			 */
-			void drawHierarchy(std::shared_ptr<FileItemManager> itemManager);
+			void drawHierarchy(FileItemManager* itemManager);
 
 			nlohmann::json serialize() override;
 			void deserialize(nlohmann::json json) override;

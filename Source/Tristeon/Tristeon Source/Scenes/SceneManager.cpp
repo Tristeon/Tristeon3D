@@ -8,16 +8,15 @@ namespace Tristeon
 {
 	namespace Scenes
 	{
-		Scene* SceneManager::activeScene = nullptr;
+		std::unique_ptr<Scene> SceneManager::activeScene = nullptr;
 
 		SceneManager::~SceneManager()
 		{
-			delete activeScene;
 		}
 
 		void SceneManager::init()
 		{
-			activeScene = new Scene();
+			activeScene = std::make_unique<Scene>();
 		}
 
 		void SceneManager::loadScene(int id)
@@ -32,7 +31,7 @@ namespace Tristeon
 
 		void SceneManager::loadScene(Scene* scene)
 		{
-			activeScene = scene;
+			activeScene = std::unique_ptr<Scene>(scene);
 		}
 
 		void SceneManager::reset()

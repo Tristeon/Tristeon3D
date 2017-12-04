@@ -51,7 +51,7 @@ namespace Tristeon
 					/**
 					 * \brief The mesh renderer for vertex/index buffer allocation
 					 */
-					std::shared_ptr<MeshRenderer> mr = nullptr;
+					MeshRenderer* mr = nullptr;
 					/**
 					 * \brief The shader pipeline
 					 */

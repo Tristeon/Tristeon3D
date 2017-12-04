@@ -14,7 +14,7 @@ SceneFileItem::SceneFileItem()
 
 void SceneFileItem::createSceneFile(Scenes::Scene scene)
 {
-	JsonSerializer::serialize(filepath+name+"."+extension,&scene);
+	JsonSerializer::serialize(filepath+name+"."+extension,scene);
 }
 
 void SceneFileItem::onDoubleClick()

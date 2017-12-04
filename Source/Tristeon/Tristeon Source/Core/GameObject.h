@@ -61,20 +61,20 @@ namespace Tristeon
 			 * \tparam T The type of component to be added
 			 * \return Returns the new component
 			 */
-			template <typename T> std::shared_ptr<T> addComponent();
+			template <typename T> T* addComponent();
 
 			/**
 			 * \brief Gets the first component of the given type T
 			 * \tparam T The type of the component to be searched for
 			 * \return Returns the component
 			 */
-			template <typename T> std::shared_ptr<T> getComponent();
+			template <typename T> T* getComponent();
 			/**
 			 * \brief Gets all the components of type T
 			 * \tparam T The type of the components to be searched for
 			 * \return Returns a list of components of the given type T
 			 */
-			template <typename T> std::vector<std::shared_ptr<T>> getComponents();
+			template <typename T> std::vector<T*> getComponents();
 
 			/**
 			 * \brief Serializes the gameobject into a json structure
@@ -90,11 +90,11 @@ namespace Tristeon
 			/**
 			 * \brief The transform. Describes position, rotation, scale and the parent-child structure. GameObject creates and destroys this object
 			 */
-			std::shared_ptr<Transform> _transform;
+			std::unique_ptr<Transform> _transform;
 			/**
 			 * \brief The list of components owned by this gameobject
 			 */
-			std::vector<std::shared_ptr<Components::Component>> components;
+			std::vector<std::unique_ptr<Components::Component>> components;
 
 			/**
 			 * \brief The local active state of this GameObject.
@@ -106,7 +106,7 @@ namespace Tristeon
 		};
 
 		template <typename T>
-		std::shared_ptr<T> GameObject::addComponent()
+		T* GameObject::addComponent()
 		{
 			//Confirm that type T is a component
 			if (!std::is_base_of<Components::Component, T>())
@@ -116,20 +116,20 @@ namespace Tristeon
 			}
 
 			//Create a new component of type T
-			std::shared_ptr<T> component = std::make_shared<T>();
+			T* component = new T();
 
 			//Initialize component
 			component->setup(this);
 
 			//Add to our component list
-			components.push_back(component);
+			components.push_back(std::move(std::unique_ptr<T>(component)));
 
 			//Return result for user reference
 			return component;
 		}
 
 		template <typename T>
-		std::shared_ptr<T> GameObject::getComponent()
+		T* GameObject::getComponent()
 		{
 			//Confirm that type T is a component
 			if (!std::is_base_of<Components::Component, T>())
@@ -139,10 +139,10 @@ namespace Tristeon
 			}
 
 			//Search for a component that can be cast to T
-			for (std::shared_ptr<Components::Component> c : components)
+			for (int i = 0; i < components.size(); i++)
 			{
-				if (dynamic_cast<T>(c.get()) != nullptr)
-					return c;
+				if (dynamic_cast<T>(components[i].get()) != nullptr)
+					return components[i].get();
 			}
 
 			//Return null if we can't find anything
@@ -154,13 +154,13 @@ namespace Tristeon
 		 * \return Returns the transform component
 		 */
 		template <>
-		inline std::shared_ptr<Transform> GameObject::getComponent()
+		inline Core::Transform* Core::GameObject::getComponent()
 		{
-			return _transform;
+			return _transform.get();
 		}
 
 		template <typename T>
-		std::vector<std::shared_ptr<T>> GameObject::getComponents()
+		std::vector<T*> GameObject::getComponents()
 		{
 			//Confirm that type T is a component
 			if (!std::is_base_of<Components::Component, T>())
@@ -170,13 +170,13 @@ namespace Tristeon
 			}
 
 			//A list of components
-			std::vector<std::shared_ptr<Components::Component>> result;
+			std::vector<Components::Component*> result;
 
 			//Look through the component list and find every component that can cast to T
-			for (std::shared_ptr<Components::Component> c : components)
+			for (int i = 0; i < components.size(); i++)
 			{
-				if (dynamic_cast<T>(c.get()) != nullptr)
-					result.push_back(c);
+				if (dynamic_cast<T>(components[i].get()) != nullptr)
+					result.push_back(components[i].get());
 			}
 
 			//Return the resulting list

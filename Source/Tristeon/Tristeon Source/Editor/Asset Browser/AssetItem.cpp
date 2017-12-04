@@ -71,7 +71,7 @@ void AssetItem::createItem(std::string name, FolderItem* folder, std::string ext
 	//Set parenting and child relations
 	parent = folder;
 	parent->fileItems.push_back(this);
-	JsonSerializer::serialize(filepath + name + "." + extension + ".meta", this);
+	JsonSerializer::serialize(filepath + name + "." + extension + ".meta", *this);
 }
 
 void AssetItem::move(FolderItem* destination)

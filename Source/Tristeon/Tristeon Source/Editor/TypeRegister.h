@@ -2,7 +2,7 @@
 #include "IntrospectionInterface.h"
 #include "Serializable.h"
 
-template <typename T> IntrospectionInterface* CreateInstance() { return new T; }
+template <typename T> std::unique_ptr<IntrospectionInterface> CreateInstance() { return std::make_unique<T>(); }
 
 /**
  * \brief The typeregister pretty much is a map that is used to create instances of registered types
@@ -12,12 +12,13 @@ struct TypeRegister
 {
 	//Map that contains typeid as key and createinstance methods as value
 	//the keys are saved as typeid(T).name()
-	using TypeMap = std::map<std::string, IntrospectionInterface*(*)()>;
+	using TypeMap = std::map<std::string, std::unique_ptr<IntrospectionInterface>(*)()>;
 
 	/**
-	 * \brief Creates instance of
+	 * \brief Creates instance of an object that inherits from the introspectioninterface.
+	 * The user must take ownership of the instance himself.
 	 */
-	static IntrospectionInterface* createInstance(const std::string& s)
+	static std::unique_ptr<IntrospectionInterface> createInstance(const std::string& s)
 	{
 		const auto it = getMap()->find(s);
 		if (it == getMap()->end())

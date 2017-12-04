@@ -18,11 +18,11 @@ namespace Tristeon
 			void loadScene(std::string name);
 			static void loadScene(Scene* scene);
 
-			static Scene* getActiveScene() { return activeScene; }
+			static Scene* getActiveScene() { return activeScene.get(); }
 		
 		private:
 			void reset() override;
-			static Scene* activeScene;
+			static std::unique_ptr<Scene> activeScene;
 		};
 	}
 }
