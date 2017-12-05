@@ -7,6 +7,9 @@
 #include "Core/Components/Camera.h"
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
+#include "Editor/Asset Browser/PrefabFileItem.h"
+#include "Editor/Asset Browser/MeshFileItem.h"
+#include "Editor/Asset Browser/MaterialFileItem.h"
 using namespace Tristeon::Editor;
 
 InspectorWindow::InspectorWindow()
@@ -22,12 +25,24 @@ void InspectorWindow::onGui()
 	{
 		if (dynamic_cast<EditorNode*>(selectedItem) != nullptr)
 		{
+			//Display selected editornode
 			drawEditorNode((EditorNode*)selectedItem);
 		}
 		else if (dynamic_cast<AssetItem*>(selectedItem) != nullptr)
 		{
-			//TODO: implement display for assetitems
-			//Draw assetitem
+			//Display prefab fileitems
+			if (dynamic_cast<PrefabFileItem*>(selectedItem) != nullptr)
+			{
+				//TODO: show prefabs
+			} else if (dynamic_cast<MeshFileItem*>(selectedItem) != nullptr) //Display mesh fileitems
+			{
+				
+			}
+			else if (dynamic_cast<MaterialFileItem*>(selectedItem) != nullptr) //Display material fileitems
+			{
+
+			}
+
 		}
 	}
 	ImGui::End();

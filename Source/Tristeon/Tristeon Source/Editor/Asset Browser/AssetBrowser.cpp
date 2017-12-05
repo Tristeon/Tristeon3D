@@ -70,13 +70,11 @@ void AssetBrowser::onGui()
 
 	//Dropped on assetbrowser
 	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
-	if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)) std::cout << "Test\n";
-	if (ImGui::IsWindowHovered() && !ImGui::IsMouseDragging(0)) std::cout << "Ur hovering over the assetbrowser!\n";
-	ImGui::GetIO();
-	if (draggingNode != nullptr && ImGui::IsWindowHovered())
+	if (draggingNode != nullptr && ImGui::IsMouseReleased(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 	{
 		PrefabFileItem* prefab = new PrefabFileItem();
 		prefab->init((*draggingNode->getData())["name"],itemManager->currentFolder,"prefab");
+		prefab->createFile(*draggingNode->getData());
 	}
 
 

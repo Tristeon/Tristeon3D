@@ -28,12 +28,7 @@ namespace Tristeon
 			static void reset()
 			{
 				std::cout << "Reset dragging\n";
-				if (shouldReset)
-				{
-					draggingItem = nullptr;
-					shouldReset = false;
-				}
-				shouldReset = true;
+				draggingItem = nullptr;
 			}
 
 			template <typename T> static bool isDragging();

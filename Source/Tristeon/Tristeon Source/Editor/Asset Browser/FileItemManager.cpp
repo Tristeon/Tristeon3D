@@ -6,6 +6,7 @@
 #include "SceneFileItem.h"
 #include "Scenes/Scene.h"
 #include "Editor/EditorDragging.h"
+#include "Editor/EditorSelection.h"
 
 using namespace std;
 using namespace Tristeon::Editor;
@@ -31,7 +32,7 @@ void FileItemManager::drawFileItems()
 
 		//Load file item UI
 		bool selectablePressed = ImGui::Selectable(fileItem->name.c_str(), highlightedFileItems[i], 0, iconSize);
-		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) EditorDragging::setDragableItem(fileItem);
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && ImGui::IsMouseClicked(0)) EditorDragging::setDragableItem(fileItem);
 
 		//When delete is pressed
 		if (highlightedFileItems[i] && ImGui::IsKeyPressed(GLFW_KEY_DELETE, false))
@@ -58,6 +59,12 @@ void FileItemManager::drawFileItems()
 			{
 				highlightedFileItems = std::vector<bool>(currentFolder->fileItems.size());
 				highlightedFileItems[i] = true;
+			}
+			//If the selected fileitem is an assetitem
+			AssetItem* assetItem = dynamic_cast<AssetItem*>(fileItem);
+			if (assetItem != nullptr)
+			{
+				EditorSelection::setSelectedItem(assetItem);
 			}
 		}
 

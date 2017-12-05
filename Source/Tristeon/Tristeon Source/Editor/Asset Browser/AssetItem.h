@@ -1,6 +1,7 @@
 #pragma once
 #include "FileItem.h"
 #include "Editor/TypeRegister.h"
+#include "Editor/Selectable.h"
 
 
 namespace Tristeon
@@ -10,7 +11,7 @@ namespace Tristeon
 		/**
 		 * \brief An assetitem is any file that can be shown by the editor which is not a folder
 		 */
-		class AssetItem : public FileItem
+		class AssetItem : public FileItem, public Selectable, public Draggable
 		{
 		public:
 			AssetItem();

@@ -55,7 +55,7 @@ void GameObjectHierarchy::drawNode(EditorNode* node)
 		selectedNode = node;
 	}
 	//Is the item hovered and is the mouse dragging?
-	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0,false)) EditorDragging::setDragableItem(node);
+	if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && ImGui::IsMouseClicked(0,false)) EditorDragging::setDragableItem(node);
 
 	//Check if a dragging node is being dropped
 	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
