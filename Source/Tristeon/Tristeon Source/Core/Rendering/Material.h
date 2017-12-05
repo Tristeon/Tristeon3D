@@ -42,6 +42,8 @@ namespace Tristeon
 				 */
 				void deserialize(nlohmann::json json) override;
 
+				Misc::Color getDiffuse() { return diffuseColor; }
+
 				/**
 				* \brief The diffuse image of the material
 				*/

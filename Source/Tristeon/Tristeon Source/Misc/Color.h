@@ -41,6 +41,11 @@ namespace Tristeon
 			void deserialize(nlohmann::json json) override;
 
 			/**
+			 * \brief Converts the color data to an array of 4 floats
+			 */
+			std::array<float, 4> toArray() const { return {r,g,b,a}; }
+
+			/**
 			 * \brief The red component of the color
 			 */
 			float r;

@@ -12,6 +12,7 @@ namespace Tristeon
 		 */
 		class MaterialFileItem : public AssetItem
 		{
+		public:
 			void drawOnInspector() override;
 		};
 	}
