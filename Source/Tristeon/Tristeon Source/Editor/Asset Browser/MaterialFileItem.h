@@ -12,7 +12,7 @@ namespace Tristeon
 		 */
 		class MaterialFileItem : public AssetItem
 		{
-			//Empty for now, will change once more specific implementations are necessary
+			void drawOnInspector() override;
 		};
 	}
 }

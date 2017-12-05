@@ -123,3 +123,8 @@ std::string AssetItem::getFilePath() const
 {
 	return filepath + name + "." + extension;
 }
+
+void AssetItem::drawOnInspector()
+{
+	//Do nothing
+}

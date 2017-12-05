@@ -30,15 +30,8 @@ void InspectorWindow::onGui()
 		}
 		else if (dynamic_cast<AssetItem*>(selectedItem) != nullptr)
 		{
-			//Get serialized data
-			AssetItem* asset = dynamic_cast<AssetItem*>(selectedItem);
-			std::ifstream stream(asset->getFilePath());
-			nlohmann::json assetSerializedData;
-			stream >> assetSerializedData;
-			//Draw to inspector
-			drawSerializedObject(assetSerializedData);
-			//Apply changes
-			asset->deserialize(assetSerializedData);
+			//Display assetitem
+			dynamic_cast<AssetItem*>(selectedItem)->drawOnInspector();
 		}
 	}
 	ImGui::End();
@@ -46,6 +39,7 @@ void InspectorWindow::onGui()
 
 void InspectorWindow::drawEditorNode(EditorNode* node)
 {
+
 	nlohmann::json* data = node->getData();
 
 	//TODO: Create function for string fields, bool,etc.
@@ -228,6 +222,7 @@ void InspectorWindow::drawSerializedObject(nlohmann::json& serializedComponent)
 			break;
 		}
 		case nlohmann::detail::value_t::object:
+			drawSerializedObject(serializedComponent[iterator.key()]);
 			break;
 		case nlohmann::detail::value_t::array:
 			break;

@@ -44,7 +44,13 @@ namespace Tristeon
 			* \brief Remove the file including the meta file
 			*/
 			void removeFile() override;
+
+			/**
+			 * \brief Gets called when the item is double clicked
+			 */
 			virtual void onDoubleClick();
+
+			virtual void drawOnInspector();
 
 			/**
 			 * \return Returns the filepath of the asset based on the name, filepath and extension 
