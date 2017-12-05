@@ -46,6 +46,11 @@ namespace Tristeon
 			void removeFile() override;
 			virtual void onDoubleClick();
 
+			/**
+			 * \return Returns the filepath of the asset based on the name, filepath and extension 
+			 */
+			std::string getFilePath() const;
+
 			std::string extension;
 		private:
 			static DerivedRegister<AssetItem> reg;
