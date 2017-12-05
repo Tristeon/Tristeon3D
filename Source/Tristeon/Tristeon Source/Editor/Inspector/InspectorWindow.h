@@ -27,7 +27,7 @@ namespace Tristeon
 			/**
 			 * \brief Modularly draws a component of a gameobject using the given json information
 			 */
-			void drawComponent(nlohmann::json& serializedComponent);
+			void drawSerializedObject(nlohmann::json& serializedComponent);
 
 			/**
 			 * \brief typeid(T).name() is used to store typeids, in order to retrieve the name of a type the function

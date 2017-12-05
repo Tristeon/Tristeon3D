@@ -30,19 +30,15 @@ void InspectorWindow::onGui()
 		}
 		else if (dynamic_cast<AssetItem*>(selectedItem) != nullptr)
 		{
-			//Display prefab fileitems
-			if (dynamic_cast<PrefabFileItem*>(selectedItem) != nullptr)
-			{
-				//TODO: show prefabs
-			} else if (dynamic_cast<MeshFileItem*>(selectedItem) != nullptr) //Display mesh fileitems
-			{
-				
-			}
-			else if (dynamic_cast<MaterialFileItem*>(selectedItem) != nullptr) //Display material fileitems
-			{
-
-			}
-
+			//Get serialized data
+			AssetItem* asset = dynamic_cast<AssetItem*>(selectedItem);
+			std::ifstream stream(asset->getFilePath());
+			nlohmann::json assetSerializedData;
+			stream >> assetSerializedData;
+			//Draw to inspector
+			drawSerializedObject(assetSerializedData);
+			//Apply changes
+			asset->deserialize(assetSerializedData);
 		}
 	}
 	ImGui::End();
@@ -50,7 +46,6 @@ void InspectorWindow::onGui()
 
 void InspectorWindow::drawEditorNode(EditorNode* node)
 {
-
 	nlohmann::json* data = node->getData();
 
 	//TODO: Create function for string fields, bool,etc.
@@ -158,7 +153,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 		bool closeableHeader = closeableHeaders[i];
 		if (ImGui::CollapsingHeader(nodeLabel.c_str(), &closeableHeader))
 		{
-			drawComponent(componentsData.at(i));
+			drawSerializedObject(componentsData.at(i));
 		}
 		closeableHeaders[i] = closeableHeader;
 
@@ -208,7 +203,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 	node->applyChanges();
 }
 
-void InspectorWindow::drawComponent(nlohmann::json& serializedComponent)
+void InspectorWindow::drawSerializedObject(nlohmann::json& serializedComponent)
 {
 	for (auto iterator = serializedComponent.begin(); iterator != serializedComponent.end(); ++iterator)
 	{

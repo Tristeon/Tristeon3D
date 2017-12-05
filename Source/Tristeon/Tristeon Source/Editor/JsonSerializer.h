@@ -18,7 +18,7 @@ public:
 };
 
 template <>
-void JsonSerializer::serialize<nlohmann::basic_json<>>(const std::string& path, nlohmann::json& obj)
+inline void JsonSerializer::serialize<nlohmann::basic_json<>>(const std::string& path, nlohmann::json& obj)
 {
 	//check if there is anything serialized
 	if (obj.is_null()) {
