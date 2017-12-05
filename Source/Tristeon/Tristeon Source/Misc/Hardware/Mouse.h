@@ -10,6 +10,10 @@ struct GLFWwindow;
 
 namespace Tristeon
 {
+	namespace Data {
+		class Image;
+	}
+
 	//Forward decl
 	namespace Core { namespace Managers { class InputManager; } }
 
@@ -32,6 +36,57 @@ namespace Tristeon
 			BUTTON_LEFT = BUTTON_1,
 			BUTTON_RIGHT = BUTTON_2,
 			BUTTON_MIDDLE = BUTTON_3
+		};
+
+		/**
+		 * \brief Defines standard cursor shapes like arrow and hand
+		 */
+		enum CursorShape
+		{
+			/**
+			 * \brief The regular arrow cursor shape.
+			 */
+			ARROW = 0x00036001,
+			/**
+			 * \brief The text input I-beam cursor shape.
+			 */
+			IBEAM = 0x00036002,
+			/**
+			 * \brief The crosshair shape.
+			 */
+			CROSSHAIR = 0x00036003,
+			/**
+			 * \brief The hand shape.
+			 */
+			HAND = 0x00036004,
+			/**
+			 * \brief The horizontal resize arrow shape.
+			 */
+			HRESIZE = 0x00036005,
+			/**
+			 * \brief The vertical resize arrow shape.
+			 */
+			VRESIZE = 0x00036006
+		};
+
+		/**
+		 * \brief Describes the cursor input mode
+		 */
+		enum CursorMode
+		{
+			/**
+			 * \brief The cursor is visible and behaves like normal
+			 */
+			NORMAL = 0x00034001,
+			/**
+			 * \brief Makes the cursor invisible when it is over the client area of the window but does not restrict the cursor from leaving.
+			 */
+			HIDDEN = 0x00034002,
+
+			/**
+			 * \brief Hides and grabs the cursor, providing virtual and unlimited cursor movement. This is useful for implementing for example 3D camera controls.
+			 */
+			DISABLED = 0x00034003
 		};
 
 		/**
@@ -87,8 +142,7 @@ namespace Tristeon
 			static bool getInWindow();
 
 			/**
-			 * \brief Gets the position of the mouse relative to the window
-			 * \return 
+			 * \return Gets the position of the mouse relative to the window
 			 */
 			static Math::Vector2 getPosition();
 			/**
@@ -101,6 +155,26 @@ namespace Tristeon
 			 * \return Returns a vector describing the delta scroll
 			 */
 			static Math::Vector2 getScroll();
+
+			/**
+			 * \brief Sets the cursor image. The cursor will only be visible when hovering over the Tristeon window and when the CursorMode is set to CursorMode::NORMAL
+			 * \param image The desired cursor image
+			 * \param xHot The desired x coordinate, in pixels, of the cursor hotspot
+			 * \param yHot The desired y coordinate, in pixels, of the cursor hotspot
+			 */
+			static void setCursorImage(Data::Image image, int xHot = 0, int yHot = 0);
+
+			/**
+			 * \brief Sets the cursor image to a default shape. The cursor will only be visible when hovering over the Tristeon window and when the CursorMode is set to CursorMode::NORMAL
+			 * \param shape The shape of the cursor
+			 */
+			static void setCursorDefault(CursorShape shape);
+
+			/**
+			 * \brief Sets the cursor mode (hidden, disabled, normal). Describes visibility and usage of the cursor
+			 * \param mode The cursor mode
+			 */
+			static void setCursorMode(CursorMode mode);
 		private:
 			/**
 			 * \brief Currently pressed down buttons
@@ -161,6 +235,11 @@ namespace Tristeon
 			 * \brief The scroll movement of the mouse in the current frame
 			 */
 			static Math::Vector2 scroll;
+
+			/**
+			 * \brief A reference to GLFW window, used to set/get data where needed
+			 */
+			static GLFWwindow* window;
 		};
 	}
 }

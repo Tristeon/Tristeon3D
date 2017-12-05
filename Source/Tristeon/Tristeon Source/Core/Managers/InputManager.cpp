@@ -23,6 +23,7 @@ namespace Tristeon
 				ManagerProtocol::subscribeToMessage(MT_AFTERFRAME, [&](Message msg) { resetInput(); });
 				
 				//GLFW input callbacks
+				Misc::Mouse::window = window;
 				glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) { Misc::Keyboard::keyCallback(key, scancode, action, mods); });
 				glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) { Misc::Mouse::buttonCallback(button, action, mods); });
 				glfwSetCursorPosCallback(window, [](GLFWwindow* window, double x, double y) { Misc::Mouse::positionCallback(x, y); });
