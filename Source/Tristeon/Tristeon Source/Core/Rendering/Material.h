@@ -59,16 +59,16 @@ namespace Tristeon
 				 * \param view The current camera view matrix
 				 * \param proj The current camera projection matrix
 				 */
-				virtual void render(glm::mat4 model, glm::mat4 view, glm::mat4 proj) = 0;
+				virtual void render(glm::mat4 model, glm::mat4 view, glm::mat4 proj){};
 				/**
 				 * \brief Setup textures initializes all the textures and uploads them to the GPU. API specific.
 				 */
-				virtual void setupTextures() = 0;
+				virtual void setupTextures(){};
 
 				/**
 				 * \brief Function callback used to rebuild the shader pipeline when we've changed ShaderFile
 				 */
-				virtual void rebuildShader() = 0;
+				virtual void rebuildShader(){};
 
 				/**
 				 * \brief The diffuse texture of the object

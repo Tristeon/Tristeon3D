@@ -40,7 +40,6 @@ namespace Tristeon
 			bool sceneChanged = false;
 			Scenes::Scene* currentScene = nullptr;
 			EditorNode* selectedNode = nullptr;
-			EditorNode* draggingNode = nullptr;
 		};
 	}
 }

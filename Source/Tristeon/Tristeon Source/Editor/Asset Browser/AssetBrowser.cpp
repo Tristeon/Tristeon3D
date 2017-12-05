@@ -7,6 +7,11 @@
 #include "Scenes/Scene.h"
 #include "Scenes/SceneManager.h"
 #include "Editor/JsonSerializer.h"
+#include "MaterialFileItem.h"
+#include "Core/Rendering/Material.h"
+#include "Editor/EditorNode.h"
+#include "Editor/EditorDragging.h"
+#include "PrefabFileItem.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -41,13 +46,13 @@ void AssetBrowser::onGui()
 			std::cout << "Saving scene: " << currentScene->name << std::endl;
 			std::cout << "First gameObject name: " << currentScene->gameObjects[0]->name << std::endl;
 			if (itemManager->currentlyLoadedSceneFile != nullptr)
-				itemManager->currentlyLoadedSceneFile->createSceneFile(*currentScene);
+				itemManager->currentlyLoadedSceneFile->createFile(currentScene->serialize());
 			else
 			{
 				//Create a scene file
 				SceneFileItem* sceneFile = new SceneFileItem();
-				sceneFile->createItem("Scene", itemManager->currentFolder, "scene"); //Create meta data
-				sceneFile->createSceneFile(*currentScene); //Create create the scene file
+				sceneFile->init("Scene", itemManager->currentFolder, "scene"); //Create meta data
+				sceneFile->createFile(currentScene->serialize()); //Create create the scene file
 			}
 		}
 	}
@@ -61,7 +66,20 @@ void AssetBrowser::onGui()
 
 	ImGui::SameLine();
 
-	ImGui::BeginChild("Right panel");
+	ImGui::BeginChild("Right panel", ImVec2(0, 0), ImGuiWindowFlags_HorizontalScrollbar);
+
+	//Dropped on assetbrowser
+	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)) std::cout << "Test\n";
+	if (ImGui::IsWindowHovered() && !ImGui::IsMouseDragging(0)) std::cout << "Ur hovering over the assetbrowser!\n";
+	ImGui::GetIO();
+	if (draggingNode != nullptr && ImGui::IsWindowHovered())
+	{
+		PrefabFileItem* prefab = new PrefabFileItem();
+		prefab->init((*draggingNode->getData())["name"],itemManager->currentFolder,"prefab");
+	}
+
+
 	// Right click popup (opens asset creation window)
 	if (ImGui::BeginPopupContextWindow("Asset creation menu")) {
 
@@ -75,21 +93,28 @@ void AssetBrowser::onGui()
 			if (ImGui::Button("Create folder") || ImGui::IsKeyPressed(GLFW_KEY_ENTER,false))
 			{
 				FolderItem* folder = new FolderItem();
-				folder->createItem(createdItemName, itemManager->currentFolder); //Create both folder and meta data
+				folder->init(createdItemName, itemManager->currentFolder); //Create both folder and meta data
 				//Set parenting and child relations
 				folder->parent = itemManager->currentFolder;
 				itemManager->currentFolder->children.push_back(folder);
 				itemManager->currentFolder->fileItems.push_back(folder);
 				ImGui::CloseCurrentPopup();
 			}
-			if (ImGui::Button("Create scene") || ImGui::IsKeyPressed(GLFW_KEY_ENTER,false))
+			if (ImGui::Button("Create scene"))
 			{
 				//Create a scene file
 				SceneFileItem* sceneFile = new SceneFileItem();
-				sceneFile->createItem(createdItemName,itemManager->currentFolder,"scene"); //Create meta data
+				sceneFile->init(createdItemName,itemManager->currentFolder,"scene"); //Create meta data
 				Scenes::Scene createdScene = Scenes::Scene(); //Create empty scene
-				sceneFile->createSceneFile(createdScene); //Create create the scene file
+				sceneFile->createFile(createdScene.serialize()); //Create create the scene file
 				ImGui::CloseCurrentPopup();
+			}
+			if (ImGui::Button("Create material"))
+			{
+				MaterialFileItem* materialFile = new MaterialFileItem();
+				materialFile->init(createdItemName, itemManager->currentFolder, "mat");
+				Core::Rendering::Material material;
+				materialFile->createFile(material.serialize());
 			}
 		}
 		else std::cout << "Can't create items with more than 24 characters\n";

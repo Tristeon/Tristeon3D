@@ -31,7 +31,7 @@ void FileItemManager::drawFileItems()
 
 		//Load file item UI
 		bool selectablePressed = ImGui::Selectable(fileItem->name.c_str(), highlightedFileItems[i], 0, iconSize);
-		if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) EditorDragging::setDragableItem(fileItem);
+		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) EditorDragging::setDragableItem(fileItem);
 
 		//When delete is pressed
 		if (highlightedFileItems[i] && ImGui::IsKeyPressed(GLFW_KEY_DELETE, false))

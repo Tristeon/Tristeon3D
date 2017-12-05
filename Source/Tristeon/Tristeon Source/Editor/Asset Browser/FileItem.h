@@ -17,13 +17,13 @@ namespace Tristeon
 		public:
 			
 			/**
-			 * \brief Create item is responsible for creating the parent relationships of the folder it is in,
+			 * \brief initialization is responsible for creating the parent relationships of the folder it is in,
 			 * creating the metadata and setting file information (eg. name, extension).
 			 * \param name The name of the file
 			 * \param folder The folder the file is contained in
 			 * \param extension The file extension of the file
 			 */
-			virtual void createItem(std::string name, FolderItem* folder, std::string extension = "") = 0;
+			virtual void init(std::string name, FolderItem* folder, std::string extension = "") = 0;
 			/**
 			 * \brief Moves the file to a new filepath
 			 */

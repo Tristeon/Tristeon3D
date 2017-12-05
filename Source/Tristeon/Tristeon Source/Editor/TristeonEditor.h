@@ -69,9 +69,9 @@ namespace Tristeon
 			vk::Device vkDevice;
 
 			//Ref
-			std::unique_ptr<Core::Engine> engine = nullptr;
+			Core::Engine* engine;
 
-			std::unique_ptr<Core::Rendering::Vulkan::EditorData> editorCamera;
+			Core::Rendering::Vulkan::EditorData* editorCamera;
 
 			bool inPlayMode = false;
 		};

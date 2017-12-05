@@ -31,7 +31,7 @@ FolderItem::~FolderItem()
 		delete children[i];
 }
 
-void FolderItem::createItem(string name, FolderItem* folder, string extension)
+void FolderItem::init(string name, FolderItem* folder, string extension)
 {
 	//Set filepath
 	string filePath = folder->filepath+folder->name+"/";
@@ -77,9 +77,9 @@ void FolderItem::createMetaData(const string& filepath)
 	//Get the filename by getting the last file in the filepath (Also has file extension)
 	string filename = splitString[splitString.size() - 1];
 	if (itemMetaData->isFolder)
-		itemMetaData->createItem(filename, this);
+		itemMetaData->init(filename, this);
 	else
-		itemMetaData->createItem(StringUtils::split(filename, '.')[0] /*Get the name without extension*/, this,
+		itemMetaData->init(StringUtils::split(filename, '.')[0] /*Get the name without extension*/, this,
 			StringUtils::split(filename, '.')[1]/*Get only the extension*/);
 }
 
@@ -252,7 +252,7 @@ void FolderItem::move(FolderItem* destination)
 		string oldFilepath = filepath;
 
 		//Create new folder
-		createItem(name,destination);
+		init(name,destination);
 
 		//Move children
 		for (FileItem* childItem : fileItems)

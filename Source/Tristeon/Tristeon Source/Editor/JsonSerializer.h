@@ -10,27 +10,32 @@ public:
 	 * \param obj the object that is turned into json
 	 */
 	template <typename T> static void serialize(const std::string& path, T& obj);
+	template <> static void serialize(const std::string& path, nlohmann::json& obj);
 	/**
 	 * \brief Create an instance with type T using the given filepath
 	 */
 	template <typename T> static T* deserialize(const std::string& path);
 };
 
-template <typename T>
-void JsonSerializer::serialize(const std::string& path, T& obj)
+template <>
+void JsonSerializer::serialize<nlohmann::basic_json<>>(const std::string& path, nlohmann::json& obj)
 {
-	//Convert the object instance to json data
-	nlohmann::json output = obj.serialize();
-
 	//check if there is anything serialized
-	if (output.is_null()) {
+	if (obj.is_null()) {
 		throw std::invalid_argument("The passed object cannot be serialized");
 	}
 
 	//Write to file
 	std::ofstream stream;
 	stream.open(path, std::fstream::out);
-	stream << output;
+	stream << obj;
+}
+
+template <typename T>
+void JsonSerializer::serialize(const std::string& path, T& obj)
+{
+	//Convert the object instance to json data
+	JsonSerializer::serialize(path,obj.serialize());
 }
 
 template <typename T>

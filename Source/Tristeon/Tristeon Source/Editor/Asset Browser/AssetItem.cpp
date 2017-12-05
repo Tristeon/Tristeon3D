@@ -41,7 +41,7 @@ void AssetItem::deserialize(nlohmann::json json)
 	extension = extensionValue;
 }
 
-void AssetItem::createItem(std::string name, FolderItem* folder, std::string extension)
+void AssetItem::init(std::string name, FolderItem* folder, std::string extension)
 {
 	//Set filepath
 	std::string filePath = folder->filepath + folder->name + "/";
@@ -74,6 +74,11 @@ void AssetItem::createItem(std::string name, FolderItem* folder, std::string ext
 	JsonSerializer::serialize(filepath + name + "." + extension + ".meta", *this);
 }
 
+void AssetItem::createFile(nlohmann::json json)
+{
+	JsonSerializer::serialize(filepath + name + "." + extension, json);
+}
+
 void AssetItem::move(FolderItem* destination)
 {
 	std::string destinationFilepath = destination->filepath + destination->name + "/" + name + "." + extension;
@@ -99,7 +104,7 @@ void AssetItem::move(FolderItem* destination)
 	fs::remove(p1 + ".meta");
 
 	//Create new fileitem metadata
-	createItem(name, destination, extension);
+	init(name, destination, extension);
 }
 
 void AssetItem::removeFile()
