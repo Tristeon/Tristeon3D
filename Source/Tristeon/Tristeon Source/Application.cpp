@@ -6,21 +6,21 @@ namespace Tristeon
 	{
 		//Cleanup
 #ifdef EDITOR
-		delete editor;
+		editor.reset();
 #endif
-		delete engine;
+		engine.reset();
 	}
 
 	void Application::init()
 	{
 		//Init engine
-		engine = new Core::Engine();
+		engine = std::make_unique<Core::Engine>();
 		engine->init();
 
 		//Init editor
 #ifdef EDITOR
-		editor = new Editor::TristeonEditor();
-		editor->init(engine);
+		editor = std::make_unique<Editor::TristeonEditor>();
+		editor->init(engine.get());
 #endif
 		engine->run();
 

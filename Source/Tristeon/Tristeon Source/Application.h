@@ -27,13 +27,13 @@ namespace Tristeon
 		/**
 		 * \brief The main engine class
 		 */
-		Core::Engine* engine = nullptr;
+		std::unique_ptr<Core::Engine> engine = nullptr;
 
 #ifdef EDITOR
 		/**
 		 * \brief The editor
 		 */
-		Editor::TristeonEditor* editor = nullptr;
+		std::unique_ptr<Editor::TristeonEditor> editor = nullptr;
 #endif
 	};
 }

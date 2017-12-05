@@ -26,7 +26,7 @@ namespace Tristeon
 			* \param folder The folder the folder is contained in
 			* \param extension There is no implementation of extension in the folderitem class
 			*/
-			void createItem(std::string name, FolderItem* folder, std::string extension = "") override;
+			void init(std::string name, FolderItem* folder, std::string extension = "") override;
 
 			bool setupDone = false;
 

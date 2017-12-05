@@ -2,12 +2,13 @@
 #include "Selectable.h"
 #include "json.hpp"
 #include "Core/GameObject.h"
+#include "Draggable.h"
 
 namespace Tristeon
 {
 	namespace Editor
 	{
-		class EditorNode : public Selectable
+		class EditorNode : public Selectable, public Draggable
 		{
 			friend class EditorSelection;
 		public:

@@ -4,6 +4,7 @@
 #include "Editor/EditorSelection.h"
 #include <GLFW/glfw3.h>
 #include "Scenes/SceneManager.h"
+#include "Editor/EditorDragging.h"
 
 using namespace Tristeon::Editor;
 
@@ -53,14 +54,17 @@ void GameObjectHierarchy::drawNode(EditorNode* node)
 		EditorSelection::setSelectedItem(node);
 		selectedNode = node;
 	}
-	//Is the item active and is the mouse dragging?
-	if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0)) draggingNode = node;
+	//Is the item hovered and is the mouse dragging?
+	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0,false)) EditorDragging::setDragableItem(node);
 
-	//Dropped dragging node
+	//Check if a dragging node is being dropped
+	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
 	bool isHovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 	bool isMouseReleased = ImGui::IsMouseReleased(0);
 	bool hasChild = false;
 	if (draggingNode != nullptr) hasChild = draggingNode->hasChild(node);
+
+	//If dragging node is not null and the it is hovered above the last UI element it
 	if (draggingNode != nullptr && draggingNode != node && !hasChild && isHovered && isMouseReleased)
 	{
 		if (draggingNode->parent == nullptr)
@@ -143,18 +147,13 @@ void GameObjectHierarchy::onGui()
 		ImGui::EndPopup();
 	}
 
-	//TODO: use global dragging for this
-	//Reset drag item
-	if (!ImGui::IsMouseReleased(0) && !ImGui::IsMouseDragging(0)) draggingNode = nullptr; //don't reset on mouse release because that's when the drop is checked
-
 	//Draw nodes
 	for (int i = 0; i < editorNodeTree.nodes.size(); i++)
 	{
 		drawNode(editorNodeTree.nodes[i]);
 	}
 
-	if (draggingNode != nullptr) std::cout << "Dragging node: " << (*draggingNode->getData())["name"] << std::endl;
-
+	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
 	//Drop dragged item outside of any gameobject, removing the parental bond
 	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
 	{

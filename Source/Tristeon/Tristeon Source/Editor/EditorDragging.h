@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <iostream>
 
 namespace Tristeon
 {
@@ -16,13 +17,37 @@ namespace Tristeon
 			/**
 			* \param draggingItem The item to be set as the dragable item
 			*/
-			static void setDragableItem(Draggable* draggingItem) { EditorDragging::draggingItem = draggingItem; }
+			static void setDragableItem(Draggable* draggingItem)
+			{
+				std::cout << "Set new draggable item\n";
+				EditorDragging::draggingItem = draggingItem;
+			}
 			/**
 			 * \brief sets the currently dragging item to equal nullptr
 			 */
-			static void reset() { draggingItem = nullptr; }
+			static void reset()
+			{
+				std::cout << "Reset dragging\n";
+				if (shouldReset)
+				{
+					draggingItem = nullptr;
+					shouldReset = false;
+				}
+				shouldReset = true;
+			}
+
+			template <typename T> static bool isDragging();
+
 		private:
 			static Draggable* draggingItem;
+			static bool shouldReset;
 		};
+
+		template <typename T>
+		bool EditorDragging::isDragging()
+		{
+			return dynamic_cast<T*>(draggingItem) == nullptr;
+
+		}
 	}
 }

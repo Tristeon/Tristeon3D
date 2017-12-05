@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "AssetItem.h"
+#include "Core/Rendering/Material.h"
 
 namespace Tristeon
 {
