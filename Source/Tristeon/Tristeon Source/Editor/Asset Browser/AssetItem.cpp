@@ -118,3 +118,8 @@ void AssetItem::onDoubleClick()
 {
 	//Do nothing
 }
+
+std::string AssetItem::getFilePath() const
+{
+	return filepath + name + "." + extension;
+}
