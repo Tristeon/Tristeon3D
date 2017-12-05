@@ -2,6 +2,7 @@
 #include <glfw/glfw3.h>
 #include "Keyboard.h"
 #include "../../../ImGUI/imgui_impl_glfw_vulkan.h"
+#include "Data/Image.h"
 
 namespace Tristeon
 {
@@ -22,6 +23,8 @@ namespace Tristeon
 		Math::Vector2 Mouse::position;
 		Math::Vector2 Mouse::deltaPos;
 		Math::Vector2 Mouse::scroll;
+
+		GLFWwindow* Mouse::window = nullptr;
 
 		bool Mouse::getButtonDown(MouseButton button)
 		{
@@ -56,6 +59,29 @@ namespace Tristeon
 		Math::Vector2 Mouse::getScroll()
 		{
 			return scroll;
+		}
+
+		void Mouse::setCursorImage(Data::Image image, int xHot, int yHot)
+		{
+			GLFWimage i;
+			i.width = image.getWidth();
+			i.height = image.getHeight();
+			i.pixels = image.getPixels();;
+			//Remaining cursors get destroyed on glfwTerminate()
+			//TODO: Cache cursors to reduce load time
+			GLFWcursor* cursor = glfwCreateCursor(&i, xHot, yHot);
+			glfwSetCursor(window, cursor);
+			image.freePixels(i.pixels);
+		}
+
+		void Mouse::setCursorDefault(CursorShape shape)
+		{
+			glfwSetCursor(window, glfwCreateStandardCursor(shape));
+		}
+
+		void Mouse::setCursorMode(CursorMode mode)
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, mode);
 		}
 
 		void Mouse::reset()
