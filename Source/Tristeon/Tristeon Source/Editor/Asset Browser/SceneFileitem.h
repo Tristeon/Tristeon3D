@@ -19,10 +19,18 @@ namespace Tristeon
 		public:
 			SceneFileItem();
 
+			void createFile(nlohmann::json json) override;
+
 			/**
 			 * \brief The event that is called when a fileitem in the assetbrowser is double clicked
 			 */
 			void onDoubleClick() override;
+
+			void removeFile() override;
+
+			nlohmann::json serialize() override;
+
+			void deserialize(nlohmann::json json) override;
 
 			REGISTER_TYPE_H(SceneFileItem)
 		};

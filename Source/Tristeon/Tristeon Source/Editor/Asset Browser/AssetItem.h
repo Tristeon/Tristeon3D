@@ -11,7 +11,7 @@ namespace Tristeon
 		/**
 		 * \brief An assetitem is any file that can be shown by the editor which is not a folder
 		 */
-		class AssetItem : public FileItem, public Selectable, public Draggable
+		class AssetItem : public FileItem, public Selectable
 		{
 		public:
 			AssetItem();
@@ -33,7 +33,7 @@ namespace Tristeon
 			 * \brief Creates the actual file, must be called after init
 			 * \param json The serialized data to create the file with
 			 */
-			void createFile(nlohmann::json json);
+			virtual void createFile(nlohmann::json json);
 
 			/**
 			* \brief Moves the file to a new filepath

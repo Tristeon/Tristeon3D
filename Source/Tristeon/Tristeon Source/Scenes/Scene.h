@@ -10,22 +10,28 @@ namespace Tristeon
 	{
 		class Scene final : public Core::TObject
 		{
-			friend Core::GameObject;
+			friend SceneManager;
 		public:
 			Scene();
 			~Scene() override;
 			void init();
 
-			std::vector<std::shared_ptr<Core::GameObject>> gameObjects;
+			void addGameObject(Core::GameObject* gameObj);
+
+			void removeGameObject(Core::GameObject* gameObj);
+
+			Core::GameObject* getGameObject(int instanceID);
 
 			nlohmann::json serialize() override;
 
 			void deserialize(nlohmann::json json) override;
 
 			//The counter that keeps track of the amount of instances that have been created
-			int instanceCount;
+			int instanceCount = 0;
 		private:
-			REGISTER_TYPE_H(Scene)
+			//Scene(const Scene& scene) {} //The class should not be allowed to be copied
+			std::vector<std::unique_ptr<Tristeon::Core::GameObject>> gameObjects;
+			static DerivedRegister<Scene> reg;
 		};
 	}
 }

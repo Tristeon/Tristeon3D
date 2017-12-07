@@ -12,7 +12,7 @@ namespace Tristeon
 		{
 			friend class EditorSelection;
 		public:
-			explicit EditorNode(std::shared_ptr<Core::GameObject> gameObj);
+			explicit EditorNode(Core::GameObject* gameObj);
 			~EditorNode() override;
 
 			/**
@@ -44,13 +44,16 @@ namespace Tristeon
 			 * \brief Unique typeid of the connectedGameObject
 			 */
 			std::string typeID;
+			/**
+			 * \brief Parent node
+			 */
 			EditorNode* parent = nullptr;
 			std::vector<EditorNode*> children;
 		private:
 			/**
 			 * \brief The gameobject the editornode is bound to
 			 */
-			std::shared_ptr<Core::GameObject> connectedGameObject;
+			Core::GameObject* connectedGameObject;
 			/**
 			 * \brief The serialized data of the connectedGameObject
 			 */

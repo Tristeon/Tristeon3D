@@ -11,6 +11,7 @@ namespace Tristeon
 		 */
 		class TObject : public Serializable
 		{
+			friend class GameObject;
 		public:
 			/**
 			 * \brief The name of the Object

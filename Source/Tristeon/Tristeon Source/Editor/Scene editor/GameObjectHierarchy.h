@@ -24,7 +24,7 @@ namespace Tristeon
 			/**
 			 * \brief Loads the scene into the editor
 			 */
-			void loadScene(Scenes::Scene scene);
+			void loadScene(Scenes::Scene& scene);
 
 			/**
 			* \brief onGUI is called for rendering and handling GUI events.

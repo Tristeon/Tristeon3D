@@ -56,7 +56,8 @@ namespace Tristeon
 		void GameObject::deserialize(nlohmann::json json)
 		{
 			//Read gameobject data from json
-			if (json["active"].is_boolean()) active = json["active"];
+			instanceID = json["instanceID"];
+			active = json["active"];
 			const std::string nameValue = json["name"];
 			name = nameValue;
 			const std::string tagValue = json["tag"];

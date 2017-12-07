@@ -69,7 +69,7 @@ void FileItemManager::drawFileItems()
 		}
 
 		//When selectable is double clicked
-		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && ImGui::IsMouseDoubleClicked(0))
 		{
 			//What kind of item has been double clicked?
 			if (fileItem->isFolder) setView((FolderItem*)fileItem);
