@@ -3,7 +3,7 @@
 using namespace Tristeon::Editor;
 
 
-EditorNode::EditorNode(std::shared_ptr<Tristeon::Core::GameObject> gameObj)
+EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj)
 {
 	connectedGameObject = gameObj;
 }

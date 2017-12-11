@@ -85,9 +85,12 @@ void GameObjectHierarchy::drawNode(EditorNode* node)
 	}
 }
 
-void GameObjectHierarchy::loadScene(Tristeon::Scenes::Scene scene)
+void GameObjectHierarchy::loadScene(Tristeon::Scenes::Scene& scene)
 {
+	//Load all gameobjects to the gameobject hierarchy
 	editorNodeTree.load(scene.serialize()["gameObjects"]);
+	//Create parent relationships
+	editorNodeTree.createParentalBonds();
 }
 
 void GameObjectHierarchy::onGui()
@@ -99,8 +102,8 @@ void GameObjectHierarchy::onGui()
 	//Temporary Test code
 	if (ImGui::IsKeyPressed(GLFW_KEY_T, false) && ImGui::IsWindowHovered())
 	{
-		std::shared_ptr<Core::GameObject> gameObject = std::make_shared<Core::GameObject>();
-		Scenes::SceneManager::getActiveScene()->gameObjects.push_back(gameObject);
+		Core::GameObject* gameObject = new Core::GameObject();
+		Scenes::SceneManager::getActiveScene()->addGameObject(gameObject);
 		EditorNode* createdNode = new EditorNode(gameObject);
 		gameObject->name = "Test";
 		gameObject->tag = "Just a tag";
@@ -125,8 +128,8 @@ void GameObjectHierarchy::onGui()
 		if (ImGui::Button("Create gameobject") || ImGui::IsKeyPressed(257, false))
 		{
 			//Add a new gameobject to the current scene
-			std::shared_ptr<Core::GameObject> gameObject = std::make_shared<Core::GameObject>();
-			Scenes::SceneManager::getActiveScene()->gameObjects.push_back(gameObject);
+			Core::GameObject* gameObject = new Core::GameObject();
+			Scenes::SceneManager::getActiveScene()->addGameObject(gameObject);
 
 			//Load gameobject into an editorNode
 			EditorNode* createdNode = new EditorNode(gameObject);
@@ -139,7 +142,7 @@ void GameObjectHierarchy::onGui()
 				createdNode->parent = selectedNode;
 				selectedNode->children.push_back(createdNode);
 			}
-			else editorNodeTree.nodes.push_back(createdNode);
+			editorNodeTree.nodes.push_back(createdNode);
 			selectedNode = createdNode;
 			EditorSelection::setSelectedItem(createdNode);
 			ImGui::CloseCurrentPopup();
@@ -150,7 +153,7 @@ void GameObjectHierarchy::onGui()
 	//Draw nodes
 	for (int i = 0; i < editorNodeTree.nodes.size(); i++)
 	{
-		drawNode(editorNodeTree.nodes[i]);
+		if (editorNodeTree.nodes[i]->parent == nullptr) drawNode(editorNodeTree.nodes[i]);
 	}
 
 	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
@@ -158,7 +161,6 @@ void GameObjectHierarchy::onGui()
 	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
 	{
 		draggingNode->move(nullptr);
-		editorNodeTree.nodes.push_back(draggingNode);
 		draggingNode = nullptr;
 	}
 
@@ -168,7 +170,7 @@ void GameObjectHierarchy::onGui()
 void GameObjectHierarchy::checkSceneChanges()
 {
 	if (currentScene == nullptr || currentScene == NULL) currentScene = Scenes::SceneManager::getActiveScene();
-	else if (currentScene != Scenes::SceneManager::getActiveScene())
+	else if (currentScene != nullptr && currentScene != Scenes::SceneManager::getActiveScene())
 	{
 		loadScene(*Scenes::SceneManager::getActiveScene());
 		currentScene = Scenes::SceneManager::getActiveScene();

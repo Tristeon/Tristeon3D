@@ -18,13 +18,10 @@ void EditorNodeTree::load(nlohmann::json nodeTree)
 		for (auto iterator = nodeTree.begin(); iterator != nodeTree.end(); ++iterator)
 		{
 			//TODO: implement a faster implementation for loading scenes, this could be very performant intensive in big scenes.
+			// Which is in reference to looking up gameObject by instanceID
 			Scenes::Scene* scene = Scenes::SceneManager::getActiveScene();
 			int instanceID = iterator->get<nlohmann::json>()["instanceID"];
-			std::shared_ptr<Tristeon::Core::GameObject> foundGameObject;
-			for (std::shared_ptr<Core::GameObject> gameObject : scene->gameObjects)
-			{
-				if (gameObject->getInstanceID() == instanceID) foundGameObject = gameObject;
-			}
+			Core::GameObject* foundGameObject = scene->getGameObject(instanceID);
 
 			EditorNode* node = new EditorNode(foundGameObject);
 			node->load(iterator->get<nlohmann::json>());
@@ -44,4 +41,27 @@ nlohmann::json EditorNodeTree::getData()
 		output.push_back(*node->getData());
 	}
 	return output;
+}
+
+EditorNode* EditorNodeTree::findNodeWithInstanceID(int nodeInstanceID)
+{
+	for (int i = 0; i < nodes.size(); ++i)
+	{
+		//When correct instanceID is found
+		if ((*nodes[i]->getData())["instanceID"] == nodeInstanceID)
+			return nodes[i];
+	}
+	throw std::exception("InstanceID couldn't be found");
+}
+
+void EditorNodeTree::createParentalBonds()
+{
+	for (int i = 0; i < nodes.size(); ++i)
+	{
+		const int nodeInstanceID = (*nodes[i]->getData())["instanceID"];
+		if (nodeInstanceID != -1)
+		{
+			nodes[i]->parent = findNodeWithInstanceID(nodeInstanceID);
+		}
+	}
 }

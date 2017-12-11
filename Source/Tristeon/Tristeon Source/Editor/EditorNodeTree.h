@@ -15,6 +15,8 @@ namespace Tristeon
 			std::vector<EditorNode*> nodes;
 			void load(nlohmann::json nodeTree);
 			nlohmann::json getData();
+			EditorNode* findNodeWithInstanceID(int nodeInstanceID);
+			void createParentalBonds();
 		};
 	}
 }

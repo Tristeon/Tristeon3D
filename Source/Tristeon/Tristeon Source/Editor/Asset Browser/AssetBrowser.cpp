@@ -45,7 +45,6 @@ void AssetBrowser::onGui()
 		if (Scenes::SceneManager::getActiveScene() != nullptr) {
 			Scenes::Scene* currentScene = Scenes::SceneManager::getActiveScene();
 			std::cout << "Saving scene: " << currentScene->name << std::endl;
-			std::cout << "First gameObject name: " << currentScene->gameObjects[0]->name << std::endl;
 			if (itemManager->currentlyLoadedSceneFile != nullptr)
 				itemManager->currentlyLoadedSceneFile->createFile(currentScene->serialize());
 			else
@@ -105,6 +104,7 @@ void AssetBrowser::onGui()
 				SceneFileItem* sceneFile = new SceneFileItem();
 				sceneFile->init(createdItemName,itemManager->currentFolder,"scene"); //Create meta data
 				Scenes::Scene createdScene = Scenes::Scene(); //Create empty scene
+				createdScene.name = createdItemName;
 				sceneFile->createFile(createdScene.serialize()); //Create create the scene file
 				ImGui::CloseCurrentPopup();
 			}

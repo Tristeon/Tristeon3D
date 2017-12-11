@@ -12,11 +12,42 @@ SceneFileItem::SceneFileItem()
 {
 }
 
+void SceneFileItem::createFile(nlohmann::json json)
+{
+	AssetItem::createFile(json);
+	Scenes::SceneManager::addScenePath(name,getFilePath());
+}
+
 void SceneFileItem::onDoubleClick()
 {
 	std::cout << "Loading scene: " << name << std::endl;
-	std::string sceneFilePath = filepath + name + "." + extension;
-	auto scene = JsonSerializer::deserialize<Scenes::Scene>(sceneFilePath);
-	//Can't pass the shared_ptr's pointer because the shared_ptr will delete the value. So it must copied to relieve ownership
-	Scenes::SceneManager::loadScene(scene);
+	Scenes::SceneManager::loadScene(name);
+}
+
+void SceneFileItem::removeFile()
+{
+	AssetItem::removeFile();
+	Scenes::SceneManager::removeScenePath(name);
+}
+
+nlohmann::json SceneFileItem::serialize()
+{
+	nlohmann::json output;
+	output["typeID"] = typeid(SceneFileItem).name();
+	output["isFolder"] = isFolder;
+	output["filepath"] = filepath;
+	output["name"] = name;
+	output["extension"] = extension;
+	return output;
+}
+
+void SceneFileItem::deserialize(nlohmann::json json)
+{
+	isFolder = json["isFolder"];
+	const std::string filepathValue = json["filepath"];
+	filepath = filepathValue;
+	const std::string nameValue = json["name"];
+	name = nameValue;
+	const std::string extensionValue = json["extension"];
+	extension = extensionValue;
 }

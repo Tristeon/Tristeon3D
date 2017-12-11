@@ -13,9 +13,9 @@ namespace Tristeon
 		Scene::~Scene()
 		{
 			//Force reset just to be sure
-			for(auto go : gameObjects)
+			for(int i = 0; i < gameObjects.size(); i++)
 			{
-				go.reset();
+				gameObjects[i].reset();
 			}
 			gameObjects.clear();
 		}
@@ -32,9 +32,9 @@ namespace Tristeon
 			output["typeID"] = typeid(Scene).name();
 			output["name"] = name;
 			nlohmann::json jsonArray = nlohmann::json::array();
-			for (auto gameObject : gameObjects)
+			for (int i = 0; i < gameObjects.size(); i++)
 			{
-				jsonArray.push_back(gameObject->serialize());
+				jsonArray.push_back(gameObjects[i]->serialize());
 			}
 			output["gameObjects"] = jsonArray;
 			return output;
@@ -47,9 +47,9 @@ namespace Tristeon
 			{
 				for (auto iterator = gameObjectData.begin(); iterator != gameObjectData.end(); ++iterator)
 				{
-					std::shared_ptr<Core::GameObject> gameObject = std::make_shared<Core::GameObject>();
+					std::unique_ptr<Core::GameObject> gameObject = std::make_unique<Core::GameObject>();
 					gameObject->deserialize(iterator->get<nlohmann::json>());
-					gameObjects.push_back(gameObject);
+					gameObjects.push_back(std::move(gameObject));
 				}
 			} else
 			{
@@ -57,6 +57,33 @@ namespace Tristeon
 			}
 			const std::string nameValue = json["name"];
 			name = nameValue;
+		}
+
+		void Scene::addGameObject(Core::GameObject* gameObj)
+		{
+			gameObjects.push_back(std::move(std::unique_ptr<Core::GameObject>(gameObj)));
+			instanceCount++;
+			nlohmann::json json = gameObj->serialize();
+			json["instanceID"] = instanceCount;
+			gameObj->deserialize(json);
+		}
+
+		void Scene::removeGameObject(Core::GameObject* gameObj)
+		{
+			for (int i = 0; i < gameObjects.size(); ++i)
+			{
+				if (gameObjects[i].get() == gameObj) { gameObjects.erase(gameObjects.begin() + i); }
+			}
+		}
+
+		Core::GameObject* Scene::getGameObject(int instanceID)
+		{
+			for (int i = 0; i < gameObjects.size(); ++i)
+			{
+				if (gameObjects[i]->getInstanceID() == instanceID) return gameObjects[i].get();
+			}
+			std::cout << "Couldn't find gameObject\n";
+			return nullptr;
 		}
 	}
 }

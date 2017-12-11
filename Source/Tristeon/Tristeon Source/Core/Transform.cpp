@@ -61,6 +61,7 @@ namespace Tristeon
 		{
 			nlohmann::json output;
 			output["typeID"] = typeid(Transform).name();
+			output["parentID"] = parent == nullptr ? -1 : parent->getInstanceID();
 			output["localPosition"] = _localPosition.serialize();
 			output["localScale"] = _localScale.serialize();
 			output["localRotation"] = _localRotation.eulerAngles().serialize();
