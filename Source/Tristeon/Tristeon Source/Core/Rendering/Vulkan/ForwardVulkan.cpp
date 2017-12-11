@@ -136,7 +136,7 @@ namespace Tristeon
 					std::vector<vk::CommandBuffer> buffers;
 					int const index = vkRenderManager->index;
 
-					//Get data
+					//Store renderdata, used by render objects
 					vk::CommandBufferInheritanceInfo const inheritance = vk::CommandBufferInheritanceInfo(vkRenderManager->swapchain->renderpass, 0, fb); //ignore query
 					RenderData data;
 					data.inheritance = inheritance;
@@ -148,19 +148,18 @@ namespace Tristeon
 					//Only draw cameras in playmode
 					if (vkRenderManager->inPlayMode)
 					{
-						//Draw cameras
+						//Draw every camera
 						for (auto const p : vkRenderManager->cameraData)
 						{
-							CameraRenderData* d = p.second;
-
-							d->onscreen.secondary.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue, &inheritance));
-							d->onscreen.secondary.setViewport(0, 1, &data.viewport);
-							d->onscreen.secondary.setScissor(0, 1, &data.scissor);
-							d->onscreen.secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, vkRenderManager->onscreenPipeline->getPipeline());
-							d->onscreen.secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, vkRenderManager->onscreenPipeline->getPipelineLayout(), 0, 1, &d->onscreen.set, 0, nullptr);
-							d->onscreen.secondary.draw(3, 1, 0, 0);
-							d->onscreen.secondary.end();
-							buffers.push_back(d->onscreen.secondary);
+							vk::CommandBuffer b = p.second->onscreen.secondary;
+							b.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue, &inheritance));
+							b.setViewport(0, 1, &data.viewport);
+							b.setScissor(0, 1, &data.scissor);
+							b.bindPipeline(vk::PipelineBindPoint::eGraphics, vkRenderManager->onscreenPipeline->getPipeline());
+							b.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, vkRenderManager->onscreenPipeline->getPipelineLayout(), 0, p.second->onscreen.sets.size(), p.second->onscreen.sets.data(), 0, nullptr);
+							b.draw(3, 1, 0, 0);
+							b.end();
+							buffers.push_back(b);
 						}
 					}
 
@@ -174,11 +173,11 @@ namespace Tristeon
 							buffers.push_back(data.lastUsedSecondaryBuffer);
 					}
 
-					//Execute
+					//Execute secondary buffers (all renderable objects)
 					if (buffers.size() != 0)
 						primary.executeCommands(buffers.size(), buffers.data());
 
-					//End
+					//End the primary renderpass
 					primary.endRenderPass();
 					primary.end();
 				}

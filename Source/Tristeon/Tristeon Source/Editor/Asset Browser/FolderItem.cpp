@@ -1,6 +1,5 @@
 ﻿#include "FolderItem.h"
 #include "FileItemManager.h"
-#include <windows.h>
 #include <filesystem>
 #include "AssetItem.h"
 #include "Editor/JsonSerializer.h"

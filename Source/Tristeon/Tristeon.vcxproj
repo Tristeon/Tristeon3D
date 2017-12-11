@@ -210,7 +210,7 @@
       <PreprocessorDefinitions>LOGDEBUG;EDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>assimp_x64_debug.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;glfw3_x86_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp_x64_debug.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;spirv/spirv-cross-core_debug.lib;spirv/spirv-cross-cpp_debug.lib;spirv/spirv-cross-glsl_debug.lib;spirv/spirv-cross-hlsl_debug.lib;spirv/spirv-cross-msl_debug.lib;glfw3_x86_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -232,7 +232,7 @@
       <PreprocessorDefinitions>LOGDEBUG;EDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>assimp_x64_debug.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;glfw3_x64_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp_x64_debug.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;spirv/spirv-cross-core_debug.lib;spirv/spirv-cross-cpp_debug.lib;spirv/spirv-cross-glsl_debug.lib;spirv/spirv-cross-hlsl_debug.lib;spirv/spirv-cross-msl_debug.lib;glfw3_x64_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -326,16 +326,19 @@
   <ItemGroup>
     <ClCompile Include="ImGUI\Plugins\ImGuizmo.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\DebugDrawManager.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Material.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\DebugDrawManagerVulkan.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\CameraRenderData.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanCore.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFrame.cpp" />
+    <ClCompile Include="Tristeon Source\Data\ImageBatch.cpp" />
     <ClCompile Include="Tristeon Source\Data\MeshBatch.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\MeshFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\SceneFileitem.cpp" />
+    <ClCompile Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\DiffUtil.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorDragging.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorImage.cpp" />
@@ -420,11 +423,13 @@
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanCore.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFrame.h" />
+    <ClInclude Include="Tristeon Source\Data\ImageBatch.h" />
     <ClInclude Include="Tristeon Source\Data\MeshBatch.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\MeshFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\SceneFileitem.h" />
+    <ClInclude Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\DiffUtil.h" />
     <ClInclude Include="Tristeon Source\Editor\Draggable.h" />
     <ClInclude Include="Tristeon Source\Editor\EditorDragging.h" />

@@ -93,7 +93,7 @@ namespace Tristeon
 			if (parent == nullptr)
 				return _localPosition;
 			else
-				return Vec_Convert(getTransformationMatrix()[3]);
+				return Vec_Convert3(getTransformationMatrix()[3]);
 		}
 
 		void Transform::setGlobalPosition(Math::Vector3 pos)
@@ -120,7 +120,7 @@ namespace Tristeon
 			glm::vec4 perspective;
 			decompose(trans, scale, rotation, translation, skew, perspective);
 
-			return Vec_Convert(scale);
+			return Vec_Convert3(scale);
 		}
 
 		void Transform::setGlobalScale(Math::Vector3 scale)
@@ -208,9 +208,9 @@ namespace Tristeon
 				p *= parent->getTransformationMatrix();
 
 			//Get transformation
-			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert(position));
+			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert3(position));
 			glm::mat4 const r = glm::mat4(rotation.getGLMQuat());
-			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert(scale));
+			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert3(scale));
 
 			//Apply and return
 			return t * r * s * p;

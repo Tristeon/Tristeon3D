@@ -20,6 +20,7 @@
 #include "HelperClasses/EditorGrid.h"
 #include "HelperClasses/CameraRenderData.h"
 #include "MaterialVulkan.h"
+#include <Core/Rendering/Material.h>
 
 //RenderTechniques
 #include "ForwardVulkan.h"
@@ -110,17 +111,21 @@ namespace Tristeon
 
 				Pipeline* RenderManager::getPipeline(ShaderFile file)
 				{
-					Vulkan::RenderManager* rm = (Vulkan::RenderManager*)instance;
+					RenderManager* rm = (RenderManager*)instance;
 
 					for (Pipeline* p : rm->pipelines)
-					{
 						if (p->getShaderFile().getNameID() == file.getNameID())
 						{
 							return p;
 						}
+
+					if (!Pipeline::validate(file))
+					{
+						Console::warning("ShaderFile [" + file.getNameID() + "] is invalid!");
+						return nullptr;
 					}
 				
-					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass);
+					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass, file.getProperties());
 					rm->pipelines.push_back(p);
 					return p;
 				}
@@ -172,22 +177,22 @@ namespace Tristeon
 					delete editor.cam;
 					delete grid;
 #endif
-
-					//DescriptorPool
-					d.destroyDescriptorPool(descriptorPool);
-
 					//Semaphores
 					d.destroySemaphore(imageAvailable);
 					d.destroySemaphore(renderFinished);
 
-					//Commandpool
-					d.destroyCommandPool(commandPool);
 
 					//Materials
 					for (auto m : materials) delete m.second;
 					for (Pipeline* p : pipelines) delete p;
 					delete onscreenPipeline;
 					
+					//DescriptorPool
+					d.destroyDescriptorPool(descriptorPool);
+					
+					//Commandpool
+					d.destroyCommandPool(commandPool);
+
 					//Core
 					delete swapchain;
 					delete vulkan;
@@ -220,13 +225,6 @@ namespace Tristeon
 					prepareOffscreenPass();
 					prepareOnscreenPipeline();
 
-					//Create a pipeline for each shader
-					for (int i = 0; i < shaderFiles.size(); i++)
-						pipelines.push_back(new Pipeline(dynamic_cast<VulkanBindingData*>(bindingData), shaderFiles[i], swapchain->extent2D, offscreenPass));
-					
-					//Loads in all the materials in the project
-					setupMaterials();
-
 					//Create main screen framebuffers
 					swapchain->createFramebuffers();
 
@@ -235,10 +233,7 @@ namespace Tristeon
 
 					//Initialize textures and descriptorsets
 					for (auto m : materials)
-					{
-						m.second->setupTextures();
-						dynamic_cast<Material*>(m.second)->createDescriptorSets();
-					}
+						m.second->updateProperties();
 
 					//Create image semaphores
 					vk::SemaphoreCreateInfo ci{};
@@ -310,10 +305,8 @@ namespace Tristeon
 
 				void RenderManager::prepareOnscreenPipeline()
 				{
-					//Engine onscreen pipeline
-					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF");
-					//Create
-					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, false);
+					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF", { { "screenTexture", DT_Image, Fragment } });
+					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, file.getProperties(), false);
 				}
 
 				void RenderManager::prepareOffscreenPass()
@@ -368,26 +361,6 @@ namespace Tristeon
 						dependencies.size(), dependencies.data()
 					);
 					offscreenPass = vulkan->device.createRenderPass(rp);
-				}
-
-				void RenderManager::setupMaterials()
-				{
-					Material* standard = new Material();
-					standard->name = "Standard";
-					standard->diffuse = Data::Image("Files/Textures/white.jpg");
-					standard->diffuseColor = Misc::Color();
-					standard->pipelineID = 0;
-					standard->pipeline = pipelines[0];
-					materials["Standard"] = standard;
-
-					//Delet this
-					Material* doge = new Material();
-					doge->name = "doge";
-					doge->diffuse = Data::Image("Files/Textures/doge.png");
-					doge->diffuseColor = Misc::Color();
-					doge->pipelineID = 0;
-					doge->pipeline = pipelines[0];
-					materials["doge"] = doge;
 				}
 
 				TObject* RenderManager::registerRenderer(Message msg)
@@ -522,14 +495,11 @@ namespace Tristeon
 					if (std::experimental::filesystem::path(filePath).extension() != ".mat")
 						return nullptr;
 					
-					//Try to find the material
-					Vulkan::Material* m = JsonSerializer::deserialize<Vulkan::Material>(filePath);
-					if (m == nullptr)
-						return nullptr;
-
+					Vulkan::Material* m = new Vulkan::Material();
+					m->deserialize(JsonSerializer::load(filePath));
+					
 					//Set up the material 
-					m->setupTextures();
-					m->createDescriptorSets();
+					m->updateProperties(true);
 					materials[filePath] = m;
 					return m;
 				}

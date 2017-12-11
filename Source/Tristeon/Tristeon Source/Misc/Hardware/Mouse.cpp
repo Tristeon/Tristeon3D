@@ -71,7 +71,6 @@ namespace Tristeon
 			//TODO: Cache cursors to reduce load time
 			GLFWcursor* cursor = glfwCreateCursor(&i, xHot, yHot);
 			glfwSetCursor(window, cursor);
-			image.freePixels(i.pixels);
 		}
 
 		void Mouse::setCursorDefault(CursorShape shape)

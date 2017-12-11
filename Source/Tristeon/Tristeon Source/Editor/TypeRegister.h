@@ -1,6 +1,7 @@
 #pragma once
 #include "IntrospectionInterface.h"
 #include "Serializable.h"
+#include "Misc/Console.h"
 
 template <typename T> std::unique_ptr<IntrospectionInterface> CreateInstance() { return std::make_unique<T>(); }
 
@@ -22,7 +23,10 @@ struct TypeRegister
 	{
 		const auto it = getMap()->find(s);
 		if (it == getMap()->end())
+		{
+			Tristeon::Misc::Console::warning(s + " is not registered!");
 			return nullptr;
+		}
 		return it->second();
 	}
 

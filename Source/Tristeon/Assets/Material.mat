@@ -1,1 +1,1 @@
-{"diffuseColor":{"a":1.0,"b":1.0,"g":1.0,"r":1.0,"typeID":"class Tristeon::Misc::Color"},"diffusePath":"","shaderFilePath":"","typeID":"class Tristeon::Core::Rendering::Material"}
+{"colors":{},"floats":{},"shaderFilePath":"Assets/Shader.shader","texturePaths":{"diffuse":"Files/Textures/doge.png"},"typeID":"class Tristeon::Core::Rendering::Material","vectors":{}}

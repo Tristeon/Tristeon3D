@@ -14,7 +14,8 @@ namespace Tristeon
 				//Empty
 			}
 
-			ShaderFile::ShaderFile(std::string name, std::string directory, std::string vertexName, std::string fragmentName) : nameID(name), directory(directory), vertexName(vertexName), fragmentName(fragmentName)
+			ShaderFile::ShaderFile(std::string name, std::string directory, std::string vertexName, std::string fragmentName, std::vector<ShaderProperty> properties) 
+				: nameID(name), directory(directory), vertexName(vertexName), fragmentName(fragmentName), properties(properties)
 			{
 				//Empty
 			}
@@ -77,7 +78,7 @@ namespace Tristeon
 				const std::string tempFragmentName = json["fragmentName"];
 				fragmentName = tempFragmentName;
 
-				const std::map<std::string, DataType> propertiesValue = json["properties"];
+				const std::vector<ShaderProperty> propertiesValue = json["properties"];
 				properties = propertiesValue;
 			}
 		}

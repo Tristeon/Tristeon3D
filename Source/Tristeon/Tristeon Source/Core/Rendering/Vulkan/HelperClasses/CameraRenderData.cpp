@@ -5,6 +5,8 @@
 #include "Pipeline.h"
 #include "Misc/Console.h"
 #include "VulkanCore.h"
+#include "VulkanBuffer.h"
+#include "Core/Rendering/Vulkan/MaterialVulkan.h"
 
 namespace Tristeon
 {
@@ -96,58 +98,76 @@ namespace Tristeon
 					buffer = vkRenderManager->vulkan->device.createFramebuffer(fbuf);
 				}
 
-				void CameraRenderData::Onscreen::init(Pipeline* pipeline, VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam)
+				void CameraRenderData::Onscreen::init(VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline)
 				{
-					if (!isEditorCam)
+					//The editor camera has its own descriptor set due to ImGUI binding settings
+					if (isEditorCam)
 					{
-						//Setup standard descriptor sets
-						auto layouts = pipeline->getDescriptorLayouts();
+						//Descriptor set layout containing one image sampler
+						//ImGUI's shaders take 1 image sampler in the fragment shader. nothing else
+						vk::DescriptorSetLayoutBinding b = vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
+						vk::DescriptorSetLayoutCreateInfo const ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &b);
+						vk::DescriptorSetLayout layout = binding->device.createDescriptorSetLayout(ci);
 
-						//Allocate descriptor set
-						vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding->descriptorPool, layouts.size(), layouts.data());
-						vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
-						Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
+						//Allocate the descriptor set with our layout
+						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
+						binding->device.allocateDescriptorSets(&alloc_info, &sets[0]);
 
-						//Describe our input
+						//Update the descriptor set with our offscreen rendered image
 						vk::DescriptorImageInfo image = vk::DescriptorImageInfo(offscreen.sampler, offscreen.color.view, vk::ImageLayout::eShaderReadOnlyOptimal);
-						vk::WriteDescriptorSet const samplerWrite = vk::WriteDescriptorSet(set, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
-
-						//Update descriptor set with our input info
-						std::array<vk::WriteDescriptorSet, 2> write = { samplerWrite };
-						binding->device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
+						vk::WriteDescriptorSet samplerWrite = vk::WriteDescriptorSet(sets[0], 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
+						binding->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
+						
+						//Clean up the descriptor set layout as we don't need it anymore
+						binding->device.destroyDescriptorSetLayout(layout);
 					}
 					else
 					{
-						//Create descriptor set layout (temporary)
-						vk::DescriptorSetLayoutBinding b = vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
-						vk::DescriptorSetLayoutCreateInfo ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &b);
-						vk::DescriptorSetLayout layout = binding->device.createDescriptorSetLayout(ci);
+						//Cameras don't actually use uniform buffers right now, but due to our
+						//pipeline setup we unfortunately have to include a buffer in some form or way,
+						//so we'll just create a very small uniform buffer
+
+						//Descriptor layout for the uniform buffer
+						vk::DescriptorSetLayout layout1 = onscreenPipeline->getUniformLayout();
+						//Uniform buffer descriptor set creation
+						vk::DescriptorSetAllocateInfo alloc1 = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout1);
+						binding->device.allocateDescriptorSets(&alloc1, &sets[0]);
+
+						//Create a temporary buffer so we can fit the pipeline descriptor set layout
+						VulkanBuffer::createBuffer(binding,
+							1, vk::BufferUsageFlagBits::eUniformBuffer,
+							vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+							tempBuf, tempBufMem);
+						//Update the descriptor set with our "buffer"
+						vk::DescriptorBufferInfo bufi = vk::DescriptorBufferInfo(tempBuf, 0, 1);
+						vk::WriteDescriptorSet buf = vk::WriteDescriptorSet(sets[0], 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufi, nullptr);
+						binding->device.updateDescriptorSets(1, &buf, 0, nullptr);
 						
-						//Allocate the descriptor set
-						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(
-							binding->descriptorPool,
-							1,
-							&layout);
-						binding->device.allocateDescriptorSets(&alloc_info, &set);
+						//The sampler is used in the fragment shader to show the texture on screen
+						//We're binding the color texture that our offscreen camera is rendering to 
+						//to this shader pipeline
+						//Get the layout and create the descriptor set
+						vk::DescriptorSetLayout layout2 = onscreenPipeline->getSamplerLayout();
+						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout2);
+						binding->device.allocateDescriptorSets(&alloc_info, &sets[1]);
 
-						//Update the Descriptor Set
+						//Update the descriptor set with our sampler and our offscreen view
 						vk::DescriptorImageInfo image = vk::DescriptorImageInfo(offscreen.sampler, offscreen.color.view, vk::ImageLayout::eShaderReadOnlyOptimal);
-						vk::WriteDescriptorSet samplerWrite = vk::WriteDescriptorSet(set, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
-
+						vk::WriteDescriptorSet samplerWrite = vk::WriteDescriptorSet(sets[1], 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
 						binding->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
-						binding->device.destroyDescriptorSetLayout(layout);
 					}
 
-					//Commandbuffer init
+					//Create the command buffer used to render this camera's texture to the screen
 					vk::CommandBufferAllocateInfo const a = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					
-					//Deallocate descriptor set layout again
 					secondary = binding->device.allocateCommandBuffers(a)[0];
 				}
 
 				void CameraRenderData::Onscreen::destroy(vk::Device device, vk::DescriptorPool pool) const
 				{
-					device.freeDescriptorSets(pool, 1, &set);
+					//Clean up the resources that we've created
+					device.destroyBuffer(tempBuf);
+					device.freeMemory(tempBufMem);
+					device.freeDescriptorSets(pool, 2, sets.data());
 				}
 
 				CameraRenderData::CameraRenderData(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline, bool isEditorCamera) : binding(binding)
@@ -165,7 +185,7 @@ namespace Tristeon
 				void CameraRenderData::init(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline)
 				{
 					offscreen.init(rm, offscreenPass);
-					onscreen.init(onscreenPipeline, binding, offscreen, isEditorCam);
+					onscreen.init(binding, offscreen, isEditorCam, onscreenPipeline);
 				}
 
 				void CameraRenderData::rebuild(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline)

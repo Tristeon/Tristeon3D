@@ -40,7 +40,7 @@ namespace Tristeon
 					 * \param enableBuffers Enables/disables vertex input binding/attributes
 					 * \param topologyMode The way the shaders are supposed to render data
 					 */
-					explicit Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers = true, vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList);
+					explicit Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, std::vector<ShaderProperty> properties, bool enableBuffers = true, vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList);
 					/**
 					 * \brief Cleans up all resources created/used by this pipeline object
 					 */
@@ -70,6 +70,7 @@ namespace Tristeon
 					 * \return Returns the descriptor set layout describing the uniform buffer input 
 					 */
 					vk::DescriptorSetLayout getUniformLayout() const { return descriptorSetLayout1; }
+					//TODO: Rename to properties layout
 					/**
 					 * \return Returns the descriptor set layout describing the sampler input 
 					 */
@@ -86,8 +87,10 @@ namespace Tristeon
 					 * \return Returns the shaderfile currently owned by pipeline 
 					 */
 					ShaderFile getShaderFile() const { return file; }
+
+					static bool validate(ShaderFile file);
 				private:
-					void createDescriptorLayout();
+					void createDescriptorLayout(std::vector<ShaderProperty> properties);
 					/**
 					 * \brief Creates the Vulkan Pipeline
 					 * \param extent The swapchain/window extent (width, height)
@@ -98,6 +101,7 @@ namespace Tristeon
 					 * \brief Deletes all resources created by pipeline
 					 */
 					void cleanup() const;
+
 
 					/**
 					 * \brief The way this pipeline is supposed to render data

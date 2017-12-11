@@ -49,7 +49,10 @@ namespace Tristeon
 					if (meshRenderer->mesh.vertices.size() == 0 || meshRenderer->mesh.indices.size() == 0)
 						return;
 					if ((VkBuffer)vertexBuffer == VK_NULL_HANDLE || (VkBuffer)indexBuffer == VK_NULL_HANDLE)
+					{
+						Misc::Console::warning("Not rendering [" + meshRenderer->gameObject->name + "] because either the vertex or index buffer hasn't been set up!");
 						return;
+					}
 
 					//Get our material, and render it with the meshrenderer's model matrix
 					Rendering::Material* m = meshRenderer->material;
@@ -58,6 +61,12 @@ namespace Tristeon
 					Vulkan::Material* vkm = dynamic_cast<Vulkan::Material*>(m);
 					if (vkm == nullptr)
 						return;
+					if ((VkDescriptorSet)set == VK_NULL_HANDLE || (VkDescriptorSet)vkm->set == VK_NULL_HANDLE)
+					{
+						Misc::Console::warning("Not rendering [" + meshRenderer->gameObject->name + "] because the material hasn't been set up!");
+						return;
+					}
+
 					vkm->setActiveUniformBufferMemory(uniformBufferMemory);
 					vkm->render(model, data->view, data->projection);
 

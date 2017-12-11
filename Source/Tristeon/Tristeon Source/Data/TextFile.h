@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <vector>
 #include <fstream>
-#include <vector>
 
 namespace Tristeon
 {

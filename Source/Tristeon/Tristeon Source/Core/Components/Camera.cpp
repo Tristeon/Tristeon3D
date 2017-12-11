@@ -47,7 +47,7 @@ namespace Tristeon
 					par = getViewMatrix(t->getParent());
 
 				//Get transformation
-				glm::mat4 const tran = translate(glm::mat4(1.0f), Vec_Convert(t->position));
+				glm::mat4 const tran = translate(glm::mat4(1.0f), Vec_Convert3(t->position));
 				glm::mat4 const rot = glm::mat4(t->rotation.getGLMQuat());
 
 				//TODO: Parent calculation untested

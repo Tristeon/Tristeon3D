@@ -6,7 +6,6 @@ namespace Tristeon
 {
 	namespace Editor
 	{
-
 		/**
 		 * \brief The assetitem for materials
 		 */
@@ -14,6 +13,9 @@ namespace Tristeon
 		{
 		public:
 			void drawOnInspector() override;
+			nlohmann::json serialize() override;
+		private:
+			REGISTER_TYPE_H(MaterialFileItem)
 		};
 	}
 }
