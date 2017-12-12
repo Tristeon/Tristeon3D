@@ -1,1 +1,1 @@
-{"colors":{},"floats":{},"shaderFilePath":"Assets/Shader.shader","texturePaths":{"diffuse":"Files/Textures/doge.png"},"typeID":"class Tristeon::Core::Rendering::Material","vectors":{}}
+{"colors":{},"floats":{"Material.metallic":0.0,"Material.roughness":0.0},"shaderFilePath":"Assets/Shader.shader","texturePaths":{"diffuse":"Files/Textures/doge.png"},"typeID":"class Tristeon::Core::Rendering::Material","vectors":{}}

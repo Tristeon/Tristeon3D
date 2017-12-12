@@ -27,7 +27,7 @@ namespace Tristeon
 				using ColorBlendState = vk::PipelineColorBlendStateCreateInfo;
 				using DynamicState = vk::PipelineDynamicStateCreateInfo;
 
-				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, std::vector<ShaderProperty> properties, bool enableBuffers, vk::PrimitiveTopology topology) : device(bind->device)
+				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology) : device(bind->device)
 				{
 					//Store vars
 					this->file = file;
@@ -36,11 +36,11 @@ namespace Tristeon
 					this->binding = bind;
 
 					//Init
-					createDescriptorLayout(properties);
+					createDescriptorLayout(file.getProps());
 					create(extent, renderPass);
 				}
 
-				void Pipeline::createDescriptorLayout(std::vector<ShaderProperty> properties)
+				void Pipeline::createDescriptorLayout(std::map<int, ShaderProperty> properties)
 				{
 					//Uniform buf
 					vk::DescriptorSetLayoutBinding const ubo = vk::DescriptorSetLayoutBinding(
@@ -63,8 +63,10 @@ namespace Tristeon
 					//Get bindings based on the given property list
 					std::vector<vk::DescriptorSetLayoutBinding> bindings;
 					int i = 0;
-					for (const ShaderProperty p : properties)
+					for (const auto pair : properties)
 					{
+						ShaderProperty const p = pair.second;
+
 						switch (p.valueType)
 						{
 							//Image descriptor
@@ -228,104 +230,6 @@ namespace Tristeon
 					attributes[1] = vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Data::Vertex, normal));
 					attributes[2] = vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32Sfloat, offsetof(Data::Vertex, texCoord));
 					return attributes;
-				}
-
-				bool checkVars(spirv_cross::Compiler& comp, std::vector<ShaderProperty>& props)
-				{
-					spirv_cross::ShaderResources res = comp.get_shader_resources();
-
-					for (const auto u : res.uniform_buffers)
-					{
-						const spirv_cross::SPIRType id = comp.get_type(u.type_id);
-						const auto it = std::find_if(props.begin(), props.end(), [&](ShaderProperty p) { return u.name == p.name; });
-						if (it != props.end())
-							props.erase(it);
-						else if (u.name != "UniformBufferObject")
-						{
-							Misc::Console::warning("Vertex shader requires uniform [" + u.name + "], but shaderproperties doesn't have that property set!");
-							return false;
-						}
-					}
-
-					for (const auto s : res.storage_buffers)
-					{
-						const auto it = std::find_if(props.begin(), props.end(), [&](ShaderProperty p) { return s.name == p.name; });
-						if (it != props.end())
-							props.erase(it);
-						else if (s.name != "UniformBufferObject")
-						{
-							Misc::Console::warning("Shader requires storage buffer [" + s.name + "], but shaderproperties doesn't have that property set!");
-							return false;
-						}
-					}
-
-					for (const auto c : res.push_constant_buffers)
-					{
-						const auto it = std::find_if(props.begin(), props.end(), [&](ShaderProperty p) { return c.name == p.name; });
-						if (it != props.end())
-							props.erase(it);
-						else if (c.name != "UniformBufferObject")
-						{
-							Misc::Console::warning("Shader requires constant buffer [" + c.name + "], but shaderproperties doesn't have that property set!");
-							return false;
-						}
-					}
-
-					for (const auto s : res.sampled_images)
-					{
-						const auto it = std::find_if(props.begin(), props.end(), [&](ShaderProperty p) { return s.name == p.name; });
-						if (it != props.end())
-							props.erase(it);
-						else if (s.name != "UniformBufferObject")
-						{
-							Misc::Console::warning("Shader requires image sampler [" + s.name + "], but shaderproperties doesn't have that property set!");
-							return false;
-						}
-					}
-
-					return true;
-				}
-
-				bool Pipeline::validate(ShaderFile file)
-				{
-					auto const start = std::chrono::high_resolution_clock::now();
-
-					//Vertex
-					std::ifstream in_vert(file.getPath(RAPI_Vulkan, ST_Vertex), std::ifstream::binary);
-					in_vert.seekg(0, in_vert.end);     
-					auto const vertN = in_vert.tellg();
-					in_vert.seekg(0, in_vert.beg);
-
-					std::vector<uint32_t> vert_buf(vertN / sizeof(uint32_t));// reserve space for N/8 doubles
-					in_vert.read(reinterpret_cast<char*>(vert_buf.data()), vert_buf.size() * sizeof(uint32_t)); // or &buf[0] for C++98
-
-					//Fragment
-					std::ifstream in_frag(file.getPath(RAPI_Vulkan, ST_Fragment), std::ifstream::binary);
-					in_frag.seekg(0, in_frag.end);
-					auto const fragN = in_frag.tellg();
-					in_frag.seekg(0, in_frag.beg);
-
-					std::vector<uint32_t> frag_buf(fragN / sizeof(uint32_t));// reserve space for N/8 doubles
-					in_frag.read(reinterpret_cast<char*>(frag_buf.data()), frag_buf.size() * sizeof(uint32_t)); // or &buf[0] for C++98
-
-					//Compilers
-					spirv_cross::Compiler vertexComp = spirv_cross::Compiler(vert_buf);
-
-					spirv_cross::Compiler fragmentComp = spirv_cross::Compiler(frag_buf);
-
-					spirv_cross::ShaderResources fragRes = fragmentComp.get_shader_resources();
-
-					//Confirm our properties all exist
-					std::vector<ShaderProperty> props = file.getProperties();
-					checkVars(vertexComp, props);
-					checkVars(fragmentComp, props);
-
-					for (const auto p : props)
-						Misc::Console::warning("Shader property defines [" + p.name + "] as prop, but neither the fragment nor the vertex shader takes it!");
-
-					auto const current = std::chrono::high_resolution_clock::now();
-					Misc::Console::write("Compilation of both shaders and property checking cost: " + std::to_string(std::chrono::duration_cast<std::chrono::nanoseconds>(current - start).count() / 1000000000.0f) + " seconds.");
-					return props.empty();
 				}
 			}
 		}

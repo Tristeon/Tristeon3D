@@ -423,6 +423,7 @@ public:
 	// ID is the name of a variable as returned by Resource::id, and must be a variable with a Block-like type.
 	std::string get_remapped_declared_block_name(uint32_t id) const;
 
+	std::vector<Meta>& getMeta() { return meta; }
 protected:
 	const uint32_t *stream(const Instruction &instr) const
 	{

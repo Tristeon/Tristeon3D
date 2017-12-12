@@ -1,22 +1,18 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 layout(set = 1, binding = 0) uniform sampler2D diffuse;
-//layout(set = 1, binding = 1) uniform Material
-//{
-//  layout(offset = 12) float roughness;
-//  layout(offset = 16) float metallic;
-//} material;
+
+layout(set = 1, binding = 1) uniform Material
+{
+    layout(offset = 12) float roughness;
+    layout(offset = 16) float metallic;
+} material;
 
 layout (location = 0) in vec3 inWorldPos;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inViewPos;
 layout(location = 0) out vec4 frag_color;
-
-//layout(push_constant) uniform PushConsts {
-//  layout(offset = 12) float roughness;
-//  layout(offset = 16) float metallic;
-//} material;
 
 const float PI = 3.14159265359;
 
@@ -77,11 +73,9 @@ float G_Schlick_Smith(float dotNL, float dotNV, float roughness)
 
 vec3 BRDF(vec3 l, vec3 v, vec3 n)
 {
-    //float roughness = material.roughness;
-    //float metallic = material.metallic;
-    float roughness = 1;
-    float metallic = 1;
-    
+    float roughness = material.roughness;
+    float metallic = material.metallic;
+
     vec3 h = normalize(v + l);
     float dotNV = clamp(dot(n, v), 0.0, 1.0);
     float dotNL = clamp(dot(n, l), 0.0, 1.0);

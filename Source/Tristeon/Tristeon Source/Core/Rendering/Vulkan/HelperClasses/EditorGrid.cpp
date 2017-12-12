@@ -17,8 +17,8 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 	this->data = data;
 
 	//Set up our pipeline
-	file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF", {});
-	pipeline = new Pipeline(data, file, data->swapchain->extent2D, offscreenPass, file.getProperties(), true, vk::PrimitiveTopology::eLineList);
+	file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
+	pipeline = new Pipeline(data, file, data->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
 	//Set up our material with our shader pipeline
 	material = new Material();

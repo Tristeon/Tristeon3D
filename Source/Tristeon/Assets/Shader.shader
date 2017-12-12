@@ -1,1 +1,1 @@
-{"directory":"Files/Shaders/","fragmentName":"StandardF","nameID":"Standard","properties":[{"name":"diffuse","shaderStage":1,"valueType":0}],"typeID":"class Tristeon::Core::Rendering::ShaderFile","vertexName":"StandardV"}
+{"directory":"Files/Shaders/","fragmentName":"StandardF","nameID":"Standard","typeID":"class Tristeon::Core::Rendering::ShaderFile","vertexName":"StandardV"}

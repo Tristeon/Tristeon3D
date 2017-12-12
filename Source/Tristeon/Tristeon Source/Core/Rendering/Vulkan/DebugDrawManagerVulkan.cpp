@@ -30,8 +30,8 @@ namespace Tristeon
 					binding = data;
 
 					//ShaderFile
-					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF", { });
-					pipeline = new Pipeline(binding, file, binding->swapchain->extent2D, offscreenPass, file.getProperties(), true, vk::PrimitiveTopology::eLineList);
+					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
+					pipeline = new Pipeline(binding, file, binding->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
 					material = new Vulkan::Material();
 					material->pipeline = pipeline;

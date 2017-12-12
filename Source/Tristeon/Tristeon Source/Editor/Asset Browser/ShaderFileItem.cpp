@@ -25,44 +25,6 @@ void ShaderFileItem::drawOnInspector()
 	file->vertexName = inputString("Vertex shader name", file->vertexName);
 	file->fragmentName = inputString("Fragment shader name", file->fragmentName);
 
-	if (ImGui::Button("Add property"))
-		file->properties.push_back(Core::Rendering::ShaderProperty());
-
-	if (ImGui::CollapsingHeader("Properties"))
-	{
-		auto removeIt = file->properties.end();
-		for (auto i = file->properties.begin(); i < file->properties.end(); ++i)
-		{
-			Core::Rendering::ShaderProperty p = *i;
-			//TODO: Shader file item box and fix multiple items
-			ImGui::Separator();
-			ImGui::Text(p.name.c_str());
-			ImGui::SameLine();
-			if(ImGui::Button("Remove"))
-			{
-				removeIt = i;
-				continue;
-			}
-
-			p.name = inputString("Property name", p.name);
-
-			std::array<char*, 4> options = { "Image", "Color", "Float", "Vector3" };
-			int value = (int)p.valueType;
-			ImGui::Combo("Type", &value, options.data(), 4);
-			p.valueType = (Core::Rendering::DataType)value;
-
-			std::array<char*, 6> options1 = { "Vertex", "Fragment", "Geometry", "Compute", "All Graphics", "All" };
-			int value2 = (int)p.shaderStage;
-			ImGui::Combo("Shader stage", &value2, options1.data(), 6);
-			p.shaderStage = (Core::Rendering::ShaderStage)value2;
-
-			*i = p;
-		}
-
-		if (removeIt != file->properties.end())
-			file->properties.erase(removeIt);
-	}
-
 	JsonSerializer::serialize<Core::Rendering::ShaderFile>(getFilePath(), *file);
 	delete file;
 }

@@ -15,6 +15,7 @@ namespace Tristeon
 			void drawOnInspector() override;
 			nlohmann::json serialize() override;
 		private:
+			void drawProperty(Core::Rendering::Material* mat, Core::Rendering::ShaderProperty prop, std::string parent) const;
 			REGISTER_TYPE_H(MaterialFileItem)
 		};
 	}

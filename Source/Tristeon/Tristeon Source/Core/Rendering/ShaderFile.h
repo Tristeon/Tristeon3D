@@ -5,6 +5,10 @@
 #include "Editor/TypeRegister.h"
 
 #ifdef EDITOR
+namespace spirv_cross {
+	class Compiler;
+}
+
 namespace Tristeon {
 	namespace Editor {
 		class ShaderFileItem;
@@ -35,10 +39,12 @@ namespace Tristeon
 
 			enum DataType
 			{
+				DT_Unknown,
 				DT_Image,
 				DT_Color,
 				DT_Float,
-				DT_Vector3
+				DT_Vector3,
+				DT_Struct
 			};
 
 			enum ShaderStage
@@ -56,25 +62,15 @@ namespace Tristeon
 				std::string name;
 				DataType valueType;
 				ShaderStage shaderStage;
+				size_t size;
+
+				std::vector<ShaderProperty> children;
 
 				bool operator ==(const ShaderProperty& other) const
 				{
 					return other.name == name && other.valueType == valueType && other.shaderStage == shaderStage;
 				}
 			};
-
-			inline void to_json(nlohmann::json& j, const ShaderProperty& p) {
-				j = nlohmann::json{ 
-					{ "name", p.name },
-					{ "valueType", p.valueType },
-					{ "shaderStage", p.shaderStage } };
-			}
-
-			inline void from_json(const nlohmann::json& j, ShaderProperty& p) {
-				p.name = j.at("name").get<std::string>();
-				p.valueType = static_cast<DataType>(j.at("valueType").get<int>());
-				p.shaderStage = static_cast<ShaderStage>(j.at("shaderStage").get<int>());
-			}
 
 			/**
 			 * \brief ShaderFile is a class that is used to describe a shader's path and its properties
@@ -95,9 +91,8 @@ namespace Tristeon
 				 * \param directory The directory of the shader files
 				 * \param vertexName The name of the vertex shader
 				 * \param fragmentName The name of the fragment shader
-				 * \param properties The shaderproperties set by the material
 				 */
-				ShaderFile(std::string name, std::string directory, std::string vertexName, std::string fragmentName, std::vector<ShaderProperty> properties);
+				ShaderFile(std::string name, std::string directory, std::string vertexName, std::string fragmentName);
 
 				/**
 				 * \brief Gets the path to this shaderfile based on the given api and shader type
@@ -112,8 +107,6 @@ namespace Tristeon
 				 */
 				std::string getNameID() const { return nameID; }
 
-				std::vector<ShaderProperty> getProperties() const { return properties; }
-
 				/**
 				* \brief Generates a json object containing the data of this shader file
 				* \return Returns the json object
@@ -124,6 +117,8 @@ namespace Tristeon
 				* \param json The json containing the serialized data
 				*/
 				void deserialize(nlohmann::json json) override;
+
+				std::map<int, ShaderProperty> getProps();
 			private:
 				/**
 				 * \brief ShaderFiles can be identified by their nameID
@@ -142,10 +137,10 @@ namespace Tristeon
 				 */
 				std::string fragmentName;
 				
-				/**
-				 * \brief The shaderproperties for the material
-				 */
-				std::vector<ShaderProperty> properties;
+				bool loadedProps = false;
+				std::map<int, ShaderProperty> properties;
+
+				void applyShaderReflection(spirv_cross::Compiler& comp, ShaderStage stage);
 
 				REGISTER_TYPE_H(ShaderFile)
 			};

@@ -119,13 +119,7 @@ namespace Tristeon
 							return p;
 						}
 
-					if (!Pipeline::validate(file))
-					{
-						Console::warning("ShaderFile [" + file.getNameID() + "] is invalid!");
-						return nullptr;
-					}
-				
-					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass, file.getProperties());
+					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass);
 					rm->pipelines.push_back(p);
 					return p;
 				}
@@ -305,8 +299,8 @@ namespace Tristeon
 
 				void RenderManager::prepareOnscreenPipeline()
 				{
-					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF", { { "screenTexture", DT_Image, Fragment } });
-					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, file.getProperties(), false);
+					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF");
+					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, false);
 				}
 
 				void RenderManager::prepareOffscreenPass()

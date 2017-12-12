@@ -31,7 +31,7 @@ namespace Tristeon
 					shaderFilePath = shaderFilePathValue;
 					updateShader();
 					//Update our info
-					updateProperties(true);
+					updateProperties(false);
 				}
 
 				//If we don't have a shader there's also no material property data to deserialize
@@ -68,8 +68,9 @@ namespace Tristeon
 	assignArr[name] = serArr.find(name) != serArr.end() ? serArr[name] : defaultVal; \
 	break;
 				//Update all properties
-				for (auto p : shader->getProperties())
+				for (auto pair : shader->getProps())
 				{
+					ShaderProperty p = pair.second;
 					//Try to find the property in our material file
 					//If we can't find it, assign standard values
 					switch(p.valueType)

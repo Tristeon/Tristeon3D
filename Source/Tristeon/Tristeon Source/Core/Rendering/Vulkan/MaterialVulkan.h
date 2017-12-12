@@ -69,11 +69,11 @@ namespace Tristeon
 					/**
 					 * \brief The buffer. Used to bind the buffer memory to the shader
 					 */
-					vk::Buffer buf;
+					vk::Buffer buf = nullptr;
 					/**
 					 * \brief The buffer memory. Used to send uniform data to the GPU
 					 */
-					vk::DeviceMemory mem;
+					vk::DeviceMemory mem = nullptr;
 				};
 
 				/**
@@ -125,6 +125,8 @@ namespace Tristeon
 
 					void updateShader() override;
 				private:
+					void setDefaults(std::string name, ShaderProperty prop);
+
 					/**
 					 * \brief The active uniform buffer memory
 					 */
@@ -139,7 +141,7 @@ namespace Tristeon
 					 */
 					void createDescriptorSets();
 
-					UniformBuffer createUniformBuffer(std::string name);
+					UniformBuffer createUniformBuffer(std::string name, vk::DeviceSize size);
 					/**
 					 * \brief Creates the vulkan image for the material's textures
 					 */

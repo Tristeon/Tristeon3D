@@ -24,7 +24,7 @@ namespace Tristeon
 			{
 				REGISTER_TYPE_CPP(Vulkan::Material)
 
-				Material::~Material()
+					Material::~Material()
 				{
 					cleanup();
 				}
@@ -62,53 +62,130 @@ namespace Tristeon
 						return;
 					}
 
+					//TODO: This should be a separate function for recursiveness in structs and such
 					//Other data
-					for (const auto p : shader->getProperties())
+					for (const auto pair : shader->getProps())
 					{
-						// ReSharper disable once CppJoinDeclarationAndAssignment - Using mem address, has to stay out of scope
-						glm::vec3 v3;
-						// ReSharper disable once CppJoinDeclarationAndAssignment - Using mem address, has to stay out of scope
-						glm::vec4 v4;
+						ShaderProperty p = pair.second;
 
-						vk::DeviceSize size;
-						void* mem;
+						if (p.valueType == DT_Unknown || p.size == 0)
+							continue;
 
-						switch(p.valueType)
+						void* mem = malloc(p.size);
+						switch (p.valueType)
 						{
-							case DT_Image: 
-								continue;
-							case DT_Color:
+						case DT_Image:
+						{
+							free(mem);
+							continue;
+						}
+						case DT_Color:
+						{
+							Misc::Color const c = colors[p.name];
+							glm::vec4* m = static_cast<glm::vec4*>(mem);
+							*m = glm::vec4(c.r, c.g, c.b, c.a);
+							break;
+						}
+						case DT_Float:
+						{
+							float* m = static_cast<float*>(mem);
+							*m = floats[p.name];
+							break;
+						}
+						case DT_Vector3:
+						{
+							Math::Vector3 const vec = vectors[p.name];
+							glm::vec3* m = static_cast<glm::vec3*>(mem);
+							*m = glm::vec3(vec.x, vec.y, vec.z);
+							break;
+						}
+						case DT_Struct:
+						{
+							//Cast mem (malloc(p.size)) byte array 
+							uint8_t* ptr = reinterpret_cast<uint8_t*>(mem);
+
+							//Fill allocated memory with our data
+							for (auto c : p.children)
 							{
-								size = sizeof(glm::vec4);
-								Misc::Color c = colors[p.name];
-								// ReSharper disable once CppJoinDeclarationAndAssignment - Using mem address, has to stay out of scope
-								v4 = { c.r, c.g, c.b, c.a };
-								mem = &v4;
-								break;
+								switch (c.valueType)
+								{
+								case DT_Float:
+								{
+									//Get float bytes
+									float f = floats[p.name + "." + c.name];
+									uint8_t buf[sizeof f];
+									memcpy(buf, &f, sizeof f);
+
+									Misc::Console::write("Float [" + c.name + "].value = " + std::to_string(f));
+									//For every float byte, assign a byte in our array
+									for (int i = 0; i < sizeof f; i++)
+									{
+										Misc::Console::write("Writing " + std::to_string(buf[i]) + " to struct ptr");
+										*ptr = buf[i];
+										ptr++;
+									}
+									break;
+								}
+								case DT_Color:
+								{
+									Misc::Color color = colors[p.name + "." + c.name];
+									glm::vec4 col = glm::vec4(color.r, color.g, color.b, color.a);
+
+									for (int i = 0; i < 4; i++)
+									{
+										//Get float from our vec4/float array
+										float f = col[i];
+										unsigned char buf[sizeof f];
+										memcpy(buf, &f, sizeof f);
+
+										//For every float byte, assign a byte
+										for (int j = 0; j < sizeof(float) / 8; j++)
+										{
+											*ptr = buf[j];
+											ptr++;
+										}
+									}
+									break;
+								}
+								case DT_Vector3:
+								{
+									Math::Vector3 const vec = vectors[p.name + "." + c.name];
+									glm::vec3 v = glm::vec3(vec.x, vec.y, vec.z);
+
+									for (int i = 0; i < 3; i++)
+									{
+										//Get float from our vec4/float array
+										float f = v[i];
+										unsigned char buf[sizeof f];
+										memcpy(buf, &f, sizeof f);
+
+										//For every float byte, assign a byte
+										for (int j = 0; j < sizeof(float) / 8; j++)
+										{
+											*ptr = buf[j];
+											ptr++;
+										}
+									}
+									break;
+								}
+								}
 							}
-							case DT_Float:
+							break;
+						}
+						default:
 							{
-								size = sizeof(float);
-								mem = &floats[p.name];
-								break;
+							free(mem);
+							continue;
 							}
-							case DT_Vector3:
-							{
-								size = sizeof(glm::vec3);
-								Math::Vector3 const vec = vectors[p.name];
-								// ReSharper disable once CppJoinDeclarationAndAssignment - Using mem address, has to stay out of scope
-								v3 = { vec.x, vec.y, vec.z };
-								mem = &v3;
-								break;
-							}
-							default:
-								continue;
 						}
 
+						vk::DeviceSize const size = p.size;
 						void* d;
 						pipeline->device.mapMemory(uniformBuffers[p.name].mem, 0, size, {}, &d);
 						memcpy(d, mem, size);
 						pipeline->device.unmapMemory(uniformBuffers[p.name].mem);
+
+						free(mem);
 					}
 
 					//Reset so we don't acidentally use the buffer from last object
@@ -139,29 +216,8 @@ namespace Tristeon
 						return;
 
 					//Fill in empty vars
-					for (const auto p : shader->getProperties())
-					{
-						switch(p.valueType)
-						{
-						case DT_Image: 
-							if (texturePaths.find(p.name) == texturePaths.end())
-								texturePaths[p.name] = "";
-							break;
-						case DT_Color: 
-							if (colors.find(p.name) == colors.end())
-								colors[p.name] = Misc::Color();
-							break;
-						case DT_Float: 
-							if (floats.find(p.name) == floats.end())
-								floats[p.name] = 0;
-							break;
-						case DT_Vector3:
-							if (vectors.find(p.name) == vectors.end())
-								vectors[p.name] = Math::Vector3();
-							break;
-						default: ;
-						}
-					}
+					for (const auto p : shader->getProps())
+						setDefaults(p.second.name, p.second);
 
 					//Update
 					if (updateResources)
@@ -171,6 +227,37 @@ namespace Tristeon
 							return;
 						setupTextures();
 						createDescriptorSets();
+					}
+				}
+
+				void Material::setDefaults(std::string name, ShaderProperty prop)
+				{
+					switch (prop.valueType)
+					{
+					case DT_Image:
+						if (texturePaths.find(name) == texturePaths.end())
+							texturePaths[name] = "";
+						break;
+					case DT_Color:
+						if (colors.find(name) == colors.end())
+							colors[name] = Misc::Color();
+						break;
+					case DT_Float:
+						if (floats.find(name) == floats.end())
+							floats[name] = 0;
+						break;
+					case DT_Vector3:
+						if (vectors.find(name) == vectors.end())
+							vectors[name] = Math::Vector3();
+						break;
+					case DT_Struct:
+						for (auto c : prop.children)
+						{
+							std::string const n = name + "." + c.name;
+							setDefaults(n, c);
+						}
+						//case DT_Unknown: break;
+						//default: ;
 					}
 				}
 
@@ -308,10 +395,10 @@ namespace Tristeon
 
 					//Create a descriptor write instruction for each shader property
 					int i = 0;
-					for (const auto p : shader->getProperties())
+					for (const auto pair : shader->getProps())
 					{
-						print("Binding material property " + p.name);
-						switch(p.valueType)
+						ShaderProperty p = pair.second;
+						switch (p.valueType)
 						{
 							case DT_Image:
 							{
@@ -320,29 +407,15 @@ namespace Tristeon
 								break;
 							}
 							case DT_Color:
+							case DT_Float:
+							case DT_Vector3:
+							case DT_Struct:
 							{
-								UniformBuffer const buf = createUniformBuffer(p.name);
-								vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(buf.buf, 0, sizeof(glm::vec4));
+								UniformBuffer const buf = createUniformBuffer(p.name, p.size);
+								vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(buf.buf, 0, p.size);
 								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
 								writes.push_back(uboWrite);
 								uniformBuffers[p.name] = buf;
-								break;
-							}
-							case DT_Float: 
-							{
-								UniformBuffer const buf = createUniformBuffer(p.name);
-								vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(buf.buf, 0, sizeof(float));
-								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
-								writes.push_back(uboWrite);
-								uniformBuffers[p.name] = buf;
-								break;
-							}
-							case DT_Vector3: 
-							{
-								UniformBuffer const buf = createUniformBuffer(p.name);
-								vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(buf.buf, 0, sizeof(glm::vec3));
-								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
-								writes.push_back(uboWrite);
 								break;
 							}
 						}
@@ -353,16 +426,16 @@ namespace Tristeon
 					binding->device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
 				}
 
-				UniformBuffer Material::createUniformBuffer(std::string name)
+				UniformBuffer Material::createUniformBuffer(std::string name, vk::DeviceSize size)
 				{
 					UniformBuffer buf;
 					//Create a uniform buffer of the size of UniformBufferObject
-					if ((VkBuffer)uniformBuffers[name].buf != VK_NULL_HANDLE)
+					if (uniformBuffers.find(name) != uniformBuffers.end())
 					{
 						pipeline->device.destroyBuffer(uniformBuffers[name].buf);
 						pipeline->device.freeMemory(uniformBuffers[name].mem);
 					}
-					VulkanBuffer::createBuffer(pipeline->binding, sizeof(glm::vec3),
+					VulkanBuffer::createBuffer(pipeline->binding, size,
 						vk::BufferUsageFlagBits::eUniformBuffer,
 						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 						buf.buf, buf.mem);

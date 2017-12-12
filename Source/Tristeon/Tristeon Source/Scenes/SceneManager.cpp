@@ -3,6 +3,7 @@
 #include "Core/ManagerProtocol.h"
 #include "Scene.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
+#include "Editor/JsonSerializer.h"
 
 namespace Tristeon
 {
@@ -13,6 +14,7 @@ namespace Tristeon
 
 		SceneManager::~SceneManager()
 		{
+			activeScene.reset();
 		}
 
 		void SceneManager::init()
