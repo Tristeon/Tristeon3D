@@ -44,8 +44,9 @@ namespace Tristeon
 			/**
 			 * \brief Converts the color data to an array of 4 floats
 			 */
-			std::array<float, 4> toArray() const { return {r,g,b,a}; }
+			std::array<float, 4> toArray() const { return { r, g, b, a}; }
 
+			std::string toString() const { return "{ " + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", " + std::to_string(a) + "}"; }
 			/**
 			 * \brief The red component of the color
 			 */

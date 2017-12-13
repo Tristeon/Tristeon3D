@@ -63,7 +63,6 @@ namespace Tristeon
 				DataType valueType;
 				ShaderStage shaderStage;
 				size_t size;
-
 				std::vector<ShaderProperty> children;
 
 				bool operator ==(const ShaderProperty& other) const

@@ -135,7 +135,7 @@ namespace Tristeon
 					/**
 					 * \brief Cleans up all the resources allocated by Material
 					 */
-					void cleanup() const;
+					void cleanup();
 					/**
 					 * \brief Creates the descriptor sets for the textures
 					 */

@@ -3,8 +3,6 @@
 #include <spirv_cross/spirv_cross.hpp>
 #include "Core/Settings.h"
 #include <fstream>
-#include <glm/detail/type_vec3.hpp>
-#include <glm/detail/type_vec4.hpp>
 
 namespace Tristeon
 {
@@ -134,12 +132,12 @@ namespace Tristeon
 				if (t.vecsize == 3)
 				{
 					prop.valueType = DT_Vector3;
-					prop.size = sizeof(glm::vec3);
+					prop.size = t.vecsize * sizeof(float);
 				}
 				if (t.vecsize == 4)
 				{
 					prop.valueType = DT_Color;
-					prop.size = sizeof(glm::vec4);
+					prop.size = t.vecsize * sizeof(float);
 				}
 				else
 				{

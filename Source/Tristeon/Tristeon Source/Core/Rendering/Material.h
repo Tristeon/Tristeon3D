@@ -122,6 +122,7 @@ namespace Tristeon
 				 */
 				std::map<std::string, float> floats;
 			private:
+				void checkProperty(std::string parentName, ShaderProperty prop, const std::map<std::string, std::string>& tex, const std::map<std::string, Math::Vector3>& vec, const std::map<std::string, Misc::Color>& col, const std::map<std::string, float>& fl);
 				/**
 				 * \brief The filepath to the shader file
 				 */

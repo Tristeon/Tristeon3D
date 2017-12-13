@@ -61,27 +61,14 @@ namespace Tristeon
 					col[element.key()] = element.value();
 
 				//Get floats from json
-				std::map<std::string, float> fl = json["floats"];
+				std::map<std::string, float> const fl = json["floats"];
 
-				//Checks if our serialized array contains the key [name], if so assignArr[name] = serArr[name], else assign a default value
-#define validate(name, assignArr, serArr, defaultVal) \
-	assignArr[name] = serArr.find(name) != serArr.end() ? serArr[name] : defaultVal; \
-	break;
-				//Update all properties
-				for (auto pair : shader->getProps())
+				//Validate properties
+				for (auto const pair : shader->getProps())
 				{
-					ShaderProperty p = pair.second;
-					//Try to find the property in our material file
-					//If we can't find it, assign standard values
-					switch(p.valueType)
-					{
-						case DT_Image: validate(p.name, texturePaths, tex, "");
-						case DT_Color: validate(p.name, colors, col, Misc::Color());
-						case DT_Float: validate(p.name, floats, fl, 0);
-						case DT_Vector3: validate(p.name, vectors, vec, Math::Vector3());
-					}
+					ShaderProperty const p = pair.second;
+					checkProperty("", p, tex, vec, col, fl);
 				}
-#undef validate
 			}
 
 			void Material::setTexture(std::string name, std::string path)
@@ -129,6 +116,28 @@ namespace Tristeon
 				//Remove old shader
 				else
 					shader.reset();
+			}
+
+			void Material::checkProperty(std::string parentName, ShaderProperty p, const std::map<std::string, std::string>& tex,
+				const std::map<std::string, Math::Vector3>& vec, const std::map<std::string, Misc::Color>& col,
+				const std::map<std::string, float>& fl)
+			{
+				//Try to get data out of the given vectors,
+				//If we can't find it assign standard variable
+				std::string const name = parentName + p.name;
+				switch (p.valueType)
+				{
+				case DT_Image: texturePaths[name] = tex.find(name) != tex.end() ? tex.at(name) : ""; break;
+				case DT_Color: colors[name] = col.find(name) != col.end() ? col.at(name) : Misc::Color(); break;
+				case DT_Float: floats[name] = fl.find(name) != fl.end() ? fl.at(name) : 0; break;
+				case DT_Vector3: vectors[name] = vec.find(name) != vec.end() ? vec.at(name) : Math::Vector3(); break;
+				case DT_Struct:
+				{
+					for (const auto c : p.children)
+						checkProperty(name + ".", c, tex, vec, col, fl);
+					break;
+				}
+				}
 			}
 		}
 	}

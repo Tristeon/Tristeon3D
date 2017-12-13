@@ -4,8 +4,9 @@ layout(set = 1, binding = 0) uniform sampler2D diffuse;
 
 layout(set = 1, binding = 1) uniform Material
 {
-    layout(offset = 12) float roughness;
-    layout(offset = 16) float metallic;
+    vec4 color;
+    float roughness;
+    float metallic;
 } material;
 
 layout (location = 0) in vec3 inWorldPos;
@@ -18,7 +19,7 @@ const float PI = 3.14159265359;
 
 vec3 materialColor()
 {
-    return vec3(1.0f, 0.765557f, 0.336057f);
+    return vec3(material.color.r, material.color.g, material.color.b);
 }
 
 //The D term is the normal distribution  function (NDF) component and

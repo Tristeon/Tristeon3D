@@ -24,7 +24,7 @@ namespace Tristeon
 			{
 				REGISTER_TYPE_CPP(Vulkan::Material)
 
-					Material::~Material()
+				Material::~Material()
 				{
 					cleanup();
 				}
@@ -72,31 +72,27 @@ namespace Tristeon
 							continue;
 
 						void* mem = malloc(p.size);
+
 						switch (p.valueType)
 						{
-						case DT_Image:
-						{
-							free(mem);
-							continue;
-						}
 						case DT_Color:
 						{
 							Misc::Color const c = colors[p.name];
-							glm::vec4* m = static_cast<glm::vec4*>(mem);
-							*m = glm::vec4(c.r, c.g, c.b, c.a);
+							glm::vec4 col = glm::vec4(c.r, c.g, c.b, c.a);
+							memcpy(mem, &col, sizeof(glm::vec4));
 							break;
 						}
 						case DT_Float:
 						{
-							float* m = static_cast<float*>(mem);
-							*m = floats[p.name];
+							float f = floats[p.name];
+							memcpy(mem, &f, sizeof(float));
 							break;
 						}
 						case DT_Vector3:
 						{
 							Math::Vector3 const vec = vectors[p.name];
-							glm::vec3* m = static_cast<glm::vec3*>(mem);
-							*m = glm::vec3(vec.x, vec.y, vec.z);
+							glm::vec3 v = Vec_Convert3(vec);
+							memcpy(mem, &v, sizeof(glm::vec3));
 							break;
 						}
 						case DT_Struct:
@@ -111,61 +107,25 @@ namespace Tristeon
 								{
 								case DT_Float:
 								{
-									//Get float bytes
 									float f = floats[p.name + "." + c.name];
-									uint8_t buf[sizeof f];
-									memcpy(buf, &f, sizeof f);
-
-									Misc::Console::write("Float [" + c.name + "].value = " + std::to_string(f));
-									//For every float byte, assign a byte in our array
-									for (int i = 0; i < sizeof f; i++)
-									{
-										Misc::Console::write("Writing " + std::to_string(buf[i]) + " to struct ptr");
-										*ptr = buf[i];
-										ptr++;
-									}
+									memcpy(ptr, &f, sizeof(float));
+									ptr += sizeof(float);
 									break;
 								}
 								case DT_Color:
 								{
-									Misc::Color color = colors[p.name + "." + c.name];
-									glm::vec4 col = glm::vec4(color.r, color.g, color.b, color.a);
-
-									for (int i = 0; i < 4; i++)
-									{
-										//Get float from our vec4/float array
-										float f = col[i];
-										unsigned char buf[sizeof f];
-										memcpy(buf, &f, sizeof f);
-
-										//For every float byte, assign a byte
-										for (int j = 0; j < sizeof(float) / 8; j++)
-										{
-											*ptr = buf[j];
-											ptr++;
-										}
-									}
+									const auto col = colors[p.name + "." + c.name];
+									glm::vec4 color = glm::vec4(col.r, col.g, col.b, col.a);
+									memcpy(ptr, &color, sizeof(glm::vec4));
+									ptr += sizeof(glm::vec4);
 									break;
 								}
 								case DT_Vector3:
 								{
 									Math::Vector3 const vec = vectors[p.name + "." + c.name];
 									glm::vec3 v = glm::vec3(vec.x, vec.y, vec.z);
-
-									for (int i = 0; i < 3; i++)
-									{
-										//Get float from our vec4/float array
-										float f = v[i];
-										unsigned char buf[sizeof f];
-										memcpy(buf, &f, sizeof f);
-
-										//For every float byte, assign a byte
-										for (int j = 0; j < sizeof(float) / 8; j++)
-										{
-											*ptr = buf[j];
-											ptr++;
-										}
-									}
+									memcpy(ptr, &v, sizeof(glm::vec3));
+									ptr += sizeof(glm::vec3);
 									break;
 								}
 								}
@@ -173,19 +133,18 @@ namespace Tristeon
 							break;
 						}
 						default:
-							{
+						{
 							free(mem);
 							continue;
-							}
+						}
 						}
 
 						vk::DeviceSize const size = p.size;
+
 						void* d;
 						pipeline->device.mapMemory(uniformBuffers[p.name].mem, 0, size, {}, &d);
 						memcpy(d, mem, size);
 						pipeline->device.unmapMemory(uniformBuffers[p.name].mem);
-
-						free(mem);
 					}
 
 					//Reset so we don't acidentally use the buffer from last object
@@ -293,7 +252,7 @@ namespace Tristeon
 					}
 				}
 
-				void Material::cleanup() const
+				void Material::cleanup()
 				{
 					//None of this has been created if we don't have a pipeline, nor can we destroy anything without pipeline anyways
 					if (pipeline == nullptr)
@@ -313,6 +272,10 @@ namespace Tristeon
 						pipeline->device.destroyBuffer(b.second.buf);
 						pipeline->device.freeMemory(b.second.mem);
 					}
+
+					uniformBuffers.clear();
+					textures.clear();
+
 					//Free descriptor set
 					pipeline->device.freeDescriptorSets(pipeline->binding->descriptorPool, set);
 				}
@@ -320,8 +283,8 @@ namespace Tristeon
 				void Material::createTextureImage(Data::Image img, Texture& texture) const
 				{
 					//Get image size and data
-					auto pixels = img.getPixels();
-					vk::DeviceSize size = img.getWidth() * img.getHeight() * 4;
+					auto const pixels = img.getPixels();
+					vk::DeviceSize const size = img.getWidth() * img.getHeight() * 4;
 
 					//Create staging buffer to allow vulkan to optimize the texture buffer's memory
 					vk::Buffer staging;
@@ -431,14 +394,13 @@ namespace Tristeon
 					UniformBuffer buf;
 					//Create a uniform buffer of the size of UniformBufferObject
 					if (uniformBuffers.find(name) != uniformBuffers.end())
-					{
-						pipeline->device.destroyBuffer(uniformBuffers[name].buf);
-						pipeline->device.freeMemory(uniformBuffers[name].mem);
-					}
+						return uniformBuffers[name];
+
 					VulkanBuffer::createBuffer(pipeline->binding, size,
 						vk::BufferUsageFlagBits::eUniformBuffer,
 						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
 						buf.buf, buf.mem);
+
 					uniformBuffers[name] = buf;
 					return buf;
 				}

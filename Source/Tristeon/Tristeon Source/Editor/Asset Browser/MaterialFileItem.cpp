@@ -2,16 +2,15 @@
 #include "Editor/EditorImage.h"
 #include "Editor/JsonSerializer.h"
 #include "Core/Rendering/RenderManager.h"
+#include "Core/Rendering/Vulkan/MaterialVulkan.h"
 
 namespace Tristeon
 {
 	namespace Editor
 	{
-
-
 		REGISTER_TYPE_CPP(MaterialFileItem)
 
-			void MaterialFileItem::drawOnInspector()
+		void MaterialFileItem::drawOnInspector()
 		{
 			Core::Rendering::Material* material = Core::Rendering::RenderManager::getMaterial(getFilePath());
 			if (material == nullptr)
@@ -31,7 +30,7 @@ namespace Tristeon
 			for (auto pair : shader->getProps())
 				drawProperty(material, pair.second, "");
 
-			JsonSerializer::serialize(getFilePath(), *material);
+			JsonSerializer::serialize<Core::Rendering::Material>(getFilePath(), *material);
 		}
 
 		nlohmann::json MaterialFileItem::serialize()
@@ -41,7 +40,7 @@ namespace Tristeon
 			return output;
 		}
 
-		void MaterialFileItem::drawProperty(Core::Rendering::Material* material, Core::Rendering::ShaderProperty p, std::string parent) const
+		void MaterialFileItem::drawProperty(Core::Rendering::Material* material, Core::Rendering::ShaderProperty p, std::string parent)
 		{
 			std::string name = parent + p.name;
 			switch (p.valueType)
@@ -57,8 +56,33 @@ namespace Tristeon
 			}
 			case Core::Rendering::DT_Color:
 			{
-				auto value = material->colors[name].toArray();
-				ImGui::InputFloat4(name.c_str(), value.data());
+				std::array<float, 4> value = material->colors[name].toArray();
+				ImVec4 const col = ImVec4(value[0], value[1], value[2], value[3]);
+
+				if(openColorPicker == name.c_str())
+				{
+					ImGui::ColorPicker4(name.c_str(), value.data(), ImGuiColorEditFlags_Float | ImGuiColorEditFlags_AlphaBar);
+					if (ImGui::IsMouseClicked(0))
+					{
+						const auto mouse = ImGui::GetMousePos();
+						if (mouse.x > ImGui::GetItemRectMax().x || 
+							mouse.y > ImGui::GetItemRectMax().y ||
+							mouse.x < ImGui::GetItemRectMin().x || 
+							mouse.y < ImGui::GetItemRectMin().y)
+						{
+							openColorPicker = "";
+						}
+					}
+				}
+				else
+				{
+					if (ImGui::ColorButton(name.c_str(), col))
+						openColorPicker = name.c_str();
+
+					ImGui::SameLine();
+					ImGui::Text(name.c_str());
+				}
+				
 				material->setColor(name, Misc::Color(value[0], value[1], value[2], value[3]));
 				break;
 			}
