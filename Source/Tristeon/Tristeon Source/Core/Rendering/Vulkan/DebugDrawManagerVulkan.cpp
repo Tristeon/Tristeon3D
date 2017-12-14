@@ -21,7 +21,6 @@ namespace Tristeon
 					if (drawList.size() == 0)
 						return;
 
-					material->render(glm::mat4(1.0f), data->view, data->projection);
 					render();
 				}
 
@@ -41,6 +40,41 @@ namespace Tristeon
 					//Allocate command buffers
 					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);
 					binding->device.allocateCommandBuffers(&alloc, &cmd);
+
+					createDescriptorSets();
+				}
+
+				void DebugDrawManager::createDescriptorSets()
+				{
+					//Create a uniform buffer of the size of UniformBufferObject
+					VulkanBuffer::createBuffer(binding, sizeof(UniformBufferObject),
+						vk::BufferUsageFlagBits::eUniformBuffer,
+						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+						uniformBuffer, uniformBufferMemory);
+
+					//Create a temporary layout describing the uniform buffer input
+					vk::DescriptorSetLayout layout;
+					vk::DescriptorSetLayoutBinding const ubo = vk::DescriptorSetLayoutBinding(
+						0, vk::DescriptorType::eUniformBuffer,
+						1, vk::ShaderStageFlagBits::eVertex,
+						nullptr);
+					vk::DescriptorSetLayoutCreateInfo ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &ubo);
+					binding->device.createDescriptorSetLayout(&ci, nullptr, &layout);
+
+					//Allocate
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
+					vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
+					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
+
+					//Write info
+					vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(uniformBuffer, 0, sizeof(UniformBufferObject));
+					vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
+
+					//Update descriptor with our new write info
+					std::array<vk::WriteDescriptorSet, 1> write = { uboWrite };
+					binding->device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
+
+					binding->device.destroyDescriptorSetLayout(layout);
 				}
 
 				DebugDrawManager::~DebugDrawManager()
@@ -54,6 +88,10 @@ namespace Tristeon
 						binding->device.destroyBuffer(buf);
 					for (const auto mem : vertexBuffersMemory)
 						binding->device.freeMemory(mem);
+
+					binding->device.freeDescriptorSets(binding->descriptorPool, set);
+					binding->device.freeMemory(uniformBufferMemory);
+					binding->device.destroyBuffer(uniformBuffer);
 				}
 
 				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass) const
@@ -100,7 +138,6 @@ namespace Tristeon
 					//Get our material, and render it with the meshrenderer's model matrix
 					Material* m = material;
 					glm::mat4 const model = glm::mat4(1.0f);
-					m->render(model, data->view, data->projection);
 
 					//Start secondary cmd buffer
 					const vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo(
@@ -116,12 +153,18 @@ namespace Tristeon
 					secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipeline());
 
 					//Descriptor sets
-					secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 1, &m->set, 0, nullptr);
+					vk::DescriptorSet sets[] = { set, m->set };
+					secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 2, sets, 0, nullptr);
 
 					int i = 0;
 					while (!drawList.empty())
 					{
 						Line const l = drawList.front();
+
+						//TODO: Fix colors (only the last color is applied coz the same buffer is being used)
+						material->setColor("Color.color", l.color);
+						m->setActiveUniformBufferMemory(uniformBufferMemory);
+						m->render(model, data->view, data->projection);
 
 						Data::SubMesh mesh;
 						mesh.vertices.push_back(l.start);

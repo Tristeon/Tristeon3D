@@ -23,8 +23,9 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 	//Set up our material with our shader pipeline
 	material = new Material();
 	material->shader = std::make_unique<ShaderFile>(file);
-	material->updateProperties(true);
 	material->pipeline = pipeline;
+	material->updateProperties(true);
+	material->setColor("Color.color", Misc::Color(1, 1, 1, 1));
 
 	//Create the mesh, existing of 20x20 lines
 	const int lines = 20;

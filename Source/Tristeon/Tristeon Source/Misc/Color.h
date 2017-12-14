@@ -22,7 +22,8 @@ namespace Tristeon
 			 * \param b The blue component of the color
 			 * \param a The alpha component of the color
 			 */
-			Color(float r, float g, float b, float a);
+			Color(float r, float g, float b, float a = 1);
+
 			/**
 			 * \brief Creates a color with the given color's values
 			 * \param c The color to be copied

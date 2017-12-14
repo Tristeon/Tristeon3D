@@ -96,6 +96,18 @@ namespace Tristeon
 					 * \brief The memory bound to the vertex buffers
 					 */
 					std::vector<vk::DeviceMemory> vertexBuffersMemory;
+				
+					/**
+					* \brief The uniform buffer, used for passing uniform data to the shaders
+					*/
+					vk::Buffer uniformBuffer;
+					/**
+					* \brief The uniform buffer memory, containing the uniform data
+					*/
+					vk::DeviceMemory uniformBufferMemory;
+					vk::DescriptorSet set;
+
+					void createDescriptorSets();
 				};
 			}
 		}

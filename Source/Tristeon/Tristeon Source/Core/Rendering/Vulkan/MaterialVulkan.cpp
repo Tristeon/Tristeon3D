@@ -181,7 +181,8 @@ namespace Tristeon
 					//Update
 					if (updateResources)
 					{
-						pipeline = RenderManager::getPipeline(*shader.get());
+						if (pipeline->getShaderFile().getNameID() != shader->getNameID())
+							pipeline = RenderManager::getPipeline(*shader.get());
 						if (pipeline == nullptr)
 							return;
 						setupTextures();
