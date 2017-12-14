@@ -88,6 +88,7 @@
     <ClCompile Include="Tristeon Source\Editor\EditorDragging.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.cpp" />
+    <ClCompile Include="Tristeon Source\Editor\Scene editor\EditorCameraController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tristeon Source\Core\Managers\InputManager.h" />
@@ -194,5 +195,6 @@
     <ClInclude Include="Tristeon Source\Editor\Selectable.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.h" />
+    <ClInclude Include="Tristeon Source\Editor\Scene editor\EditorCameraController.h" />
   </ItemGroup>
 </Project>

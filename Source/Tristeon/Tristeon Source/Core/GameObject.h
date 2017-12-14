@@ -35,12 +35,6 @@ namespace Tristeon
 			GameObject();
 
 			/**
-			 * \brief Creates a new gameobject and initializes transform
-			 * \param registerObj determines if the gameobject should get registered to the scene or not
-			 */
-			explicit GameObject(bool registerObj);
-
-			/**
 			 * \brief Initializes all the gameobjects' components. This function gets called after the scene has been fully loaded. The game does not have to be running
 			 */
 			void init();

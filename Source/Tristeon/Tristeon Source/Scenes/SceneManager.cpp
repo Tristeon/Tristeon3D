@@ -46,7 +46,9 @@ namespace Tristeon
 		{
 			Core::ManagerProtocol::sendMessage(Core::MT_MANAGER_RESET);
 			auto scene = JsonSerializer::deserialize<Scene>(sceneFilePaths[name]);
+			scene->init();
 			activeScene = std::unique_ptr<Scene>(scene);
+			createParentalBonds(activeScene.get());
 		}
 
 		void SceneManager::loadScene(Scene* scene)
@@ -55,12 +57,12 @@ namespace Tristeon
 			createParentalBonds(activeScene.get());
 		}
 
-		Core::GameObject* SceneManager::findGameObjectWithInstanceID(int instanceID)
+		Core::Transform* SceneManager::findTransformByInstanceID(std::string instanceID)
 		{
 			for (int i = 0; i < activeScene->gameObjects.size(); ++i)
 			{
-				if (activeScene->gameObjects[i]->getInstanceID() == instanceID)
-					return activeScene->gameObjects[i].get();
+				if (activeScene->gameObjects[i]->transform->getInstanceID() == instanceID)
+					return activeScene->gameObjects[i].get()->transform;
 			}
 			return nullptr;
 		}
@@ -70,9 +72,12 @@ namespace Tristeon
 			std::vector<std::unique_ptr<Core::GameObject>>& gameObjects = scene->gameObjects;
 			for (int i = 0; i < gameObjects.size(); ++i)
 			{
-				if (gameObjects[i]->getInstanceID() != -1)
+				auto parent = gameObjects[i]->transform->parentID;
+				//Does gameobject have a parent?
+				if (parent != "null")
 				{
-					gameObjects[i]->transform->setParent(findGameObjectWithInstanceID(gameObjects[i]->getInstanceID())->transform);
+					//Find and set the parent
+					gameObjects[i]->transform->setParent(findTransformByInstanceID(parent));
 				}
 			}
 		}

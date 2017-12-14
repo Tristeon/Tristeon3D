@@ -2,6 +2,7 @@
 #include "Editor/EditorWindow.h"
 #include "Editor/TristeonEditor.h"
 #include "../../../ImGUI/Plugins/ImGuizmo.h"
+#include "EditorCameraController.h"
 
 namespace Tristeon
 {
@@ -28,6 +29,8 @@ namespace Tristeon
 			 */
 			void drawScene() const;
 			void drawGizmos(glm::mat4& model) const;
+
+			EditorCameraController cameraController;
 
 			TristeonEditor* editor;
 

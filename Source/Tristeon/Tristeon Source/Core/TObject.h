@@ -11,8 +11,11 @@ namespace Tristeon
 		 */
 		class TObject : public Serializable
 		{
+			friend class Transform;
 			friend class GameObject;
 		public:
+			TObject();
+
 			/**
 			 * \brief The name of the Object
 			 */
@@ -22,7 +25,7 @@ namespace Tristeon
 			 * \brief Gets the instance ID of this object
 			 * \return Returns the instance ID
 			 */
-			int getInstanceID() const;
+			std::string getInstanceID() const;
 
 			/**
 			 * Prints the given data to the console. Only in Debug/ReleaseDebug/Editor.
@@ -33,7 +36,7 @@ namespace Tristeon
 			/**
 			* The instance id of the object.
 			*/
-			int instanceID = -1;
+			std::string instanceID;
 		};
 	}
 }

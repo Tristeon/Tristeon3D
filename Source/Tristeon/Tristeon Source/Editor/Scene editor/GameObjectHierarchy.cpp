@@ -59,22 +59,17 @@ void GameObjectHierarchy::drawNode(EditorNode* node)
 
 	//Check if a dragging node is being dropped
 	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
-	bool isHovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-	bool isMouseReleased = ImGui::IsMouseReleased(0);
+	const bool isHovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+	if (isHovered) hoveredNode = node;
+	const bool isMouseReleased = ImGui::IsMouseReleased(0);
 	bool hasChild = false;
 	if (draggingNode != nullptr) hasChild = draggingNode->hasChild(node);
 
 	//If dragging node is not null and the it is hovered above the last UI element it
 	if (draggingNode != nullptr && draggingNode != node && !hasChild && isHovered && isMouseReleased)
 	{
-		if (draggingNode->parent == nullptr)
-		{
-			//Remove direct relation to the editor tree
-			auto removeIterator = remove(editorNodeTree.nodes.begin(), editorNodeTree.nodes.end(), draggingNode);
-			editorNodeTree.nodes.erase(removeIterator);
-		}
 		draggingNode->move(node);
-		draggingNode = nullptr;
+		EditorDragging::reset();
 	}
 
 	if (nodeOpen)
@@ -158,12 +153,15 @@ void GameObjectHierarchy::onGui()
 
 	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
 	//Drop dragged item outside of any gameobject, removing the parental bond
-	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
+	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && hoveredNode == nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
 	{
 		draggingNode->move(nullptr);
-		draggingNode = nullptr;
+		EditorDragging::reset();
 	}
 
+	hoveredNode = nullptr;
+
+	//Reset
 	ImGui::End();
 }
 

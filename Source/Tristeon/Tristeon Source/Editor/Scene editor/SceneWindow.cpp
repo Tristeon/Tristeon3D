@@ -75,29 +75,30 @@ void Tristeon::Editor::SceneWindow::moveCamera()
 	if (ImGuizmo::IsOver())
 		return;
 
-	bool dragging = Misc::Mouse::getButton(Misc::MouseButton::BUTTON_LEFT);
-	bool draggingRight = Misc::Mouse::getButton(Misc::MouseButton::BUTTON_RIGHT);
+	cameraController.update(editor->editorCamera->trans);
+	//bool dragging = Misc::Mouse::getButton(Misc::MouseButton::BUTTON_LEFT);
+	//bool draggingRight = Misc::Mouse::getButton(Misc::MouseButton::BUTTON_RIGHT);
 
-	if (dragging)
-		editor->editorCamera->trans->translate(Math::Vector3(Misc::Mouse::getMouseDelta().x * sens, -Misc::Mouse::getMouseDelta().y * sens, 0));
-	editor->editorCamera->trans->translate(Math::Vector3(0, 0, -Misc::Mouse::getScroll().y * sens));
+	//if (dragging)
+	//	editor->editorCamera->trans->translate(Math::Vector3(Misc::Mouse::getMouseDelta().x * sens, -Misc::Mouse::getMouseDelta().y * sens, 0));
+	//editor->editorCamera->trans->translate(Math::Vector3(0, 0, -Misc::Mouse::getScroll().y * sens));
 
+	////if (draggingRight)
+	//	//editor->editorCamera->trans->rotate(Math::Vector3(1, 0, 0), Misc::Mouse::getMouseDelta().y * sens);
 	//if (draggingRight)
-		//editor->editorCamera->trans->rotate(Math::Vector3(1, 0, 0), Misc::Mouse::getMouseDelta().y * sens);
-	if (draggingRight)
-		editor->editorCamera->trans->rotate(Math::Vector3(0, 1, 0), Misc::Mouse::getMouseDelta().x * sens);
+	//	editor->editorCamera->trans->rotate(Math::Vector3(0, 1, 0), Misc::Mouse::getMouseDelta().x * sens);
 }
 
 void Tristeon::Editor::SceneWindow::setInputMode()
 {
 	//Input mode
-	if (ImGui::RadioButton("Translate", inputOperation == ImGuizmo::TRANSLATE) || (ImGui::IsWindowFocused() && ImGui::IsKeyDown(GLFW_KEY_W)))
+	if (ImGui::RadioButton("Translate", inputOperation == ImGuizmo::TRANSLATE) || ImGui::IsKeyDown(GLFW_KEY_W))
 		inputOperation = ImGuizmo::TRANSLATE;
 	ImGui::SameLine();
-	if (ImGui::RadioButton("Rotate", inputOperation == ImGuizmo::ROTATE) || (ImGui::IsWindowFocused() && ImGui::IsKeyDown(GLFW_KEY_E)))
+	if (ImGui::RadioButton("Rotate", inputOperation == ImGuizmo::ROTATE) || ImGui::IsWindowFocused() && ImGui::IsKeyDown(GLFW_KEY_E))
 		inputOperation = ImGuizmo::ROTATE;
 	ImGui::SameLine();
-	if (ImGui::RadioButton("Scale", inputOperation == ImGuizmo::SCALE) || (ImGui::IsWindowFocused() && ImGui::IsKeyDown(GLFW_KEY_R)))
+	if (ImGui::RadioButton("Scale", inputOperation == ImGuizmo::SCALE) || ImGui::IsWindowFocused() && ImGui::IsKeyDown(GLFW_KEY_R))
 		inputOperation = ImGuizmo::SCALE;
 
 	//World/global

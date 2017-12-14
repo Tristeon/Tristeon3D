@@ -9,8 +9,7 @@ namespace Tristeon
 		 */
 		class Draggable
 		{
-		protected:
-			Draggable() = default;
+		public:
 			virtual ~Draggable() = default;
 		};
 	}

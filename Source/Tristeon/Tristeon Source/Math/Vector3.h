@@ -38,44 +38,38 @@ namespace Tristeon
 			 */
 			Vector3(float x, float y, float z);
 
-			#pragma region quick vectors
+			#pragma region const static vectors
+			/**
+			(0, 0, -1)
+			*/
+			const static Vector3 back;
+			/**
+			(0, -1, 0)
+			*/
+			const static Vector3 down;
+			/**
+			(0, 0, 1)
+			*/
+			const static Vector3 forward;
+			/**
+			(-1, 0, 0)
+			*/
+			const static Vector3 left;
+			/**
+			(1, 0, 0)
+			*/
+			const static Vector3 right;
+			/**
+			(0, 1, 0)
+			*/
+			const static Vector3 up;
+			/**
+			(1, 1, 1)
+			*/
+			const static Vector3 one;
+			const static Vector3 zero;
+			#pragma endregion
 
-			/**
-			 * (0, 0, 1)
-			 */
-			static Vector3 forward() { return Vector3(0, 0, 1); }
-			/**
-			* (0, 0, -1)
-			*/
-			static Vector3 back() { return Vector3(0, 0, -1); }
-			
-			/**
-			* (0, -1, 0)
-			*/
-			static Vector3 down() { return Vector3(0, -1, 0); }
-			/**
-			* (0, 1, 0)
-			*/
-			static Vector3 up() { return Vector3(0, 1, 0); }
-			/**
-			* (1, 0, 0)
-			*/
-			static Vector3 right() { return Vector3(1, 0, 0); }
-			
-			/**
-			* (-1, 0, 0)
-			*/	
-			static Vector3 left() { return Vector3(-1, 0, 0); }
-
-			/**
-			 * (0, 0, 0)
-			 */
-			static Vector3 zero() { return Vector3(0, 0, 0); }
-			/**
-			 * (1, 1, 1)
-			 */
-			static Vector3 one() { return Vector3(1, 1, 1); }
-		#pragma endregion
 
 			/**
 			 * \brief The x component of this vector
@@ -93,7 +87,7 @@ namespace Tristeon
 			/**
 			* \brief Access the x, y, z components using [0], [1], [2] respectively.
 			*/
-			float getAxis(const int& axis) const;
+			float& getAxis(const int& axis);
 			/**
 			* \brief returns normalized vector
 			*/
@@ -202,7 +196,7 @@ namespace Tristeon
 			 * \param value The index of the axis
 			 * \return 
 			 */
-			float operator[](const int& value) const;
+			float& operator[](const int& value);
 
 			/**
 			 * \brief Subtracts the x,y,z components of the given vector from our x,y,z components
@@ -248,5 +242,12 @@ namespace Tristeon
 		private:
 			REGISTER_TYPE_H(Vector3)
 		};
+
+		/**
+		* \brief Multiplies the x,y,z components with the given multiplier
+		* \param multiplier the value to multiply our components with
+		* \return
+		*/
+		Vector3 operator*(const float& multiplier, Vector3 vector);
 	}
 }

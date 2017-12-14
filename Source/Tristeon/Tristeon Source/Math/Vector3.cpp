@@ -17,7 +17,14 @@ namespace Tristeon
 
 		Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
-		float Vector3::getAxis(const int& axis) const
+		const Vector3 Vector3::forward = Vector3(0, 0, 1);
+		const Vector3 Vector3::back = Vector3(0, 0, -1);
+		const Vector3 Vector3::right = Vector3(1, 0, 0);
+		const Vector3 Vector3::left = Vector3(-1, 0, 0);
+		const Vector3 Vector3::up = Vector3(0, 1, 0);
+		const Vector3 Vector3::down = Vector3(0, -1, 0);
+
+		float& Vector3::getAxis(const int& axis)
 		{
 			switch (axis)
 			{
@@ -28,7 +35,7 @@ namespace Tristeon
 			case 2:
 				return z;
 			default:
-				return 0;
+				throw std::exception("Axis is out of range, using vector3's index 2 is the maximum");
 			}
 		}
 
@@ -95,12 +102,14 @@ namespace Tristeon
 			return x*vec.x + y*vec.y + z*vec.z;
 		}
 
+		//const Vector3 operator*(const Vector3& lhs, const float& rhs);
+
 		Vector3 Vector3::lerp(Vector3 a, Vector3 b, float t)
 		{
 			if (b - a == Vector3(0, 0, 0)) return b; //Positions are equal
 
-			float const interpolation = a.distance(b) * t; //Get interpolation value
-			Vector3 const linearDirection = (b - a).getNormalized(); //Get direction
+			float interpolation = a.distance(b) * t; //Get interpolation value
+			Vector3 linearDirection = (b - a).getNormalized(); //Get direction
 			return linearDirection * interpolation + a; //Pos = direction * distance + start
 		}
 
@@ -114,15 +123,15 @@ namespace Tristeon
 			return x != vec.x || y != vec.y || z != vec.z;
 		}
 
-		Vector3 Vector3::operator*(const Vector3& vec) const
-		{
-			Vector3 result(x * vec.x, y * vec.y, z*vec.z);
-			return result;
-		}
-
 		Vector3 Vector3::operator*(const float& multiplier) const
 		{
 			Vector3 result(x * multiplier, y * multiplier, z*multiplier);
+			return result;
+		}
+
+		Vector3 Vector3::operator*(const Vector3& vec) const
+		{
+			Vector3 result(x * vec.x, y * vec.y, z*vec.z);
 			return result;
 		}
 
@@ -146,7 +155,7 @@ namespace Tristeon
 			return Vector3(x - vec.x, y - vec.y, z - vec.z);
 		}
 
-		float Vector3::operator[](const int& value) const
+		float& Vector3::operator[](const int& value)
 		{
 			return getAxis(value);
 		}
@@ -199,6 +208,11 @@ namespace Tristeon
 			x = json["x"];
 			y = json["y"];
 			z = json["z"];
+		}
+
+		Vector3 operator*(const float& multiplier, Vector3 vector)
+		{
+			return vector * multiplier;
 		}
 	}
 }
