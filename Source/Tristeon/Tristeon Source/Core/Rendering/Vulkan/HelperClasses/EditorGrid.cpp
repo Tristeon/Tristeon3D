@@ -64,7 +64,7 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 	}
 
 	//Create object and meshrenderer
-	object = new GameObject(false); //Unregistered gameobject
+	object = new GameObject(); //Unregistered gameobject
 	object->name = "EditorGrid";
 	mr = object->addComponent<MeshRenderer>();
 	mr->mesh = mesh;

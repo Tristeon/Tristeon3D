@@ -244,15 +244,9 @@ namespace Tristeon
 				p *= parent->getTransformationMatrix();
 
 			//Get transformation
-<<<<<<< HEAD
-			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert(localPosition));
+			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert3(localPosition));
 			glm::mat4 const r = glm::mat4(localRotation.getGLMQuat());
-			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert(localScale));
-=======
-			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert3(position));
-			glm::mat4 const r = glm::mat4(rotation.getGLMQuat());
-			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert3(scale));
->>>>>>> 675431144bb28848030c4ac35f0125384eee36ab
+			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert3(localScale));
 
 			//Apply and return
 			return t * r * s * p;

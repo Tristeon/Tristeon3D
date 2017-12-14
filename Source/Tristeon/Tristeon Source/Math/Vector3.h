@@ -6,8 +6,8 @@ namespace Tristeon
 {
 	namespace Math
 	{
-		#define Vec_Convert(vec) { vec.x, vec.y, vec.z }
-		#define Vec_Ptr_Convert(vec) { vec->x, vec->y, vec->z }
+		#define Vec_Convert3(vec) { vec.x, vec.y, vec.z }
+		#define Vec_Ptr_Convert3(vec) { vec->x, vec->y, vec->z }
 
 		/**
 		* \brief Vector3 interface, describes a 3D point or movement
@@ -233,6 +233,9 @@ namespace Tristeon
 			 * \return The json object describing this vector
 			 */
 			nlohmann::json serialize() override;
+			nlohmann::json serialize_const() const;
+
+			std::array<float, 3> toArray() const { return { x, y, z }; }
 			/**
 			 * \brief Deserializes the vector from a json file
 			 * \param json The json file
@@ -249,5 +252,14 @@ namespace Tristeon
 		* \return
 		*/
 		Vector3 operator*(const float& multiplier, Vector3 vector);
+
+		//Override functions for json maps/vectors
+		inline void to_json(nlohmann::json& j, const Vector3& p) {
+			j = p.serialize_const();
+		}
+
+		inline void from_json(const nlohmann::json& j, Vector3& p) {
+			p.deserialize(j);
+		}
 	}
 }
