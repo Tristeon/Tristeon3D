@@ -134,10 +134,6 @@ namespace Tristeon
 					 * \brief Removes all references to game components
 					 */
 					void reset() override;
-					/**
-					 * \brief 
-					 */
-					void setupMaterials() override;
 
 					/**
 					 * \brief Registers a renderer and its internal renderer. Used as callback function for the manager protocol only.

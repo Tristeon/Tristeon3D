@@ -70,6 +70,7 @@ namespace Tristeon
 					 * \return Returns the descriptor set layout describing the uniform buffer input 
 					 */
 					vk::DescriptorSetLayout getUniformLayout() const { return descriptorSetLayout1; }
+					//TODO: Rename to properties layout
 					/**
 					 * \return Returns the descriptor set layout describing the sampler input 
 					 */
@@ -86,8 +87,9 @@ namespace Tristeon
 					 * \return Returns the shaderfile currently owned by pipeline 
 					 */
 					ShaderFile getShaderFile() const { return file; }
+
 				private:
-					void createDescriptorLayout();
+					void createDescriptorLayout(std::map<int, ShaderProperty> properties);
 					/**
 					 * \brief Creates the Vulkan Pipeline
 					 * \param extent The swapchain/window extent (width, height)

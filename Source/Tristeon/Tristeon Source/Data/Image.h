@@ -5,18 +5,21 @@ namespace Tristeon
 {
 	namespace Data
 	{
+		class ImageBatch;
+
 		/**
 		 * \brief Class for image handling.
 		 */
 		class Image
 		{
+			friend ImageBatch;
 		public:
 			/**
-			 * \brief Creates a new instance of Image, filepath still has to be set
+			 * \brief Creates a new instance of Image. Loads in a white image
 			 */
 			Image();
 			/**
-			 * \brief Creates a new instance of image with the given filepath
+			 * \brief Creates a new instance of image and loads in the image data based on the filepath.
 			 * \param filePath The filepath of the image
 			 */
 			explicit Image(std::string filePath);
@@ -29,12 +32,7 @@ namespace Tristeon
 			 * \brief Gets the pixels of the image
 			 * \return An unsigned char* describing the pixels
 			 */
-			unsigned char* getPixels();
-			/**
-			 * \brief Deallocates the memory occupied by the loaded image;
-			 * \param pixels The pixels obtained by getPixels()
-			 */
-			void freePixels(unsigned char* pixels);
+			unsigned char* getPixels() const;
 
 			/**
 			 * \brief Gets the width of the image
@@ -51,6 +49,11 @@ namespace Tristeon
 			 * \return Returns an integer describing the amount of channels of the image
 			 */
 			int getChannels() const;
+
+			/**
+			 * \return Returns a string with the current filepath of the image 
+			 */
+			std::string getFilePath() const;
 		private:
 			/**
 			 * \brief The filepath of the image
@@ -68,6 +71,11 @@ namespace Tristeon
 			 * \brief The channel count of the image
 			 */
 			int channels = 0;
+
+			/**
+			 * \brief The pixels of the image
+			 */
+			unsigned char* pixels = nullptr;
 		};
 	}
 }

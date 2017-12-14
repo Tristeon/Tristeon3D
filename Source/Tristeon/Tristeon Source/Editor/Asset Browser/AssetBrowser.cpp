@@ -12,6 +12,7 @@
 #include "Editor/EditorNode.h"
 #include "Editor/EditorDragging.h"
 #include "PrefabFileItem.h"
+#include "ShaderFileItem.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -113,6 +114,13 @@ void AssetBrowser::onGui()
 				materialFile->init(createdItemName, itemManager->currentFolder, "mat");
 				Core::Rendering::Material material;
 				materialFile->createFile(material.serialize());
+			}
+			if (ImGui::Button("Create shader"))
+			{
+				ShaderFileItem* shaderItem = new ShaderFileItem();
+				shaderItem->init(createdItemName, itemManager->currentFolder, "shader");
+				Core::Rendering::ShaderFile file;
+				shaderItem->createFile(file.serialize());
 			}
 		}
 		else std::cout << "Can't create items with more than 24 characters\n";

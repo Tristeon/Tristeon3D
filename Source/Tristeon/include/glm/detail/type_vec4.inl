@@ -1,7 +1,9 @@
 /// @ref core
 /// @file glm/detail/type_tvec4.inl
 
+#ifndef assert
 #define assert
+#endif
 
 namespace glm{
 namespace detail

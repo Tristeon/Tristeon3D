@@ -195,6 +195,11 @@ namespace Tristeon
 
 		nlohmann::json Vector3::serialize()
 		{
+			return serialize_const();
+		}
+
+		nlohmann::json Vector3::serialize_const() const
+		{
 			nlohmann::json output;
 			output["typeID"] = typeid(Vector3).name();
 			output["x"] = x;

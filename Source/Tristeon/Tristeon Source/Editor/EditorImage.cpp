@@ -54,9 +54,6 @@ namespace Tristeon
 			memcpy(data, pixels, size);
 			binding->device.unmapMemory(stagingMemory);
 
-			//Free cpu pixels
-			image.freePixels(pixels);
-
 			//Create vulkan image
 			Core::Rendering::Vulkan::VulkanImage::createImage(
 				binding,

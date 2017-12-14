@@ -21,6 +21,11 @@ namespace Tristeon
 
 		nlohmann::json Color::serialize()
 		{
+			return serialize_const();
+		}
+
+		nlohmann::json Color::serialize_const() const
+		{
 			//Serialize into a json file
 			nlohmann::json j;
 			j["typeID"] = typeid(Color).name();

@@ -39,10 +39,6 @@ namespace Tristeon
 				//Game logic
 				ManagerProtocol::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg) { inPlayMode = true; });
 				ManagerProtocol::subscribeToMessage(MT_GAME_LOGIC_STOP, [&](Message msg) { inPlayMode = false; });
-
-				//TODO: Replace hardcode with project shader system
-				ShaderFile file = ShaderFile("Standard", "Files/Shaders/", "standardV", "standardF");
-				shaderFiles.push_back(file);
 			}
 
 			std::vector<Renderer*> RenderManager::getRenderers() const

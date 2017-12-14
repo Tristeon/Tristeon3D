@@ -116,7 +116,7 @@ void Tristeon::Editor::SceneWindow::drawScene() const
 	ImVec2 size = ImGui::GetWindowSize();
 	size.y -= yOffset;
 	editor->editorCamera->size = Math::Vector2(size.x, size.y);
-	ImGui::Image((ImTextureID)(VkDescriptorSet)data->onscreen.set, size);
+	ImGui::Image((ImTextureID)(VkDescriptorSet)data->onscreen.sets[0], size);
 }
 
 void Tristeon::Editor::SceneWindow::drawGizmos(glm::mat4& model) const

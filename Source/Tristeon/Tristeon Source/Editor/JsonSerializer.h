@@ -15,6 +15,8 @@ public:
 	 * \brief Create an instance with type T using the given filepath
 	 */
 	template <typename T> static T* deserialize(const std::string& path);
+
+	static nlohmann::json load(const std::string& path);
 };
 
 template <>
@@ -38,8 +40,7 @@ void JsonSerializer::serialize(const std::string& path, T& obj)
 	JsonSerializer::serialize(path,obj.serialize());
 }
 
-template <typename T>
-T* JsonSerializer::deserialize(const std::string& path)
+inline nlohmann::json JsonSerializer::load(const std::string& path)
 {
 	//Read file and check if it read it successfully
 	std::ifstream stream(path);
@@ -55,8 +56,16 @@ T* JsonSerializer::deserialize(const std::string& path)
 	{
 		std::cout << "file is either a non-json file or corrupted" << std::endl;
 		throw std::invalid_argument("file is either a non-json file or corrupted");
-		return nullptr;
 	}
+
+	return input;
+}
+
+
+template <typename T>
+T* JsonSerializer::deserialize(const std::string& path)
+{
+	nlohmann::json input = load(path);
 
 	//Check if the object is serializing its typeID
 	const auto iterator = input.find("typeID");
@@ -67,6 +76,8 @@ T* JsonSerializer::deserialize(const std::string& path)
 
 	//Create instance of the type that is specified in the json file under the "typeID" member
 	auto instance = TypeRegister::createInstance(input["typeID"]);
+	if (instance == nullptr)
+		return nullptr;
 	Serializable* deserializedObject = static_cast<Serializable*>(instance.get());
 	instance.release();
 	//Load json data into the instance

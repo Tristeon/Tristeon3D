@@ -12,6 +12,7 @@
 #include "Core/BindingData.h"
 #include "Misc/Hardware/Keyboard.h"
 #include "RenderManagerVulkan.h"
+#include "Data/ImageBatch.h"
 
 namespace Tristeon
 {
@@ -21,7 +22,7 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				REGISTER_TYPE_CPP(Material)
+				REGISTER_TYPE_CPP(Vulkan::Material)
 
 				Material::~Material()
 				{
@@ -30,10 +31,9 @@ namespace Tristeon
 
 				void Material::render(glm::mat4 model, glm::mat4 view, glm::mat4 proj)
 				{
-					//Check for uniform memory
 					if ((VkDeviceMemory)uniformBufferMem == VK_NULL_HANDLE)
 					{
-						Misc::Console::warning("Vulkan::Material::uniformBufferMem has not been set! Object's transform might be off!");
+						Misc::Console::warning("Vulkan::Material::uniformBufferMem has not been set! Object's transform will be off!");
 						return;
 					}
 
@@ -50,17 +50,116 @@ namespace Tristeon
 					memcpy(data, &ubo, sizeof ubo);
 					pipeline->device.unmapMemory(uniformBufferMem);
 
+					//Verify data
+					if (shader == nullptr)
+					{
+						Misc::Console::warning("Material.shader is nullptr. Object's material properties will be off!");
+						return;
+					}
+					if (pipeline == nullptr)
+					{
+						Misc::Console::warning("Vulkan::Material.pipeline is nullptr. Object's material properties will be off!");
+						return;
+					}
+
+					//TODO: This should be a separate function for recursiveness in structs and such
+					//Other data
+					for (const auto pair : shader->getProps())
+					{
+						ShaderProperty p = pair.second;
+
+						if (p.valueType == DT_Unknown || p.size == 0)
+							continue;
+
+						void* mem = malloc(p.size);
+
+						switch (p.valueType)
+						{
+						case DT_Color:
+						{
+							Misc::Color const c = colors[p.name];
+							glm::vec4 col = glm::vec4(c.r, c.g, c.b, c.a);
+							memcpy(mem, &col, sizeof(glm::vec4));
+							break;
+						}
+						case DT_Float:
+						{
+							float f = floats[p.name];
+							memcpy(mem, &f, sizeof(float));
+							break;
+						}
+						case DT_Vector3:
+						{
+							Math::Vector3 const vec = vectors[p.name];
+							glm::vec3 v = Vec_Convert3(vec);
+							memcpy(mem, &v, sizeof(glm::vec3));
+							break;
+						}
+						case DT_Struct:
+						{
+							//Cast mem (malloc(p.size)) byte array 
+							uint8_t* ptr = reinterpret_cast<uint8_t*>(mem);
+
+							//Fill allocated memory with our data
+							for (auto c : p.children)
+							{
+								switch (c.valueType)
+								{
+								case DT_Float:
+								{
+									float f = floats[p.name + "." + c.name];
+									memcpy(ptr, &f, sizeof(float));
+									ptr += sizeof(float);
+									break;
+								}
+								case DT_Color:
+								{
+									const auto col = colors[p.name + "." + c.name];
+									glm::vec4 color = glm::vec4(col.r, col.g, col.b, col.a);
+									memcpy(ptr, &color, sizeof(glm::vec4));
+									ptr += sizeof(glm::vec4);
+									break;
+								}
+								case DT_Vector3:
+								{
+									Math::Vector3 const vec = vectors[p.name + "." + c.name];
+									glm::vec3 v = glm::vec3(vec.x, vec.y, vec.z);
+									memcpy(ptr, &v, sizeof(glm::vec3));
+									ptr += sizeof(glm::vec3);
+									break;
+								}
+								}
+							}
+							break;
+						}
+						default:
+						{
+							free(mem);
+							continue;
+						}
+						}
+
+						vk::DeviceSize const size = p.size;
+
+						void* d;
+						pipeline->device.mapMemory(uniformBuffers[p.name].mem, 0, size, {}, &d);
+						memcpy(d, mem, size);
+						pipeline->device.unmapMemory(uniformBuffers[p.name].mem);
+					}
+
 					//Reset so we don't acidentally use the buffer from last object
 					uniformBufferMem = nullptr;
 				}
 
 				void Material::setupTextures()
 				{
-					createTextureImage();
-					createTextureImageView();
-					createTextureSampler();
-
-					prepared = true;
+					for (const auto t : texturePaths)
+					{
+						Texture vktex;
+						createTextureImage(Data::Image(t.second), vktex);
+						createTextureSampler(vktex);
+						textures[t.first] = vktex;
+					}
 				}
 
 				void Material::setActiveUniformBufferMemory(vk::DeviceMemory uniformBuffer)
@@ -68,79 +167,165 @@ namespace Tristeon
 					uniformBufferMem = uniformBuffer;
 				}
 
-				void Material::rebuildShader()
+				void Material::updateProperties(bool updateResources)
 				{
-					Vulkan::RenderManager::getPipeline(*shader.get());
+					cleanup();
 
+					if (shader == nullptr)
+						return;
+
+					//Fill in empty vars
+					for (const auto p : shader->getProps())
+						setDefaults(p.second.name, p.second);
+
+					//Update
+					if (updateResources)
+					{
+						pipeline = RenderManager::getPipeline(*shader.get());
+						if (pipeline == nullptr)
+							return;
+						setupTextures();
+						createDescriptorSets();
+					}
 				}
 
-				void Material::cleanup() const
+				void Material::setDefaults(std::string name, ShaderProperty prop)
 				{
-					pipeline->device.destroySampler(diffuseSampler);
-					pipeline->device.destroyImageView(diffuseView);
-					pipeline->device.destroyImage(diffuseImg);
-					pipeline->device.freeMemory(diffuseMemory);
+					switch (prop.valueType)
+					{
+					case DT_Image:
+						if (texturePaths.find(name) == texturePaths.end())
+							texturePaths[name] = "";
+						break;
+					case DT_Color:
+						if (colors.find(name) == colors.end())
+							colors[name] = Misc::Color();
+						break;
+					case DT_Float:
+						if (floats.find(name) == floats.end())
+							floats[name] = 0;
+						break;
+					case DT_Vector3:
+						if (vectors.find(name) == vectors.end())
+							vectors[name] = Math::Vector3();
+						break;
+					case DT_Struct:
+						for (auto c : prop.children)
+						{
+							std::string const n = name + "." + c.name;
+							setDefaults(n, c);
+						}
+						//case DT_Unknown: break;
+						//default: ;
+					}
 				}
 
-				void Material::createTextureImage()
+				void Material::updateShader()
+				{
+					Rendering::Material::updateShader();
+					if (shader == nullptr)
+						return;
+					pipeline = RenderManager::getPipeline(*shader.get());
+				}
+
+				void Material::setTexture(std::string name, std::string path)
+				{
+					Rendering::Material::setTexture(name, path);
+
+					//Update image if it already exists. Otherwise we can safely assume that either 
+					//this texture doesn't exist, or our textures have not been set up yet
+					if (textures.find(name) != textures.end())
+					{
+						Texture tex = textures[name];
+						pipeline->device.destroyImage(tex.img);
+						pipeline->device.freeMemory(tex.mem);
+						pipeline->device.destroyImageView(tex.view);
+						pipeline->device.destroySampler(tex.sampler);
+
+						createTextureImage(Data::ImageBatch::getImage(path), tex);
+						createTextureSampler(tex);
+
+						textures[name] = tex;
+
+						pipeline->device.freeDescriptorSets(pipeline->binding->descriptorPool, set);
+						createDescriptorSets();
+					}
+				}
+
+				void Material::cleanup()
+				{
+					//None of this has been created if we don't have a pipeline, nor can we destroy anything without pipeline anyways
+					if (pipeline == nullptr)
+						return;
+
+					//Destroy textures
+					for (auto const t : textures)
+					{
+						pipeline->device.destroySampler(t.second.sampler);
+						pipeline->device.destroyImageView(t.second.view);
+						pipeline->device.destroyImage(t.second.img);
+						pipeline->device.freeMemory(t.second.mem);
+					}
+					//Destroy uniform buffers
+					for (auto const b : uniformBuffers)
+					{
+						pipeline->device.destroyBuffer(b.second.buf);
+						pipeline->device.freeMemory(b.second.mem);
+					}
+
+					uniformBuffers.clear();
+					textures.clear();
+
+					//Free descriptor set
+					pipeline->device.freeDescriptorSets(pipeline->binding->descriptorPool, set);
+				}
+
+				void Material::createTextureImage(Data::Image img, Texture& texture) const
 				{
 					//Get image size and data
-					auto pixels = _diffuse.getPixels();
-					vk::DeviceSize size = _diffuse.getWidth() * _diffuse.getHeight() * 4;
-
-					//Fill with white pixels if we can't get anything else
-					if (size == 0)
-					{
-						diffuse.freePixels(pixels);
-
-						_diffuse = Data::Image("Files/Textures/white.jpg");
-						pixels = _diffuse.getPixels();
-						size = _diffuse.getWidth() * _diffuse.getHeight() * 4;
-					}
+					auto const pixels = img.getPixels();
+					vk::DeviceSize const size = img.getWidth() * img.getHeight() * 4;
 
 					//Create staging buffer to allow vulkan to optimize the texture buffer's memory
 					vk::Buffer staging;
 					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(pipeline->binding, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
+					VulkanBuffer::createBuffer(pipeline->binding, size,
+						vk::BufferUsageFlagBits::eTransferSrc,
+						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+						staging, stagingMemory);
 
-					//Map memory to staging buffer
+					//Upload our memory to the staging buffer
 					void* data;
 					pipeline->binding->device.mapMemory(stagingMemory, 0, size, {}, &data);
 					memcpy(data, pixels, size);
 					pipeline->binding->device.unmapMemory(stagingMemory);
 
-					//Free cpu pixels
-					diffuse.freePixels(pixels);
-
 					//Create vulkan image
 					VulkanImage::createImage(
 						pipeline->binding,
-						diffuse.getWidth(), diffuse.getHeight(),
+						img.getWidth(), img.getHeight(),
 						vk::Format::eR8G8B8A8Unorm,
 						vk::ImageTiling::eOptimal,
 						vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 						vk::MemoryPropertyFlagBits::eDeviceLocal,
-						diffuseImg, diffuseMemory);
+						texture.img, texture.mem);
 
 					//Change texture format to transfer destination
-					VulkanImage::transitionImageLayout(pipeline->binding, diffuseImg, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+					VulkanImage::transitionImageLayout(pipeline->binding, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 					//Send data from our staging buffer to our image
-					VulkanImage::copyBufferToImage(pipeline->binding, staging, diffuseImg, diffuse.getWidth(), diffuse.getHeight());
+					VulkanImage::copyBufferToImage(pipeline->binding, staging, texture.img, img.getWidth(), img.getHeight());
 					//Change texture format to shader read only
-					VulkanImage::transitionImageLayout(pipeline->binding, diffuseImg, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+					VulkanImage::transitionImageLayout(pipeline->binding, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
 					//Cleanup staging buffer
 					pipeline->device.destroyBuffer(staging);
 					pipeline->device.freeMemory(stagingMemory);
+
+					//Create image view for texture
+					texture.view = VulkanImage::createImageView(pipeline->device, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
 				}
 
-				void Material::createTextureImageView()
-				{
-					//Create image view for diffuse texture
-					diffuseView = VulkanImage::createImageView(pipeline->device, diffuseImg, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
-				}
-
-				void Material::createTextureSampler()
+				void Material::createTextureSampler(Texture& tex) const
 				{
 					vk::SamplerCreateInfo ci = vk::SamplerCreateInfo({},
 						vk::Filter::eLinear, vk::Filter::eLinear,
@@ -152,40 +337,72 @@ namespace Tristeon
 						vk::BorderColor::eIntOpaqueBlack,
 						VK_FALSE);
 
-					vk::Result const r = pipeline->device.createSampler(&ci, nullptr, &diffuseSampler);
+					vk::Result const r = pipeline->device.createSampler(&ci, nullptr, &tex.sampler);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to create image sampler: " + to_string(r));
-				}
-
-				void Material::property__set_diffuse(const property__tmp_type_diffuse& value)
-				{
-					_diffuse = value;
-
-					if (prepared)
-					{
-						cleanup();
-						pipeline->device.freeDescriptorSets(pipeline->binding->descriptorPool, 1, &set);
-						setupTextures();
-						createDescriptorSets();
-					}
 				}
 
 				void Material::createDescriptorSets()
 				{
-					VulkanBindingData* binding = pipeline->binding; //Easy reference for now
+					//Don't bother if we don't even have a shader pipeline
+					if (shader == nullptr || pipeline == nullptr)
+						return;
+					VulkanBindingData* binding = pipeline->binding; //Reference
 
-					//Allocate
+					//Allocate the descriptor set we're using to pass material properties to the shader
 					vk::DescriptorSetLayout layout = pipeline->getSamplerLayout();
 					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
 					vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
-					//Write info
-					vk::DescriptorImageInfo image = vk::DescriptorImageInfo(diffuseSampler, diffuseView, vk::ImageLayout::eShaderReadOnlyOptimal);
-					vk::WriteDescriptorSet const samplerWrite = vk::WriteDescriptorSet(set, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
+					std::vector<vk::WriteDescriptorSet> writes;
+
+					//Create a descriptor write instruction for each shader property
+					int i = 0;
+					for (const auto pair : shader->getProps())
+					{
+						ShaderProperty p = pair.second;
+						switch (p.valueType)
+						{
+							case DT_Image:
+							{
+								vk::DescriptorImageInfo img = vk::DescriptorImageInfo(textures[p.name].sampler, textures[p.name].view, vk::ImageLayout::eShaderReadOnlyOptimal);
+								writes.push_back(vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eCombinedImageSampler, &img, nullptr, nullptr));
+								break;
+							}
+							case DT_Color:
+							case DT_Float:
+							case DT_Vector3:
+							case DT_Struct:
+							{
+								UniformBuffer const buf = createUniformBuffer(p.name, p.size);
+								vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(buf.buf, 0, p.size);
+								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
+								writes.push_back(uboWrite);
+								uniformBuffers[p.name] = buf;
+								break;
+							}
+						}
+						i++;
+					}
 
 					//Update descriptor with our new write info
-					std::array<vk::WriteDescriptorSet, 1> write = { samplerWrite };
-					binding->device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
+					binding->device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
+				}
+
+				UniformBuffer Material::createUniformBuffer(std::string name, vk::DeviceSize size)
+				{
+					UniformBuffer buf;
+					//Create a uniform buffer of the size of UniformBufferObject
+					if (uniformBuffers.find(name) != uniformBuffers.end())
+						return uniformBuffers[name];
+
+					VulkanBuffer::createBuffer(pipeline->binding, size,
+						vk::BufferUsageFlagBits::eUniformBuffer,
+						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+						buf.buf, buf.mem);
+
+					uniformBuffers[name] = buf;
+					return buf;
 				}
 			}
 		}

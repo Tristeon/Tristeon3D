@@ -3,7 +3,9 @@
 
 #include "func_matrix.hpp"
 
+#ifndef assert
 #define assert
+#endif
 namespace glm
 {
 	// -- Constructors --

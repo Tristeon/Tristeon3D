@@ -4,6 +4,18 @@
 #include "Editor/Serializable.h"
 #include "Editor/TypeRegister.h"
 
+#ifdef EDITOR
+namespace spirv_cross {
+	class Compiler;
+}
+
+namespace Tristeon {
+	namespace Editor {
+		class ShaderFileItem;
+	}
+}
+#endif
+
 namespace Tristeon
 {
 	namespace Core
@@ -27,10 +39,36 @@ namespace Tristeon
 
 			enum DataType
 			{
+				DT_Unknown,
 				DT_Image,
 				DT_Color,
 				DT_Float,
-				DT_Vector3
+				DT_Vector3,
+				DT_Struct
+			};
+
+			enum ShaderStage
+			{
+				Vertex,
+				Fragment,
+				Geometry,
+				Compute,
+				All_Graphics,
+				All
+			};
+
+			struct ShaderProperty
+			{
+				std::string name;
+				DataType valueType;
+				ShaderStage shaderStage;
+				size_t size;
+				std::vector<ShaderProperty> children;
+
+				bool operator ==(const ShaderProperty& other) const
+				{
+					return other.name == name && other.valueType == valueType && other.shaderStage == shaderStage;
+				}
 			};
 
 			/**
@@ -38,6 +76,9 @@ namespace Tristeon
 			 */
 			class ShaderFile : public Serializable
 			{
+#ifdef EDITOR
+				friend Editor::ShaderFileItem;
+#endif
 			public:
 				/**
 				 * \brief Creates a new shaderfile with empty data. Mainly used for serialization
@@ -64,6 +105,19 @@ namespace Tristeon
 				 * \return Gets the name id of the shaderfile 
 				 */
 				std::string getNameID() const { return nameID; }
+
+				/**
+				* \brief Generates a json object containing the data of this shader file
+				* \return Returns the json object
+				*/
+				nlohmann::json serialize() override;
+				/**
+				* \brief Deserializes the given json object into this object's data
+				* \param json The json containing the serialized data
+				*/
+				void deserialize(nlohmann::json json) override;
+
+				std::map<int, ShaderProperty> getProps();
 			private:
 				/**
 				 * \brief ShaderFiles can be identified by their nameID
@@ -81,19 +135,11 @@ namespace Tristeon
 				 * \brief The name of the fragment shader file
 				 */
 				std::string fragmentName;
-
-				/**
-				 * \brief Generates a json object containing the data of this shader file
-				 * \return Returns the json object
-				 */
-				nlohmann::json serialize() override;
-				/**
-				 * \brief Deserializes the given json object into this object's data
-				 * \param json The json containing the serialized data
-				 */
-				void deserialize(nlohmann::json json) override;
 				
-				std::map<std::string, DataType> properties;
+				bool loadedProps = false;
+				std::map<int, ShaderProperty> properties;
+
+				void applyShaderReflection(spirv_cross::Compiler& comp, ShaderStage stage);
 
 				REGISTER_TYPE_H(ShaderFile)
 			};

@@ -147,16 +147,19 @@ namespace Tristeon
 						/**
 						 * \brief Used to pass our screen texture to the screen shader
 						 */
-						vk::DescriptorSet set;
+						std::array<vk::DescriptorSet, 2> sets;
+
+						vk::Buffer tempBuf;
+						vk::DeviceMemory tempBufMem;
 
 						/**
 						 * \brief Allocates the offscreen commandbuffer and creates the descriptorset
-						 * \param pipeline The onscreen pipeline 
 						 * \param binding Bindingdata used for rendering information
 						 * \param offscreen Used to get some information from the offscreen pass
 						 * \param isEditorCam Creates descriptorsets that fit the editor pass if true, renderpass if false
+						 * \param onscreenPipeline Used to get the descriptor layouts
 						 */
-						void init(Pipeline* pipeline, VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam);
+						void init(VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline);
 						/**
 						 * \brief Destroys the resources that have been created
 						 * \param device Used to destroy the resources that were created

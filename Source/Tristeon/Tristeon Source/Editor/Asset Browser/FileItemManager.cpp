@@ -1,5 +1,4 @@
 ﻿#include "FileItemManager.h"
-#include <windows.h>
 #include <filesystem>
 #include "FolderItem.h"
 #include <GLFW/glfw3.h>

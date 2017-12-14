@@ -82,10 +82,6 @@ namespace Tristeon
 				* \return A material serialized from the given filepath, or from the cached materials
 				*/
 				virtual Material* getmaterial(std::string filePath) = 0;
-				/**
-				 * \brief Sets up all the materials with their respective shaderfiles. API specific
-				 */
-				virtual void setupMaterials() = 0;
 
 				/**
 				 * \brief Removes all the registered renderers. Is generally called when a scene is closed to make sure the list is clean.

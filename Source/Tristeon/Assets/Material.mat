@@ -1,1 +1,1 @@
-{"diffuseColor":{"a":1.0,"b":1.0,"g":1.0,"r":1.0,"typeID":"class Tristeon::Misc::Color"},"diffusePath":"","shaderFilePath":"","typeID":"class Tristeon::Core::Rendering::Material"}
+{"colors":{"Material.color":{"a":1.0,"b":0.378571450710297,"g":0.3785699903965,"r":0.378567665815353,"typeID":"class Tristeon::Misc::Color"}},"floats":{"Material.metallic":0.300000011920929,"Material.roughness":0.699999988079071},"shaderFilePath":"Assets/Shader.shader","texturePaths":{"diffuse":"Files/Textures/white.jpg"},"typeID":"class Tristeon::Core::Rendering::Material","vectors":{}}

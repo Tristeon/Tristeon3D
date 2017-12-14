@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "Core/Rendering/Material.h"
 #include <vulkan/vulkan.hpp>
-#include "Misc/Property.h"
-
 namespace Tristeon
 {
 	namespace Core
@@ -15,6 +13,7 @@ namespace Tristeon
 				class InternalMeshRenderer;
 				class Pipeline;
 				class DebugDrawManager;
+
 				//UBO decl
 				/**
 				 * \brief The uniform buffer object is used to send matrix information to the gpu.
@@ -36,6 +35,48 @@ namespace Tristeon
 				};
 
 				/**
+				 * \brief The texture struct wraps around all the vulkan objects that are
+				 * required to pass a texture onto the shader.
+				 */
+				struct Texture
+				{
+					/**
+					 * \brief The vulkan image, used to bind everything together
+					 */
+					vk::Image img = nullptr;
+					/**
+					 * \brief The allocated GPU memory, used to send the image 
+					 * data to the GPU.
+					 */
+					vk::DeviceMemory mem = nullptr;
+					/**
+					 * \brief The image view represents a way for shaders to read/write data to the image, instead
+					 * of modifying the image directly.
+					 */
+					vk::ImageView view = nullptr;
+					/**
+					 * \brief The image sampler is used to pass the image onto the GPU, while applying filtering
+					 */
+					vk::Sampler sampler = nullptr;
+				};
+
+				/**
+				 * \brief The uniform buffer struct wraps around the required vulkan objects
+				 * to create a uniform buffer, that is used to send uniform data to the GPU.
+				 */
+				struct UniformBuffer
+				{
+					/**
+					 * \brief The buffer. Used to bind the buffer memory to the shader
+					 */
+					vk::Buffer buf = nullptr;
+					/**
+					 * \brief The buffer memory. Used to send uniform data to the GPU
+					 */
+					vk::DeviceMemory mem = nullptr;
+				};
+
+				/**
 				 * \brief Vulkan implementation of Material. Controls the appearance of renderers in the world
 				 */
 				class Material : public Rendering::Material
@@ -51,7 +92,12 @@ namespace Tristeon
 					 */
 					~Material();
 
-					SetProperty(diffuse) override;
+					/**
+					* \brief Sets the texture property with the name [name] to the given Image. Will update the vulkan resource data.
+					* \param name The name of the texture property. The function will return a warning if this name hasn't been registered.
+					* \param path The path to the new texture
+					*/
+					void setTexture(std::string name, std::string path) override;
 				protected:
 					/**
 					 * \brief Sends UBO data to the shader
@@ -71,8 +117,16 @@ namespace Tristeon
 					 */
 					void setActiveUniformBufferMemory(vk::DeviceMemory uniformBuffer);
 
-					void rebuildShader() override;
+					/**
+					 * \brief Updates the resource data based on the current shader.
+					 * \param updateResources If set to true, we'll also update the allocated vulkan resources 
+					 */
+					void updateProperties(bool updateResources) override;
+
+					void updateShader() override;
 				private:
+					void setDefaults(std::string name, ShaderProperty prop);
+
 					/**
 					 * \brief The active uniform buffer memory
 					 */
@@ -81,28 +135,22 @@ namespace Tristeon
 					/**
 					 * \brief Cleans up all the resources allocated by Material
 					 */
-					void cleanup() const;
+					void cleanup();
 					/**
 					 * \brief Creates the descriptor sets for the textures
 					 */
 					void createDescriptorSets();
+
+					UniformBuffer createUniformBuffer(std::string name, vk::DeviceSize size);
 					/**
 					 * \brief Creates the vulkan image for the material's textures
 					 */
-					void createTextureImage();
-					/**
-					 * \brief Creates the vulkan image view for the material's textures
-					 */
-					void createTextureImageView();
+					void createTextureImage(Data::Image img, Texture& tex) const;
 					/**
 					 * \brief Creates the vulkan sampler for the material's textures
 					 */
-					void createTextureSampler();
+					void createTextureSampler(Texture& tex) const;
 
-					/**
-					 * \brief The lookup ID of the assigned pipeline
-					 */
-					int pipelineID = 0;
 					/**
 					 * \brief The pipeline defining the shaders of this material
 					 */
@@ -114,23 +162,15 @@ namespace Tristeon
 					vk::DescriptorSet set;
 
 					/**
-					 * \brief The vulkan image for the diffuse texture
+					 * \brief The vulkan textures
 					 */
-					vk::Image diffuseImg;
+					std::map<std::string, Texture> textures;
 					/**
-					 * \brief The memory for the diffuse texture
+					 * \brief The uniform buffers for all non-texture properties
 					 */
-					vk::DeviceMemory diffuseMemory;
-					/**
-					 * \brief The image view for the diffuse texture
-					 */
-					vk::ImageView diffuseView;
-					/**
-					 * \brief The image sampler for the diffuse texture
-					 */
-					vk::Sampler diffuseSampler;
+					std::map<std::string, UniformBuffer> uniformBuffers;
 
-					REGISTER_TYPE_H(Material)
+					REGISTER_TYPE_H(Vulkan::Material)
 				};
 			}
 		}

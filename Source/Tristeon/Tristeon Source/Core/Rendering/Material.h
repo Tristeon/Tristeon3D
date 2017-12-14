@@ -5,9 +5,16 @@
 #include <glm/mat4x4.hpp>
 #include "Editor/TypeRegister.h"
 #include <filesystem>
-#include <Misc/Property.h>
 #include "ShaderFile.h"
-#include "Editor/JsonSerializer.h"
+#include "Math/Vector3.h"
+
+#ifdef EDITOR
+namespace Tristeon { 
+	namespace Editor {
+		class MaterialFileItem;
+	}
+}
+#endif
 
 namespace Tristeon
 {
@@ -29,7 +36,9 @@ namespace Tristeon
 			{
 				friend Vulkan::RenderManager;
 				friend RenderManager;
-
+#ifdef EDITOR
+				friend Editor::MaterialFileItem;
+#endif
 			public:
 				/**
 				 * \brief Serializes the material into a json file
@@ -42,14 +51,30 @@ namespace Tristeon
 				 */
 				void deserialize(nlohmann::json json) override;
 
-				Misc::Color getDiffuse() { return diffuseColor; }
-
 				/**
-				* \brief The diffuse image of the material
-				*/
-				Property(Data::Image, diffuse);
-				GetPropertyConst(diffuse) { return _diffuse; }
-				virtual SetProperty(diffuse) { _diffuse = value; }
+				 * \brief Sets the texture property with the name [name] to the given Image
+				 * \param name The name of the texture property. The function will return a warning if this name hasn't been registered.
+				 * \param path The path to the new texture
+				 */
+				virtual void setTexture(std::string name, std::string path);
+				/**
+				 * \brief Sets the float property with the name [name] to the given value
+				 * \param name The name of the float property. The function will return a warning if this name hasn't been registered.
+				 * \param value The new value of the float property
+				 */
+				virtual void setFloat(std::string name, float value);
+				/**
+				 * \brief Sets the vector3 property with the name [name] to the given vector
+				 * \param name The name of the vector3 property. The function will return a warning if this name hasn't been registered.
+				 * \param value The new value of the vector3 property
+				 */
+				virtual void setVector3(std::string name, Math::Vector3 value);
+				/**
+				 * \brief Sets the color property with the name [name] to the given color
+				 * \param name The name of the color property. The function will return a warning if this name hasn't been registered.
+				 * \param value The new value of the vector3 property
+				 */
+				virtual void setColor(std::string name, Misc::Color value);
 			protected:
 				/**
 				 * \brief Initializes the material. Can be overriden by API specific behavior
@@ -61,41 +86,43 @@ namespace Tristeon
 				 * \param view The current camera view matrix
 				 * \param proj The current camera projection matrix
 				 */
-				virtual void render(glm::mat4 model, glm::mat4 view, glm::mat4 proj){};
+				virtual void render(glm::mat4 model, glm::mat4 view, glm::mat4 proj) { }
+
 				/**
 				 * \brief Setup textures initializes all the textures and uploads them to the GPU. API specific.
 				 */
-				virtual void setupTextures(){};
+				virtual void setupTextures() { }
 
 				/**
-				 * \brief Function callback used to rebuild the shader pipeline when we've changed ShaderFile
+				 * \brief Used to rebuild the shader pipeline and update our properties when we've changed ShaderFile
 				 */
-				virtual void rebuildShader(){};
+				virtual void updateProperties(bool updateResources = true) { }
 
-				/**
-				 * \brief The diffuse texture of the object
-				 */
-				Data::Image _diffuse;
-				/**
-				 * \brief The diffuse color of the object
-				 */
-				Misc::Color diffuseColor;
+				virtual void updateShader();
 
-				/**
-				 * \brief Keeps track of wether the material is done setting up (important for image loading / unloading on image change)
-				 */
-				bool prepared = false;
 				/**
 				* \brief The shaderfile, loaded using shaderFilePath
 				*/
 				std::unique_ptr<ShaderFile> shader;
-			private:
-				
-				/**
-				 * \brief The path to the diffuse image
-				 */
-				std::string diffusePath;
 
+				/**
+				 * \brief The texturepaths, used to load images for the material.
+				 */
+				std::map<std::string, std::string> texturePaths;
+				/**
+				 * \brief Vector properties, used to send vector data to the GPU
+				 */
+				std::map<std::string, Math::Vector3> vectors;
+				/**
+				 * \brief Color properties, used to send color data to the gpu
+				 */
+				std::map<std::string, Misc::Color> colors;
+				/**
+				 * \brief Float properties, used to send float data to the gpu
+				 */
+				std::map<std::string, float> floats;
+			private:
+				void checkProperty(std::string parentName, ShaderProperty prop, const std::map<std::string, std::string>& tex, const std::map<std::string, Math::Vector3>& vec, const std::map<std::string, Misc::Color>& col, const std::map<std::string, float>& fl);
 				/**
 				 * \brief The filepath to the shader file
 				 */
@@ -103,34 +130,6 @@ namespace Tristeon
 
 				REGISTER_TYPE_H(Material)
 			};
-
-			inline nlohmann::json Material::serialize()
-			{
-				nlohmann::json j;
-				j["typeID"] = typeid(Material).name();
-				j["diffusePath"] = diffusePath;
-				j["diffuseColor"] = diffuseColor.serialize();
-				j["shaderFilePath"] = shaderFilePath;
-				return j;
-			}
-
-			inline void Material::deserialize(nlohmann::json json)
-			{
-				const std::string diffusePathValue = json["diffusePath"];
-				if (std::experimental::filesystem::exists(diffusePath))
-					diffuse = Data::Image(diffusePath);
-				diffusePath = diffusePathValue;
-
-				diffuseColor.deserialize(json["diffuseColor"]);
-
-				const std::string shaderFilePathValue = json["shaderFilePath"];
-				if (shaderFilePath != shaderFilePathValue)
-				{
-					shader = std::unique_ptr<ShaderFile>(JsonSerializer::deserialize<ShaderFile>(shaderFilePath));
-					rebuildShader();
-				}
-				shaderFilePath = shaderFilePathValue;
-			}
 		}
 	}
 }

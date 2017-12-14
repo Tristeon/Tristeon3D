@@ -35,8 +35,8 @@ namespace Tristeon
 
 					material = new Vulkan::Material();
 					material->pipeline = pipeline;
-					material->setupTextures();
-					material->createDescriptorSets();
+					material->shader = std::make_unique<ShaderFile>(file);
+					material->updateProperties(true);
 
 					//Allocate command buffers
 					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);

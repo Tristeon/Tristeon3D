@@ -3,13 +3,13 @@
 #include "Core/TObject.h"
 #include "Editor/TypeRegister.h"
 
-#define Vec_Convert(vec) { vec.x, vec.y }
-#define Vec_Ptr_Convert(vec) { vec->x, vec->y}
-
 namespace Tristeon
 {
 	namespace Math
 	{
+		#define Vec_Convert2(vec) { vec.x, vec.y }
+		#define Vec_Ptr_Convert2(vec) { vec->x, vec->y}
+
 		/**
 		 * \brief Vector2 interface, describes a 2D point or movement
 		 */

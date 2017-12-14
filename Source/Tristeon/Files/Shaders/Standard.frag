@@ -1,6 +1,13 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
-layout(set = 1, binding = 1) uniform sampler2D diffuse;
+layout(set = 1, binding = 0) uniform sampler2D diffuse;
+
+layout(set = 1, binding = 1) uniform Material
+{
+    vec4 color;
+    float roughness;
+    float metallic;
+} material;
 
 layout (location = 0) in vec3 inWorldPos;
 layout(location = 1) in vec3 inNormal;
@@ -8,16 +15,11 @@ layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inViewPos;
 layout(location = 0) out vec4 frag_color;
 
-//layout(push_constant) uniform PushConsts {
-//  layout(offset = 12) float roughness;
-//  layout(offset = 16) float metallic;
-//} material;
-
 const float PI = 3.14159265359;
 
 vec3 materialColor()
 {
-    return vec3(1.0f, 0.765557f, 0.336057f);
+    return vec3(material.color.r, material.color.g, material.color.b);
 }
 
 //The D term is the normal distribution  function (NDF) component and
@@ -72,8 +74,8 @@ float G_Schlick_Smith(float dotNL, float dotNV, float roughness)
 
 vec3 BRDF(vec3 l, vec3 v, vec3 n)
 {
-    float roughness = 0.1;
-    float metallic = 1;
+    float roughness = material.roughness;
+    float metallic = material.metallic;
 
     vec3 h = normalize(v + l);
     float dotNV = clamp(dot(n, v), 0.0, 1.0);

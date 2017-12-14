@@ -56,9 +56,9 @@ namespace Tristeon
 #endif
 
 #if (defined(_WIN32) | defined(_WIN64)) && defined(LOGDEBUG)
-			MessageBox(nullptr, data.c_str(), "Oops! Something went wrong...", 0);
+			if (MessageBox(nullptr, data.c_str(), "Oops! Something went wrong... Break?", MB_YESNO) == IDYES)
+				throw std::runtime_error(data.c_str());
 #endif
-			throw std::runtime_error(data.c_str());
 		}
 	}
 }

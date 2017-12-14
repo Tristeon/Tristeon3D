@@ -10,22 +10,27 @@
 
 Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* data, vk::RenderPass offscreenPass)
 {
+	//Editor grid basically simulates a grid by taking a material, pipeline and meshrenderer,
+	//setting the rendermode to linelist, and generating a mesh existing of lines
+
+	//Store binding data
 	this->data = data;
 
-	//ShaderFile
+	//Set up our pipeline
 	file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-	//Pipeline
 	pipeline = new Pipeline(data, file, data->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
-	//Material
+	//Set up our material with our shader pipeline
 	material = new Material();
+	material->shader = std::make_unique<ShaderFile>(file);
+	material->updateProperties(true);
 	material->pipeline = pipeline;
-	material->setupTextures();
-	material->createDescriptorSets();
 
-	//Generate mesh
+	//Create the mesh, existing of 20x20 lines
 	const int lines = 20;
 	Data::SubMesh mesh;
+
+	//Z lines
 	for (int i = -lines; i < lines; i++)
 	{
 		Data::Vertex v;
@@ -41,6 +46,7 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 		mesh.vertices.push_back(v2);
 	}
 
+	//X lines
 	for (int i = -lines; i < lines; i++)
 	{
 		Data::Vertex v;
@@ -57,7 +63,8 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 	}
 
 	//Create object and meshrenderer
-	object = new GameObject(); //Unregistered gameobject
+	object = new GameObject(false); //Unregistered gameobject
+	object->name = "EditorGrid";
 	mr = object->addComponent<MeshRenderer>();
 	mr->mesh = mesh;
 	mr->material = material;
@@ -69,7 +76,7 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 
 Tristeon::Core::Rendering::Vulkan::EditorGrid::~EditorGrid()
 {
-	//Cleanup
+	//Cleanup our allocated resources
 	delete material;
 	delete pipeline;
 	delete object;
@@ -77,6 +84,7 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::~EditorGrid()
 
 void Tristeon::Core::Rendering::Vulkan::EditorGrid::rebuild(vk::RenderPass offscreenPass) const
 {
-	//Rebuild pipeline and renderer
+	//The pipeline has to be rebuilt the moment the swapchain changes,
+	//to fit the new swapchain/window size
 	pipeline->rebuild(data->swapchain->extent2D, offscreenPass);
 }

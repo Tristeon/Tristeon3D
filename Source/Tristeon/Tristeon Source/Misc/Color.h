@@ -33,7 +33,8 @@ namespace Tristeon
 			 * \brief Serializes the color into a json file
 			 * \return The json file describing this color
 			 */
-			nlohmann::json serialize() override;
+			nlohmann::json serialize() override; 
+			nlohmann::json serialize_const() const;
 			/**
 			 * \brief Deserializes the color from a json file
 			 * \param json The json file describing the color
@@ -43,8 +44,9 @@ namespace Tristeon
 			/**
 			 * \brief Converts the color data to an array of 4 floats
 			 */
-			std::array<float, 4> toArray() const { return {r,g,b,a}; }
+			std::array<float, 4> toArray() const { return { r, g, b, a}; }
 
+			std::string toString() const { return "{ " + std::to_string(r) + ", " + std::to_string(g) + ", " + std::to_string(b) + ", " + std::to_string(a) + "}"; }
 			/**
 			 * \brief The red component of the color
 			 */
@@ -62,5 +64,14 @@ namespace Tristeon
 			 */
 			float a;
 		};
+
+		//Override functions for json maps/vectors
+		inline void to_json(nlohmann::json& j, const Color& p) {
+			j = p.serialize_const();
+		}
+
+		inline void from_json(const nlohmann::json& j, Color& p) {
+			p.deserialize(j);
+		}
 	}
 }

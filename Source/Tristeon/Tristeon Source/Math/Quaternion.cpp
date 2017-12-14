@@ -21,7 +21,7 @@ namespace Tristeon
 
 		Quaternion::Quaternion(Vector3 vector)
 		{
-			quaternion = glm::quat(glm::radians(glm::vec3(Vec_Convert(vector))));
+			quaternion = glm::quat(glm::radians(glm::vec3(Vec_Convert3(vector))));
 		}
 
 		Quaternion::Quaternion(float x, float y, float z, float w)
@@ -61,7 +61,7 @@ namespace Tristeon
 
 		Quaternion Quaternion::euler(Vector3 angles)
 		{
-			return Quaternion(glm::quat(radians(glm::vec3(Vec_Convert(angles)))));
+			return Quaternion(glm::quat(radians(glm::vec3(Vec_Convert3(angles)))));
 		}
 
 		Quaternion Quaternion::euler(float x, float y, float z)
@@ -81,7 +81,7 @@ namespace Tristeon
 
 		Quaternion Quaternion::lookRotation(Vector3 position, Vector3 target)
 		{
-			return Quaternion(glm::lookAt(Vec_Convert(position), Vec_Convert(target), glm::vec3(0, 1, 0)));
+			return Quaternion(glm::lookAt(Vec_Convert3(position), Vec_Convert3(target), glm::vec3(0, 1, 0)));
 		}
 
 		Quaternion Quaternion::inverse(Quaternion quat)
@@ -91,18 +91,18 @@ namespace Tristeon
 
 		Quaternion Quaternion::rotate(Vector3 axis, float amount)
 		{
-			quaternion = glm::rotate(quaternion, glm::radians(amount), Vec_Convert(axis));
+			quaternion = glm::rotate(quaternion, glm::radians(amount), Vec_Convert3(axis));
 			return *this;
 		}
 
 		void Quaternion::lookAt(Vector3 eye, Vector3 target)
 		{
-			quaternion = glm::quat(glm::lookAt(Vec_Convert(eye), Vec_Convert(target), glm::vec3(0, 1, 0)));
+			quaternion = glm::quat(glm::lookAt(Vec_Convert3(eye), Vec_Convert3(target), glm::vec3(0, 1, 0)));
 		}
 
 		Vector3 Quaternion::eulerAngles() const
 		{
-			return Vec_Convert(degrees(glm::eulerAngles(quaternion)));
+			return Vec_Convert3(degrees(glm::eulerAngles(quaternion)));
 		}
 
 		glm::quat Quaternion::getGLMQuat() const
