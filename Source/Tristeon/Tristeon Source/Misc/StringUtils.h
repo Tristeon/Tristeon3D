@@ -8,6 +8,8 @@ class StringUtils
 public:
 	static std::vector<std::string> split(const std::string& s, char delim);
 
+	static std::string generateRandom(int length);
+
 private:
 	template <class Out>
 	static void split(const std::string& s, char delim, Out result);

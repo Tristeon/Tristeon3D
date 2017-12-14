@@ -10,6 +10,8 @@ namespace Tristeon
 	{
 		class EditorNode : public Selectable, public Draggable
 		{
+			friend class EditorCameraController;
+			friend class EditorNodeTree;
 			friend class EditorSelection;
 		public:
 			explicit EditorNode(Core::GameObject* gameObj);

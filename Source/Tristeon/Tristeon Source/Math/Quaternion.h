@@ -68,6 +68,12 @@ namespace Tristeon
 			Quaternion operator*(Quaternion other) const;
 
 			/**
+			* \brief Multiplies this quaternion with the given quaternion
+			* \param other The other quaternion
+			*/
+			void operator*=(Quaternion other);
+
+			/**
 			* \brief The w component of this Quaternion
 			*/
 			Property(float, w);

@@ -344,6 +344,7 @@
     <ClCompile Include="Tristeon Source\Editor\EditorImage.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorSelection.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Inspector\InspectorWindow.cpp" />
+    <ClCompile Include="Tristeon Source\Editor\Scene editor\EditorCameraController.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Scene editor\GameObjectHierarchy.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorNode.cpp" />
     <ClCompile Include="Tristeon Source\Application.cpp" />
@@ -437,6 +438,7 @@
     <ClInclude Include="Tristeon Source\Editor\EditorSelection.h" />
     <ClInclude Include="Tristeon Source\Editor\Inspector\InspectorWindow.h" />
     <ClInclude Include="Tristeon Source\Editor\IntrospectionInterface.h" />
+    <ClInclude Include="Tristeon Source\Editor\Scene editor\EditorCameraController.h" />
     <ClInclude Include="Tristeon Source\Editor\Scene editor\GameObjectHierarchy.h" />
     <ClInclude Include="Tristeon Source\Editor\EditorNode.h" />
     <ClInclude Include="Tristeon Source\Application.h" />

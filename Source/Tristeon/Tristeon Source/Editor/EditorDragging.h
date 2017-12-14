@@ -19,7 +19,6 @@ namespace Tristeon
 			*/
 			static void setDragableItem(Draggable* draggingItem)
 			{
-				std::cout << "Set new draggable item\n";
 				EditorDragging::draggingItem = draggingItem;
 			}
 			/**
@@ -27,7 +26,6 @@ namespace Tristeon
 			 */
 			static void reset()
 			{
-				std::cout << "Reset dragging\n";
 				draggingItem = nullptr;
 			}
 

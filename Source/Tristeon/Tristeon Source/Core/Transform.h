@@ -7,6 +7,12 @@
 #include <glm/mat4x4.hpp>
 #include "Math/Quaternion.h"
 
+namespace Tristeon {
+	namespace Scenes {
+		class SceneManager;
+	}
+}
+
 namespace Tristeon
 {
 	namespace Core
@@ -18,6 +24,7 @@ namespace Tristeon
 		 */
 		class Transform final : public TObject
 		{
+			friend Scenes::SceneManager;
 		public:
 			/**
 			 * \brief Cleans up transform and all of its relationships
@@ -101,11 +108,18 @@ namespace Tristeon
 			 * \param rot The amount of rotation in degrees
 			 */
 			void rotate(Math::Vector3 axis, float rot);
+
 			/**
 			 * \brief Translates the transform in local space
 			 * \param t The amount of translation
 			 */
 			void translate(Math::Vector3 t);
+
+			/**
+			* \brief Translates the transform in local space
+			* \param t The amount of translation
+			*/
+			void translate(float x, float y, float z);
 
 			/**
 			 * \brief Transforms a given point from local to global space
@@ -119,6 +133,23 @@ namespace Tristeon
 			 * \return The transformed position
 			 */
 			Math::Vector3 inverseTransformPoint(Math::Vector3 point) const;
+
+			void lookAt(Transform* target, Math::Vector3 worldUp = Math::Vector3::up);
+
+			/**
+			* \brief The green axis of the transform in world space.
+			*/
+			Math::Vector3 up() const;
+			
+			/**
+			 * \brief The red axis of the transform in world space.
+			 */
+			Math::Vector3 right() const;
+
+			/**
+			 * \brief The blue axis of the transform in world space.
+			 */
+			Math::Vector3 forward() const;
 
 		private:
 			/**
@@ -171,6 +202,12 @@ namespace Tristeon
 			 * \brief The parent of this transform
 			 */
 			Transform* parent = nullptr;
+
+			/**
+			 * \brief The id of the parent
+			 */
+			std::string parentID = "null";
+
 			/**
 			 * \brief The children of this transform
 			 */

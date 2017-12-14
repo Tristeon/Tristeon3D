@@ -6,8 +6,8 @@ namespace Tristeon
 {
 	namespace Math
 	{
-#define Vec_Convert3(vec) { vec.x, vec.y, vec.z }
-#define Vec_Ptr_Convert3(vec) { vec->x, vec->y, vec->z }
+		#define Vec_Convert(vec) { vec.x, vec.y, vec.z }
+		#define Vec_Ptr_Convert(vec) { vec->x, vec->y, vec->z }
 
 		/**
 		* \brief Vector3 interface, describes a 3D point or movement
@@ -38,44 +38,38 @@ namespace Tristeon
 			 */
 			Vector3(float x, float y, float z);
 
-#pragma region quick vectors
+			#pragma region const static vectors
+			/**
+			(0, 0, -1)
+			*/
+			const static Vector3 back;
+			/**
+			(0, -1, 0)
+			*/
+			const static Vector3 down;
+			/**
+			(0, 0, 1)
+			*/
+			const static Vector3 forward;
+			/**
+			(-1, 0, 0)
+			*/
+			const static Vector3 left;
+			/**
+			(1, 0, 0)
+			*/
+			const static Vector3 right;
+			/**
+			(0, 1, 0)
+			*/
+			const static Vector3 up;
+			/**
+			(1, 1, 1)
+			*/
+			const static Vector3 one;
+			const static Vector3 zero;
+			#pragma endregion
 
-			/**
-			 * (0, 0, 1)
-			 */
-			static Vector3 forward() { return Vector3(0, 0, 1); }
-			/**
-			* (0, 0, -1)
-			*/
-			static Vector3 back() { return Vector3(0, 0, -1); }
-
-			/**
-			* (0, -1, 0)
-			*/
-			static Vector3 down() { return Vector3(0, -1, 0); }
-			/**
-			* (0, 1, 0)
-			*/
-			static Vector3 up() { return Vector3(0, 1, 0); }
-			/**
-			* (1, 0, 0)
-			*/
-			static Vector3 right() { return Vector3(1, 0, 0); }
-
-			/**
-			* (-1, 0, 0)
-			*/
-			static Vector3 left() { return Vector3(-1, 0, 0); }
-
-			/**
-			 * (0, 0, 0)
-			 */
-			static Vector3 zero() { return Vector3(0, 0, 0); }
-			/**
-			 * (1, 1, 1)
-			 */
-			static Vector3 one() { return Vector3(1, 1, 1); }
-#pragma endregion
 
 			/**
 			 * \brief The x component of this vector
@@ -93,7 +87,7 @@ namespace Tristeon
 			/**
 			* \brief Access the x, y, z components using [0], [1], [2] respectively.
 			*/
-			float getAxis(const int& axis) const;
+			float& getAxis(const int& axis);
 			/**
 			* \brief returns normalized vector
 			*/
@@ -150,59 +144,59 @@ namespace Tristeon
 
 			/**
 			 * \brief Verifies wether or not this vector is NOT equal with the given vector
-			 * \param vec
-			 * \return
+			 * \param vec 
+			 * \return 
 			 */
 			bool operator!=(const Vector3& vec) const;
 
 			/**
 			 * \brief Multiplies the x,y,z components with the given multiplier
 			 * \param multiplier the value to multiply our components with
-			 * \return
+			 * \return 
 			 */
 			Vector3 operator*(const float& multiplier) const;
 
 			/**
 			 * \brief Multiplies the x,y,z components with the x,y,z components of the other vector
 			 * \param vec the vector to multiply our components with
-			 * \return
+			 * \return 
 			 */
 			Vector3 operator*(const Vector3& vec) const;
 
 			/**
 			 * \brief Divides the x,y,z components by the given divider
 			 * \param divider the value to divide our components with
-			 * \return
+			 * \return 
 			 */
 			Vector3 operator/(const float& divider) const;
 
 			/**
 			 * \brief Divides the x,y,z components by the x,y,z components of the other vector
 			 * \param divider the vector to divide our components with
-			 * \return
+			 * \return 
 			 */
 			Vector3 operator/(const Vector3& divider) const;
 
 			/**
 			 * \brief Adds the x,y,z components of the given vector to our x,y,z components
 			 * \param vec the other vector
-			 * \return
+			 * \return 
 			 */
 			Vector3 operator+(const Vector3& vec) const;
-
+			
 			/**
 			 * \brief Subtracts the x,y,z components of the given vector from our x,y,z components
 			 * \param vec the other vector
-			 * \return
+			 * \return 
 			 */
 			Vector3 operator-(const Vector3& vec) const;
 
 			/**
 			 * \brief Gets the axis with the given index
 			 * \param value The index of the axis
-			 * \return
+			 * \return 
 			 */
-			float operator[](const int& value) const;
+			float& operator[](const int& value);
 
 			/**
 			 * \brief Subtracts the x,y,z components of the given vector from our x,y,z components
@@ -233,18 +227,12 @@ namespace Tristeon
 			 * \return Returns the string
 			 */
 			std::string toString() const;
-
-			/**
-			 * \return Returns the vector as an std array
-			 */
-			std::array<float, 3> toArray() const { return { x, y, z }; }
-
+			
 			/**
 			 * \brief Serializes the vector into a json file
 			 * \return The json object describing this vector
 			 */
 			nlohmann::json serialize() override;
-			nlohmann::json serialize_const() const;
 			/**
 			 * \brief Deserializes the vector from a json file
 			 * \param json The json file
@@ -255,13 +243,11 @@ namespace Tristeon
 			REGISTER_TYPE_H(Vector3)
 		};
 
-		//Override functions for json maps/vectors
-		inline void to_json(nlohmann::json& j, const Vector3& p) {
-			j = p.serialize_const();
-		}
-
-		inline void from_json(const nlohmann::json& j, Vector3& p) {
-			p.deserialize(j);
-		}
+		/**
+		* \brief Multiplies the x,y,z components with the given multiplier
+		* \param multiplier the value to multiply our components with
+		* \return
+		*/
+		Vector3 operator*(const float& multiplier, Vector3 vector);
 	}
 }

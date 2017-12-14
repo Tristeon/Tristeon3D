@@ -23,7 +23,7 @@ namespace Tristeon
 			static Scene* getActiveScene() { return activeScene.get(); }
 		
 		private:
-			static Core::GameObject* findGameObjectWithInstanceID(int instanceID);
+			static Core::Transform* findTransformByInstanceID(std::string instanceID);
 			static void createParentalBonds(Scene* scene);
 
 			static void addScenePath(std::string name, std::string path);

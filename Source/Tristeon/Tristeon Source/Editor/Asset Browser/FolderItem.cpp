@@ -6,6 +6,7 @@
 #include "Misc/StringUtils.h"
 #include "Misc/Console.h"
 #include "Editor/EditorDragging.h"
+#include "MeshFileItem.h"
 
 using namespace std;
 using namespace Tristeon::Editor;
@@ -65,10 +66,18 @@ void FolderItem::createMetaData(const string& filepath)
 	//TODO: implement identification of the file where metadata is created for, so instead of assuming that
 	//if it's not a folder that it's simply an assetitem, further define what that assetitem could be.
 	std::shared_ptr<FileItem> itemMetaData;
+	fs::path path(filepath);
 	if (fs::is_directory(filepath))
 		itemMetaData = std::make_shared<FolderItem>();
 	else
+	{
+		//TODO: Support more types of mesh files
+		if(path.extension() == ".obj" || path.extension() == ".fbx")
+		{
+			itemMetaData = std::make_shared<MeshFileItem>();
+		}
 		itemMetaData = std::make_shared<AssetItem>();
+	}
 
 	//TODO: cleanup code and make it more clear
 	//Seperate the path by folders

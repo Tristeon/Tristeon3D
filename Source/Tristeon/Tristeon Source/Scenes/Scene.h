@@ -20,14 +20,12 @@ namespace Tristeon
 
 			void removeGameObject(Core::GameObject* gameObj);
 
-			Core::GameObject* getGameObject(int instanceID);
+			Core::GameObject* getGameObject(std::string instanceID);
 
 			nlohmann::json serialize() override;
 
 			void deserialize(nlohmann::json json) override;
 
-			//The counter that keeps track of the amount of instances that have been created
-			int instanceCount = 0;
 		private:
 			//Scene(const Scene& scene) {} //The class should not be allowed to be copied
 			std::vector<std::unique_ptr<Tristeon::Core::GameObject>> gameObjects;

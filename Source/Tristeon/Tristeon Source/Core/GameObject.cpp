@@ -12,20 +12,6 @@ namespace Tristeon
 		{
 			//Create transform
 			_transform = std::make_unique<Transform>();
-			//Increment instance count of the current scene
-			Scenes::SceneManager::getActiveScene()->instanceCount++;
-		}
-
-		GameObject::GameObject(bool reg)
-		{
-			//Create transform
-			_transform = std::make_unique<Transform>();
-
-			if (reg)
-			{
-				//Increment instance count of the current scene
-				Scenes::SceneManager::getActiveScene()->instanceCount++;
-			}
 		}
 
 		void GameObject::init()
@@ -56,7 +42,8 @@ namespace Tristeon
 		void GameObject::deserialize(nlohmann::json json)
 		{
 			//Read gameobject data from json
-			instanceID = json["instanceID"];
+			const std::string instanceIDValue = json["instanceID"];
+			instanceID = instanceIDValue;
 			active = json["active"];
 			const std::string nameValue = json["name"];
 			name = nameValue;

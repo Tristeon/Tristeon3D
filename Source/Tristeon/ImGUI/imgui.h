@@ -575,7 +575,7 @@ enum ImGuiSelectableFlags_
 // Flags for ImGui::IsItemHovered(), ImGui::IsWindowHovered()
 enum ImGuiHoveredFlags_
 {
-    ImGuiHoveredFlags_Default                       = 0,        // Return true if directly over the item/window, not obstructed by another window, not obstructed by an active popup or modal blocking inputs under them.
+    ImGuiHoveredFlags_Default                       = 0,        // Return true if directly over the item/window and not obstructed by another window and not obstructed by an active popup or modal blocking inputs under them.
     ImGuiHoveredFlags_AllowWhenBlockedByPopup       = 1 << 0,   // Return true even if a popup window is normally blocking access to this item/window
     //ImGuiHoveredFlags_AllowWhenBlockedByModal     = 1 << 1,   // Return true even if a modal popup window is normally blocking access to this item/window. FIXME-TODO: Unavailable yet.
     ImGuiHoveredFlags_AllowWhenBlockedByActiveItem  = 1 << 2,   // Return true even if an active item is blocking access to this item/window

@@ -1,11 +1,17 @@
 ﻿#include <Core/TObject.h>
 #include "Misc/Console.h"
+#include "Misc/StringUtils.h"
 
 namespace Tristeon
 {
 	namespace Core
 	{
-		int TObject::getInstanceID() const
+		TObject::TObject()
+		{
+			instanceID = StringUtils::generateRandom(12);
+		}
+
+		std::string TObject::getInstanceID() const
 		{
 			return instanceID;
 		}

@@ -54,6 +54,11 @@ namespace Tristeon
 			return Quaternion(quaternion * other.quaternion);
 		}
 
+		void Quaternion::operator*=(Quaternion other)
+		{
+			quaternion *= other.quaternion;
+		}
+
 		Quaternion Quaternion::euler(Vector3 angles)
 		{
 			return Quaternion(glm::quat(radians(glm::vec3(Vec_Convert3(angles)))));

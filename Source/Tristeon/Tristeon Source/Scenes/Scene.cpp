@@ -62,9 +62,7 @@ namespace Tristeon
 		void Scene::addGameObject(Core::GameObject* gameObj)
 		{
 			gameObjects.push_back(std::move(std::unique_ptr<Core::GameObject>(gameObj)));
-			instanceCount++;
 			nlohmann::json json = gameObj->serialize();
-			json["instanceID"] = instanceCount;
 			gameObj->deserialize(json);
 		}
 
@@ -76,7 +74,7 @@ namespace Tristeon
 			}
 		}
 
-		Core::GameObject* Scene::getGameObject(int instanceID)
+		Core::GameObject* Scene::getGameObject(std::string instanceID)
 		{
 			for (int i = 0; i < gameObjects.size(); ++i)
 			{
