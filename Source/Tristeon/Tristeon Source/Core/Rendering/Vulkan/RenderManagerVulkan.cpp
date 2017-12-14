@@ -32,7 +32,6 @@
 #include "HelperClasses/VulkanFrame.h"
 #include "Editor/JsonSerializer.h"
 #include "DebugDrawManagerVulkan.h"
-
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -243,7 +242,7 @@ namespace Tristeon
 				void RenderManager::createDescriptorPool()
 				{
 					//UBO Buffer
-					vk::DescriptorPoolSize const poolUniform = vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, materials.size() + 50);
+					vk::DescriptorPoolSize const poolUniform = vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, materials.size()*10 + 1000);
 					//Samplers
 					vk::DescriptorPoolSize const poolSampler = vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, materials.size() + 1000);
 
