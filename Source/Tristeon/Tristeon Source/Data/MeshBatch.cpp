@@ -16,7 +16,7 @@ namespace Tristeon
 			//Get our loaded mesh
 			Mesh* m = loadedMeshes[meshPath].get();
 			//Can't find the correct submesh
-			if (subMeshID > m->submeshes.size() || m->submeshes.size() == 0)
+			if (subMeshID > m->submeshes.size() - 1|| m->submeshes.size() == 0)
 				return SubMesh();
 
 			//Found the correct submesh

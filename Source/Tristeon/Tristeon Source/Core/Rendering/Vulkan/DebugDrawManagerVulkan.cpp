@@ -84,14 +84,14 @@ namespace Tristeon
 					
 					binding->device.freeCommandBuffers(binding->commandPool, cmd);
 
+					binding->device.freeMemory(uniformBufferMemory);
+					binding->device.destroyBuffer(uniformBuffer);
+					binding->device.freeDescriptorSets(binding->descriptorPool, set);
+
 					for (const auto buf : vertexBuffers)
 						binding->device.destroyBuffer(buf);
 					for (const auto mem : vertexBuffersMemory)
 						binding->device.freeMemory(mem);
-
-					binding->device.freeDescriptorSets(binding->descriptorPool, set);
-					binding->device.freeMemory(uniformBufferMemory);
-					binding->device.destroyBuffer(uniformBuffer);
 				}
 
 				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass) const
@@ -119,11 +119,13 @@ namespace Tristeon
 					binding->device.unmapMemory(stagingMemory);
 
 					//Create vertex buffer
-					if ((VkBuffer)vertexBuffers[i] == VK_NULL_HANDLE || (VkDeviceMemory)vertexBuffersMemory[i] == VK_NULL_HANDLE)
+					if (!vertexBuffers[i] || !vertexBuffersMemory[i])
+					{
 						VulkanBuffer::createBuffer(
 							binding, size, 
 							vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, 
 							vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffers[i], vertexBuffersMemory[i]);
+					}
 
 					//Copy from staging buffer to vertex buffer
 					VulkanBuffer::copyBuffer(binding, staging, vertexBuffers[i], size);
@@ -143,6 +145,7 @@ namespace Tristeon
 					const vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo(
 						vk::CommandBufferUsageFlagBits::eRenderPassContinue, 
 						&data->inheritance);
+
 					vk::CommandBuffer secondary = cmd;
 					secondary.begin(beginInfo);
 

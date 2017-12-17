@@ -276,7 +276,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp_x64_debug_release.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;glfw3_x86_debug_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp_x64_debug_release.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;spirv/spirv-cross-core_debug_release.lib;spirv/spirv-cross-cpp_debug_release.lib;spirv/spirv-cross-glsl_debug_release.lib;spirv/spirv-cross-hlsl_debug_release.lib;spirv/spirv-cross-msl_debug_release.lib;glfw3_x86_debug_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -320,7 +320,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp_x64_debug_release.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;glfw3_x64_debug_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp_x64_debug_release.lib;vulkan-1.lib;VkLayer_api_dump.lib;VkLayer_core_validation.lib;VkLayer_monitor.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;VkLayer_screenshot.lib;VkLayer_threading.lib;VkLayer_unique_objects.lib;VkLayer_utils.lib;spirv/spirv-cross-core_debug_release.lib;spirv/spirv-cross-cpp_debug_release.lib;spirv/spirv-cross-glsl_debug_release.lib;spirv/spirv-cross-hlsl_debug_release.lib;spirv/spirv-cross-msl_debug_release.lib;glfw3_x64_debug_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

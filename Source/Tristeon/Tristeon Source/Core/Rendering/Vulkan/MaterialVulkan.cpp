@@ -355,6 +355,9 @@ namespace Tristeon
 					vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
+					std::map<std::string, vk::DescriptorImageInfo> descImgInfos;
+					std::map<std::string, vk::DescriptorBufferInfo> descBufInfos;
+
 					std::vector<vk::WriteDescriptorSet> writes;
 
 					//Create a descriptor write instruction for each shader property
@@ -366,8 +369,8 @@ namespace Tristeon
 						{
 							case DT_Image:
 							{
-								vk::DescriptorImageInfo img = vk::DescriptorImageInfo(textures[p.name].sampler, textures[p.name].view, vk::ImageLayout::eShaderReadOnlyOptimal);
-								writes.push_back(vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eCombinedImageSampler, &img, nullptr, nullptr));
+								descImgInfos[p.name] = vk::DescriptorImageInfo(textures[p.name].sampler, textures[p.name].view, vk::ImageLayout::eShaderReadOnlyOptimal);
+								writes.push_back(vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eCombinedImageSampler, &descImgInfos[p.name], nullptr, nullptr));
 								break;
 							}
 							case DT_Color:
@@ -376,8 +379,8 @@ namespace Tristeon
 							case DT_Struct:
 							{
 								UniformBuffer const buf = createUniformBuffer(p.name, p.size);
-								vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(buf.buf, 0, p.size);
-								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
+								descBufInfos[p.name] = vk::DescriptorBufferInfo(buf.buf, 0, p.size);
+								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &descBufInfos[p.name], nullptr);
 								writes.push_back(uboWrite);
 								uniformBuffers[p.name] = buf;
 								break;
