@@ -14,12 +14,13 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
 * Rendering
   * Forward rendering
   * Vulkan backend
-  * PBR Shading (In development)
+  * PBR Lighting
   * Shader-Material system
   * Diffuse textures
   * 3D Mesh rendering
   * Camera component based rendering
   * Visual debugging tools
+  * Procedural shader property system
 * Editor
   * Asset browser
   * Scene editor
@@ -39,22 +40,17 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
   * Properties
   * Delegates
   * vector
-* Mesh Loading
-  * Vertices
-  * UVs
-  * Normals
-  * Over 40 file formats including FBX, OBJ, 3DS and blend
-* Image Loading
-  * Formats: JPG, PNG, TGA, BMP, PSD and more
+* Over 40 mesh file formats including FBX, OBJ, 3DS and blend
+* Supported image formats: JPG, PNG, TGA, BMP, PSD and more
 
 # Roadmap
 
 Near future:
-* PBR with textures and image based lighting
+* Image based PBR
+* Skybox rendering
 * Point/Spot/Directional lights
-* Flexible shader property system
 * Shadow mapping
-* Normal and emission maps
+* Normal, emission, roughness, metallicness and AO maps
 
 Planned:
 * Automized serialization
@@ -70,7 +66,7 @@ Planned:
 * HDR
 * Shadow cascades
 * UI Rendering
-* In-Editor Vulkan shader compilation
+* "Uber" shader compilation using spirv-cross
 
 # Engine architecture
 <img src="Documents/Engine Architecture/Tristeon Core Architecture.png">
