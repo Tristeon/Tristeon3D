@@ -140,6 +140,11 @@ namespace Tristeon
 			 * \return Returns true or false
 			 */
 			static bool getInWindow();
+			
+			/**
+			 * \brief Returns whether any mouse button has been pressed
+			 */
+			static bool anyButton();
 
 			/**
 			 * \return Gets the position of the mouse relative to the window

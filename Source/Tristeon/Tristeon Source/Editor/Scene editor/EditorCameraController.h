@@ -26,6 +26,8 @@ namespace Tristeon
 			float rotationSpeed = 0.5f;
 			float dragSpeed = 0.1f;
 			float zoomSpeed = 0.1f;
+			float xRotation = 0;
+			float yRotation = 0;
 		};
 	}
 }

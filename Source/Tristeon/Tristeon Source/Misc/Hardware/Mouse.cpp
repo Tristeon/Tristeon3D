@@ -46,6 +46,15 @@ namespace Tristeon
 			return inWindow;
 		}
 
+		bool Mouse::anyButton()
+		{
+			for (auto button : buttons)
+			{
+				if (button) return true;
+			}
+			return false;
+		}
+
 		Math::Vector2 Mouse::getPosition()
 		{
 			return position;

@@ -10,6 +10,7 @@
 #include "Editor/Asset Browser/PrefabFileItem.h"
 #include "Editor/Asset Browser/MeshFileItem.h"
 #include "Editor/Asset Browser/MaterialFileItem.h"
+#include "Core/Components/TestScript.h"
 using namespace Tristeon::Editor;
 
 InspectorWindow::InspectorWindow()
@@ -184,6 +185,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 				}
 				else if (i==1)
 				{
+					(*data)["components"].push_back(TestScript().serialize());
 				}
 				else if (i == 2)
 				{

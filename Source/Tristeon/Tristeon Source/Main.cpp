@@ -14,8 +14,6 @@ int main(int argc, char* argv)
 	FreeConsole(); //Close console if there's no debugging to be done
 #endif
 
-	std::cout << "size of vector3: " << sizeof(Tristeon::Core::TObject) << std::endl;
-
 	//Start application
 	app.init();
 	return 0;

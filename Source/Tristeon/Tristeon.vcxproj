@@ -325,6 +325,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ImGUI\Plugins\ImGuizmo.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Components\TestScript.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\DebugDrawManager.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Material.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\DebugDrawManagerVulkan.cpp" />
@@ -418,6 +419,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImGUI\Plugins\ImGuizmo.h" />
+    <ClInclude Include="Tristeon Source\Core\Components\TestScript.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\DebugDrawManager.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\DebugDrawManagerVulkan.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\CameraRenderData.h" />

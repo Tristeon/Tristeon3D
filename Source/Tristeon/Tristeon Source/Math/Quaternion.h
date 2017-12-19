@@ -5,6 +5,7 @@
 #include <misc/Property.h>
 #include "Core/TObject.h"
 #include <Editor/TypeRegister.h>
+#include "Vector3.h"
 
 namespace Tristeon
 {
@@ -188,5 +189,8 @@ namespace Tristeon
 			//Register
 			REGISTER_TYPE_H(Quaternion)
 		};
+
+		Vector3 operator*(Quaternion quaternion, Vector3 vec);
+		Vector3 operator*(Vector3 vec, Quaternion quaternion);
 	}
 }

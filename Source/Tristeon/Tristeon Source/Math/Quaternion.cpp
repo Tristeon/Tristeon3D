@@ -128,5 +128,16 @@ namespace Tristeon
 			z = json["z"];
 			w = json["w"];
 		}
+
+		Vector3 operator*(Quaternion quaternion, Vector3 vec)
+		{
+			const glm::vec3 output = quaternion.getGLMQuat() * glm::vec3(vec.x, vec.y, vec.z);
+			return Vector3(output.x, output.y, output.z);
+		}
+
+		Vector3 operator*(Vector3 vec, Quaternion quaternion)
+		{
+			return quaternion * vec;
+		}
 	}
 }

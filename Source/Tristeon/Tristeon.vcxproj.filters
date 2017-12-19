@@ -92,6 +92,7 @@
     <ClCompile Include="Tristeon Source\Core\Rendering\Material.cpp" />
     <ClCompile Include="Tristeon Source\Data\ImageBatch.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Components\TestScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tristeon Source\Core\Managers\InputManager.h" />
@@ -201,5 +202,6 @@
     <ClInclude Include="Tristeon Source\Editor\Scene editor\EditorCameraController.h" />
     <ClInclude Include="Tristeon Source\Data\ImageBatch.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.h" />
+    <ClInclude Include="Tristeon Source\Core\Components\TestScript.h" />
   </ItemGroup>
 </Project>

@@ -21,6 +21,8 @@ namespace Tristeon
 
 			void Component::init()
 			{
+				if (registered)
+					ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_DEREGISTER, this });
 				registered = true;
 				ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_REGISTER, this });
 			}
