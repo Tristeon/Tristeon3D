@@ -2,6 +2,7 @@
 #include "Core/Managers/Manager.h"
 #include "Misc/Delegate.h"
 #include "Misc/vector.h"
+#include "Skybox.h"
 
 namespace Tristeon
 {
@@ -75,6 +76,8 @@ namespace Tristeon
 				* \return A material serialized from the given filepath, or from the cached materials
 				*/
 				static Material* getMaterial(std::string filePath);
+				
+				static Skybox* getSkybox(std::string filePath);
 			protected:
 				/**
 				* \brief Returns a material serialized from the given filepath
@@ -133,6 +136,8 @@ namespace Tristeon
 				 * \brief All the materials in the project, sorted by their ID
 				 */
 				std::map<std::string, Material*> materials;
+
+				std::map < std::string, std::unique_ptr<Skybox>> skyboxes;
 
 				/**
 				 * \brief All the shaderfiles in the project

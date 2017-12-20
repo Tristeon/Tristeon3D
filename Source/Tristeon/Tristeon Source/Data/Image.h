@@ -50,6 +50,8 @@ namespace Tristeon
 			 */
 			int getChannels() const;
 
+			int getSize();
+
 			/**
 			 * \return Returns a string with the current filepath of the image 
 			 */

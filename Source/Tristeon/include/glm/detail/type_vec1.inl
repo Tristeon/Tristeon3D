@@ -1,5 +1,8 @@
 /// @ref core
 /// @file glm/detail/type_vec1.inl
+#ifndef assert
+#define assert
+#endif
 
 namespace glm
 {

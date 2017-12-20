@@ -3,6 +3,7 @@
 #include "Math/Rect.h"
 #include <glm/mat4x3.hpp>
 #include "Editor/TypeRegister.h"
+#include "Core/Rendering/Skybox.h"
 
 namespace Tristeon
 {
@@ -59,6 +60,9 @@ namespace Tristeon
 				ReadOnlyProperty(bool, offscreen);
 				GetPropertyConst(offscreen) { return _offscreen; }
 
+				void setSkybox(std::string path);
+				Rendering::Skybox* getSkybox() const;
+
 				/**
 				 * \brief Returns the view matrix of this camera
 				 * \return The view matrix
@@ -111,6 +115,9 @@ namespace Tristeon
 				 * \brief The onscreen rect of the camera
 				 */
 				Math::Rect _rect = Math::Rect(-1, -1, 2, 2);
+
+				std::string skyboxPath = "";
+				Rendering::Skybox* skybox;
 
 				REGISTER_TYPE_H(Camera)
 			};

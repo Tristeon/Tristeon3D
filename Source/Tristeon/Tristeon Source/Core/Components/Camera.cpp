@@ -6,6 +6,7 @@
 #include "Core/Message.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Core/Rendering/RenderManager.h"
 
 namespace Tristeon
 {
@@ -27,6 +28,17 @@ namespace Tristeon
 				//Deregister
 				if (registered)
 					ManagerProtocol::sendMessage({ MT_CAMERA_DEREGISTER, this });
+			}
+
+			void Camera::setSkybox(std::string path)
+			{
+				skyboxPath = path;
+				skybox = Rendering::RenderManager::getSkybox(path);
+			}
+
+			Rendering::Skybox* Camera::getSkybox() const
+			{
+				return skybox;
 			}
 
 			glm::mat4 Camera::getViewMatrix() const
@@ -67,6 +79,7 @@ namespace Tristeon
 				output["fov"] = _fov;
 				output["nearClippingPlane"] = _nearClippingPlane;
 				output["farClippingPlane"] = _farClippingPlane;
+				output["skybox"] = skyboxPath;
 				return output;
 			}
 
@@ -75,6 +88,11 @@ namespace Tristeon
 				_fov = json["fov"];
 				_nearClippingPlane = json["nearClippingPlane"];
 				_farClippingPlane = json["farClippingPlane"];
+
+				const std::string skyVal = json["skybox"];
+				if (skyVal != skyboxPath)
+					skybox = Rendering::RenderManager::getSkybox(skyVal);
+				skyboxPath = skyVal;
 			}
 		}
 	}
