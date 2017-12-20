@@ -19,7 +19,6 @@ namespace Tristeon
 		class TristeonEditor
 		{
 			friend SceneWindow;
-
 		public:
 			TristeonEditor();
 			~TristeonEditor();
@@ -39,6 +38,8 @@ namespace Tristeon
 			 * \brief Calls all the internal render calls necessary to run the editor
 			 */
 			void render();
+
+			Core::BindingData* getBindingData();
 		private:
 			/**
 			 * \brief Binds imgui to the rendering implementation

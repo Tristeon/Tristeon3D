@@ -3,6 +3,7 @@
 #include "../ImGUI/imgui.h"
 #include "FileItem.h"
 #include "SceneFileitem.h"
+#include "Editor/EditorImage.h"
 
 namespace Tristeon
 {
@@ -16,7 +17,7 @@ namespace Tristeon
 		class FileItemManager
 		{
 		public:
-			FileItemManager() = default;
+			FileItemManager(Core::BindingData* bindingData);
 			~FileItemManager();
 
 			/**
@@ -47,7 +48,11 @@ namespace Tristeon
 			/**
 			 * \brief The latest scene that has been loaded through the assetbrowser
 			 */
-			SceneFileItem* currentlyLoadedSceneFile;
+			SceneFileItem* currentlyLoadedSceneFile = nullptr;
+
+			std::map<std::string, std::unique_ptr<EditorImage>> assetIcons; //<extension, image>
+			std::unique_ptr<EditorImage> folderIcon;
+			std::unique_ptr<EditorImage> standardIcon;
 		};
 	}
 }

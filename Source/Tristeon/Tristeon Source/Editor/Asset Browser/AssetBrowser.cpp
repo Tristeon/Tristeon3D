@@ -1,18 +1,17 @@
 #include "AssetBrowser.h"
 #include "FileItemManager.h"
 #include "FolderItem.h"
-#include <fstream>
 #include <GLFW/glfw3.h>
 #include "SceneFileItem.h"
 #include "Scenes/Scene.h"
 #include "Scenes/SceneManager.h"
-#include "Editor/JsonSerializer.h"
 #include "MaterialFileItem.h"
 #include "Core/Rendering/Material.h"
 #include "Editor/EditorNode.h"
 #include "Editor/EditorDragging.h"
 #include "PrefabFileItem.h"
 #include "ShaderFileItem.h"
+#include "Editor/TristeonEditor.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -28,7 +27,7 @@ AssetBrowser::AssetBrowser()
 	rootFolder->setup(true);
 
 	//Set asset browser view to the asset folder (rootfolder)
-	itemManager = std::make_unique<FileItemManager>();
+	itemManager = std::make_unique<FileItemManager>(editor->getBindingData());
 	itemManager->setView(rootFolder.get());
 }
 

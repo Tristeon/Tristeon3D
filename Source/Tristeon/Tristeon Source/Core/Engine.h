@@ -39,13 +39,13 @@ namespace Tristeon
 			* \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
 			*/
 			ReadOnlyProperty(BindingData*, bindingData);
-			GetProperty(bindingData) { return bind; }
+			GetProperty(bindingData) { return bind.get(); }
 
 		private:
 			/**
 			 * \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
 			 */
-			BindingData* bind = nullptr;
+			std::unique_ptr<BindingData> bind = nullptr;
 		};
 	}
 }

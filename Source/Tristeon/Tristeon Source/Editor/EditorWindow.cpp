@@ -1,6 +1,9 @@
 #include "EditorWindow.h"
+#include "TristeonEditor.h"
 
 using namespace Tristeon::Editor;
+
+TristeonEditor* EditorWindow::editor = nullptr;
 
 EditorWindow::EditorWindow()
 {

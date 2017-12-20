@@ -8940,10 +8940,6 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
         selected = false;
 
     // Render
-	//const ImU32 color = GetColorU32(ImGuiCol_Button);
-	//RenderFrame(bb_with_spacing.Min, bb_with_spacing.Max,color);
-	//ImGui::Image()
-
     if (hovered || selected)
     {
         const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
@@ -8957,14 +8953,97 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     }
 
     if (flags & ImGuiSelectableFlags_Disabled) PushStyleColor(ImGuiCol_Text, g.Style.Colors[ImGuiCol_TextDisabled]);
-	RenderText(bb.Min + (bb.Max - bb.Min),label,NULL);
-	RenderTextClipped(bb.Min, bb_with_spacing.Max, label, NULL, &label_size, ImVec2(0.5,1));
+	RenderTextClipped(bb.Min, bb_with_spacing.Max, label, NULL, &label_size, ImVec2(0,0));
     if (flags & ImGuiSelectableFlags_Disabled) PopStyleColor();
 
     // Automatically close popups
     if (pressed && (window->Flags & ImGuiWindowFlags_Popup) && !(flags & ImGuiSelectableFlags_DontClosePopups) && !(window->DC.ItemFlags & ImGuiItemFlags_SelectableDontClosePopup))
         CloseCurrentPopup();
     return pressed;
+}
+
+bool ImGui::TSelectable(const char* label, bool selected, ImGuiSelectableFlags flags, const ImVec2& size_arg, ImTextureID user_texture_id)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+
+	if ((flags & ImGuiSelectableFlags_SpanAllColumns) && window->DC.ColumnsCount > 1) // FIXME-OPT: Avoid if vertically clipped.
+		PopClipRect();
+
+	ImGuiID id = window->GetID(label);
+	ImVec2 label_size = CalcTextSize(label, NULL, true);
+	ImVec2 size(size_arg.x != 0.0f ? size_arg.x : label_size.x, size_arg.y != 0.0f ? size_arg.y : label_size.y);
+	ImVec2 pos = window->DC.CursorPos;
+	pos.y += window->DC.CurrentLineTextBaseOffset;
+	ImRect bb(pos, pos + size);
+	ItemSize(bb);
+
+	// Fill horizontal space.
+	ImVec2 window_padding = window->WindowPadding;
+	float max_x = (flags & ImGuiSelectableFlags_SpanAllColumns) ? GetWindowContentRegionMax().x : GetContentRegionMax().x;
+	float w_draw = ImMax(label_size.x, window->Pos.x + max_x - window_padding.x - window->DC.CursorPos.x);
+	ImVec2 size_draw((size_arg.x != 0 && !(flags & ImGuiSelectableFlags_DrawFillAvailWidth)) ? size_arg.x : w_draw, size_arg.y != 0.0f ? size_arg.y : size.y);
+	ImRect bb_with_spacing(pos, pos + size_draw);
+	if (size_arg.x == 0.0f || (flags & ImGuiSelectableFlags_DrawFillAvailWidth))
+		bb_with_spacing.Max.x += window_padding.x;
+
+	// Selectables are tightly packed together, we extend the box to cover spacing between selectable.
+	float spacing_L = (float)(int)(style.ItemSpacing.x * 0.5f);
+	float spacing_U = (float)(int)(style.ItemSpacing.y * 0.5f);
+	float spacing_R = style.ItemSpacing.x - spacing_L;
+	float spacing_D = style.ItemSpacing.y - spacing_U;
+	bb_with_spacing.Min.x -= spacing_L;
+	bb_with_spacing.Min.y -= spacing_U;
+	bb_with_spacing.Max.x += spacing_R;
+	bb_with_spacing.Max.y += spacing_D;
+	if (!ItemAdd(bb_with_spacing, id))
+	{
+		if ((flags & ImGuiSelectableFlags_SpanAllColumns) && window->DC.ColumnsCount > 1)
+			PushColumnClipRect();
+		return false;
+	}
+
+	ImGuiButtonFlags button_flags = 0;
+	if (flags & ImGuiSelectableFlags_Menu) button_flags |= ImGuiButtonFlags_PressedOnClick | ImGuiButtonFlags_NoHoldingActiveID;
+	if (flags & ImGuiSelectableFlags_MenuItem) button_flags |= ImGuiButtonFlags_PressedOnRelease;
+	if (flags & ImGuiSelectableFlags_Disabled) button_flags |= ImGuiButtonFlags_Disabled;
+	if (flags & ImGuiSelectableFlags_AllowDoubleClick) button_flags |= ImGuiButtonFlags_PressedOnClickRelease | ImGuiButtonFlags_PressedOnDoubleClick;
+	bool hovered, held;
+	bool pressed = ButtonBehavior(bb_with_spacing, id, &hovered, &held, button_flags);
+	if (flags & ImGuiSelectableFlags_Disabled)
+		selected = false;
+
+	// Render
+	ImVec2 max(bb_with_spacing.Max.x, bb_with_spacing.Max.y + 10);
+	RenderTextClipped(bb.Min, max, label, NULL, &label_size, ImVec2(0.5f, 1));
+	
+	//Only draw if defined
+	if (user_texture_id)
+		window->DrawList->AddImage(user_texture_id, bb.Min, bb.Max);
+
+	if (hovered || selected)
+	{
+		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header,0.2f);
+		RenderFrame(bb_with_spacing.Min, bb_with_spacing.Max, col, false, 0.0f);
+	}
+
+	if ((flags & ImGuiSelectableFlags_SpanAllColumns) && window->DC.ColumnsCount > 1)
+	{
+		PushColumnClipRect();
+		bb_with_spacing.Max.x -= (GetContentRegionMax().x - max_x);
+	}
+
+	if (flags & ImGuiSelectableFlags_Disabled) PushStyleColor(ImGuiCol_Text, g.Style.Colors[ImGuiCol_TextDisabled]);
+	if (flags & ImGuiSelectableFlags_Disabled) PopStyleColor();
+
+	// Automatically close popups
+	if (pressed && (window->Flags & ImGuiWindowFlags_Popup) && !(flags & ImGuiSelectableFlags_DontClosePopups) && !(window->DC.ItemFlags & ImGuiItemFlags_SelectableDontClosePopup))
+		CloseCurrentPopup();
+	return pressed;
 }
 
 bool ImGui::Selectable(const char* label, bool* p_selected, ImGuiSelectableFlags flags, const ImVec2& size_arg)

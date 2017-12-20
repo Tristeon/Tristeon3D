@@ -106,6 +106,7 @@ namespace Tristeon
 		setStyle();
 
 		//Create editor windows
+		EditorWindow::editor = this;
 		windows.push_back(new AssetBrowser());
 		windows.push_back(new GameObjectHierarchy());
 		windows.push_back(new InspectorWindow());
@@ -153,6 +154,11 @@ namespace Tristeon
 		cmdBuffers[d->index].end();
 
 		d->lastUsedSecondaryBuffer = cmdBuffers[d->index];
+	}
+
+	Core::BindingData* TristeonEditor::getBindingData()
+	{
+		return engine->bindingData;
 	}
 
 	void TristeonEditor::bindImGui(Core::VulkanBindingData* vkBinding)
