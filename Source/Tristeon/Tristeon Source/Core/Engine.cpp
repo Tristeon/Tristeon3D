@@ -12,7 +12,7 @@ namespace Tristeon
 			switch(Settings::getRenderAPI())
 			{
 			case Rendering::RAPI_Vulkan: 
-				bind = new VulkanBindingData();
+				bind = std::make_unique<VulkanBindingData>();
 				break;
 			default: 
 				Misc::Console::error("Trying to create bindingdata for unsupported graphics API!");
@@ -43,7 +43,6 @@ namespace Tristeon
 			//Cleanup
 			delete ManagerProtocol::instance;
 			ManagerProtocol::instance = nullptr;
-			delete bind;
 		}
 	}
 }

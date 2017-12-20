@@ -11,6 +11,7 @@ namespace Tristeon
 		 */
 		class EditorWindow
 		{
+			friend class TristeonEditor;
 		public:
 			EditorWindow();
 			virtual ~EditorWindow();
@@ -22,6 +23,7 @@ namespace Tristeon
 
 		protected:
 			ImGuiWindowFlags windowFlags;
+			static TristeonEditor* editor;
 		};
 	}
 }

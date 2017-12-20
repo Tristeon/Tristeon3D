@@ -1,20 +1,17 @@
 #include "AssetBrowser.h"
 #include "FileItemManager.h"
 #include "FolderItem.h"
-#include <fstream>
 #include <GLFW/glfw3.h>
 #include "SceneFileItem.h"
 #include "Scenes/Scene.h"
 #include "Scenes/SceneManager.h"
-#include "Editor/JsonSerializer.h"
 #include "MaterialFileItem.h"
 #include "Core/Rendering/Material.h"
 #include "Editor/EditorNode.h"
 #include "Editor/EditorDragging.h"
 #include "PrefabFileItem.h"
 #include "ShaderFileItem.h"
-#include "SkyboxFileItem.h"
-#include "Core/Rendering/Skybox.h"
+#include "Editor/TristeonEditor.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -30,7 +27,7 @@ AssetBrowser::AssetBrowser()
 	rootFolder->setup(true);
 
 	//Set asset browser view to the asset folder (rootfolder)
-	itemManager = std::make_unique<FileItemManager>();
+	itemManager = std::make_unique<FileItemManager>(editor->getBindingData());
 	itemManager->setView(rootFolder.get());
 }
 
@@ -123,13 +120,6 @@ void AssetBrowser::onGui()
 				shaderItem->init(createdItemName, itemManager->currentFolder, "shader");
 				Core::Rendering::ShaderFile file;
 				shaderItem->createFile(file.serialize());
-			}
-			if(ImGui::Button("Create skybox"))
-			{
-				SkyboxFileItem* skyboxItem = new SkyboxFileItem();
-				skyboxItem->init(createdItemName, itemManager->currentFolder, "skybox");
-				Core::Rendering::Skybox skybox;
-				skyboxItem->createFile(skybox.serialize());
 			}
 		}
 		else std::cout << "Can't create items with more than 24 characters\n";

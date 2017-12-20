@@ -12,16 +12,22 @@ using namespace Tristeon::Editor;
 namespace fs = experimental::filesystem;
 using Scene = Tristeon::Scenes::Scene;
 
+FileItemManager::FileItemManager(Tristeon::Core::BindingData* bindingData)
+{
+	folderIcon = std::make_unique<EditorImage>("Files/Editor/Icons/Folder.png", bindingData);
+	standardIcon = std::make_unique<EditorImage>("Files/Editor/Icons/Standard.png", bindingData);
+	assetIcons["scene"] = std::make_unique<EditorImage>("Files/Editor/Icons/Scene.png", bindingData);
+}
+
 FileItemManager::~FileItemManager()
 {
-	delete currentFolder;
 }
 
 void FileItemManager::drawFileItems()
 {
 	if (currentFolder == nullptr) return;
 	//Loading fileitems
-	for (int i = 0; i < currentFolder->fileItems.size(); ++i)
+	for (unsigned int i = 0; i < currentFolder->fileItems.size(); ++i)
 	{
 		ImGui::PushID(i);
 		FileItem* fileItem = currentFolder->fileItems[i];
@@ -30,7 +36,20 @@ void FileItemManager::drawFileItems()
 			highlightedFileItems.push_back(false);
 
 		//Load file item UI
-		bool selectablePressed = ImGui::Selectable(fileItem->name.c_str(), highlightedFileItems[i], 0, iconSize);
+		ImTextureID iconTexture;
+
+		//Find right icon to display for the
+		if (fileItem->isFolder)
+			iconTexture = folderIcon->getTextureID();
+		else
+		{
+			//Do we have an icon for this file type?
+			if (assetIcons.find(((AssetItem*)fileItem)->extension) != assetIcons.end())
+				iconTexture = assetIcons[((AssetItem*)fileItem)->extension]->getTextureID();
+			else iconTexture = standardIcon->getTextureID();
+		}
+		
+		bool selectablePressed = ImGui::TSelectable(fileItem->name.c_str(), highlightedFileItems[i], 0, iconSize, iconTexture);
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && ImGui::IsMouseClicked(0)) EditorDragging::setDragableItem(fileItem);
 
 		//When delete is pressed
