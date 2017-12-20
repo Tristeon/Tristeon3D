@@ -12,6 +12,7 @@
 #include "PrefabFileItem.h"
 #include "ShaderFileItem.h"
 #include "Editor/TristeonEditor.h"
+#include "SkyboxFileItem.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -120,6 +121,12 @@ void AssetBrowser::onGui()
 				shaderItem->init(createdItemName, itemManager->currentFolder, "shader");
 				Core::Rendering::ShaderFile file;
 				shaderItem->createFile(file.serialize());
+			}
+			if (ImGui::Button("Create skybox"))
+			{
+				SkyboxFileItem* skyboxItem = new SkyboxFileItem();
+				skyboxItem->init(createdItemName, itemManager->currentFolder, "skybox");
+				skyboxItem->createFile(Core::Rendering::Skybox().serialize());
 			}
 		}
 		else std::cout << "Can't create items with more than 24 characters\n";
