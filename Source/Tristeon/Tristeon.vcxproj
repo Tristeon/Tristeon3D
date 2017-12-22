@@ -46,7 +46,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{0C66730F-55AA-4A88-BC34-01F0FAEEB422}</ProjectGuid>
     <RootNamespace>Tristeon</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -328,6 +328,7 @@
     <ClCompile Include="Tristeon Source\Core\Components\TestScript.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\DebugDrawManager.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Material.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Skybox.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\DebugDrawManagerVulkan.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\CameraRenderData.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.cpp" />
@@ -340,6 +341,7 @@
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\SceneFileitem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.cpp" />
+    <ClCompile Include="Tristeon Source\Editor\Asset Browser\SkyboxFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\DiffUtil.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorDragging.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorImage.cpp" />
@@ -421,6 +423,7 @@
     <ClInclude Include="ImGUI\Plugins\ImGuizmo.h" />
     <ClInclude Include="Tristeon Source\Core\Components\TestScript.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\DebugDrawManager.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Skybox.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\DebugDrawManagerVulkan.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\CameraRenderData.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.h" />
@@ -433,6 +436,7 @@
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\SceneFileitem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.h" />
+    <ClInclude Include="Tristeon Source\Editor\Asset Browser\SkyboxFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\DiffUtil.h" />
     <ClInclude Include="Tristeon Source\Editor\Draggable.h" />
     <ClInclude Include="Tristeon Source\Editor\EditorDragging.h" />

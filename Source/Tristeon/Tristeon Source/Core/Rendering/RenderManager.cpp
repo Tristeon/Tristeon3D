@@ -3,9 +3,9 @@
 #include "Core/GameObject.h"
 #include "Core/Message.h"
 #include <Core/Components/Camera.h>
-#include <Core/Rendering/ShaderFile.h>
 #include <Core/Rendering/Components/Renderer.h>
 #include <Misc/Console.h>
+#include "Editor/JsonSerializer.h"
 
 namespace Tristeon
 {
@@ -131,6 +131,25 @@ namespace Tristeon
 			Material* RenderManager::getMaterial(std::string filePath)
 			{
 				return instance->getmaterial(filePath);
+			}
+
+			Skybox* RenderManager::getSkybox(std::string filePath)
+			{
+				//Try to return the material from our batched materials
+				if (instance->skyboxes.find(filePath) != instance->skyboxes.end())
+					return instance->skyboxes[filePath].get(); //We keep ownership, give the user a reference
+
+				//Don't even bother doing anything if the material doesn't exist
+				if (!std::experimental::filesystem::exists(filePath))
+					return nullptr;
+
+				//Our materials can only be .mat files
+				if (std::experimental::filesystem::path(filePath).extension() != ".skybox")
+					return nullptr;
+
+				Skybox* skybox = JsonSerializer::deserialize<Skybox>(filePath);
+				instance->skyboxes[filePath] = std::unique_ptr<Skybox>(skybox);
+				return instance->skyboxes[filePath].get();
 			}
 		}
 	}

@@ -3,6 +3,10 @@
 
 #include <limits>
 
+#ifndef assert
+#define assert
+#endif
+
 namespace glm
 {
 	template <typename T, precision P, template <typename, precision> class vecType>

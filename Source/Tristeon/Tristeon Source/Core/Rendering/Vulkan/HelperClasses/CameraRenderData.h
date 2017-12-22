@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vulkan/vulkan.hpp>
 #include "Core/TObject.h"
+#include "Core/Rendering/Skybox.h"
 
 namespace Tristeon
 {
@@ -114,7 +115,7 @@ namespace Tristeon
 						/**
 						 * \brief Initializes the offscreen camera data
 						 */
-						void init(RenderManager*, vk::RenderPass);
+						void init(RenderManager*, vk::RenderPass);// , Skybox*);
 						/**
 						 * \brief Destroys the offscreen camera data
 						 * \param device Used to destroy the offscreen camera data
@@ -166,6 +167,7 @@ namespace Tristeon
 						 * \param pool Used to deallocate the descriptorpool info
 						 */
 						void destroy(vk::Device device, vk::DescriptorPool pool) const;
+
 					} onscreen;
 
 				private:

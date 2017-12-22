@@ -44,6 +44,11 @@ namespace Tristeon
 			return channels;
 		}
 
+		int Image::getSize()
+		{
+			return width * height * channels;
+		}
+
 		std::string Image::getFilePath() const
 		{
 			return filePath;
