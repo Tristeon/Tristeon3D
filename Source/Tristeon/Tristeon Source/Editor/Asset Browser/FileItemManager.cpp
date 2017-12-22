@@ -17,6 +17,37 @@ FileItemManager::FileItemManager(Tristeon::Core::BindingData* bindingData)
 	folderIcon = std::make_unique<EditorImage>("Files/Editor/Icons/Folder.png", bindingData);
 	standardIcon = std::make_unique<EditorImage>("Files/Editor/Icons/Standard.png", bindingData);
 	assetIcons["scene"] = std::make_unique<EditorImage>("Files/Editor/Icons/Scene.png", bindingData);
+
+	//Images
+	assetIcons["jpg"] = std::make_unique<EditorImage>("Files/Editor/Icons/Image.png", bindingData);
+	assetIcons["png"] = std::make_unique<EditorImage>("Files/Editor/Icons/Image.png", bindingData);
+	assetIcons["tga"] = std::make_unique<EditorImage>("Files/Editor/Icons/Image.png", bindingData);
+	assetIcons["bmp"] = std::make_unique<EditorImage>("Files/Editor/Icons/Image.png", bindingData);
+	assetIcons["psd"] = std::make_unique<EditorImage>("Files/Editor/Icons/Image.png", bindingData);
+
+	//Materials
+	assetIcons["mat"] = std::make_unique<EditorImage>("Files/Editor/Icons/Material.png", bindingData);
+	assetIcons["shader"] = std::make_unique<EditorImage>("Files/Editor/Icons/Shader.png", bindingData);
+	assetIcons["skybox"] = std::make_unique<EditorImage>("Files/Editor/Icons/Skybox.png", bindingData);
+	
+	//Mesh files
+	assetIcons["fbx"] = std::make_unique<EditorImage>("Files/Editor/Icons/Mesh.png", bindingData);
+	assetIcons["obj"] = std::make_unique<EditorImage>("Files/Editor/Icons/Mesh.png", bindingData);
+	assetIcons["3ds"] = std::make_unique<EditorImage>("Files/Editor/Icons/Mesh.png", bindingData);
+	assetIcons["blend"] = std::make_unique<EditorImage>("Files/Editor/Icons/Mesh.png", bindingData);
+
+	//Other
+	assetIcons["text"] = std::make_unique<EditorImage>("Files/Editor/Icons/Text.png", bindingData);
+
+	//Programming
+	assetIcons["cpp"] = std::make_unique<EditorImage>("Files/Editor/Icons/Text.png", bindingData);
+	assetIcons["c"] = std::make_unique<EditorImage>("Files/Editor/Icons/Text.png", bindingData);
+	assetIcons["h"] = std::make_unique<EditorImage>("Files/Editor/Icons/Text.png", bindingData);
+	assetIcons["hpp"] = std::make_unique<EditorImage>("Files/Editor/Icons/Text.png", bindingData);
+
+	//Audio
+	assetIcons["mp3"] = std::make_unique<EditorImage>("Files/Editor/Icons/Audio.png", bindingData);
+	assetIcons["wav"] = std::make_unique<EditorImage>("Files/Editor/Icons/Audio.png", bindingData);
 }
 
 FileItemManager::~FileItemManager()

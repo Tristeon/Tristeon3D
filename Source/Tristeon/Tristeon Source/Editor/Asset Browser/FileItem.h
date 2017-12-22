@@ -34,8 +34,8 @@ namespace Tristeon
 			virtual void removeFile() = 0;
 
 			bool isFolder = false;
-			std::string name;
-			std::string filepath;
+			std::string name = "";
+			std::string filepath = "";
 			FolderItem* parent = nullptr;
 		};
 	}
