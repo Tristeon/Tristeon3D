@@ -81,7 +81,6 @@ namespace Tristeon
 #ifdef EDITOR
 					//Setup editor camera
 					editor.trans = new Transform();
-					editor.trans->position = Math::Vector3(0, 0, 5);
 					editor.cam = new CameraRenderData(this, dynamic_cast<VulkanBindingData*>(bindingData), offscreenPass, onscreenPipeline, true);
 #endif
 					//Create the debug draw manager
@@ -280,10 +279,13 @@ namespace Tristeon
 #ifdef EDITOR
 						//Submit editor camera
 						CameraRenderData* c = editor.cam;
-						vk::Semaphore wait = imageAvailable;
-						vk::SubmitInfo s = vk::SubmitInfo(1, &wait, waitStages, 1, &c->offscreen.cmd, 1, &c->offscreen.sema);
-						vulkan->graphicsQueue.submit(1, &s, nullptr);
-						last = c;
+						if (c != nullptr)
+						{
+							vk::Semaphore wait = imageAvailable;
+							vk::SubmitInfo s = vk::SubmitInfo(1, &wait, waitStages, 1, &c->offscreen.cmd, 1, &c->offscreen.sema);
+							vulkan->graphicsQueue.submit(1, &s, nullptr);
+							last = c;
+						}
 #endif
 					}
 					

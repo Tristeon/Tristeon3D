@@ -29,6 +29,9 @@ namespace Tristeon
 				{
 					//if our camera is null, try and see if we can find it in info
 					CameraRenderData* d = dynamic_cast<CameraRenderData*>(info);
+					if (d == nullptr)
+						return;
+
 					vk::CommandBufferBeginInfo cmdBegin = vk::CommandBufferBeginInfo();
 
 					//Clear data
@@ -65,7 +68,7 @@ namespace Tristeon
 
 #ifdef EDITOR
 					//Draw grid
-					if (!vkRenderManager->inPlayMode)
+					if (!vkRenderManager->inPlayMode && vkRenderManager->grid != nullptr)
 					{
 						data.lastUsedSecondaryBuffer = nullptr;
 
@@ -81,10 +84,13 @@ namespace Tristeon
 					{
 						data.lastUsedSecondaryBuffer = nullptr;
 						Vulkan::DebugDrawManager* ddmngr = (Vulkan::DebugDrawManager*)DebugDrawManager::instance;
-						ddmngr->data = &data;
-						ddmngr->draw();
-						if ((VkCommandBuffer)data.lastUsedSecondaryBuffer != nullptr)
-							buffers.push_back(data.lastUsedSecondaryBuffer);
+						if (ddmngr != nullptr)
+						{
+							ddmngr->data = &data;
+							ddmngr->draw();
+							if ((VkCommandBuffer)data.lastUsedSecondaryBuffer != nullptr)
+								buffers.push_back(data.lastUsedSecondaryBuffer);
+						}
 					}
 
 					//Draw scene

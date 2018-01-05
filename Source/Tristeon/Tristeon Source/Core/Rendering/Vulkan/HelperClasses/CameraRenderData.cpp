@@ -3,10 +3,8 @@
 #include "VulkanFormat.h"
 #include "Core/Rendering/Vulkan/RenderManagerVulkan.h"
 #include "Pipeline.h"
-#include "Misc/Console.h"
 #include "VulkanCore.h"
 #include "VulkanBuffer.h"
-#include "Core/Rendering/Vulkan/MaterialVulkan.h"
 #include <gli/gli.hpp>
 
 namespace Tristeon
@@ -41,24 +39,6 @@ namespace Tristeon
 					//Allocate command buffers
 					vk::CommandBufferAllocateInfo const alloc = vk::CommandBufferAllocateInfo(rm->commandPool, vk::CommandBufferLevel::ePrimary, 1);
 					cmd = rm->vulkan->device.allocateCommandBuffers(alloc)[0];
-
-					/*
-					if (skybox != nullptr)
-					{
-						size_t size = skybox->getSize();
-
-						vk::Buffer stagingBuf;
-						vk::DeviceMemory stagingMem;
-
-						vk::BufferCreateInfo stagBufCI = vk::BufferCreateInfo({}, 
-							size, 
-							vk::BufferUsageFlagBits::eTransferSrc, vk::SharingMode::eExclusive,
-							)
-
-
-						vk::MemoryAllocateInfo alloc = vk::MemoryAllocateInfo()
-					}
-					*/
 				}
 
 				void CameraRenderData::Offscreen::createImages(RenderManager* vkRenderManager)

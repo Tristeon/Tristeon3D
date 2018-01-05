@@ -111,12 +111,12 @@ void Tristeon::Editor::SceneWindow::setInputMode()
 
 void Tristeon::Editor::SceneWindow::drawScene() const
 {
-	//DRAW SCENE
 	Core::Rendering::Vulkan::CameraRenderData* data = editor->editorCamera->cam;
 	ImVec2 size = ImGui::GetWindowSize();
 	size.y -= yOffset;
 	editor->editorCamera->size = Math::Vector2(size.x, size.y);
-	ImGui::Image((ImTextureID)(VkDescriptorSet)data->onscreen.sets[0], size);
+	if (data != nullptr)
+		ImGui::Image((ImTextureID)(VkDescriptorSet)data->onscreen.sets[0], size);
 }
 
 void Tristeon::Editor::SceneWindow::drawGizmos(glm::mat4& model) const
