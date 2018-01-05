@@ -7,6 +7,7 @@
 #include "Misc/Console.h"
 #include "Editor/EditorDragging.h"
 #include "MeshFileItem.h"
+#include <assimp/Importer.hpp>
 
 using namespace std;
 using namespace Tristeon::Editor;
@@ -23,11 +24,11 @@ FolderItem::FolderItem()
 FolderItem::~FolderItem()
 {
 	//Clean fileitems
-	for (int i = 0; i < fileItems.size(); ++i)
+	for (unsigned int i = 0; i < fileItems.size(); ++i)
 		delete fileItems[i];
 
 	//Clean children
-	for (int i = 0; i < children.size(); ++i)
+	for (unsigned int i = 0; i < children.size(); ++i)
 		delete children[i];
 }
 
@@ -65,18 +66,18 @@ void FolderItem::createMetaData(const string& filepath)
 {
 	//TODO: implement identification of the file where metadata is created for, so instead of assuming that
 	//if it's not a folder that it's simply an assetitem, further define what that assetitem could be.
-	std::shared_ptr<FileItem> itemMetaData;
+	FileItem* itemMetaData;
 	fs::path path(filepath);
 	if (fs::is_directory(filepath))
-		itemMetaData = std::make_shared<FolderItem>();
+		itemMetaData = new FolderItem();
 	else
 	{
-		//TODO: Support more types of mesh files
-		if(path.extension() == ".obj" || path.extension() == ".fbx")
+		Assimp::Importer imp;
+		if(imp.IsExtensionSupported(path.extension().string()))
 		{
-			itemMetaData = std::make_shared<MeshFileItem>();
+			itemMetaData = new MeshFileItem();
 		}
-		itemMetaData = std::make_shared<AssetItem>();
+		itemMetaData = new AssetItem();
 	}
 
 	//TODO: cleanup code and make it more clear

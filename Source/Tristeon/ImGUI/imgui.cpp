@@ -9028,7 +9028,7 @@ bool ImGui::TSelectable(const char* label, bool selected, ImGuiSelectableFlags f
 	if (hovered || selected)
 	{
 		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header,0.2f);
-		RenderFrame(bb_with_spacing.Min, bb_with_spacing.Max, col, false, 0.0f);
+		RenderFrame(bb_with_spacing.Min, max, col, false, 0.0f);
 	}
 
 	if ((flags & ImGuiSelectableFlags_SpanAllColumns) && window->DC.ColumnsCount > 1)

@@ -89,6 +89,9 @@ namespace Tristeon
 		style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
 		style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 		style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+		style->Colors[ImGuiCol_HeaderActive] = ImVec4(0,0,0,0);
+		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.301,0.537,.788,1);
+		style->Colors[ImGuiCol_Header] = ImVec4(1,1,1,1);
 	}
 
 	void TristeonEditor::init(Core::Engine* engine)

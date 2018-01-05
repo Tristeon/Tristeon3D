@@ -7,9 +7,6 @@
 #include "Core/Components/Camera.h"
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
-#include "Editor/Asset Browser/PrefabFileItem.h"
-#include "Editor/Asset Browser/MeshFileItem.h"
-#include "Editor/Asset Browser/MaterialFileItem.h"
 #include "Core/Components/TestScript.h"
 using namespace Tristeon::Editor;
 

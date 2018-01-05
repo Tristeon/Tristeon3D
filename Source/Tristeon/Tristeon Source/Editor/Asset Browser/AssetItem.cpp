@@ -15,7 +15,6 @@ AssetItem::AssetItem()
 
 AssetItem::~AssetItem()
 {
-	AssetItem::removeFile();
 }
 
 nlohmann::json AssetItem::serialize()
