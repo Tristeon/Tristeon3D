@@ -73,7 +73,7 @@ namespace Tristeon
 			{
 				if (vertices == nullptr)
 				{
-					vertices = new float[]{
+					vertices = new float[108]{
 						// positions          
 						-1.0f,  1.0f, -1.0f,
 						-1.0f, -1.0f, -1.0f,
