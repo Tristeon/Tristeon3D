@@ -64,6 +64,63 @@ namespace Tristeon
 					texImages.back.getSize();
 			}
 
+			float Skybox::getVertexCount() const
+			{
+				return vertexCount;
+			}
+
+			float* Skybox::getVertices()
+			{
+				if (vertices == nullptr)
+				{
+					vertices = new float[]{
+						// positions          
+						-1.0f,  1.0f, -1.0f,
+						-1.0f, -1.0f, -1.0f,
+						1.0f, -1.0f, -1.0f,
+						1.0f, -1.0f, -1.0f,
+						1.0f,  1.0f, -1.0f,
+						-1.0f,  1.0f, -1.0f,
+
+						-1.0f, -1.0f,  1.0f,
+						-1.0f, -1.0f, -1.0f,
+						-1.0f,  1.0f, -1.0f,
+						-1.0f,  1.0f, -1.0f,
+						-1.0f,  1.0f,  1.0f,
+						-1.0f, -1.0f,  1.0f,
+
+						1.0f, -1.0f, -1.0f,
+						1.0f, -1.0f,  1.0f,
+						1.0f,  1.0f,  1.0f,
+						1.0f,  1.0f,  1.0f,
+						1.0f,  1.0f, -1.0f,
+						1.0f, -1.0f, -1.0f,
+
+						-1.0f, -1.0f,  1.0f,
+						-1.0f,  1.0f,  1.0f,
+						1.0f,  1.0f,  1.0f,
+						1.0f,  1.0f,  1.0f,
+						1.0f, -1.0f,  1.0f,
+						-1.0f, -1.0f,  1.0f,
+
+						-1.0f,  1.0f, -1.0f,
+						1.0f,  1.0f, -1.0f,
+						1.0f,  1.0f,  1.0f,
+						1.0f,  1.0f,  1.0f,
+						-1.0f,  1.0f,  1.0f,
+						-1.0f,  1.0f, -1.0f,
+
+						-1.0f, -1.0f, -1.0f,
+						-1.0f, -1.0f,  1.0f,
+						1.0f, -1.0f, -1.0f,
+						1.0f, -1.0f, -1.0f,
+						-1.0f, -1.0f,  1.0f,
+						1.0f, -1.0f,  1.0f
+					};
+				}
+				return vertices;
+			}
+
 			void Skybox::deserialize(nlohmann::json json)
 			{
 				deserializeTexture(json, "left", texNames.left, texImages.left);
