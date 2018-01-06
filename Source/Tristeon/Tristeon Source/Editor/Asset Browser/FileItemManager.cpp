@@ -92,8 +92,14 @@ void FileItemManager::drawFileItems()
 
 			if (fileItem->isFolder)
 			{
-				const auto removeFolderIterator = remove(currentFolder->children.begin(), currentFolder->children.end(), (FolderItem*)fileItem);
-				currentFolder->children.erase(removeFolderIterator, currentFolder->children.end());
+				for (unsigned int j = 0; j < currentFolder->children.size(); ++j)
+				{
+					if (currentFolder->children[j].get() == (FolderItem*)fileItem)
+					{
+						currentFolder->children.erase(currentFolder->children.begin() + j);
+						break;
+					}
+				}
 			}
 			ImGui::PopID();
 			continue;

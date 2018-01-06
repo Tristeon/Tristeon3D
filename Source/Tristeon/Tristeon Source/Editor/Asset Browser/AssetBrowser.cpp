@@ -90,12 +90,12 @@ void AssetBrowser::onGui()
 		{
 			if (ImGui::Button("Create folder") || ImGui::IsKeyPressed(GLFW_KEY_ENTER,false))
 			{
-				FolderItem* folder = new FolderItem();
+				std::unique_ptr<FolderItem> folder = std::make_unique<FolderItem>();
 				folder->init(createdItemName, itemManager->currentFolder); //Create both folder and meta data
 				//Set parenting and child relations
 				folder->parent = itemManager->currentFolder;
-				itemManager->currentFolder->children.push_back(folder);
-				itemManager->currentFolder->fileItems.push_back(folder);
+				itemManager->currentFolder->children.push_back(std::move(folder));
+				itemManager->currentFolder->fileItems.push_back(folder.get());
 				ImGui::CloseCurrentPopup();
 			}
 			if (ImGui::Button("Create scene"))

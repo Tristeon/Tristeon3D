@@ -6,5 +6,4 @@
  */
 class PrefabFileItem : public Tristeon::Editor::AssetItem
 {
-	
 };
