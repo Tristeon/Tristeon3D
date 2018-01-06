@@ -48,7 +48,7 @@ namespace Tristeon
 			/**
 			 * \brief The folders the folder contains
 			 */
-			std::vector<FolderItem*> children;
+			std::vector<std::unique_ptr<FolderItem>> children;
 
 			/**
 			 * \brief Checks if the destination is a child of this folder

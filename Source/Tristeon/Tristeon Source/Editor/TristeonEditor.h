@@ -62,7 +62,7 @@ namespace Tristeon
 			/**
 			 * \brief The windows the editor displays using the ongui calls
 			 */
-			std::vector<EditorWindow*> windows;
+			std::vector<std::unique_ptr<EditorWindow>> windows;
 
 			//Rendering
 			Core::Rendering::UIRenderable* renderable = nullptr;

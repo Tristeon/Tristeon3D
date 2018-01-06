@@ -51,7 +51,7 @@ namespace Tristeon
 			 */
 			EditorNode* parent = nullptr;
 			std::vector<EditorNode*> children;
-		private:
+		protected:
 			/**
 			 * \brief The gameobject the editornode is bound to
 			 */

@@ -110,10 +110,10 @@ namespace Tristeon
 
 		//Create editor windows
 		EditorWindow::editor = this;
-		windows.push_back(new AssetBrowser());
-		windows.push_back(new GameObjectHierarchy());
-		windows.push_back(new InspectorWindow());
-		windows.push_back(new SceneWindow(this));
+		windows.push_back(std::move(std::make_unique<AssetBrowser>()));
+		windows.push_back(std::move(std::make_unique<GameObjectHierarchy>()));
+		windows.push_back(std::move(std::make_unique<InspectorWindow>()));
+		windows.push_back(std::move(std::make_unique<SceneWindow>(this)));
 	}
 
 	void TristeonEditor::onGui()
@@ -132,9 +132,9 @@ namespace Tristeon
 		//ImGuizmo::BeginFrame();
 
 		//Calling ongui functions of editorwindows
-		for (EditorWindow* window : windows)
+		for (int i = 0; i < windows.size(); ++i)
 		{
-			window->onGui();
+			windows[i]->onGui();
 		}
 
 		//Update dragging

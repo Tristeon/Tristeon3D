@@ -26,10 +26,6 @@ FolderItem::~FolderItem()
 	//Clean fileitems
 	for (unsigned int i = 0; i < fileItems.size(); ++i)
 		delete fileItems[i];
-
-	//Clean children
-	for (unsigned int i = 0; i < children.size(); ++i)
-		delete children[i];
 }
 
 void FolderItem::init(string name, FolderItem* folder, string extension)
@@ -158,7 +154,7 @@ void FolderItem::setup(bool doChildren)
 		if (fileItemToAdd->isFolder)
 		{
 			FolderItem* folder = (FolderItem*)fileItemToAdd;
-			children.push_back(folder);
+			children.push_back(std::move(std::unique_ptr<FolderItem>(folder)));
 			folder->parent = this;
 			if (doChildren && !folder->setupDone) folder->setup(doChildren);
 		}
@@ -185,8 +181,8 @@ void FolderItem::drawHierarchy(FileItemManager* itemManager)
 		{
 			FileItem* draggingItem = dynamic_cast<FileItem*>(EditorDragging::getDragableItem());
 			cout << "Moving item: " << draggingItem->name << " to " << children[i]->name << endl;
-			if (draggingItem->parent != children[i])
-				draggingItem->move(children[i]);
+			if (draggingItem->parent != children[i].get())
+				draggingItem->move(children[i].get());
 			else cout << "Check this code please... dafuq is going on\n"; //TODO: move if maybe statement maybe?
 		}
 		if (ImGui::IsItemClicked())
@@ -199,7 +195,7 @@ void FolderItem::drawHierarchy(FileItemManager* itemManager)
 	}
 	if (nodeClicked > -1)
 	{
-		itemManager->setView(children[nodeClicked]);
+		itemManager->setView(children[nodeClicked].get());
 	}
 }
 
@@ -233,9 +229,9 @@ bool FolderItem::hasChild(FolderItem* destination)
 	if (this != destination)
 	{
 		bool childFound = false;
-		for (FolderItem* child : children)
+		for (int i = 0; i < children.size(); ++i)
 		{
-			childFound = child->hasChild(destination);
+			childFound = children[i]->hasChild(destination);
 		}
 		return childFound;
 	}
@@ -247,7 +243,14 @@ void FolderItem::move(FolderItem* destination)
 	if (this != destination && !hasChild(destination) && parent != destination)
 	{
 		//Remove folder reference in the old parent
-		parent->children.erase(remove(parent->children.begin(), parent->children.end(), this), parent->children.end());
+		for (int i = 0; i < parent->children.size(); ++i)
+		{
+			if (parent->children[i].get() == this)
+			{
+				parent->children.erase(parent->children.begin() + i);
+				break;
+			}
+		}
 
 		//Remove file reference in the old parent
 		const auto removeIterator = remove(parent->fileItems.begin(), parent->fileItems.end(), this);
@@ -255,7 +258,7 @@ void FolderItem::move(FolderItem* destination)
 
 		//Set new parent
 		parent = destination;
-		parent->children.push_back(this);
+		parent->children.push_back(std::move(std::unique_ptr<FolderItem>(this)));
 		parent->fileItems.push_back(this);
 		//Cache old filepath
 		string oldFilepath = filepath;
