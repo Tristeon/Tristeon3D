@@ -13,7 +13,6 @@ namespace Tristeon
 			friend SceneManager;
 		public:
 			Scene();
-			~Scene() override;
 			void init();
 
 			void addGameObject(Core::GameObject* gameObj);

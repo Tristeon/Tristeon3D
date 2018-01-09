@@ -8,6 +8,7 @@
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
 #include "Core/Components/TestScript.h"
+#include <string.h>
 using namespace Tristeon::Editor;
 
 InspectorWindow::InspectorWindow()
@@ -62,6 +63,15 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 
 	//Apply editor changes
 	(*data)["name"] = nameValue;
+
+	//Display prefab interface if the node is a prefab
+	if (node->isPrefab())
+	{
+		if (ImGui::Button("Apply Prefab"))
+		{
+			node->setPrefabData(*data);
+		}
+	}
 
 	//Display transform
 	if (ImGui::CollapsingHeader("Transform"))

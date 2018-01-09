@@ -1,4 +1,5 @@
 #include "EditorNode.h"
+#include "JsonSerializer.h"
 
 using namespace Tristeon::Editor;
 
@@ -6,6 +7,14 @@ using namespace Tristeon::Editor;
 EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj)
 {
 	connectedGameObject = gameObj;
+	_isPrefab = false;
+}
+
+EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj, PrefabFileItem* prefab)
+{
+	connectedGameObject = gameObj;
+	this->prefab = prefab;
+	_isPrefab = true;
 }
 
 EditorNode::~EditorNode()
@@ -46,7 +55,7 @@ void EditorNode::move(EditorNode * parent)
 	//Set new parent
 	if (parent != nullptr) {
 		parent->children.push_back(this);
-	
+
 		//Change gameObject's relations
 		applyChanges();
 		connectedGameObject->transform->setParent(parent->connectedGameObject->transform);
@@ -70,7 +79,29 @@ bool EditorNode::hasChild(EditorNode* node)
 	return true;
 }
 
+nlohmann::json EditorNode::getPrefabData()
+{
+	return JsonSerializer::load(prefab->getFilePath());
+}
+
+void EditorNode::applyPrefab()
+{
+	data = getPrefabData();
+	applyChanges();
+}
+
 void EditorNode::applyChanges()
 {
 	connectedGameObject->deserialize(*getData());
+}
+
+void EditorNode::setPrefab(PrefabFileItem* prefab)
+{
+	_isPrefab = prefab != nullptr;
+	this->prefab = prefab;
+}
+
+void EditorNode::setPrefabData(nlohmann::json prefabData)
+{
+	prefab->deserialize(prefabData);
 }

@@ -19,7 +19,6 @@ AssetItem::~AssetItem()
 
 nlohmann::json AssetItem::serialize()
 {
-	//TODO: fix
 	nlohmann::json output;
 	output["typeID"] = typeid(AssetItem).name();
 	output["isFolder"] = isFolder;

@@ -72,8 +72,8 @@ namespace Tristeon
 		style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 		style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 		style->Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-		style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+		style->Colors[ImGuiCol_HeaderActive] = ImVec4(0, 0, 0, 0);
+		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.301, 0.537, .788, 1);
 		style->Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 		style->Colors[ImGuiCol_ColumnHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 		style->Colors[ImGuiCol_ColumnActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
@@ -89,9 +89,7 @@ namespace Tristeon
 		style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
 		style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 		style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
-		style->Colors[ImGuiCol_HeaderActive] = ImVec4(0,0,0,0);
-		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.301,0.537,.788,1);
-		style->Colors[ImGuiCol_Header] = ImVec4(1,1,1,1);
+		style->Colors[ImGuiCol_TSelectableActive] = ImVec4(1,1,1,1);
 	}
 
 	void TristeonEditor::init(Core::Engine* engine)

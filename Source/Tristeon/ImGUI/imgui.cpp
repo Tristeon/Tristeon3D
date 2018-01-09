@@ -9027,7 +9027,7 @@ bool ImGui::TSelectable(const char* label, bool selected, ImGuiSelectableFlags f
 
 	if (hovered || selected)
 	{
-		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header,0.2f);
+		const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_TSelectableActive,0.2f);
 		RenderFrame(bb_with_spacing.Min, max, col, false, 0.0f);
 	}
 

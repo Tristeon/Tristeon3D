@@ -12,11 +12,6 @@ namespace Tristeon
 		std::unique_ptr<Scene> SceneManager::activeScene = nullptr;
 		std::map<std::string, std::string> SceneManager::sceneFilePaths;
 
-		SceneManager::~SceneManager()
-		{
-			activeScene.reset();
-		}
-
 		void SceneManager::init()
 		{
 			activeScene = std::make_unique<Scene>();

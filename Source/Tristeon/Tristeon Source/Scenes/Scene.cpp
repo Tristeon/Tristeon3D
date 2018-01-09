@@ -10,16 +10,6 @@ namespace Tristeon
 		{
 		}
 
-		Scene::~Scene()
-		{
-			//Force reset just to be sure
-			for(int i = 0; i < gameObjects.size(); i++)
-			{
-				gameObjects[i].reset();
-			}
-			gameObjects.clear();
-		}
-
 		void Scene::init()
 		{
 			for (int i = 0; i < gameObjects.size(); i++)
