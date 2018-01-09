@@ -27,6 +27,8 @@ namespace Tristeon
 				void deserialize(nlohmann::json json) override;
 				size_t getSize();
 
+				float getVertexCount() const;
+				float* getVertices();
 			private:
 				REGISTER_TYPE_H(Skybox)
 
@@ -43,6 +45,9 @@ namespace Tristeon
 				} texImages;
 
 				bool isDirty = true;
+
+				float* vertices = nullptr;
+				const float vertexCount = 108;
 			};
 		}
 	}
