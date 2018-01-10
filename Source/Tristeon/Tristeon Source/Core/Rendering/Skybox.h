@@ -27,27 +27,44 @@ namespace Tristeon
 				void deserialize(nlohmann::json json) override;
 				size_t getSize();
 
+			protected:
 				float getVertexCount() const;
 				float* getVertices();
-			private:
-				REGISTER_TYPE_H(Skybox)
+
+				virtual void init() { };
+				virtual void draw() { };
 
 				void updateTextures();
 				void deserializeTexture(nlohmann::json j, std::string name, std::string& oldVal, Data::Image& img);
 				struct 
 				{
 					std::string left = "", right = "", up = "", down = "", forward = "", back = "";
+
+					std::string operator[] (int i) const
+					{
+						std::string arr[] = { left, right, up, down, forward, back };
+						return arr[i];
+					}
 				} texNames;
 
 				struct
 				{
 					Data::Image left, right, up, down, forward, back;
+					
+					Data::Image operator[] (int i) const
+					{
+						Data::Image arr[] = { left, right, up, down, forward, back };
+						return arr[i];
+					}
 				} texImages;
 
 				bool isDirty = true;
 
 				float* vertices = nullptr;
 				const float vertexCount = 108;
+
+			private:
+				REGISTER_TYPE_H(Skybox)
 			};
 		}
 	}
