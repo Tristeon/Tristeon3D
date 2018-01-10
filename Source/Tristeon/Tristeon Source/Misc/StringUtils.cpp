@@ -14,7 +14,7 @@ std::string StringUtils::generateRandom(int length)
 		"0123456789"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz";
-	static const int size = sizeof(aphanum); //only calculate this value once
+	static const int size = sizeof(alphanum); //only calculate this value once
 	
 	std::string output;
 
