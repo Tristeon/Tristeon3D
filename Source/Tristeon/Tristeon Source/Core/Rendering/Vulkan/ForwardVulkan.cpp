@@ -10,6 +10,7 @@
 #include "HelperClasses/EditorGrid.h"
 #include "HelperClasses/Swapchain.h"
 #include "DebugDrawManagerVulkan.h"
+#include "SkyboxVulkan.h"
 
 namespace Tristeon
 {
@@ -25,7 +26,7 @@ namespace Tristeon
 					vkRenderManager = dynamic_cast<RenderManager*>(renderManager);
 				}
 
-				void Forward::renderScene(glm::mat4 view, glm::mat4 proj, TObject* info)
+				void Forward::renderScene(glm::mat4 view, glm::mat4 proj, TObject* info, Rendering::Skybox* skybox)
 				{
 					//if our camera is null, try and see if we can find it in info
 					CameraRenderData* d = dynamic_cast<CameraRenderData*>(info);
@@ -103,6 +104,24 @@ namespace Tristeon
 
 						if ((VkCommandBuffer)data.lastUsedSecondaryBuffer != nullptr)
 							buffers.push_back(data.lastUsedSecondaryBuffer);
+					}
+
+					//Draw skybox if available
+					if (skybox != nullptr)
+					{
+						Vulkan::Skybox* s = dynamic_cast<Vulkan::Skybox*>(skybox);
+						if (!s->cubemapLoaded)
+							s->init(); //We'll try to set up the skybox
+
+						//If the skybox is properly set up, render
+						if (s->cubemapLoaded)
+						{
+							data.lastUsedSecondaryBuffer = nullptr;
+							s->data = &data;
+							s->draw(view, proj);
+							if ((VkCommandBuffer)data.lastUsedSecondaryBuffer != nullptr)
+								buffers.push_back(data.lastUsedSecondaryBuffer);
+						}
 					}
 
 					//Execute and finish

@@ -32,6 +32,7 @@
 #include "HelperClasses/VulkanFrame.h"
 #include "Editor/JsonSerializer.h"
 #include "DebugDrawManagerVulkan.h"
+#include "SkyboxVulkan.h"
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -141,7 +142,7 @@ namespace Tristeon
 							vk::Extent2D const extent = swapchain->extent2D;
 							glm::mat4 const view = cam.first->getViewMatrix();
 							glm::mat4 const proj = cam.first->getProjectionMatrix((float)extent.width / (float)extent.height);
-							technique->renderScene(view, proj, cam.second);
+							technique->renderScene(view, proj, cam.second, cam.first->getSkybox());
 						}
 					}
 				}
@@ -358,6 +359,24 @@ namespace Tristeon
 					offscreenPass = vulkan->device.createRenderPass(rp);
 				}
 
+				Rendering::Skybox* RenderManager::_getSkybox(std::string filePath)
+				{
+					namespace fs = std::experimental::filesystem;
+
+					if (filePath == "")
+						return nullptr;
+					if (!fs::exists(filePath))
+						return nullptr;
+					if (fs::path(filePath).extension() != ".skybox")
+						return nullptr;
+
+					Skybox* skybox = new Skybox(data, offscreenPass);
+					skybox->deserialize(JsonSerializer::load(filePath));
+					skybox->init();
+					skyboxes[filePath] = std::unique_ptr<Skybox>(skybox);
+					return skyboxes[filePath].get();
+				}
+
 				TObject* RenderManager::registerRenderer(Message msg)
 				{
 					//Get and register internal renderer
@@ -469,6 +488,10 @@ namespace Tristeon
 
 					//Rebuild framebuffers
 					swapchain->createFramebuffers();
+
+					const auto end = skyboxes.end();
+					for (auto i = skyboxes.begin(); i != end; ++i)
+						((Vulkan::Skybox*)i->second.get())->rebuild(swapchain->extent, offscreenPass);
 				}
 
 				vk::Framebuffer RenderManager::getActiveFrameBuffer() const

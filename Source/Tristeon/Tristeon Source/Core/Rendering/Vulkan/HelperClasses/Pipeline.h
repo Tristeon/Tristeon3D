@@ -40,7 +40,17 @@ namespace Tristeon
 					 * \param enableBuffers Enables/disables vertex input binding/attributes
 					 * \param topologyMode The way the shaders are supposed to render data
 					 */
-					explicit Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers = true, vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList);
+					Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers = true, vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList, bool onlyUniformSet = false);
+					
+					Pipeline(
+						VulkanBindingData* binding,
+						ShaderFile file,
+						vk::Extent2D extent,
+						vk::RenderPass renderPass,
+						vk::DescriptorSetLayout descriptorSet,
+						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList,
+						vk::CompareOp compareop = vk::CompareOp::eLess);
+
 					/**
 					 * \brief Cleans up all resources created/used by this pipeline object
 					 */
@@ -95,7 +105,7 @@ namespace Tristeon
 					 * \param extent The swapchain/window extent (width, height)
 					 * \param renderPass The renderpass this pipeline is bound to
 					 */
-					void create(vk::Extent2D extent, vk::RenderPass renderPass);
+					void create(vk::Extent2D extent, vk::RenderPass renderPass, vk::CompareOp compare_op = vk::CompareOp::eLess);
 					/**
 					 * \brief Deletes all resources created by pipeline
 					 */
@@ -114,6 +124,11 @@ namespace Tristeon
 					 * \brief Enable/disable vertex input binding/attributes
 					 */
 					bool enableBuffers;
+
+					/**
+					 * \brief Enable/Disable other descriptor sets 
+					 */
+					bool onlyUniformSet;
 
 					/**
 					 * \brief The name of the pipeline

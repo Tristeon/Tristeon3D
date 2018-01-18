@@ -8,6 +8,7 @@
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
 #include "Core/Components/TestScript.h"
+#include "Standard/FirstPersonCameraController.h"
 using namespace Tristeon::Editor;
 
 InspectorWindow::InspectorWindow()
@@ -165,7 +166,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 	
-	std::vector<char*> components = { "Camera","Test", "MeshRenderer" };
+	std::vector<char*> components = { "Camera","Test", "MeshRenderer", "FirstPersonCameraController" };
 	
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -187,6 +188,10 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 				else if (i == 2)
 				{
 					(*data)["components"].push_back(Core::Rendering::MeshRenderer().serialize());
+				}
+				else if (i == 3)
+				{
+					(*data)["components"].push_back(Standard::FirstPersonCameraController().serialize());
 				}
 			}
 		}

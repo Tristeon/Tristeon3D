@@ -14,12 +14,12 @@ namespace Tristeon
 			namespace Vulkan
 			{
 				void VulkanImage::createImage(VulkanBindingData* vk, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, 
-					vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& imageMemory)
+					vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& imageMemory, int arrayLayers, vk::ImageCreateFlags flags)
 				{
 					//Create the image with the given parameters
-					vk::ImageCreateInfo imgInfo = vk::ImageCreateInfo({},
+					vk::ImageCreateInfo imgInfo = vk::ImageCreateInfo(flags,
 						vk::ImageType::e2D, format,
-						vk::Extent3D(width, height, 1), 1, 1,
+						vk::Extent3D(width, height, 1), 1, arrayLayers,
 						vk::SampleCountFlagBits::e1,
 						tiling, usage,
 						vk::SharingMode::eExclusive,
@@ -41,11 +41,11 @@ namespace Tristeon
 					vk->device.bindImageMemory(image, imageMemory, 0);
 				}
 
-				vk::ImageView VulkanImage::createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags)
+				vk::ImageView VulkanImage::createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType)
 				{
 					vk::ComponentMapping const components = vk::ComponentMapping(); //Specifies color component mapping
 					vk::ImageSubresourceRange const sub = vk::ImageSubresourceRange(aspectFlags, 0, 1, 0, 1); //Aspectmask, baseMipLevel, levelCount, baseArrayLayer, layerCount
-					vk::ImageViewCreateInfo viewInfo = vk::ImageViewCreateInfo({}, img, vk::ImageViewType::e2D, format, components, sub);
+					vk::ImageViewCreateInfo viewInfo = vk::ImageViewCreateInfo({}, img, viewType, format, components, sub);
 
 					//Create image view
 					vk::ImageView view;
@@ -54,7 +54,7 @@ namespace Tristeon
 					return view;
 				}
 
-				void VulkanImage::transitionImageLayout(VulkanBindingData* bind, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+				void VulkanImage::transitionImageLayout(VulkanBindingData* bind, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subresource_range)
 				{
 					vk::ImageAspectFlags aspectMask;
 					
@@ -73,10 +73,10 @@ namespace Tristeon
 					vk::PipelineStageFlagBits src = {};
 					vk::PipelineStageFlagBits dst = {};
 
-					vk::ImageSubresourceRange const sub = vk::ImageSubresourceRange(aspectMask, 0, 1, 0, 1);
+					subresource_range.aspectMask = aspectMask;
 
 					//Barriers can be used to describe image transitions
-					vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier({}, {}, oldLayout, newLayout, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image, sub);
+					vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier({}, {}, oldLayout, newLayout, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image, subresource_range);
 
 					//Transfer from undefined to transferdst
 					if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal)

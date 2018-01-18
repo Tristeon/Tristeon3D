@@ -290,6 +290,8 @@ namespace Tristeon
 					 * \brief Creates the offscreen renderpass, used to render the scene to an image
 					 */
 					void prepareOffscreenPass();
+				protected:
+					Skybox* _getSkybox(std::string filePath) override;
 				};
 			}
 		}

@@ -39,7 +39,7 @@ namespace Tristeon
 					 * \param image The vulkan image
 					 * \param imageMemory The image's memory
 					 */
-					static void createImage(VulkanBindingData* bind, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& imageMemory);
+					static void createImage(VulkanBindingData* bind, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& imageMemory, int arrayLayers = 1, vk::ImageCreateFlags flags = {});
 					/**
 					 * \brief Creates a vulkan image view for the given vulkan image
 					 * \param device The vulkan logical device, for creation of the image view
@@ -48,14 +48,14 @@ namespace Tristeon
 					 * \param aspectFlags Specifies which aspects of the image are included in the view
 					 * \return Returns the resulting image view
 					 */
-					static vk::ImageView createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags);
+					static vk::ImageView createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType = vk::ImageViewType::e2D);
 					/**
 					 * \brief Transitions the layout of the given image from one layout to another
 					 * \param bind Rendering data
 					 * \param oldLayout The current image layout
 					 * \param newLayout The image layout we wish to get
 					 */
-					static void transitionImageLayout(VulkanBindingData* bind, vk::Image, vk::Format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+					static void transitionImageLayout(VulkanBindingData* bind, vk::Image, vk::Format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subresource_range = vk::ImageSubresourceRange({}, 0, 1, 0, 1));
 					/**
 					 * \brief Copies buffer data to an image
 					 * \param bind Rendering data

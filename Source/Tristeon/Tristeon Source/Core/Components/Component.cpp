@@ -21,10 +21,9 @@ namespace Tristeon
 
 			void Component::init()
 			{
-				if (registered)
-					ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_DEREGISTER, this });
+				if (!registered)
+					ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_REGISTER, this });
 				registered = true;
-				ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_REGISTER, this });
 			}
 
 			void Component::setup(GameObject* go)

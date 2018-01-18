@@ -28,6 +28,13 @@ namespace Tristeon
 					friend Vulkan::RenderManager;
 					friend Vulkan::Forward;
 					friend Rendering::RenderManager;
+				public:
+					/**
+					 * \brief Creates a new instance of DebugDrawManager with the required rendering references
+					 * \param data The binding data
+					 * \param offscreenPass The offscreenpass to render to
+					 */
+					DebugDrawManager(VulkanBindingData* data, vk::RenderPass offscreenPass);
 				protected:
 					/**
 					 * \brief Renders the queued drawables
@@ -39,12 +46,6 @@ namespace Tristeon
 					 */
 					RenderData* data = nullptr;
 
-					/**
-					 * \brief Creates a new instance of DebugDrawManager with the required rendering references
-					 * \param data The binding data
-					 * \param offscreenPass The offscreenpass to render to
-					 */
-					DebugDrawManager(VulkanBindingData* data, vk::RenderPass offscreenPass);
 					/**
 					 * \brief Destroys the debug draw manager and deallocates all the resources created by it
 					 */

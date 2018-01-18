@@ -96,6 +96,7 @@
     <ClCompile Include="Tristeon Source\Core\Rendering\Skybox.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\SkyboxFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\PrefabEditorNode.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\SkyboxVulkan.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tristeon Source\Core\Managers\InputManager.h" />
@@ -209,5 +210,6 @@
     <ClInclude Include="Tristeon Source\Core\Rendering\Skybox.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\SkyboxFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\PrefabEditorNode.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\SkyboxVulkan.h" />
   </ItemGroup>
 </Project>

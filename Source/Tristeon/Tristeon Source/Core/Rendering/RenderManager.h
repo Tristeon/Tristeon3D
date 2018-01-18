@@ -79,6 +79,8 @@ namespace Tristeon
 				
 				static Skybox* getSkybox(std::string filePath);
 			protected:
+				virtual Skybox* _getSkybox(std::string filePath) = 0;
+
 				/**
 				* \brief Returns a material serialized from the given filepath
 				* \param filePath The filepath of the material

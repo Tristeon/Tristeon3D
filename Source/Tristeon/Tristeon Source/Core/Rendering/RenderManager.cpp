@@ -147,9 +147,7 @@ namespace Tristeon
 				if (std::experimental::filesystem::path(filePath).extension() != ".skybox")
 					return nullptr;
 
-				Skybox* skybox = JsonSerializer::deserialize<Skybox>(filePath);
-				instance->skyboxes[filePath] = std::unique_ptr<Skybox>(skybox);
-				return instance->skyboxes[filePath].get();
+				return instance->_getSkybox(filePath);
 			}
 		}
 	}

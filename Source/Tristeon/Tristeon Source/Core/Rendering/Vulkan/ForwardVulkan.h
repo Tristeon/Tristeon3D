@@ -30,8 +30,9 @@ namespace Tristeon
 					* \param view The view matrix of the camera
 					* \param proj The projection matrix of the camera
 					* \param info Userdata
+					* \param skybox The skybox of the "camera". Can be null.
 					*/
-					void renderScene(glm::mat4 view, glm::mat4 proj, TObject* info = nullptr) override;
+					void renderScene(glm::mat4 view, glm::mat4 proj, TObject* info = nullptr, Rendering::Skybox* skybox = nullptr) override;
 					/**
 					* \brief Renders all the cameras to the screen
 					*/
