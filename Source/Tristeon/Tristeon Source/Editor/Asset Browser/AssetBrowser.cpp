@@ -69,13 +69,7 @@ void AssetBrowser::onGui()
 	ImGui::BeginChild("Right panel", ImVec2(0, 0), ImGuiWindowFlags_HorizontalScrollbar);
 
 	//Dropped on assetbrowser
-	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
-	if (draggingNode != nullptr && ImGui::IsMouseReleased(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
-	{
-		PrefabFileItem* prefab = new PrefabFileItem();
-		prefab->init((*draggingNode->getData())["name"],itemManager->currentFolder,"prefab");
-		prefab->createFile(*draggingNode->getData());
-	}
+	//handleDroppedItems();
 
 
 	// Right click popup (opens asset creation window)
@@ -137,4 +131,22 @@ void AssetBrowser::onGui()
 	ImGui::EndChild();
 
 	ImGui::End(); // end window
+}
+
+void AssetBrowser::handleDroppedItems()
+{
+	//Drop condition
+	if (ImGui::IsMouseReleased(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
+	{
+		//Is draggable an editor node?
+		Draggable* draggable = EditorDragging::getDragableItem();
+		EditorNode* draggingNode = dynamic_cast<EditorNode*>(draggable);
+		if (draggingNode != nullptr)
+		{
+			PrefabFileItem* prefab = new PrefabFileItem();
+			prefab->init((*draggingNode->getData())["name"], itemManager->currentFolder, "prefab");
+			prefab->createFile(*draggingNode->getData());
+			draggingNode->setPrefab(prefab);
+		}
+	}
 }

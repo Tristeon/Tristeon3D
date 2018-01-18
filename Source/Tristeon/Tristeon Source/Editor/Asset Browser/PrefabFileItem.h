@@ -6,4 +6,6 @@
  */
 class PrefabFileItem : public Tristeon::Editor::AssetItem
 {
+public:
+	void SetPrefabData(nlohmann::json prefabData);
 };

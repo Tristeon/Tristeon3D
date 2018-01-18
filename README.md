@@ -42,6 +42,11 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
   * vector
 * Over 40 mesh file formats including FBX, OBJ, 3DS and blend
 * Supported image formats: JPG, PNG, TGA, BMP, PSD and more
+# How to build the project
+You will need visual studio to build the project, we use specific MSVC keywords which can only be compiled using visual studio. The visual studio project is pushed within the project so you can simply open that to access the project.
+1. If you do not have the Vulkan SDK installed you can get it here: https://vulkan.lunarg.com/
+2. Currently non-editor builds don't work so make sure to select either Editor or EditorDebug https://puu.sh/yYkob/94b290228c.png
+3. Make sure to compile it at x64 as we currently don't support compiling at x86
 
 # Roadmap
 

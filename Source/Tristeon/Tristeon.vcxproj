@@ -339,7 +339,6 @@
     <ClCompile Include="Tristeon Source\Data\MeshBatch.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\MeshFileItem.cpp" />
-    <ClCompile Include="Tristeon Source\Editor\Asset Browser\PrefabEditorNode.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\SceneFileitem.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.cpp" />
@@ -436,7 +435,6 @@
     <ClInclude Include="Tristeon Source\Data\MeshBatch.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\MeshFileItem.h" />
-    <ClInclude Include="Tristeon Source\Editor\Asset Browser\PrefabEditorNode.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\PrefabFileItem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\SceneFileitem.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\ShaderFileItem.h" />

@@ -3,6 +3,7 @@
 #include "json.hpp"
 #include "Core/GameObject.h"
 #include "Draggable.h"
+#include "Asset Browser/PrefabFileItem.h"
 
 namespace Tristeon
 {
@@ -15,6 +16,7 @@ namespace Tristeon
 			friend class EditorSelection;
 		public:
 			explicit EditorNode(Core::GameObject* gameObj);
+			explicit EditorNode(Core::GameObject* gameObj, PrefabFileItem* prefab);
 			~EditorNode() override;
 
 			/**
@@ -42,6 +44,16 @@ namespace Tristeon
 			 */
 			bool hasChild(EditorNode* node);
 
+			void setPrefab(PrefabFileItem* prefab);
+
+			void setPrefabData(nlohmann::json prefabData);
+
+			bool isPrefab() { return _isPrefab; }
+
+			virtual nlohmann::json getPrefabData();
+
+			void applyPrefab();
+
 			/**
 			 * \brief Unique typeid of the connectedGameObject
 			 */
@@ -60,6 +72,10 @@ namespace Tristeon
 			 * \brief The serialized data of the connectedGameObject
 			 */
 			nlohmann::json data;
+
+			PrefabFileItem* prefab = nullptr;
+
+			bool _isPrefab;
 		};
 	}
 }

@@ -8,7 +8,7 @@
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
 #include "Core/Components/TestScript.h"
-#include "Standard/FirstPersonCameraController.h"
+#include <string.h>
 using namespace Tristeon::Editor;
 
 InspectorWindow::InspectorWindow()
@@ -63,6 +63,15 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 
 	//Apply editor changes
 	(*data)["name"] = nameValue;
+
+	//Display prefab interface if the node is a prefab
+	if (node->isPrefab())
+	{
+		if (ImGui::Button("Apply Prefab"))
+		{
+			node->setPrefabData(*data);
+		}
+	}
 
 	//Display transform
 	if (ImGui::CollapsingHeader("Transform"))
@@ -133,7 +142,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 	}
 
 	//If there are more components than closeableHeaders increment the array.
-	if ((*data)["components"].size() >= closeableHeaders.size())
+	while ((*data)["components"].size() >= closeableHeaders.size()) //Changed to while loop to fix multiple headers missing
 		closeableHeaders.push_back(true);
 
 	int indexToErase = -1;
@@ -166,7 +175,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 	
-	std::vector<char*> components = { "Camera","Test", "MeshRenderer", "FirstPersonCameraController" };
+	std::vector<char*> components = { "Camera","Test", "MeshRenderer" };
 	
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -188,10 +197,6 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 				else if (i == 2)
 				{
 					(*data)["components"].push_back(Core::Rendering::MeshRenderer().serialize());
-				}
-				else if (i == 3)
-				{
-					(*data)["components"].push_back(Standard::FirstPersonCameraController().serialize());
 				}
 			}
 		}

@@ -10,7 +10,7 @@ public:
 	 * \param obj the object that is turned into json
 	 */
 	template <typename T> static void serialize(const std::string& path, T& obj);
-	template <> static void serialize(const std::string& path, nlohmann::json& obj);
+	static void serialize(const std::string& path, nlohmann::json& obj);
 	/**
 	 * \brief Create an instance with type T using the given filepath
 	 */
@@ -19,8 +19,8 @@ public:
 	static nlohmann::json load(const std::string& path);
 };
 
-template <>
-inline void JsonSerializer::serialize<nlohmann::basic_json<>>(const std::string& path, nlohmann::json& obj)
+
+inline void JsonSerializer::serialize(const std::string& path, nlohmann::json& obj)
 {
 	//check if there is anything serialized
 	if (obj.is_null()) {

@@ -12,7 +12,7 @@ namespace Tristeon
 		{
 			friend class Tristeon::Editor::SceneFileItem;
 		public:
-			~SceneManager();
+			~SceneManager() = default;
 
 			void init() override;
 

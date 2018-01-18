@@ -3,6 +3,7 @@
 #include "Editor/JsonSerializer.h"
 #include "Core/Rendering/RenderManager.h"
 #include "Core/Rendering/Vulkan/MaterialVulkan.h"
+#include <string.h>
 
 namespace Tristeon
 {

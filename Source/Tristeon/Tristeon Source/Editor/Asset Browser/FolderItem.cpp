@@ -23,6 +23,16 @@ FolderItem::FolderItem()
 
 FolderItem::~FolderItem()
 {
+	//Remove child reference in fileitems vector
+	for (unsigned int i = 0; i < children.size(); ++i)
+	{
+		const auto removeIterator = std::remove(fileItems.begin(), fileItems.end(), children[i].get());
+		fileItems.erase(removeIterator);
+	}
+
+	//Clean up children, unique pointers automatically call the destructor
+	children.clear();
+
 	//Clean fileitems
 	for (unsigned int i = 0; i < fileItems.size(); ++i)
 		delete fileItems[i];

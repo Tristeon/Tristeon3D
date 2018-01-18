@@ -847,7 +847,7 @@ namespace nlohmann
 			void call(BasicJsonType&, T&&, priority_tag<0>) const noexcept
 			{
 				static_assert(sizeof(BasicJsonType) == 0,
-					"could not find to_json() method in T's namespace");
+						"could not find to_json() method in T's namespace");
 			}
 
 		public:
