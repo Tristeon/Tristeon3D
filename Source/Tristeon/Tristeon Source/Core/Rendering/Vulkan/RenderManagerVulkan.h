@@ -18,6 +18,8 @@ namespace Tristeon
 
 		namespace Rendering
 		{
+			class Skybox;
+
 			namespace Vulkan
 			{
 				//Forward decl
@@ -30,6 +32,7 @@ namespace Tristeon
 				class EditorGrid;
 				class DebugReportCallbackEXT;
 				class VulkanCore;
+				class Skybox;
 
 				/**
 				 * \brief EditorData is a small struct wrapping around  
@@ -272,6 +275,8 @@ namespace Tristeon
 					 * \brief A wrapper around an unregistered meshrenderer, used to render a grid to the scene view
 					 */
 					EditorGrid* grid = nullptr;
+
+					Vulkan::Skybox* editorSkybox = nullptr;
 #endif
 					/**
 					 * \brief The offscreen pass, used to render the scene to an image
@@ -291,7 +296,7 @@ namespace Tristeon
 					 */
 					void prepareOffscreenPass();
 				protected:
-					Skybox* _getSkybox(std::string filePath) override;
+					Rendering::Skybox* _getSkybox(std::string filePath) override;
 				};
 			}
 		}

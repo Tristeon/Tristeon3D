@@ -139,6 +139,8 @@ namespace Tristeon
 					 */
 					vk::Device device;
 
+					vk::CompareOp compare_op;
+
 					/**
 					 * \brief The vertex shader module
 					 */

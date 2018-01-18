@@ -52,8 +52,9 @@ namespace Tristeon
 				//Comfirm that the cast succeeded
 				Misc::Console::t_assert(c != nullptr, "Failed to cast userData to component!");
 
-				//Add to our componentlist
-				components.remove(c);
+				//Remove from components
+				if (components.size() != 0)
+					components.remove(c);
 			}
 
 			void ComponentManager::reset()

@@ -18,9 +18,9 @@ namespace Tristeon
 
 			void Camera::init()
 			{
-				ManagerProtocol::sendMessage({ MT_CAMERA_REGISTER, this });
-				//Normally gets set in the base class, but we're not calling Component::init, so we gotta set it ourselves
-				registered = true;
+				if (!registered)
+					ManagerProtocol::sendMessage({ MT_CAMERA_REGISTER, this });
+				Component::init();
 			}
 
 			Camera::~Camera()

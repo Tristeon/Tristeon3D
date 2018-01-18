@@ -35,6 +35,7 @@ namespace Tristeon
 					this->enableBuffers = enableBuffers;
 					this->binding = bind;
 					this->onlyUniformSet = onlyUniformSet;
+					this->compare_op = vk::CompareOp::eLess;
 
 					//Init
 					createDescriptorLayout(file.getProps());
@@ -50,7 +51,7 @@ namespace Tristeon
 					this->binding = binding;
 					this->onlyUniformSet = true;
 					this->device = binding->device;
-
+					this->compare_op = compare_op;
 					//Init
 					descriptorSetLayout1 = descriptorSet;
 					create(extent, renderPass, compare_op);
@@ -134,7 +135,7 @@ namespace Tristeon
 				{
 					//Cleanup and then build again
 					cleanup();
-					create(extent, renderPass);
+					create(extent, renderPass, compare_op);
 				}
 
 				void Pipeline::create(vk::Extent2D extent, vk::RenderPass renderPass, vk::CompareOp compare_op)

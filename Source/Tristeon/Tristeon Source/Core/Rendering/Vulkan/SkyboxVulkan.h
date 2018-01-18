@@ -1,8 +1,7 @@
 ﻿#pragma once
 #include "Core/Rendering/Skybox.h"
-#include "HelperClasses/VulkanImage.h"
-#include "RenderManagerVulkan.h"
 #include "MaterialVulkan.h"
+#include "RenderManagerVulkan.h"
 
 namespace Tristeon
 {
@@ -13,6 +12,7 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
+				class Forward;
 				class RenderManager;
 
 				class Skybox : public Rendering::Skybox

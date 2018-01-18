@@ -33,6 +33,7 @@
 #include "Editor/JsonSerializer.h"
 #include "DebugDrawManagerVulkan.h"
 #include "SkyboxVulkan.h"
+#include "../Skybox.h"
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -83,6 +84,8 @@ namespace Tristeon
 					//Setup editor camera
 					editor.trans = new Transform();
 					editor.cam = new CameraRenderData(this, dynamic_cast<VulkanBindingData*>(bindingData), offscreenPass, onscreenPipeline, true);
+					grid = new EditorGrid(data, offscreenPass);
+					editorSkybox = (Vulkan::Skybox*)getSkybox("Files/Misc/SkyboxEditor.skybox");
 #endif
 					//Create the debug draw manager
 					DebugDrawManager::instance = new Vulkan::DebugDrawManager(data, offscreenPass);
@@ -131,7 +134,7 @@ namespace Tristeon
 						//Render editor camera
 						glm::mat4 const view = Components::Camera::getViewMatrix(editor.trans);
 						glm::mat4 const proj = Components::Camera::getProjectionMatrix((float)editor.size.x / (float)editor.size.y, 60, 0.1f, 1000.0f);
-						technique->renderScene(view, proj, editor.cam);
+						technique->renderScene(view, proj, editor.cam, editorSkybox);
 #endif
 					}
 					else
@@ -161,9 +164,11 @@ namespace Tristeon
 					internalRenderers.clear();
 
 					//Cameras and renderpasses
-					for (const auto pair : cameraData) delete pair.second;
+					for (const auto pair : cameraData) 
+						delete pair.second;
 					d.destroyRenderPass(offscreenPass);
 
+					skyboxes.clear();
 #ifdef EDITOR
 					//Editor
 					delete editor.trans;
@@ -173,7 +178,6 @@ namespace Tristeon
 					//Semaphores
 					d.destroySemaphore(imageAvailable);
 					d.destroySemaphore(renderFinished);
-
 
 					//Materials
 					for (auto m : materials) delete m.second;
@@ -197,7 +201,9 @@ namespace Tristeon
 					Rendering::RenderManager::reset();
 					internalRenderers.clear();
 
-					//TODO: Clear camera refs
+					for (const auto c : cameraData)
+						delete c.second;
+					cameraData.clear();
 				}
 
 				void RenderManager::setupVulkan()
@@ -232,11 +238,6 @@ namespace Tristeon
 					vk::SemaphoreCreateInfo ci{};
 					vulkan->device.createSemaphore(&ci, nullptr, &imageAvailable);
 					vulkan->device.createSemaphore(&ci, nullptr, &renderFinished);
-
-#ifdef EDITOR
-					//Create editor grid
-					grid = new EditorGrid(data, offscreenPass);
-#endif
 				}
 
 				void RenderManager::createDescriptorPool()
@@ -373,7 +374,7 @@ namespace Tristeon
 					Skybox* skybox = new Skybox(data, offscreenPass);
 					skybox->deserialize(JsonSerializer::load(filePath));
 					skybox->init();
-					skyboxes[filePath] = std::unique_ptr<Skybox>(skybox);
+					skyboxes[filePath] = std::unique_ptr<Rendering::Skybox>(skybox);
 					return skyboxes[filePath].get();
 				}
 
@@ -426,8 +427,8 @@ namespace Tristeon
 
 					//Get our camera renderdata and erase it
 					CameraRenderData* data = cameraData[cam];
-					cameraData.erase(cam);
 					delete data;
+					cameraData.erase(cameraData.find(cam));
 					
 					//For inherited classes
 					return cam;
@@ -479,6 +480,7 @@ namespace Tristeon
 					//Rebuild editor data
 					editor.cam->rebuild(this, offscreenPass, onscreenPipeline);
 					grid->rebuild(offscreenPass);
+					editorSkybox->rebuild(swapchain->extent2D, offscreenPass);
 #endif
 					//Rebuild pipelines
 					for (int i = 0; i < pipelines.size(); i++)

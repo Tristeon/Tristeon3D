@@ -10,6 +10,7 @@
 #include "Data/Mesh.h"
 #include <gli/core/convert_func.hpp>
 #include <gli/core/flip.hpp>
+#include "HelperClasses/VulkanImage.h"
 
 namespace Tristeon
 {
@@ -39,6 +40,7 @@ namespace Tristeon
 					device.freeMemory(indexBuffer.mem);
 
 					device.freeCommandBuffers(bindingData->commandPool, secondary);
+
 					delete pipeline;
 				}
 
@@ -267,9 +269,6 @@ namespace Tristeon
 
 				void Skybox::createVertexBuffer()
 				{
-					if ((VkBuffer)vertexBuffer.buf != VK_NULL_HANDLE)
-						bindingData->device.destroyBuffer(vertexBuffer.buf);
-
 					vk::Device device = bindingData->device;
 
 					//Vulkan's buffers will be able to enable high performance memory when we're using a staging buffer instead of directly copying data to the gpu
@@ -301,9 +300,6 @@ namespace Tristeon
 
 				void Skybox::createIndexBuffer()
 				{
-					if ((VkBuffer)indexBuffer.buf != VK_NULL_HANDLE)
-						bindingData->device.destroyBuffer(indexBuffer.buf);
-
 					vk::DeviceSize const size = sizeof(uint16_t) * mesh.indices.size();
 					if (size == 0)
 						return;
