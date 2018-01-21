@@ -34,6 +34,8 @@
 #include "DebugDrawManagerVulkan.h"
 #include "SkyboxVulkan.h"
 #include "../Skybox.h"
+#include "Misc/ObjectPool.h"
+#include "Core/GameObject.h"
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -83,7 +85,9 @@ namespace Tristeon
 #ifdef EDITOR
 					//Setup editor camera
 					editor.trans = new Transform();
-					editor.cam = new CameraRenderData(this, dynamic_cast<VulkanBindingData*>(bindingData), offscreenPass, onscreenPipeline, true);
+					editor.cam = new CameraRenderData();
+					editor.cam->init(this, data, offscreenPass, onscreenPipeline, true);
+
 					grid = new EditorGrid(data, offscreenPass);
 					editorSkybox = (Vulkan::Skybox*)getSkybox("Files/Misc/SkyboxEditor.skybox");
 #endif
@@ -164,16 +168,15 @@ namespace Tristeon
 					internalRenderers.clear();
 
 					//Cameras and renderpasses
-					for (const auto pair : cameraData) 
-						delete pair.second;
+					cameraDataPool.reset();
 					d.destroyRenderPass(offscreenPass);
 
 					skyboxes.clear();
 #ifdef EDITOR
 					//Editor
 					delete editor.trans;
-					delete editor.cam;
 					delete grid;
+					delete editor.cam;
 #endif
 					//Semaphores
 					d.destroySemaphore(imageAvailable);
@@ -198,11 +201,11 @@ namespace Tristeon
 				void RenderManager::reset()
 				{
 					//Get rid of references to scene objects
-					Rendering::RenderManager::reset();
-					internalRenderers.clear();
+					//Rendering::RenderManager::reset();
+					//internalRenderers.clear();
 
 					for (const auto c : cameraData)
-						delete c.second;
+						cameraDataPool.release(c.second);
 					cameraData.clear();
 				}
 
@@ -412,8 +415,22 @@ namespace Tristeon
 					//Base class registers the camera, we can create our respective data by using the resulting value of the base function
 					Components::Camera* cam = Rendering::RenderManager::registerCamera(msg);
 					
+					if (cam == nullptr)
+						return nullptr;
+
 					//Create camera render data
-					CameraRenderData* data = new CameraRenderData(this, dynamic_cast<VulkanBindingData*>(bindingData), offscreenPass, onscreenPipeline);
+					CameraRenderData* data = cameraDataPool.get();
+					data->tempName = "Camera: " + std::to_string(cameraData.size());
+					if (!data->getIsPrepared())
+						data->init(this, this->data, offscreenPass, onscreenPipeline);
+					else if (!data->isValid())
+						data->rebuild(this, offscreenPass, onscreenPipeline);
+
+					for (const auto pair : cameraData)
+					{
+						if (pair.second == data)
+							Misc::Console::error("Still have an old camera in here?!");
+					}
 					cameraData.insert(std::make_pair(cam, data));
 					
 					//For inherited classes
@@ -427,9 +444,8 @@ namespace Tristeon
 
 					//Get our camera renderdata and erase it
 					CameraRenderData* data = cameraData[cam];
-					delete data;
 					cameraData.erase(cameraData.find(cam));
-					
+					cameraDataPool.release(data);
 					//For inherited classes
 					return cam;
 				}
@@ -478,7 +494,8 @@ namespace Tristeon
 						p.second->rebuild(this, offscreenPass, onscreenPipeline);
 #ifdef EDITOR
 					//Rebuild editor data
-					editor.cam->rebuild(this, offscreenPass, onscreenPipeline);
+					if (editor.cam != nullptr)
+						editor.cam->rebuild(this, offscreenPass, onscreenPipeline);
 					grid->rebuild(offscreenPass);
 					editorSkybox->rebuild(swapchain->extent2D, offscreenPass);
 #endif

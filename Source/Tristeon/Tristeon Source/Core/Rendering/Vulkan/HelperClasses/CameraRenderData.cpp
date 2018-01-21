@@ -122,7 +122,7 @@ namespace Tristeon
 					}
 					else
 					{
-						//Cameras don't actually use uniform buffers right now, but due to our
+						//TODO: Cameras don't actually use uniform buffers right now, but due to our
 						//pipeline setup we unfortunately have to include a buffer in some form or way,
 						//so we'll just create a very small uniform buffer
 
@@ -169,22 +169,36 @@ namespace Tristeon
 					device.freeDescriptorSets(pool, 2, sets.data());
 				}
 
-				CameraRenderData::CameraRenderData(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline, bool isEditorCamera) : binding(binding)
+				bool CameraRenderData::isValid() const
 				{
+					return binding != nullptr && lastExtent == binding->swapchain->extent2D;
+				}
+
+				void CameraRenderData::init(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline, bool isEditorCamera)
+				{
+					this->binding = binding;
 					this->isEditorCam = isEditorCamera;
-					init(rm, offscreenPass, onscreenPipeline);
+					lastExtent = rm->swapchain->extent2D;
+
+					if (isPrepared)
+						rebuild(rm, offscreenPass, onscreenPipeline);
+					else
+						setup(rm, offscreenPass, onscreenPipeline);
+					isPrepared = true;
 				}
 
 				CameraRenderData::~CameraRenderData()
 				{
+					Misc::Console::warning("Destroying cameradata object");
 					offscreen.destroy(binding->device);
 					onscreen.destroy(binding->device, binding->descriptorPool);
 				}
 
-				void CameraRenderData::init(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline)
+				void CameraRenderData::setup(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline)
 				{
 					offscreen.init(rm, offscreenPass);
 					onscreen.init(binding, offscreen, isEditorCam, onscreenPipeline);
+					isPrepared = true;
 				}
 
 				void CameraRenderData::rebuild(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline)
@@ -197,7 +211,7 @@ namespace Tristeon
 					onscreen.destroy(rm->vulkan->device, rm->descriptorPool);
 
 					//Rebuild
-					init(rm, offscreenPass, onscreenPipeline);
+					setup(rm, offscreenPass, onscreenPipeline);
 				}
 			}
 		}

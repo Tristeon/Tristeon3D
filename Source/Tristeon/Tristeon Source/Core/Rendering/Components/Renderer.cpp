@@ -28,8 +28,9 @@ namespace Tristeon
 
 			void Renderer::init()
 			{
+				if (!registered)
+					ManagerProtocol::sendMessage({MT_RENDERINGCOMPONENT_REGISTER, dynamic_cast<TObject*>(this) });
 				registered = true;
-				ManagerProtocol::sendMessage({MT_RENDERINGCOMPONENT_REGISTER, dynamic_cast<TObject*>(this) });
 			}
 		}
 	}

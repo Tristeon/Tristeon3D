@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "Math/Vector2.h"
+#include "Misc/ObjectPool.h"
 
 namespace Tristeon
 {
@@ -134,7 +135,7 @@ namespace Tristeon
 					 */
 					Rendering::Material* getmaterial(std::string filePath) override;
 					/**
-					 * \brief Removes all references to game components
+					 * \brief Releases all the leftover cameradata
 					 */
 					void reset() override;
 
@@ -265,7 +266,7 @@ namespace Tristeon
 					 * \brief A map containing the cameras and their respective render data
 					 */
 					std::map<Components::Camera*, CameraRenderData*> cameraData;
-
+					ObjectPool<CameraRenderData*> cameraDataPool;
 #ifdef EDITOR
 					/**
 					 * \brief EditorData, stores the information we need for the editor camera to render

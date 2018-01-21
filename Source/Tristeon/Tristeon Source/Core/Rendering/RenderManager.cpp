@@ -45,13 +45,6 @@ namespace Tristeon
 				return renderers;
 			}
 
-			void RenderManager::reset()
-			{
-				//Clear lists
-				renderers.clear();
-				cameras.clear();
-			}
-
 			TObject* RenderManager::registerRenderer(Message msg)
 			{
 				//Confirm that we're getting useful data

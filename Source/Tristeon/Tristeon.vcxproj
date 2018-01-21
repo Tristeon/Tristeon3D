@@ -517,6 +517,7 @@
     <ClInclude Include="Tristeon Source\Misc\Hardware\Keyboard.h" />
     <ClInclude Include="Tristeon Source\Misc\Hardware\Mouse.h" />
     <ClInclude Include="Tristeon Source\Misc\Hardware\Time.h" />
+    <ClInclude Include="Tristeon Source\Misc\ObjectPool.h" />
     <ClInclude Include="Tristeon Source\Misc\StringUtils.h" />
     <ClInclude Include="Tristeon Source\Standard\CharacterController.h" />
     <ClInclude Include="Tristeon Source\Standard\FirstPersonCameraController.h" />
