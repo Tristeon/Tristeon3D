@@ -27,7 +27,7 @@ namespace Tristeon
 				using ColorBlendState = vk::PipelineColorBlendStateCreateInfo;
 				using DynamicState = vk::PipelineDynamicStateCreateInfo;
 
-				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet) : device(bind->device)
+				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet, vk::CullModeFlags cullMode) : device(bind->device)
 				{
 					//Store vars
 					this->file = file;
@@ -36,13 +36,14 @@ namespace Tristeon
 					this->binding = bind;
 					this->onlyUniformSet = onlyUniformSet;
 					this->compare_op = vk::CompareOp::eLess;
+					this->cullMode = cullMode;
 
 					//Init
 					createDescriptorLayout(file.getProps());
 					create(extent, renderPass);
 				}
 
-				Pipeline::Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, vk::DescriptorSetLayout descriptorSet, vk::PrimitiveTopology topologyMode, vk::CompareOp compare_op)
+				Pipeline::Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, vk::DescriptorSetLayout descriptorSet, vk::PrimitiveTopology topologyMode, vk::CompareOp compare_op, vk::CullModeFlags cullMode)
 				{
 					//Store vars
 					this->file = file;
@@ -52,6 +53,8 @@ namespace Tristeon
 					this->onlyUniformSet = true;
 					this->device = binding->device;
 					this->compare_op = compare_op;
+					this->cullMode = cullMode;
+
 					//Init
 					descriptorSetLayout1 = descriptorSet;
 					create(extent, renderPass, compare_op);
@@ -175,7 +178,7 @@ namespace Tristeon
 					RasterizationState rasterizerState = vk::PipelineRasterizationStateCreateInfo(
 					{}, false, false,
 						vk::PolygonMode::eFill,
-						vk::CullModeFlagBits::eNone, vk::FrontFace::eCounterClockwise, //TODO: Turn culling on again
+						cullMode, vk::FrontFace::eCounterClockwise, //TODO: Turn culling on again
 						false,
 						false, 0, 0,
 						1.0f);

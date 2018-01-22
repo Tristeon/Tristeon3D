@@ -40,7 +40,15 @@ namespace Tristeon
 					 * \param enableBuffers Enables/disables vertex input binding/attributes
 					 * \param topologyMode The way the shaders are supposed to render data
 					 */
-					Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers = true, vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList, bool onlyUniformSet = false);
+					Pipeline(
+						VulkanBindingData* binding, 
+						ShaderFile file, 
+						vk::Extent2D extent, 
+						vk::RenderPass renderPass, 
+						bool enableBuffers = true, 
+						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList, 
+						bool onlyUniformSet = false, 
+						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack);
 					
 					Pipeline(
 						VulkanBindingData* binding,
@@ -49,7 +57,8 @@ namespace Tristeon
 						vk::RenderPass renderPass,
 						vk::DescriptorSetLayout descriptorSet,
 						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList,
-						vk::CompareOp compareop = vk::CompareOp::eLess);
+						vk::CompareOp compareop = vk::CompareOp::eLess, 
+						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack);
 
 					/**
 					 * \brief Cleans up all resources created/used by this pipeline object
@@ -140,7 +149,7 @@ namespace Tristeon
 					vk::Device device;
 
 					vk::CompareOp compare_op;
-
+					vk::CullModeFlags cullMode;
 					/**
 					 * \brief The vertex shader module
 					 */

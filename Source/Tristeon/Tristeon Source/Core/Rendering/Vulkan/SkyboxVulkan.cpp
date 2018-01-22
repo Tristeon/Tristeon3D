@@ -230,7 +230,8 @@ namespace Tristeon
 						renderPass, 
 						descriptorSetLayout,
 						vk::PrimitiveTopology::eTriangleList,
-						vk::CompareOp::eLessOrEqual);
+						vk::CompareOp::eLessOrEqual,
+						vk::CullModeFlagBits::eFront);
 				}
 
 				void Skybox::createUniformBuffer()

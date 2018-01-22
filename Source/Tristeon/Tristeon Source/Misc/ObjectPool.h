@@ -8,6 +8,7 @@ class ObjectPool
 public:
 	//There is no point(er haha) in using value types in a objectpool as they'll be copied around anyways
 	static_assert(std::is_pointer<Resource>::value, "ObjectPool expects a pointer type!");
+
 	~ObjectPool();
 
 	Resource get();
@@ -32,13 +33,11 @@ Resource ObjectPool<Resource>::get()
 	{
 		Resource r = new std::remove_pointer_t<Resource>();
 		available.push(r);
-		Tristeon::Misc::Console::warning("Allocating new resource!");
 	}
 
 	Resource r = available.front();
 	available.pop();
 	used.push_back(r);
-	std::cout << "Returning resource. In use: " + std::to_string(used.size()) + ", Available: " + std::to_string(available.size()) << std::endl;
 	return r;
 }
 
@@ -50,7 +49,6 @@ void ObjectPool<Resource>::release(Resource resource)
 
 	used.remove(resource);
 	available.push(resource);
-	std::cout << "Released resource. In use: " + std::to_string(used.size()) + ", Available: " + std::to_string(available.size()) << std::endl;
 }
 
 template <typename Resource>
@@ -60,7 +58,6 @@ void ObjectPool<Resource>::clearUnused()
 	{
 		Resource r = available.front();
 		available.pop();
-		std::cout << "Removing unused resource. " + std::to_string(available.size()) + " remaining." << std::endl;
 		delete r;
 	}
 }
