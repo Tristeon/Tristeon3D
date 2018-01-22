@@ -306,7 +306,7 @@ namespace Tristeon
 				void RenderManager::prepareOnscreenPipeline()
 				{
 					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF");
-					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, false);
+					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, false, vk::PrimitiveTopology::eTriangleList, false, vk::CullModeFlagBits::eFront);
 				}
 
 				void RenderManager::prepareOffscreenPass()
