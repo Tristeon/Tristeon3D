@@ -40,7 +40,28 @@ namespace Tristeon
 					 * \param enableBuffers Enables/disables vertex input binding/attributes
 					 * \param topologyMode The way the shaders are supposed to render data
 					 */
-					explicit Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers = true, vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList);
+					Pipeline(
+						VulkanBindingData* binding, 
+						ShaderFile file, 
+						vk::Extent2D extent, 
+						vk::RenderPass renderPass, 
+						bool enableBuffers = true, 
+						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList, 
+						bool onlyUniformSet = false, 
+						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack,
+						bool enableLighting = false);
+					
+					Pipeline(
+						VulkanBindingData* binding,
+						ShaderFile file,
+						vk::Extent2D extent,
+						vk::RenderPass renderPass,
+						vk::DescriptorSetLayout descriptorSet,
+						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList,
+						vk::CompareOp compareop = vk::CompareOp::eLess, 
+						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack,
+						bool enableLighting = false);
+
 					/**
 					 * \brief Cleans up all resources created/used by this pipeline object
 					 */
@@ -76,6 +97,8 @@ namespace Tristeon
 					 */
 					vk::DescriptorSetLayout getSamplerLayout() const { return descriptorSetLayout2; }
 
+					vk::DescriptorSetLayout getLightingLayout() const { return descriptorSetLayout3; }
+
 					/**
 					 * \brief Rebuilds the Vulkan Pipeline. Generally used when the window size/swapchain extent has changed.
 					 * \param extent The swapchain/window extent (width, height)
@@ -88,6 +111,7 @@ namespace Tristeon
 					 */
 					ShaderFile getShaderFile() const { return file; }
 
+					bool getEnableLighting() const { return enableLighting; }
 				private:
 					void createDescriptorLayout(std::map<int, ShaderProperty> properties);
 					/**
@@ -95,7 +119,7 @@ namespace Tristeon
 					 * \param extent The swapchain/window extent (width, height)
 					 * \param renderPass The renderpass this pipeline is bound to
 					 */
-					void create(vk::Extent2D extent, vk::RenderPass renderPass);
+					void create(vk::Extent2D extent, vk::RenderPass renderPass, vk::CompareOp compare_op = vk::CompareOp::eLess);
 					/**
 					 * \brief Deletes all resources created by pipeline
 					 */
@@ -116,6 +140,16 @@ namespace Tristeon
 					bool enableBuffers;
 
 					/**
+					 * \brief Enables/disables the lighting descriptorset
+					 */
+					bool enableLighting;
+
+					/**
+					 * \brief Enable/Disable other descriptor sets 
+					 */
+					bool onlyUniformSet;
+
+					/**
 					 * \brief The name of the pipeline
 					 */
 					std::string _name;
@@ -124,6 +158,8 @@ namespace Tristeon
 					 */
 					vk::Device device;
 
+					vk::CompareOp compare_op;
+					vk::CullModeFlags cullMode;
 					/**
 					 * \brief The vertex shader module
 					 */
@@ -139,12 +175,13 @@ namespace Tristeon
 					vk::PipelineLayout pipelineLayout;
 
 					/**
-					 * \brief THe vulkan pipeline
+					 * \brief The vulkan pipeline
 					 */
 					vk::Pipeline pipeline;
 
-					vk::DescriptorSetLayout descriptorSetLayout1;
-					vk::DescriptorSetLayout descriptorSetLayout2;
+					vk::DescriptorSetLayout descriptorSetLayout1; //Transformations
+					vk::DescriptorSetLayout descriptorSetLayout2; //User properties
+					vk::DescriptorSetLayout descriptorSetLayout3; //Lighting
 					/**
 					 * \brief Creates a generic shader module
 					 * \param code The shader code 

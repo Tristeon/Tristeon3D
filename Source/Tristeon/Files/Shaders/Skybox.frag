@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout(set = 1, binding = 0) uniform samplerCube skybox;
+layout(set = 0, binding = 1) uniform samplerCube skybox;
 
 layout(location = 0) in vec3 pos;
 layout(location = 0) out vec4 frag_color;
@@ -28,11 +28,11 @@ void main()
     vec3 color = texture(skybox, pos).rgb;
 
     //Tonemapping
-    color = Uncharted2Tonemap(color * exposure);
-    color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));
+    //color = Uncharted2Tonemap(color * exposure);
+    //color = color * (1.0f / Uncharted2Tonemap(vec3(11.2f)));
 
     //Gamma correction
-    color = pow(color, vec3(1.0 / gamma));
+    //color = pow(color, vec3(1.0 / gamma));
 
     frag_color = vec4(color, 1);
 }

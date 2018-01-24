@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <memory>
 #include "Core/Rendering/ShaderFile.h"
 
 namespace vk { class RenderPass; }

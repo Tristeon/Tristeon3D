@@ -32,6 +32,10 @@
 #include "HelperClasses/VulkanFrame.h"
 #include "Editor/JsonSerializer.h"
 #include "DebugDrawManagerVulkan.h"
+#include "SkyboxVulkan.h"
+#include "../Skybox.h"
+#include "Misc/ObjectPool.h"
+#include "Core/GameObject.h"
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -81,7 +85,11 @@ namespace Tristeon
 #ifdef EDITOR
 					//Setup editor camera
 					editor.trans = new Transform();
-					editor.cam = new CameraRenderData(this, dynamic_cast<VulkanBindingData*>(bindingData), offscreenPass, onscreenPipeline, true);
+					editor.cam = new CameraRenderData();
+					editor.cam->init(this, data, offscreenPass, onscreenPipeline, true);
+
+					grid = new EditorGrid(data, offscreenPass);
+					editorSkybox = (Vulkan::Skybox*)getSkybox("Files/Misc/SkyboxEditor.skybox");
 #endif
 					//Create the debug draw manager
 					DebugDrawManager::instance = new Vulkan::DebugDrawManager(data, offscreenPass);
@@ -113,11 +121,17 @@ namespace Tristeon
 
 					for (Pipeline* p : rm->pipelines)
 						if (p->getShaderFile().getNameID() == file.getNameID())
-						{
 							return p;
-						}
 
-					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass);
+					Pipeline *p = new Pipeline(rm->data, 
+						file, 
+						rm->swapchain->extent2D, 
+						rm->offscreenPass, 
+						true, 
+						vk::PrimitiveTopology::eTriangleList, 
+						false, 
+						vk::CullModeFlagBits::eBack, 
+						file.hasVariable(2, 0, DT_Image, ST_Fragment));
 					rm->pipelines.push_back(p);
 					return p;
 				}
@@ -130,7 +144,7 @@ namespace Tristeon
 						//Render editor camera
 						glm::mat4 const view = Components::Camera::getViewMatrix(editor.trans);
 						glm::mat4 const proj = Components::Camera::getProjectionMatrix((float)editor.size.x / (float)editor.size.y, 60, 0.1f, 1000.0f);
-						technique->renderScene(view, proj, editor.cam);
+						technique->renderScene(view, proj, editor.cam, editorSkybox);
 #endif
 					}
 					else
@@ -141,7 +155,7 @@ namespace Tristeon
 							vk::Extent2D const extent = swapchain->extent2D;
 							glm::mat4 const view = cam.first->getViewMatrix();
 							glm::mat4 const proj = cam.first->getProjectionMatrix((float)extent.width / (float)extent.height);
-							technique->renderScene(view, proj, cam.second);
+							technique->renderScene(view, proj, cam.second, cam.first->getSkybox());
 						}
 					}
 				}
@@ -160,19 +174,19 @@ namespace Tristeon
 					internalRenderers.clear();
 
 					//Cameras and renderpasses
-					for (const auto pair : cameraData) delete pair.second;
+					cameraDataPool.reset();
 					d.destroyRenderPass(offscreenPass);
 
+					skyboxes.clear();
 #ifdef EDITOR
 					//Editor
 					delete editor.trans;
-					delete editor.cam;
 					delete grid;
+					delete editor.cam;
 #endif
 					//Semaphores
 					d.destroySemaphore(imageAvailable);
 					d.destroySemaphore(renderFinished);
-
 
 					//Materials
 					for (auto m : materials) delete m.second;
@@ -192,11 +206,9 @@ namespace Tristeon
 
 				void RenderManager::reset()
 				{
-					//Get rid of references to scene objects
-					Rendering::RenderManager::reset();
-					internalRenderers.clear();
-
-					//TODO: Clear camera refs
+					for (const auto c : cameraData)
+						cameraDataPool.release(c.second);
+					cameraData.clear();
 				}
 
 				void RenderManager::setupVulkan()
@@ -231,11 +243,6 @@ namespace Tristeon
 					vk::SemaphoreCreateInfo ci{};
 					vulkan->device.createSemaphore(&ci, nullptr, &imageAvailable);
 					vulkan->device.createSemaphore(&ci, nullptr, &renderFinished);
-
-#ifdef EDITOR
-					//Create editor grid
-					grid = new EditorGrid(data, offscreenPass);
-#endif
 				}
 
 				void RenderManager::createDescriptorPool()
@@ -301,7 +308,7 @@ namespace Tristeon
 				void RenderManager::prepareOnscreenPipeline()
 				{
 					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF");
-					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, false);
+					onscreenPipeline = new Pipeline(data, file, swapchain->extent2D, swapchain->renderpass, false, vk::PrimitiveTopology::eTriangleList, false, vk::CullModeFlagBits::eFront);
 				}
 
 				void RenderManager::prepareOffscreenPass()
@@ -358,6 +365,24 @@ namespace Tristeon
 					offscreenPass = vulkan->device.createRenderPass(rp);
 				}
 
+				Rendering::Skybox* RenderManager::_getSkybox(std::string filePath)
+				{
+					namespace fs = std::experimental::filesystem;
+
+					if (filePath == "")
+						return nullptr;
+					if (!fs::exists(filePath))
+						return nullptr;
+					if (fs::path(filePath).extension() != ".skybox")
+						return nullptr;
+
+					Skybox* skybox = new Skybox(data, offscreenPass);
+					skybox->deserialize(JsonSerializer::load(filePath));
+					skybox->init();
+					skyboxes[filePath] = std::unique_ptr<Rendering::Skybox>(skybox);
+					return skyboxes[filePath].get();
+				}
+
 				TObject* RenderManager::registerRenderer(Message msg)
 				{
 					//Get and register internal renderer
@@ -392,8 +417,22 @@ namespace Tristeon
 					//Base class registers the camera, we can create our respective data by using the resulting value of the base function
 					Components::Camera* cam = Rendering::RenderManager::registerCamera(msg);
 					
+					if (cam == nullptr)
+						return nullptr;
+
 					//Create camera render data
-					CameraRenderData* data = new CameraRenderData(this, dynamic_cast<VulkanBindingData*>(bindingData), offscreenPass, onscreenPipeline);
+					CameraRenderData* data = cameraDataPool.get();
+					data->tempName = "Camera: " + std::to_string(cameraData.size());
+					if (!data->getIsPrepared())
+						data->init(this, this->data, offscreenPass, onscreenPipeline);
+					else if (!data->isValid())
+						data->rebuild(this, offscreenPass, onscreenPipeline);
+
+					for (const auto pair : cameraData)
+					{
+						if (pair.second == data)
+							Misc::Console::error("Still have an old camera in here?!");
+					}
 					cameraData.insert(std::make_pair(cam, data));
 					
 					//For inherited classes
@@ -407,9 +446,8 @@ namespace Tristeon
 
 					//Get our camera renderdata and erase it
 					CameraRenderData* data = cameraData[cam];
-					cameraData.erase(cam);
-					delete data;
-					
+					cameraData.erase(cameraData.find(cam));
+					cameraDataPool.release(data);
 					//For inherited classes
 					return cam;
 				}
@@ -458,8 +496,10 @@ namespace Tristeon
 						p.second->rebuild(this, offscreenPass, onscreenPipeline);
 #ifdef EDITOR
 					//Rebuild editor data
-					editor.cam->rebuild(this, offscreenPass, onscreenPipeline);
+					if (editor.cam != nullptr)
+						editor.cam->rebuild(this, offscreenPass, onscreenPipeline);
 					grid->rebuild(offscreenPass);
+					editorSkybox->rebuild(swapchain->extent2D, offscreenPass);
 #endif
 					//Rebuild pipelines
 					for (int i = 0; i < pipelines.size(); i++)
@@ -469,6 +509,10 @@ namespace Tristeon
 
 					//Rebuild framebuffers
 					swapchain->createFramebuffers();
+
+					const auto end = skyboxes.end();
+					for (auto i = skyboxes.begin(); i != end; ++i)
+						((Vulkan::Skybox*)i->second.get())->rebuild(swapchain->extent, offscreenPass);
 				}
 
 				vk::Framebuffer RenderManager::getActiveFrameBuffer() const

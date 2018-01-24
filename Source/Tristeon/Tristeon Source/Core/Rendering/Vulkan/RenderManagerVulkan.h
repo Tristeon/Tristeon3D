@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "Math/Vector2.h"
+#include "Misc/ObjectPool.h"
 
 namespace Tristeon
 {
@@ -18,6 +19,8 @@ namespace Tristeon
 
 		namespace Rendering
 		{
+			class Skybox;
+
 			namespace Vulkan
 			{
 				//Forward decl
@@ -30,6 +33,7 @@ namespace Tristeon
 				class EditorGrid;
 				class DebugReportCallbackEXT;
 				class VulkanCore;
+				class Skybox;
 
 				/**
 				 * \brief EditorData is a small struct wrapping around  
@@ -90,6 +94,8 @@ namespace Tristeon
 					 * \brief The last used secondary buffer, set by the renderer
 					 */
 					vk::CommandBuffer lastUsedSecondaryBuffer = nullptr;
+
+					vk::DescriptorSet skyboxSet;
 				};
 
 				/**
@@ -131,7 +137,7 @@ namespace Tristeon
 					 */
 					Rendering::Material* getmaterial(std::string filePath) override;
 					/**
-					 * \brief Removes all references to game components
+					 * \brief Releases all the leftover cameradata
 					 */
 					void reset() override;
 
@@ -262,7 +268,7 @@ namespace Tristeon
 					 * \brief A map containing the cameras and their respective render data
 					 */
 					std::map<Components::Camera*, CameraRenderData*> cameraData;
-
+					ObjectPool<CameraRenderData*> cameraDataPool;
 #ifdef EDITOR
 					/**
 					 * \brief EditorData, stores the information we need for the editor camera to render
@@ -272,6 +278,8 @@ namespace Tristeon
 					 * \brief A wrapper around an unregistered meshrenderer, used to render a grid to the scene view
 					 */
 					EditorGrid* grid = nullptr;
+
+					Vulkan::Skybox* editorSkybox = nullptr;
 #endif
 					/**
 					 * \brief The offscreen pass, used to render the scene to an image
@@ -290,6 +298,8 @@ namespace Tristeon
 					 * \brief Creates the offscreen renderpass, used to render the scene to an image
 					 */
 					void prepareOffscreenPass();
+				protected:
+					Rendering::Skybox* _getSkybox(std::string filePath) override;
 				};
 			}
 		}

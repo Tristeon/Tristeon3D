@@ -10,13 +10,11 @@ namespace Tristeon
 	{
 		REGISTER_TYPE_CPP(SkyboxFileItem)
 
-		void drawTexName(std::string label, std::string& value, bool& isDirty)
+		void drawTexName(std::string label, std::string& value)
 		{
 			char c[255] = "";
 			strcpy_s(c, 255, value.c_str());
 			ImGui::InputText(label.c_str(), c, 255, ImGuiInputTextFlags_EnterReturnsTrue);
-			if (value != c)
-				isDirty = true;
 			value = c;
 		}
 
@@ -26,17 +24,7 @@ namespace Tristeon
 			if (!skybox)
 				return;
 
-			bool isDirty = false;
-			drawTexName("Left", skybox->texNames.left, isDirty);
-			drawTexName("Right", skybox->texNames.right, isDirty);
-			drawTexName("Up", skybox->texNames.up, isDirty);
-			drawTexName("Down", skybox->texNames.down, isDirty);
-			drawTexName("Forward", skybox->texNames.forward, isDirty);
-			drawTexName("Backward", skybox->texNames.back, isDirty);
-
-			if (isDirty)
-				skybox->updateTextures();
-
+			drawTexName("Texture", skybox->texturePath);
 			JsonSerializer::serialize<Core::Rendering::Skybox>(getFilePath(), *skybox);
 		}
 

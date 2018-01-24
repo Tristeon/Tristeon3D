@@ -12,6 +12,7 @@ namespace Tristeon
 		nlohmann::json FirstPersonCameraController::serialize()
 		{
 			nlohmann::json j;
+			j["typeID"] = typeid(FirstPersonCameraController).name();
 			j["sensitivity"] = sensitivity;
 			return j;
 		}

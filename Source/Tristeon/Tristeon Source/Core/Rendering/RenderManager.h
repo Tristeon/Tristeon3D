@@ -79,6 +79,8 @@ namespace Tristeon
 				
 				static Skybox* getSkybox(std::string filePath);
 			protected:
+				virtual Skybox* _getSkybox(std::string filePath) = 0;
+
 				/**
 				* \brief Returns a material serialized from the given filepath
 				* \param filePath The filepath of the material
@@ -86,10 +88,6 @@ namespace Tristeon
 				*/
 				virtual Material* getmaterial(std::string filePath) = 0;
 
-				/**
-				 * \brief Removes all the registered renderers. Is generally called when a scene is closed to make sure the list is clean.
-				 */
-				void reset() override;
 				/**
 				 * \brief Registers a renderer to the renderers or UIrenderers list. 
 				 * \param msg The message coming from the manager protocol message system. Message.userData is expected to contain our renderer

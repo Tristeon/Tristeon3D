@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Misc/ObjectPool.h"
 
 #ifndef LOGDEBUG
 #include <windows.h>

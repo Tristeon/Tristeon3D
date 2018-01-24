@@ -17,6 +17,7 @@ namespace Tristeon
 
 				//Register component
 				ManagerProtocol::subscribeToMessage(MT_SCRIPTINGCOMPONENT_REGISTER, [&](Message message) { registerComponent(message); });
+				ManagerProtocol::subscribeToMessage(MT_SCRIPTINGCOMPONENT_DEREGISTER, [&](Message message) { deregisterComponent(message); });
 
 				//Gameplay functions
 				ManagerProtocol::subscribeToMessage(MT_START, [&](Message)       { callFunction<&Component::start>(); });
@@ -38,6 +39,22 @@ namespace Tristeon
 				
 				//Add to our componentlist
 				components.push_back(c);
+			}
+
+			void ComponentManager::deregisterComponent(Message msg)
+			{
+				//Confirm that msg.userdata is set, to prevent unneeded casting
+				Misc::Console::t_assert(msg.userData != nullptr, "Trying to register a null component!");
+
+				//Cast
+				Component* c = dynamic_cast<Component*>(msg.userData);
+
+				//Comfirm that the cast succeeded
+				Misc::Console::t_assert(c != nullptr, "Failed to cast userData to component!");
+
+				//Remove from components
+				if (components.size() != 0)
+					components.remove(c);
 			}
 
 			void ComponentManager::reset()

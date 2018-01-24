@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Core/Managers/Manager.h"
 #include "Component.h"
+#include "Misc/vector.h"
 
 namespace Tristeon
 {
@@ -44,11 +45,12 @@ namespace Tristeon
 				 * \param msg The message
 				 */
 				void registerComponent(Message msg);
+				void deregisterComponent(Message msg);
 
 				/**
 				 * \brief The components
 				 */
-				std::vector<Component*> components;
+				vector<Component*> components;
 			};
 
 			template <void(Component::*func)()>

@@ -30,7 +30,7 @@ namespace Tristeon
 				 * \param proj The projection matrix of the camera
 				 * \param info Userdata
 				 */
-				virtual void renderScene(glm::mat4 view, glm::mat4 proj, TObject* info = nullptr) = 0;
+				virtual void renderScene(glm::mat4 view, glm::mat4 proj, TObject* info = nullptr, Rendering::Skybox* skybox = nullptr) = 0;
 				/**
 				 * \brief Renders all the cameras to the screen
 				 */

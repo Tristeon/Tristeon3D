@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <vulkan/vulkan.hpp>
 #include "Core/TObject.h"
-#include "Core/Rendering/Skybox.h"
 
 namespace Tristeon
 {
@@ -15,6 +14,7 @@ namespace Tristeon
 			namespace Vulkan
 			{
 				//Forward decl
+				class Skybox;
 				class Pipeline;
 				class RenderManager;
 
@@ -63,7 +63,7 @@ namespace Tristeon
 					 * \param onscreenPipeline Onscreen shader/rendering pipeline
 					 * \param isEditorCamera Will create descriptorsets from ImGui if true
 					 */
-					CameraRenderData(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass,
+					void init(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass,
 					                 Pipeline* onscreenPipeline, bool isEditorCamera = false);
 					/**
 					 * \brief Cleans up all the resources used by this CameraRenderData
@@ -112,10 +112,12 @@ namespace Tristeon
 						 */
 						vk::Semaphore sema;
 
+						vk::DescriptorSet lightingSet;
+
 						/**
 						 * \brief Initializes the offscreen camera data
 						 */
-						void init(RenderManager*, vk::RenderPass);// , Skybox*);
+						void init(RenderManager*, vk::RenderPass);
 						/**
 						 * \brief Destroys the offscreen camera data
 						 * \param device Used to destroy the offscreen camera data
@@ -170,22 +172,28 @@ namespace Tristeon
 
 					} onscreen;
 
+					bool getIsPrepared() const { return isPrepared; }
+					bool isValid() const;
+
+					std::string tempName;
 				private:
+					vk::Extent2D lastExtent;
+					bool isPrepared = false;
 					/**
 					 * \brief Describes wether or not the camera is an editor camera
 					 */
-					bool isEditorCam;
+					bool isEditorCam = false;
 					/**
 					 * \brief A reference ot VulkanBindingData, used to receive rendering data from other systems
 					 */
-					VulkanBindingData* binding;
+					VulkanBindingData* binding = nullptr;
 					/**
 					 * \brief Initializes both the offscreen and onscreen pass
 					 * \param rm Reference to the rendermanager for render info
 					 * \param offscreenPass The offscreen renderpass
 					 * \param onscreenPipeline The shader pipeline that is used to render the camera to a quad
 					 */
-					void init(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline);
+					void setup(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline);
 				};
 			}
 		}

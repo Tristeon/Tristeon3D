@@ -9,6 +9,8 @@ layout(set = 1, binding = 1) uniform Material
     float metallic;
 } material;
 
+layout(set = 2, binding = 0) uniform samplerCube skybox;
+
 layout (location = 0) in vec3 inWorldPos;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
@@ -107,6 +109,9 @@ vec3 BRDF(vec3 l, vec3 v, vec3 n)
 
 void main()
 {
+    frag_color = vec4(texture(skybox, inNormal).rgb, 1);
+    return;
+
     vec3 lights[4] = {
         vec3(-15, -15*0.5, -15),
         vec3(-15, -15*0.5, 15),

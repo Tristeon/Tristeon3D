@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "Core/TObject.h"
 #include <Editor/TypeRegister.h>
-#include "Data/Image.h"
+#include <glm/mat4x4.hpp>
+#include "Data/Mesh.h"
 
 #ifdef EDITOR
 namespace Tristeon {
@@ -23,31 +24,22 @@ namespace Tristeon
 				friend Editor::SkyboxFileItem;
 #endif
 			public:
+				Skybox();
+				virtual ~Skybox() = default;
 				nlohmann::json serialize() override;
 				void deserialize(nlohmann::json json) override;
-				size_t getSize();
 
-				float getVertexCount() const;
-				float* getVertices();
-			private:
-				REGISTER_TYPE_H(Skybox)
+			protected:
+				virtual void init() { };
+				virtual void draw(glm::mat4 view, glm::mat4 proj) { };
 
-				void updateTextures();
-				void deserializeTexture(nlohmann::json j, std::string name, std::string& oldVal, Data::Image& img);
-				struct 
-				{
-					std::string left = "", right = "", up = "", down = "", forward = "", back = "";
-				} texNames;
-
-				struct
-				{
-					Data::Image left, right, up, down, forward, back;
-				} texImages;
-
+				std::string texturePath;
 				bool isDirty = true;
 
-				float* vertices = nullptr;
-				const float vertexCount = 108;
+				Data::SubMesh mesh;
+				bool cubemapLoaded = false;
+			private:
+				REGISTER_TYPE_H(Skybox)
 			};
 		}
 	}

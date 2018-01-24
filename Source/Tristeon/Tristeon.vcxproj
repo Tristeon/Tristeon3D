@@ -334,6 +334,7 @@
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanCore.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFrame.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\SkyboxVulkan.cpp" />
     <ClCompile Include="Tristeon Source\Data\ImageBatch.cpp" />
     <ClCompile Include="Tristeon Source\Data\MeshBatch.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.cpp" />
@@ -430,6 +431,7 @@
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanCore.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFrame.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\SkyboxVulkan.h" />
     <ClInclude Include="Tristeon Source\Data\ImageBatch.h" />
     <ClInclude Include="Tristeon Source\Data\MeshBatch.h" />
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\MaterialFileItem.h" />
@@ -517,6 +519,7 @@
     <ClInclude Include="Tristeon Source\Misc\Hardware\Keyboard.h" />
     <ClInclude Include="Tristeon Source\Misc\Hardware\Mouse.h" />
     <ClInclude Include="Tristeon Source\Misc\Hardware\Time.h" />
+    <ClInclude Include="Tristeon Source\Misc\ObjectPool.h" />
     <ClInclude Include="Tristeon Source\Misc\StringUtils.h" />
     <ClInclude Include="Tristeon Source\Standard\CharacterController.h" />
     <ClInclude Include="Tristeon Source\Standard\FirstPersonCameraController.h" />

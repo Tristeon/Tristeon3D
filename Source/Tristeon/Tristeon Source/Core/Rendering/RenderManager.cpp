@@ -5,7 +5,6 @@
 #include <Core/Components/Camera.h>
 #include <Core/Rendering/Components/Renderer.h>
 #include <Misc/Console.h>
-#include "Editor/JsonSerializer.h"
 
 namespace Tristeon
 {
@@ -44,13 +43,6 @@ namespace Tristeon
 			std::vector<Renderer*> RenderManager::getRenderers() const
 			{
 				return renderers;
-			}
-
-			void RenderManager::reset()
-			{
-				//Clear lists
-				renderers.clear();
-				cameras.clear();
 			}
 
 			TObject* RenderManager::registerRenderer(Message msg)
@@ -147,9 +139,7 @@ namespace Tristeon
 				if (std::experimental::filesystem::path(filePath).extension() != ".skybox")
 					return nullptr;
 
-				Skybox* skybox = JsonSerializer::deserialize<Skybox>(filePath);
-				instance->skyboxes[filePath] = std::unique_ptr<Skybox>(skybox);
-				return instance->skyboxes[filePath].get();
+				return instance->_getSkybox(filePath);
 			}
 		}
 	}
