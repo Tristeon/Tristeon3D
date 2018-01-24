@@ -94,6 +94,8 @@ namespace Tristeon
 					 * \brief The last used secondary buffer, set by the renderer
 					 */
 					vk::CommandBuffer lastUsedSecondaryBuffer = nullptr;
+
+					vk::DescriptorSet skyboxSet;
 				};
 
 				/**

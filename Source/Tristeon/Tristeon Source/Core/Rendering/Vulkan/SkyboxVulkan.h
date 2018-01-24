@@ -14,16 +14,26 @@ namespace Tristeon
 			{
 				class Forward;
 				class RenderManager;
-
+				
 				class Skybox : public Rendering::Skybox
 				{
 					friend Vulkan::Forward;
 					friend RenderManager;
 
+					struct Image
+					{
+						vk::Image img;
+						vk::DeviceMemory mem;
+						vk::ImageView view;
+						vk::Sampler sampler;
+						vk::DescriptorSet set;
+					};
+
 				public:
 					explicit Skybox(VulkanBindingData* bindingData, vk::RenderPass renderPass) : bindingData(bindingData), renderPass(renderPass) { }
 					~Skybox();
 				
+					const Image& getImage() const { return image; }
 				protected:
 					void init() override;
 					void draw(glm::mat4 view, glm::mat4 proj) override;
@@ -37,6 +47,7 @@ namespace Tristeon
 					void createVertexBuffer();
 					void createIndexBuffer();
 					void createDescriptorSet();
+					void createOffscreenDescriptorSet();
 					void createCommandBuffers();
 
 					VulkanBindingData* bindingData = nullptr;
@@ -44,14 +55,7 @@ namespace Tristeon
 
 					RenderData* data = nullptr;
 
-					struct Image
-					{
-						vk::Image img;
-						vk::DeviceMemory mem;
-						vk::ImageView view;
-						vk::Sampler sampler;
-						vk::DescriptorSet set;
-					} image;
+					Image image;
 
 					UniformBufferObject ubo;
 					struct Buffer
@@ -62,8 +66,11 @@ namespace Tristeon
 					Buffer uniformBuffer;
 					Buffer vertexBuffer;
 					Buffer indexBuffer;
+
 					vk::CommandBuffer secondary;
 					Pipeline* pipeline = nullptr;
+
+					vk::DescriptorSet lightingSet;
 				};
 			}
 		}

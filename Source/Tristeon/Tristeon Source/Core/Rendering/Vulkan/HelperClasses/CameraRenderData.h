@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <vulkan/vulkan.hpp>
 #include "Core/TObject.h"
-#include "Core/Rendering/Skybox.h"
 
 namespace Tristeon
 {
@@ -15,6 +14,7 @@ namespace Tristeon
 			namespace Vulkan
 			{
 				//Forward decl
+				class Skybox;
 				class Pipeline;
 				class RenderManager;
 
@@ -112,10 +112,12 @@ namespace Tristeon
 						 */
 						vk::Semaphore sema;
 
+						vk::DescriptorSet lightingSet;
+
 						/**
 						 * \brief Initializes the offscreen camera data
 						 */
-						void init(RenderManager*, vk::RenderPass);// , Skybox*);
+						void init(RenderManager*, vk::RenderPass);
 						/**
 						 * \brief Destroys the offscreen camera data
 						 * \param device Used to destroy the offscreen camera data
@@ -175,7 +177,6 @@ namespace Tristeon
 
 					std::string tempName;
 				private:
-
 					vk::Extent2D lastExtent;
 					bool isPrepared = false;
 					/**

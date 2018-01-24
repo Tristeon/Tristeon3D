@@ -27,9 +27,10 @@ namespace Tristeon
 				using ColorBlendState = vk::PipelineColorBlendStateCreateInfo;
 				using DynamicState = vk::PipelineDynamicStateCreateInfo;
 
-				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet, vk::CullModeFlags cullMode) : device(bind->device)
+				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet, vk::CullModeFlags cullMode, bool enableLighting)
 				{
 					//Store vars
+					this->device = bind->device;
 					this->file = file;
 					this->topology = topology;
 					this->enableBuffers = enableBuffers;
@@ -37,13 +38,14 @@ namespace Tristeon
 					this->onlyUniformSet = onlyUniformSet;
 					this->compare_op = vk::CompareOp::eLess;
 					this->cullMode = cullMode;
-
+					this->enableLighting = enableLighting;
+					
 					//Init
 					createDescriptorLayout(file.getProps());
 					create(extent, renderPass);
 				}
 
-				Pipeline::Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, vk::DescriptorSetLayout descriptorSet, vk::PrimitiveTopology topologyMode, vk::CompareOp compare_op, vk::CullModeFlags cullMode)
+				Pipeline::Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, vk::DescriptorSetLayout descriptorSet, vk::PrimitiveTopology topologyMode, vk::CompareOp compare_op, vk::CullModeFlags cullMode, bool enableLighting)
 				{
 					//Store vars
 					this->file = file;
@@ -54,6 +56,7 @@ namespace Tristeon
 					this->device = binding->device;
 					this->compare_op = compare_op;
 					this->cullMode = cullMode;
+					this->enableLighting = enableLighting;
 
 					//Init
 					descriptorSetLayout1 = descriptorSet;
@@ -117,6 +120,17 @@ namespace Tristeon
 					}
 					vk::DescriptorSetLayoutCreateInfo ci2 = vk::DescriptorSetLayoutCreateInfo({}, bindings.size(), bindings.data());
 					device.createDescriptorSetLayout(&ci2, nullptr, &descriptorSetLayout2);
+
+					if (enableLighting)
+					{
+						vk::DescriptorSetLayoutBinding const skybox = vk::DescriptorSetLayoutBinding(
+							0, vk::DescriptorType::eCombinedImageSampler,
+							1, vk::ShaderStageFlagBits::eFragment,
+							nullptr);
+
+						vk::DescriptorSetLayoutCreateInfo ci3 = vk::DescriptorSetLayoutCreateInfo({}, 1, &skybox);
+						device.createDescriptorSetLayout(&ci3, nullptr, &descriptorSetLayout3);
+					}
 				}
 
 				vk::ShaderModule Pipeline::createShaderModule(const std::vector<char>& code, vk::Device device)
@@ -131,6 +145,7 @@ namespace Tristeon
 					//Destroy all resources allocated by pipeline
 					device.destroyDescriptorSetLayout(descriptorSetLayout1);
 					device.destroyDescriptorSetLayout(descriptorSetLayout2);
+					device.destroyDescriptorSetLayout(descriptorSetLayout3);
 					cleanup();
 				}
 
@@ -213,6 +228,8 @@ namespace Tristeon
 					layouts.push_back(descriptorSetLayout1);
 					if (!onlyUniformSet)
 						layouts.push_back(descriptorSetLayout2);
+					if (enableLighting)
+						layouts.push_back(descriptorSetLayout3);
 
 					const vk::PipelineLayoutCreateInfo ci = vk::PipelineLayoutCreateInfo({}, layouts.size(), layouts.data(), 0, nullptr);
 					const vk::Result r = device.createPipelineLayout(&ci, nullptr, &pipelineLayout);

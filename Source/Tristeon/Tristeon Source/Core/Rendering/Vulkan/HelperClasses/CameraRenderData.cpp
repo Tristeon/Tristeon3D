@@ -6,6 +6,7 @@
 #include "VulkanCore.h"
 #include "VulkanBuffer.h"
 #include <gli/gli.hpp>
+#include "Core/Rendering/Vulkan/SkyboxVulkan.h"
 
 namespace Tristeon
 {
@@ -25,7 +26,7 @@ namespace Tristeon
 					device.destroySemaphore(sema);
 				}
 
-				void CameraRenderData::Offscreen::init(RenderManager* rm, vk::RenderPass offscreenPass)// , Skybox* skybox)
+				void CameraRenderData::Offscreen::init(RenderManager* rm, vk::RenderPass offscreenPass)
 				{
 					//Store pass
 					pass = offscreenPass;
@@ -178,6 +179,7 @@ namespace Tristeon
 				{
 					this->binding = binding;
 					this->isEditorCam = isEditorCamera;
+
 					lastExtent = rm->swapchain->extent2D;
 
 					if (isPrepared)
@@ -189,7 +191,6 @@ namespace Tristeon
 
 				CameraRenderData::~CameraRenderData()
 				{
-					Misc::Console::warning("Destroying cameradata object");
 					offscreen.destroy(binding->device);
 					onscreen.destroy(binding->device, binding->descriptorPool);
 				}

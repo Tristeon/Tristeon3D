@@ -3,6 +3,7 @@
 #include "RenderAPI.h"
 #include "Editor/Serializable.h"
 #include "Editor/TypeRegister.h"
+#include <spirv_cross/spirv_cross.hpp>
 
 #ifdef EDITOR
 namespace spirv_cross {
@@ -118,7 +119,11 @@ namespace Tristeon
 				void deserialize(nlohmann::json json) override;
 
 				std::map<int, ShaderProperty> getProps();
+
+				bool hasVariable(int set, int binding, DataType data, ShaderType stage);
 			private:
+				spirv_cross::Compiler getCompiler(RenderAPI rapi, ShaderType stage) const;
+
 				/**
 				 * \brief ShaderFiles can be identified by their nameID
 				 */

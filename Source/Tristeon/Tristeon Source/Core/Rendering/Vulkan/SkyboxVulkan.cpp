@@ -41,6 +41,7 @@ namespace Tristeon
 
 					device.freeCommandBuffers(bindingData->commandPool, secondary);
 
+					device.freeDescriptorSets(bindingData->descriptorPool, lightingSet);
 					delete pipeline;
 				}
 
@@ -54,6 +55,7 @@ namespace Tristeon
 					createIndexBuffer();
 					createDescriptorSet();
 					createCommandBuffers();
+					createOffscreenDescriptorSet();
 				}
 
 				void Skybox::draw(glm::mat4 view, glm::mat4 proj)
@@ -266,6 +268,27 @@ namespace Tristeon
 					//Update descriptor with our new write info
 					std::array<vk::WriteDescriptorSet, 2> writes = { uboWrite, samplerWrite };
 					bindingData->device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
+				}
+
+				void Skybox::createOffscreenDescriptorSet()
+				{
+					vk::DescriptorSetLayoutBinding const s = vk::DescriptorSetLayoutBinding(
+						0, vk::DescriptorType::eCombinedImageSampler,
+						1, vk::ShaderStageFlagBits::eFragment,
+						nullptr);
+					vk::DescriptorSetLayout layout;
+					vk::DescriptorSetLayoutCreateInfo cil = vk::DescriptorSetLayoutCreateInfo({}, 1, &s);
+					bindingData->device.createDescriptorSetLayout(&cil, nullptr, &layout);
+
+					vk::DescriptorSetAllocateInfo const alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
+					lightingSet = bindingData->device.allocateDescriptorSets(alloc)[0];
+
+					vk::DescriptorImageInfo img = vk::DescriptorImageInfo(image.sampler, image.view, vk::ImageLayout::eShaderReadOnlyOptimal);
+					vk::WriteDescriptorSet write = vk::WriteDescriptorSet(lightingSet, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &img, nullptr, nullptr);
+
+					bindingData->device.updateDescriptorSets(1, &write, 0, nullptr);
+
+					bindingData->device.destroyDescriptorSetLayout(layout);
 				}
 
 				void Skybox::createVertexBuffer()

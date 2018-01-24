@@ -119,6 +119,54 @@ namespace Tristeon
 				return properties;
 			}
 
+			bool ShaderFile::hasVariable(int set, int binding, DataType data, ShaderType stage)
+			{
+				spirv_cross::Compiler compiler = getCompiler(Settings::getRenderAPI(), stage);
+				
+				spirv_cross::ShaderResources res = compiler.get_shader_resources();
+
+				switch(data)
+				{
+				case DT_Image: 
+					for (const auto s : res.sampled_images)
+					{
+						if (compiler.get_decoration(s.id, spv::DecorationDescriptorSet) != set ||
+							compiler.get_decoration(s.id, spv::DecorationBinding) != binding)
+							continue;
+						return true;
+					}
+					break;
+				case DT_Color: 
+				case DT_Float:
+				case DT_Vector3:
+				case DT_Struct:
+					for (const auto u : res.uniform_buffers)
+					{
+						if (compiler.get_decoration(u.id, spv::DecorationDescriptorSet) != set ||
+							compiler.get_decoration(u.id, spv::DecorationBinding) != binding)
+							continue;
+						return true;
+					}
+					break;
+				}
+
+
+				return false;
+			}
+
+			spirv_cross::Compiler ShaderFile::getCompiler(RenderAPI rapi, ShaderType stage) const
+			{
+				std::ifstream in(getPath(rapi, stage), std::ifstream::binary);
+				in.seekg(0, in.end);
+				auto const n = in.tellg();
+				in.seekg(0, in.beg);
+
+				std::vector<uint32_t> buf(n / sizeof(uint32_t));// reserve space for N/8 doubles
+				in.read(reinterpret_cast<char*>(buf.data()), buf.size() * sizeof(uint32_t));
+
+				return spirv_cross::Compiler(buf);
+			}
+
 			ShaderProperty getProperty(spirv_cross::Compiler& comp, std::string name, uint32_t typeID, uint32_t variableID, ShaderStage stage)
 			{
 				ShaderProperty prop;

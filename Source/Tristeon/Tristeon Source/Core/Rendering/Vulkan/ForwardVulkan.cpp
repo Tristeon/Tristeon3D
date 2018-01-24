@@ -66,6 +66,7 @@ namespace Tristeon
 					data.primary = primary;
 					data.projection = proj;
 					data.view = view;
+					data.skyboxSet = skybox != nullptr ? ((Skybox*)skybox)->lightingSet : nullptr;
 
 #ifdef EDITOR
 					//Draw grid

@@ -82,7 +82,10 @@ namespace Tristeon
 					secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, vkm->pipeline->getPipeline());
 
 					//Descriptor sets
-					std::array<vk::DescriptorSet, 2> sets = { set, vkm->set };
+					std::vector<vk::DescriptorSet> sets = { set, vkm->set };
+					if (data->skyboxSet && vkm->pipeline->getEnableLighting())
+						sets.push_back(data->skyboxSet);
+
 					secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, vkm->pipeline->getPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
 
 					//Vertex / index buffer

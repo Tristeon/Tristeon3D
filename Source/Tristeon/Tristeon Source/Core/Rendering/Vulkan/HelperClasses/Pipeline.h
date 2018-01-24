@@ -48,7 +48,8 @@ namespace Tristeon
 						bool enableBuffers = true, 
 						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList, 
 						bool onlyUniformSet = false, 
-						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack);
+						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack,
+						bool enableLighting = false);
 					
 					Pipeline(
 						VulkanBindingData* binding,
@@ -58,7 +59,8 @@ namespace Tristeon
 						vk::DescriptorSetLayout descriptorSet,
 						vk::PrimitiveTopology topologyMode = vk::PrimitiveTopology::eTriangleList,
 						vk::CompareOp compareop = vk::CompareOp::eLess, 
-						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack);
+						vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack,
+						bool enableLighting = false);
 
 					/**
 					 * \brief Cleans up all resources created/used by this pipeline object
@@ -95,6 +97,8 @@ namespace Tristeon
 					 */
 					vk::DescriptorSetLayout getSamplerLayout() const { return descriptorSetLayout2; }
 
+					vk::DescriptorSetLayout getLightingLayout() const { return descriptorSetLayout3; }
+
 					/**
 					 * \brief Rebuilds the Vulkan Pipeline. Generally used when the window size/swapchain extent has changed.
 					 * \param extent The swapchain/window extent (width, height)
@@ -107,6 +111,7 @@ namespace Tristeon
 					 */
 					ShaderFile getShaderFile() const { return file; }
 
+					bool getEnableLighting() const { return enableLighting; }
 				private:
 					void createDescriptorLayout(std::map<int, ShaderProperty> properties);
 					/**
@@ -133,6 +138,11 @@ namespace Tristeon
 					 * \brief Enable/disable vertex input binding/attributes
 					 */
 					bool enableBuffers;
+
+					/**
+					 * \brief Enables/disables the lighting descriptorset
+					 */
+					bool enableLighting;
 
 					/**
 					 * \brief Enable/Disable other descriptor sets 
@@ -165,12 +175,13 @@ namespace Tristeon
 					vk::PipelineLayout pipelineLayout;
 
 					/**
-					 * \brief THe vulkan pipeline
+					 * \brief The vulkan pipeline
 					 */
 					vk::Pipeline pipeline;
 
-					vk::DescriptorSetLayout descriptorSetLayout1;
-					vk::DescriptorSetLayout descriptorSetLayout2;
+					vk::DescriptorSetLayout descriptorSetLayout1; //Transformations
+					vk::DescriptorSetLayout descriptorSetLayout2; //User properties
+					vk::DescriptorSetLayout descriptorSetLayout3; //Lighting
 					/**
 					 * \brief Creates a generic shader module
 					 * \param code The shader code 

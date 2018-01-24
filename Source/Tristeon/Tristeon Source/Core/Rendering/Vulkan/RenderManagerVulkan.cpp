@@ -121,11 +121,17 @@ namespace Tristeon
 
 					for (Pipeline* p : rm->pipelines)
 						if (p->getShaderFile().getNameID() == file.getNameID())
-						{
 							return p;
-						}
 
-					Pipeline *p = new Pipeline(rm->data, file, rm->swapchain->extent2D, rm->offscreenPass);
+					Pipeline *p = new Pipeline(rm->data, 
+						file, 
+						rm->swapchain->extent2D, 
+						rm->offscreenPass, 
+						true, 
+						vk::PrimitiveTopology::eTriangleList, 
+						false, 
+						vk::CullModeFlagBits::eBack, 
+						file.hasVariable(2, 0, DT_Image, ST_Fragment));
 					rm->pipelines.push_back(p);
 					return p;
 				}
@@ -200,10 +206,6 @@ namespace Tristeon
 
 				void RenderManager::reset()
 				{
-					//Get rid of references to scene objects
-					//Rendering::RenderManager::reset();
-					//internalRenderers.clear();
-
 					for (const auto c : cameraData)
 						cameraDataPool.release(c.second);
 					cameraData.clear();
