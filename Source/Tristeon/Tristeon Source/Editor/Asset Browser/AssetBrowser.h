@@ -29,6 +29,8 @@ namespace Tristeon
 		private:
 			void handleDroppedItems();
 
+			void saveScene();
+
 			char createdItemName[255] = "";
 			/**
 			 * \brief The item manager is in charge of displaying the fileitems of the current folder that has been

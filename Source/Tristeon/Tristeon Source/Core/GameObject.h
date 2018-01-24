@@ -8,8 +8,13 @@
 
 namespace Tristeon
 {
+	namespace Editor {
+		class EditorNodeTree;
+		class EditorNode;
+	}
+
 	//Forward decl
-	namespace Scenes 
+	namespace Scenes
 	{
 		class SceneManager;
 		class Scene;
@@ -28,6 +33,8 @@ namespace Tristeon
 			//Scenes can access our information
 			friend Scenes::Scene;
 			friend Scenes::SceneManager;
+			friend Editor::EditorNode;
+			friend Editor::EditorNodeTree;
 		public:
 			/**
 			 * \brief Creates a new gameobject and initializes transform
@@ -38,7 +45,7 @@ namespace Tristeon
 			 * \brief Initializes all the gameobjects' components. This function gets called after the scene has been fully loaded. The game does not have to be running
 			 */
 			void init();
-			
+
 			/**
 			 * \brief The tag of this gameobject
 			 */
@@ -50,12 +57,15 @@ namespace Tristeon
 			ReadOnlyProperty(Transform*, transform);
 			GetProperty(transform) { return _transform.get(); }
 
+			template <typename T>
+			using ComponentIsBase = std::enable_if_t<std::is_base_of<Components::Component, T>::value, T>;
+
 			/**
 			 * \brief Adds a component to the component list of type T
 			 * \tparam T The type of component to be added
 			 * \return Returns the new component
 			 */
-			template <typename T> T* addComponent();
+			template <typename T, typename = ComponentIsBase<T>> T* addComponent();
 
 			/**
 			 * \brief Gets the first component of the given type T
@@ -94,21 +104,16 @@ namespace Tristeon
 			 * \brief The local active state of this GameObject.
 			 */
 			bool active = true;
-			
+
+			std::string prefabFilePath = "";
+
 			//Registers GameObject to the type register
 			REGISTER_TYPE_H(GameObject)
 		};
 
-		template <typename T>
+		template <typename T, typename = std::enable_if_t<std::is_base_of<Components::Component, T>::value, T>>
 		T* GameObject::addComponent()
 		{
-			//Confirm that type T is a component
-			if (!std::is_base_of<Components::Component, T>())
-			{
-				Misc::Console::error("Type T is not of type Component in addComponent<T>!");
-				return nullptr;
-			}
-
 			//Create a new component of type T
 			T* component = new T();
 

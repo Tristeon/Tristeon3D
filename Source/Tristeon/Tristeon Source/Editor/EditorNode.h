@@ -16,7 +16,7 @@ namespace Tristeon
 			friend class EditorSelection;
 		public:
 			explicit EditorNode(Core::GameObject* gameObj);
-			explicit EditorNode(Core::GameObject* gameObj, PrefabFileItem* prefab);
+			explicit EditorNode(Core::GameObject* gameObj, std::string prefabFilePath);
 			~EditorNode() override;
 
 			/**
@@ -44,7 +44,7 @@ namespace Tristeon
 			 */
 			bool hasChild(EditorNode* node);
 
-			void setPrefab(PrefabFileItem* prefab);
+			void setPrefab(std::string filepath);
 
 			void setPrefabData(nlohmann::json prefabData);
 
@@ -54,10 +54,13 @@ namespace Tristeon
 
 			void applyPrefab();
 
+			void setParent(EditorNode* editorNode);
+
 			/**
 			 * \brief Unique typeid of the connectedGameObject
 			 */
 			std::string typeID;
+
 			/**
 			 * \brief Parent node
 			 */
@@ -67,13 +70,12 @@ namespace Tristeon
 			/**
 			 * \brief The gameobject the editornode is bound to
 			 */
-			Core::GameObject* connectedGameObject;
+			Core::GameObject* connectedGameObject = nullptr;
+
 			/**
 			 * \brief The serialized data of the connectedGameObject
 			 */
 			nlohmann::json data;
-
-			PrefabFileItem* prefab = nullptr;
 
 			bool _isPrefab;
 		};

@@ -29,8 +29,12 @@ void InspectorWindow::onGui()
 		}
 		else if (dynamic_cast<AssetItem*>(selectedItem) != nullptr)
 		{
+			if (dynamic_cast<PrefabFileItem*>(selectedItem) != nullptr)
+			{
+				drawPrefab((PrefabFileItem*)selectedItem);
+			}
 			//Display assetitem
-			dynamic_cast<AssetItem*>(selectedItem)->drawOnInspector();
+			else dynamic_cast<AssetItem*>(selectedItem)->drawOnInspector();
 		}
 	}
 	ImGui::End();
@@ -38,7 +42,6 @@ void InspectorWindow::onGui()
 
 void InspectorWindow::drawEditorNode(EditorNode* node)
 {
-
 	nlohmann::json* data = node->getData();
 
 	//TODO: Create function for string fields, bool,etc.
@@ -71,18 +74,62 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 		{
 			node->setPrefabData(*data);
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Revert Prefab"))
+		{
+			*data = node->getPrefabData();
+		}
 	}
 
+	drawGameObjectContent(*data);
+
+	node->applyChanges();
+}
+
+void InspectorWindow::drawPrefab(PrefabFileItem* prefabData)
+{
+	nlohmann::json data = prefabData->GetPrefabData();
+
+	//TODO: Create function for string fields, bool,etc.
+
+	//Load main gameobject inspector UI
+	//GameObject active
+	bool active = data["active"];
+	ImGui::Checkbox("", &active);
+	data["active"] = active;
+
+	ImGui::SameLine();
+
+	//GameObject name
+	std::string gameObjectName = data["name"];
+	char nameValue[255] = "";
+	strcpy_s(nameValue, 255, gameObjectName.c_str());
+
+	//Draw text field without label
+	ImGui::PushItemWidth(-1);
+	ImGui::InputText("##label", nameValue, 255);
+	ImGui::PopItemWidth();
+
+	//Apply editor changes
+	data["name"] = nameValue;
+
+	drawGameObjectContent(data);
+
+	prefabData->SetPrefabData(data);
+}
+
+void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
+{
 	//Display transform
 	if (ImGui::CollapsingHeader("Transform"))
 	{
 
 		//Get transform data
-		nlohmann::json transformData = (*data)["transform"];
+		nlohmann::json transformData = data["transform"];
 		nlohmann::json positionData = transformData["localPosition"];
 		nlohmann::json rotationData = transformData["localRotation"];
 		nlohmann::json scaleData = transformData["localScale"];
-		
+
 		//Reset button
 		if (ImGui::Button("Reset"))
 		{
@@ -102,7 +149,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 		position[0] = positionData["x"];
 		position[1] = positionData["y"];
 		position[2] = positionData["z"];
-		ImGui::DragFloat3("Position",position);
+		ImGui::DragFloat3("Position", position);
 
 		//Get and apply changed position
 		positionData["x"] = position[0];
@@ -138,15 +185,15 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 		transformData["localPosition"] = positionData;
 		transformData["localRotation"] = rotationData;
 		transformData["localScale"] = scaleData;
-		(*data)["transform"] = transformData;
+		data["transform"] = transformData;
 	}
 
 	//If there are more components than closeableHeaders increment the array.
-	if ((*data)["components"].size() >= closeableHeaders.size())
+	if (data["components"].size() >= closeableHeaders.size())
 		closeableHeaders.push_back(true);
 
 	int indexToErase = -1;
-	nlohmann::json componentsData = (*data)["components"];
+	nlohmann::json componentsData = data["components"];
 
 	//Display components
 	for (int i = 0; i < componentsData.size(); i++)
@@ -162,21 +209,20 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 		if (closeableHeaders[i] == false)
 			indexToErase = i;
 	}
-	(*data)["components"] = componentsData;
+	data["components"] = componentsData;
 
 	if (indexToErase != -1)
 	{
-		(*data)["components"].erase(indexToErase);
+		data["components"].erase(indexToErase);
 		closeableHeaders[closeableHeaders.size() - 1] = true;
 	}
-
 
 	//TODO: remove hard-code and implement non-hard-code solution
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
-	
+
 	std::vector<char*> components = { "Camera","Test", "MeshRenderer" };
-	
+
 	if (ImGui::BeginPopup("select component"))
 	{
 		for (int i = 0; i < components.size(); i++)
@@ -188,22 +234,20 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 				//Create selected component
 				if (i == 0)
 				{
-					(*data)["components"].push_back(Core::Components::Camera().serialize());
+					data["components"].push_back(Core::Components::Camera().serialize());
 				}
-				else if (i==1)
+				else if (i == 1)
 				{
-					(*data)["components"].push_back(TestScript().serialize());
+					data["components"].push_back(TestScript().serialize());
 				}
 				else if (i == 2)
 				{
-					(*data)["components"].push_back(Core::Rendering::MeshRenderer().serialize());
+					data["components"].push_back(Core::Rendering::MeshRenderer().serialize());
 				}
 			}
 		}
 		ImGui::EndPopup();
 	}
-
-	node->applyChanges();
 }
 
 void InspectorWindow::drawSerializedObject(nlohmann::json& serializedComponent)

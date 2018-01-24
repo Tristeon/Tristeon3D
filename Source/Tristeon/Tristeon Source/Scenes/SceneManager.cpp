@@ -41,15 +41,14 @@ namespace Tristeon
 
 		void SceneManager::loadScene(std::string name)
 		{
-			Core::ManagerProtocol::sendMessage(Core::MT_MANAGER_RESET);
 			auto scene = JsonSerializer::deserialize<Scene>(sceneFilePaths[name]);
-			scene->init();
-			activeScene = std::unique_ptr<Scene>(scene);
-			createParentalBonds(activeScene.get());
+			loadScene(scene);
 		}
 
 		void SceneManager::loadScene(Scene* scene)
 		{
+			Core::ManagerProtocol::sendMessage(Core::MT_MANAGER_RESET);
+			scene->init();
 			activeScene = std::unique_ptr<Scene>(scene);
 			createParentalBonds(activeScene.get());
 		}

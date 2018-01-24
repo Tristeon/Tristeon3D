@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Core/GameObject.h"
+#include "Editor/Prefab.h"
 
 namespace Tristeon
 {
@@ -15,7 +16,7 @@ namespace Tristeon
 			Scene();
 			void init();
 
-			void addGameObject(Core::GameObject* gameObj);
+			void addGameObject(std::unique_ptr<Core::GameObject> gameObj);
 
 			void removeGameObject(Core::GameObject* gameObj);
 
@@ -26,7 +27,6 @@ namespace Tristeon
 			void deserialize(nlohmann::json json) override;
 
 		private:
-			//Scene(const Scene& scene) {} //The class should not be allowed to be copied
 			std::vector<std::unique_ptr<Tristeon::Core::GameObject>> gameObjects;
 			static DerivedRegister<Scene> reg;
 		};

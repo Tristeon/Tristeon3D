@@ -36,6 +36,16 @@ namespace Tristeon
 			 * \brief Will load update the current scene if a new scene has been loaded
 			 */
 			void checkSceneChanges();
+
+			void handleDroppedItems();
+
+			void createGameObject(std::string name);
+			void createGameObject(Core::GameObject* gameObject);
+
+			void handleInput();
+
+			void changeNodeName();
+
 			char createdGameObjectName[255] = "";
 			bool sceneChanged = false;
 			Scenes::Scene* currentScene = nullptr;

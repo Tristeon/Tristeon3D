@@ -11,12 +11,13 @@ namespace Tristeon
 		class EditorNodeTree
 		{
 		public:
-			~EditorNodeTree();
-			std::vector<EditorNode*> nodes;
+			~EditorNodeTree() {}
+			std::vector<std::unique_ptr<EditorNode>> nodes;
 			void load(nlohmann::json nodeTree);
 			nlohmann::json getData();
 			EditorNode* findNodeByInstanceID(std::string nodeInstanceID);
 			void createParentalBonds();
+			void removeNode(EditorNode* node);
 		};
 	}
 }

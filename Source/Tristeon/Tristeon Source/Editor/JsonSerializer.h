@@ -11,6 +11,7 @@ public:
 	 */
 	template <typename T> static void serialize(const std::string& path, T& obj);
 	static void serialize(const std::string& path, nlohmann::json& obj);
+
 	/**
 	 * \brief Create an instance with type T using the given filepath
 	 */
@@ -72,6 +73,11 @@ T* JsonSerializer::deserialize(const std::string& path)
 	if (iterator == input.end())
 	{
 		throw std::invalid_argument("The object you are serializing is not serializing its typeID!");
+	}
+	else if (input.is_null())
+	{
+		std::cout << "file is either a non-json file or corrupted" << std::endl;
+		throw std::invalid_argument("file is either a non-json file or corrupted");
 	}
 
 	//Create instance of the type that is specified in the json file under the "typeID" member

@@ -2,7 +2,7 @@
 #include <string>
 
 /**
- * \brief Currently the interospection interface is not implemented yet, but will remain for further planned implementations
+ * \brief Currently the introspection interface is not implemented yet, but will remain for further planned implementations
  */
 class IntrospectionInterface
 {

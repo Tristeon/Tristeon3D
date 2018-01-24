@@ -3,13 +3,6 @@
 
 using namespace Tristeon::Editor;
 
-Tristeon::Editor::EditorNodeTree::~EditorNodeTree()
-{
-	for (EditorNode* node : nodes) {
-		delete node;
-	}
-}
-
 void EditorNodeTree::load(nlohmann::json nodeTree)
 {
 	nodes.clear();
@@ -25,20 +18,24 @@ void EditorNodeTree::load(nlohmann::json nodeTree)
 
 			EditorNode* node = new EditorNode(foundGameObject);
 			node->load(iterator->get<nlohmann::json>());
-			nodes.push_back(node);
+			if (foundGameObject->prefabFilePath != "")
+			{
+				node->setPrefab(foundGameObject->prefabFilePath);
+			}
+			nodes.push_back(std::move(std::unique_ptr<EditorNode>(node)));
 		}
 	} else
 	{
-		std::cout << "Did you try to load the wrong json file for the editor node tree?\m";
+		std::cout << "Did you try to load the wrong json file for the editor node tree?\n";
 	}
 }
 
 nlohmann::json EditorNodeTree::getData()
 {
 	nlohmann::json output;
-	for (auto node : nodes)
+	for (int i = 0; i < nodes.size(); i++)
 	{
-		output.push_back(*node->getData());
+		output.push_back(*nodes[i]->getData());
 	}
 	return output;
 }
@@ -49,7 +46,7 @@ EditorNode* EditorNodeTree::findNodeByInstanceID(std::string nodeInstanceID)
 	{
 		//When correct instanceID is found
 		if (nodes[i]->connectedGameObject->transform->getInstanceID() == nodeInstanceID)
-			return nodes[i];
+			return nodes[i].get();
 	}
 	throw std::exception("InstanceID couldn't be found");
 }
@@ -62,5 +59,21 @@ void EditorNodeTree::createParentalBonds()
 		if (parent == nullptr) continue;
 		const std::string nodeInstanceID = parent->getInstanceID();
 		nodes[i]->move(findNodeByInstanceID(nodeInstanceID));
+	}
+}
+
+void EditorNodeTree::removeNode(EditorNode* node)
+{
+	//Remove gameObject
+	Scenes::SceneManager::getActiveScene()->removeGameObject(node->connectedGameObject);
+
+	//Remove node from nodetree
+	for (int i = 0; i < nodes.size(); ++i)
+	{
+		if (nodes[i].get() == node)
+		{
+			nodes.erase(nodes.begin() + i);
+			return;
+		}
 	}
 }

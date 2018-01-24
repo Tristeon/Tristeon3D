@@ -49,11 +49,11 @@ namespace Tristeon
 			name = nameValue;
 		}
 
-		void Scene::addGameObject(Core::GameObject* gameObj)
+		void Scene::addGameObject(std::unique_ptr<Core::GameObject> gameObj)
 		{
-			gameObjects.push_back(std::move(std::unique_ptr<Core::GameObject>(gameObj)));
 			nlohmann::json json = gameObj->serialize();
 			gameObj->deserialize(json);
+			gameObjects.push_back(std::move(gameObj));
 		}
 
 		void Scene::removeGameObject(Core::GameObject* gameObj)

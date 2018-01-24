@@ -10,19 +10,14 @@ EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj)
 	_isPrefab = false;
 }
 
-EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj, PrefabFileItem* prefab)
+EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj, std::string prefabFilePath)
 {
 	connectedGameObject = gameObj;
-	this->prefab = prefab;
-	_isPrefab = true;
+	setPrefab(prefabFilePath);
 }
 
 EditorNode::~EditorNode()
 {
-	for (auto child : children)
-	{
-		delete child;
-	}
 }
 
 void EditorNode::load(nlohmann::json json)
@@ -81,7 +76,7 @@ bool EditorNode::hasChild(EditorNode* node)
 
 nlohmann::json EditorNode::getPrefabData()
 {
-	return JsonSerializer::load(prefab->getFilePath());
+	return JsonSerializer::load(connectedGameObject->prefabFilePath);
 }
 
 void EditorNode::applyPrefab()
@@ -90,18 +85,27 @@ void EditorNode::applyPrefab()
 	applyChanges();
 }
 
+void EditorNode::setParent(EditorNode* editorNode)
+{
+	parent = editorNode;
+	editorNode->children.push_back(this);
+	connectedGameObject->transform->setParent(editorNode->connectedGameObject->transform);
+}
+
 void EditorNode::applyChanges()
 {
 	connectedGameObject->deserialize(*getData());
 }
 
-void EditorNode::setPrefab(PrefabFileItem* prefab)
+void EditorNode::setPrefab(std::string filepath)
 {
-	_isPrefab = prefab != nullptr;
-	this->prefab = prefab;
+	std::ifstream stream(filepath);
+	_isPrefab = filepath != "" && stream.good();
+	connectedGameObject->prefabFilePath = filepath;
+	data = connectedGameObject->serialize();
 }
 
 void EditorNode::setPrefabData(nlohmann::json prefabData)
 {
-	prefab->deserialize(prefabData);
+	JsonSerializer::serialize(connectedGameObject->prefabFilePath,prefabData);
 }

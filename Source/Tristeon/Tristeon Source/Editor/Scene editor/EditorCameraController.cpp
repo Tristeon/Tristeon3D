@@ -4,6 +4,7 @@
 #include "Misc/Hardware/Mouse.h"
 #include "Editor/EditorNode.h"
 #include "Editor/EditorSelection.h"
+#include "GameObjectHierarchy.h"
 
 using namespace Tristeon::Editor;
 
@@ -55,7 +56,7 @@ void EditorCameraController::rotateAroundFocus(Tristeon::Core::Transform* editor
 void EditorCameraController::moveCamera(Tristeon::Core::Transform* editorCamera)
 {
 	Math::Vector3 move;
-	move += focusPoint.up() * dragSpeed * Misc::Mouse::getMouseDelta().y;
-	move += focusPoint.right() * dragSpeed * Misc::Mouse::getMouseDelta().x;
+	move += editorCamera->up() * dragSpeed * Misc::Mouse::getMouseDelta().y;
+	move += editorCamera->right() * dragSpeed * -Misc::Mouse::getMouseDelta().x;
 	focusPoint.translate(move);
 }

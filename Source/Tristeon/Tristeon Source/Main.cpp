@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "Math/Vector3.h"
 
 #ifndef LOGDEBUG
 #include <windows.h>

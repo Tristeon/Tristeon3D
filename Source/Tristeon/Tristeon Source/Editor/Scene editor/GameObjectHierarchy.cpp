@@ -5,13 +5,13 @@
 #include <GLFW/glfw3.h>
 #include "Scenes/SceneManager.h"
 #include "Editor/EditorDragging.h"
+#include "Editor/JsonSerializer.h"
 
 using namespace Tristeon::Editor;
 
 GameObjectHierarchy::GameObjectHierarchy()
 {
 }
-
 
 GameObjectHierarchy::~GameObjectHierarchy()
 {
@@ -97,21 +97,7 @@ void GameObjectHierarchy::onGui()
 	//Temporary Test code
 	if (ImGui::IsKeyPressed(GLFW_KEY_T, false) && ImGui::IsWindowHovered())
 	{
-		Core::GameObject* gameObject = new Core::GameObject();
-		Scenes::SceneManager::getActiveScene()->addGameObject(gameObject);
-		EditorNode* createdNode = new EditorNode(gameObject);
-		gameObject->name = "Test";
-		gameObject->tag = "Just a tag";
-		createdNode->load(gameObject->serialize());
-		if (selectedNode != nullptr &&
-			(*selectedNode->getData())["typeID"] == typeid(Core::GameObject).name())
-		{
-			createdNode->parent = selectedNode;
-			selectedNode->children.push_back(createdNode);
-		}
-		else editorNodeTree.nodes.push_back(createdNode);
-		selectedNode = createdNode;
-		EditorSelection::setSelectedItem(createdNode);
+		createGameObject("Test");
 		ImGui::CloseCurrentPopup();
 	}
 
@@ -120,44 +106,55 @@ void GameObjectHierarchy::onGui()
 	{
 		//GUI text for object name
 		ImGui::InputText("Gameobject name", createdGameObjectName, 255);
-		if (ImGui::Button("Create gameobject") || ImGui::IsKeyPressed(257, false))
+		if (ImGui::Button("Empty GameObject") || ImGui::IsKeyPressed(257, false))
 		{
-			//Add a new gameobject to the current scene
-			Core::GameObject* gameObject = new Core::GameObject();
-			Scenes::SceneManager::getActiveScene()->addGameObject(gameObject);
-
-			//Load gameobject into an editorNode
-			EditorNode* createdNode = new EditorNode(gameObject);
-			gameObject->name = createdGameObjectName;
-			createdNode->load(gameObject->serialize());
-
-			//If a node has been selected use it as the new parent of the created gameobject
-			if (selectedNode != nullptr)
-			{
-				createdNode->parent = selectedNode;
-				selectedNode->children.push_back(createdNode);
-			}
-			editorNodeTree.nodes.push_back(createdNode);
-			selectedNode = createdNode;
-			EditorSelection::setSelectedItem(createdNode);
+			createGameObject(createdGameObjectName);
 			ImGui::CloseCurrentPopup();
+		}
+		if (ImGui::Button("Cube"))
+		{
+			//Create Cube
+			Core::GameObject* gameObj = JsonSerializer::deserialize<Core::GameObject>("Files/Primitives/Cube.prefab");
+			createGameObject(gameObj);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Sphere"))
+		{
+			//Create Sphere
+			Core::GameObject* gameObj = JsonSerializer::deserialize<Core::GameObject>("Files/Primitives/Sphere.prefab");
+			createGameObject(gameObj);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Plane"))
+		{
+			//Create Plane
+			//TODO: add plane prefab
+			//Core::GameObject* gameObj = JsonSerializer::deserialize<Core::GameObject>("Files\Primitives\Plane.prefab");
+			//createGameObject(gameObj);
 		}
 		ImGui::EndPopup();
 	}
 
+	//Popup for renaming
+	if (ImGui::BeginPopup("Edit Node Name"))
+	{
+		if (selectedNode != nullptr)
+		{
+			
+		}
+		else
+		ImGui::EndPopup();
+	}
+
+	//Handle input
+	handleInput();
+
 	//Draw nodes
 	for (int i = 0; i < editorNodeTree.nodes.size(); i++)
 	{
-		if (editorNodeTree.nodes[i]->parent == nullptr) drawNode(editorNodeTree.nodes[i]);
+		if (editorNodeTree.nodes[i]->parent == nullptr) drawNode(editorNodeTree.nodes[i].get());
 	}
 
-	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
-	//Drop dragged item outside of any gameobject, removing the parental bond
-	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && hoveredNode == nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
-	{
-		draggingNode->move(nullptr);
-		EditorDragging::reset();
-	}
 
 	hoveredNode = nullptr;
 
@@ -173,4 +170,97 @@ void GameObjectHierarchy::checkSceneChanges()
 		loadScene(*Scenes::SceneManager::getActiveScene());
 		currentScene = Scenes::SceneManager::getActiveScene();
 	}
+}
+
+void GameObjectHierarchy::handleDroppedItems()
+{
+	EditorNode* draggingNode = dynamic_cast<EditorNode*>(EditorDragging::getDragableItem());
+	//Drop dragged item outside of any gameobject, removing the parental bond
+	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && hoveredNode == nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
+	{
+		draggingNode->move(nullptr);
+		EditorDragging::reset();
+	}
+
+	PrefabFileItem* prefabFile = dynamic_cast<PrefabFileItem*>(EditorDragging::getDragableItem());
+	//Dopped prefab file without hovering over any nodes
+	if (ImGui::IsMouseReleased(0) && draggingNode != nullptr && hoveredNode == nullptr && draggingNode->parent != nullptr && ImGui::IsWindowHovered())
+	{
+		Core::GameObject* gameObj = new Core::GameObject();
+		gameObj->deserialize(prefabFile->GetPrefabData());
+		createGameObject(gameObj);
+		selectedNode->setPrefab(prefabFile->getFilePath());
+	}
+}
+
+void GameObjectHierarchy::createGameObject(std::string name)
+{
+	std::unique_ptr<Core::GameObject> gameObject = std::make_unique<Core::GameObject>();
+
+	//Load gameobject into an editorNode
+	EditorNode* createdNode = new EditorNode(gameObject.get());
+	gameObject->name = createdGameObjectName;
+	createdNode->load(gameObject->serialize());
+
+	//Add the new gameobject to the current scene
+	Scenes::SceneManager::getActiveScene()->addGameObject(std::move(gameObject));
+
+	//If a node has been selected use it as the new parent of the created gameobject
+	if (selectedNode != nullptr)
+	{
+		createdNode->setParent(selectedNode);
+	}
+	editorNodeTree.nodes.push_back(std::move(std::unique_ptr<EditorNode>(createdNode)));
+	selectedNode = createdNode;
+	EditorSelection::setSelectedItem(createdNode);
+}
+
+void GameObjectHierarchy::createGameObject(Tristeon::Core::GameObject* gameObject)
+{
+	Scenes::SceneManager::getActiveScene()->addGameObject(std::move(std::unique_ptr<Core::GameObject>(gameObject)));
+
+	//Load gameobject into an editorNode
+	EditorNode* createdNode = new EditorNode(gameObject);
+	gameObject->name = createdGameObjectName;
+	createdNode->load(gameObject->serialize());
+
+	//If a node has been selected use it as the new parent of the created gameobject
+	if (selectedNode != nullptr)
+	{
+		createdNode->parent = selectedNode;
+		selectedNode->children.push_back(createdNode);
+	}
+	editorNodeTree.nodes.push_back(std::move(std::unique_ptr<EditorNode>(createdNode)));
+	selectedNode = createdNode;
+	EditorSelection::setSelectedItem(createdNode);
+}
+
+void GameObjectHierarchy::handleInput()
+{
+	if (selectedNode != nullptr)
+	{
+		if (ImGui::IsKeyPressed(GLFW_KEY_DELETE, false))
+		{
+			editorNodeTree.removeNode(selectedNode);
+			selectedNode = nullptr;
+			EditorSelection::setSelectedItem(nullptr);
+		}
+
+		if (ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL) && ImGui::IsKeyPressed(GLFW_KEY_D, false))
+		{
+			auto gameObj = new Core::GameObject();
+			gameObj->deserialize(*selectedNode->getData());
+			createGameObject(gameObj);
+		}
+
+		if (ImGui::IsKeyPressed(GLFW_KEY_F2, false))
+		{
+			ImGui::OpenPopup("Edit Node Name");
+		}
+	}
+}
+
+void GameObjectHierarchy::changeNodeName()
+{
+	ImGui::OpenPopup("Edit Node Name");
 }

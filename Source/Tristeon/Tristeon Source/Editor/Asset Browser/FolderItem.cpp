@@ -109,7 +109,7 @@ void FolderItem::setup(bool doChildren)
 	fileItems.clear();
 	children.clear();
 
-	//Find all files inside of this folder and store their filepath inside of `fileInAssetFolder` if they're a file
+	//Find all files inside of this folder and store their filepath inside of `filesInFolder` if they're a file
 	//and if they're a meta file add it to metadata
 	for (auto& file : fs::directory_iterator(filepath+name+"/"))
 	{

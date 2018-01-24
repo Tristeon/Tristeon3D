@@ -36,6 +36,7 @@ namespace Tristeon
 				serializedComponents.push_back(components[i]->serialize());
 
 			output["components"] = serializedComponents;
+			output["prefabFilePath"] = prefabFilePath;
 			return output;
 		}
 
@@ -49,6 +50,8 @@ namespace Tristeon
 			name = nameValue;
 			const std::string tagValue = json["tag"];
 			tag = tagValue;
+			const std::string prefabFilePathValue = json["prefabFilePath"];
+			prefabFilePath = prefabFilePathValue;
 			_transform->deserialize(json["transform"]);
 			components.clear();
 			for (auto serializedComponent : json["components"])

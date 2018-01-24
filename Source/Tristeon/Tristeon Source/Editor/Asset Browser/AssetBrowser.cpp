@@ -42,19 +42,7 @@ void AssetBrowser::onGui()
 	if (ImGui::IsKeyDown(GLFW_KEY_LEFT_CONTROL) && ImGui::IsKeyPressed(GLFW_KEY_S,false))
 	{
 		//Save current scene
-		if (Scenes::SceneManager::getActiveScene() != nullptr) {
-			Scenes::Scene* currentScene = Scenes::SceneManager::getActiveScene();
-			std::cout << "Saving scene: " << currentScene->name << std::endl;
-			if (itemManager->currentlyLoadedSceneFile != nullptr)
-				itemManager->currentlyLoadedSceneFile->createFile(currentScene->serialize());
-			else
-			{
-				//Create a scene file
-				SceneFileItem* sceneFile = new SceneFileItem();
-				sceneFile->init("Scene", itemManager->currentFolder, "scene"); //Create meta data
-				sceneFile->createFile(currentScene->serialize()); //Create create the scene file
-			}
-		}
+		saveScene();
 	}
 
 	ImGui::Begin("Tristeon file window",0,windowFlags); // begin window
@@ -69,8 +57,7 @@ void AssetBrowser::onGui()
 	ImGui::BeginChild("Right panel", ImVec2(0, 0), ImGuiWindowFlags_HorizontalScrollbar);
 
 	//Dropped on assetbrowser
-	//handleDroppedItems();
-
+	handleDroppedItems();
 
 	// Right click popup (opens asset creation window)
 	if (ImGui::BeginPopupContextWindow("Asset creation menu")) {
@@ -146,7 +133,25 @@ void AssetBrowser::handleDroppedItems()
 			PrefabFileItem* prefab = new PrefabFileItem();
 			prefab->init((*draggingNode->getData())["name"], itemManager->currentFolder, "prefab");
 			prefab->createFile(*draggingNode->getData());
-			draggingNode->setPrefab(prefab);
+			draggingNode->setPrefab(prefab->getFilePath());
+			saveScene();
+		}
+	}
+}
+
+void AssetBrowser::saveScene()
+{
+	if (Scenes::SceneManager::getActiveScene() != nullptr) {
+		Scenes::Scene* currentScene = Scenes::SceneManager::getActiveScene();
+		std::cout << "Saving scene: " << currentScene->name << std::endl;
+		if (itemManager->currentlyLoadedSceneFile != nullptr)
+			itemManager->currentlyLoadedSceneFile->createFile(currentScene->serialize());
+		else
+		{
+			//Create a scene file
+			SceneFileItem* sceneFile = new SceneFileItem();
+			sceneFile->init("Scene", itemManager->currentFolder, "scene"); //Create meta data
+			sceneFile->createFile(currentScene->serialize()); //Create create the scene file
 		}
 	}
 }

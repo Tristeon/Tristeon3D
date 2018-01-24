@@ -1,0 +1,38 @@
+{
+	"active": true,
+	"components": [{
+		"materialPath": "Assets/Material.mat",
+		"meshPath": "Files/Models/Primitives/Sphere.obj",
+		"name": "MeshRenderer",
+		"subMeshID": 0,
+		"typeID": "class Tristeon::Core::Rendering::MeshRenderer"
+	}],
+	"instanceID": "UmHFpjchm6rT",
+	"name": "Sphere",
+	"prefabFilePath": "",
+	"tag": "",
+	"transform": {
+		"instanceID": "FXOEHprfn5dS",
+		"localPosition": {
+			"typeID": "class Tristeon::Math::Vector3",
+			"x": 0.0,
+			"y": 0.0,
+			"z": 0.0
+		},
+		"localRotation": {
+			"typeID": "class Tristeon::Math::Vector3",
+			"x": 0.0,
+			"y": 0.0,
+			"z": 0.0
+		},
+		"localScale": {
+			"typeID": "class Tristeon::Math::Vector3",
+			"x": 1.0,
+			"y": 1.0,
+			"z": 1.0
+		},
+		"parentID": "null",
+		"typeID": "class Tristeon::Core::Transform"
+	},
+	"typeID": "class Tristeon::Core::GameObject"
+}
