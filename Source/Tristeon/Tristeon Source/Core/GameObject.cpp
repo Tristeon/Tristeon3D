@@ -50,8 +50,11 @@ namespace Tristeon
 			name = nameValue;
 			const std::string tagValue = json["tag"];
 			tag = tagValue;
-			const std::string prefabFilePathValue = json["prefabFilePath"];
-			prefabFilePath = prefabFilePathValue;
+			if (!json["prefabFilePath"].is_null())
+			{
+				const std::string prefabFilePathValue = json["prefabFilePath"];
+				prefabFilePath = prefabFilePathValue;
+			}
 			_transform->deserialize(json["transform"]);
 			components.clear();
 			for (auto serializedComponent : json["components"])

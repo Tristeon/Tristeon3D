@@ -94,13 +94,6 @@ void GameObjectHierarchy::onGui()
 
 	ImGui::Begin("Hierarchy", 0, windowFlags);
 
-	//Temporary Test code
-	if (ImGui::IsKeyPressed(GLFW_KEY_T, false) && ImGui::IsWindowHovered())
-	{
-		createGameObject("Test");
-		ImGui::CloseCurrentPopup();
-	}
-
 	//Right click popup for gameobject creation
 	if (ImGui::BeginPopupContextWindow("Asset creation"))
 	{
