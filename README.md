@@ -1,7 +1,7 @@
 # Tristeon
 Tristeon is an open source game engine built from scratch in C++ by two game engineering students. The project uses MSVC-specific keywords thus can only be compiled using the MSVC compiler. 
 
-![screenshot of the editor](https://i.imgur.com/0CCvybQ.png)
+![screenshot of the editor](https://i.imgur.com/T663Nb6.png)
 
 # Features
 * Modular and clean engine framework
@@ -16,10 +16,11 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
   * Vulkan backend
   * PBR Lighting
   * Shader-Material system
-  * Diffuse textures
+  * Albedo, AO, Metallic and roughness mapping
   * 3D Mesh rendering
   * Camera component based rendering
   * Visual debugging tools
+  * Skybox rendering
   * Procedural shader property system
 * Editor
   * Asset browser
