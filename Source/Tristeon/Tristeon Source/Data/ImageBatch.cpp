@@ -19,10 +19,7 @@ namespace Tristeon
 
 			//Load new
 			if (!load(path))
-			{
-				Misc::Console::warning("ImageBatch: Failed to load image [" + path + "]. Returning an image filled with white pixels");
 				return getImage("Files/Textures/white.jpg");
-			}
 
 			//We did load, return loaded
 			return cachedImages[path];

@@ -62,10 +62,7 @@ namespace Tristeon
 					if (vkm == nullptr)
 						return;
 					if ((VkDescriptorSet)set == VK_NULL_HANDLE || (VkDescriptorSet)vkm->set == VK_NULL_HANDLE)
-					{
-						Misc::Console::warning("Not rendering [" + meshRenderer->gameObject->name + "] because the material hasn't been set up!");
 						return;
-					}
 
 					vkm->setActiveUniformBufferMemory(uniformBufferMemory);
 					vkm->render(model, data->view, data->projection);
