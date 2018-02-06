@@ -62,6 +62,11 @@ void FileItemManager::drawFileItems()
 	{
 		ImGui::PushID(i);
 		FileItem* fileItem = currentFolder->fileItems[i];
+		if (fileItem == nullptr)
+		{
+			Misc::Console::warning("Fileitem is null in FileItemManager::drawFileItems!");
+			continue;
+		}
 
 		if (currentFolder->fileItems.size() > highlightedFileItems.size())
 			highlightedFileItems.push_back(false);
