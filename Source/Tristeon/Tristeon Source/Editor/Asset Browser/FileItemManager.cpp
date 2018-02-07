@@ -89,7 +89,7 @@ void FileItemManager::drawFileItems()
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) && ImGui::IsMouseClicked(0)) EditorDragging::setDragableItem(fileItem);
 
 		//When delete is pressed
-		if (highlightedFileItems[i] && ImGui::IsKeyPressed(GLFW_KEY_DELETE, false))
+		if (highlightedFileItems[i] && ImGui::IsKeyPressed(GLFW_KEY_DELETE, false) && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 		{
 			//Remove references in the containing folder
 			const auto removeIterator = remove(currentFolder->fileItems.begin(), currentFolder->fileItems.end(), fileItem);

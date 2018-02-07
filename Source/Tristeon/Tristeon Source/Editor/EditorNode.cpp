@@ -53,7 +53,7 @@ void EditorNode::move(EditorNode * parent)
 
 		//Change gameObject's relations
 		applyChanges();
-		connectedGameObject->transform->setParent(parent->connectedGameObject->transform);
+		connectedGameObject->transform->setParent(parent->connectedGameObject->transform, false);
 		nlohmann::json serializedGameObject = connectedGameObject->serialize();
 	}
 	this->parent = parent;

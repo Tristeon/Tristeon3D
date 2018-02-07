@@ -16,11 +16,12 @@ layout(set = 1, binding = 5) uniform Material
 //Lighting
 layout(set = 2, binding = 0) uniform samplerCube skybox;
 //TODO: Pass lights properly
-vec3 lights[4] = {
-  vec3(-15, 0, 15),
-  vec3(-15, 0, -15),
-  vec3(15, 0, -15),
-  vec3(15, 0, 15)
+vec3 lights[5] = {
+  vec3(-30, 5, 10),
+  vec3(-15, 5, 10),
+  vec3(0, 5, 10),
+  vec3(15, 5, 10),
+  vec3(30, 5, 10)
 };
 
 //From vertex shader
@@ -59,10 +60,15 @@ void main()
     float NdotV = max(dot(normal, v), 0.0);
 
     vec3 light = vec3(0.0);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 5; i++)
     {
         vec3 l = normalize(lights[i] - inWorldPos);
         vec3 h = normalize(v + l);
+
+        //float distance    = length(lights[i] - inWorldPos);
+        //float range = 20;
+        //float attenuation = range / (distance * distance);
+        //vec3 radiance     = vec3(1) * attenuation;
 
         float NdotL = max(dot(normal, l), 0.0);
 
@@ -88,7 +94,7 @@ void main()
         vec3 kD = vec3(1.0) - F;
         kD *= 1.0 - metallic; //The more metallic the less we refract
 
-        light += (kD * albedo / PI + specular) * NdotL; //* attenuation;
+        light += (kD * albedo / PI + specular) * NdotL; //* radiance;
     }
 
     //Ambient light (improvised)
