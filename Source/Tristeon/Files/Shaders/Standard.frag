@@ -65,10 +65,10 @@ void main()
         vec3 l = normalize(lights[i] - inWorldPos);
         vec3 h = normalize(v + l);
 
-        //float distance    = length(lights[i] - inWorldPos);
-        //float range = 20;
-        //float attenuation = range / (distance * distance);
-        //vec3 radiance     = vec3(1) * attenuation;
+        float distance    = length(lights[i] - inWorldPos);
+        float range = 1000;
+        float attenuation = range / (distance * distance);
+        vec3 radiance     = vec3(1) * attenuation;
 
         float NdotL = max(dot(normal, l), 0.0);
 
@@ -94,7 +94,7 @@ void main()
         vec3 kD = vec3(1.0) - F;
         kD *= 1.0 - metallic; //The more metallic the less we refract
 
-        light += (kD * albedo / PI + specular) * NdotL; //* radiance;
+        light += (kD * albedo / PI + specular) * NdotL * radiance;
     }
 
     //Ambient light (improvised)

@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "Editor/TypeRegister.h"
 #include "Math/Vector3.h"
+
 using namespace Tristeon;
 using namespace Core::Components;
 
@@ -14,11 +15,5 @@ public:
 
 private:
 	static DerivedRegister<TestScript> reg;
-
-	bool started = false;
-	float t = 0;
-
-	Math::Vector3 start;
-	Math::Vector3 end;
-	float speed;
+	float speed = 0;
 };
