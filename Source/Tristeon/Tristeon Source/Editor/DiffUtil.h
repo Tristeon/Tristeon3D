@@ -14,7 +14,7 @@ namespace Tristeon
 	namespace Editor
 	{
 		/**
-		* \brief Conceptual class without implementation,will be subject to change
+		* \brief Conceptual class without implementation, will be subject to change
 		 */
 		class DiffUtil
 		{

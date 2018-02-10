@@ -42,7 +42,7 @@ namespace Tristeon
 			 */
 			FolderHierarchy folderHierarchy;
 
-			std::shared_ptr<FolderItem> rootFolder;
+			std::unique_ptr<FolderItem> rootFolder;
 		};
 	}
 }

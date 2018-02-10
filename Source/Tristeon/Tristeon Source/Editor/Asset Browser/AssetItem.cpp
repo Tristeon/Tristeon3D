@@ -19,11 +19,8 @@ AssetItem::~AssetItem()
 
 nlohmann::json AssetItem::serialize()
 {
-	nlohmann::json output;
+	nlohmann::json output = FileItem::serialize();
 	output["typeID"] = typeid(AssetItem).name();
-	output["isFolder"] = isFolder;
-	output["filepath"] = filepath;
-	output["name"] = name;
 	output["extension"] = extension;
 	return output;
 }
@@ -37,6 +34,11 @@ void AssetItem::deserialize(nlohmann::json json)
 	name = nameValue;
 	const std::string extensionValue = json["extension"];
 	extension = extensionValue;
+	if (json["GUID"].is_string())
+	{
+		const std::string GUIDValue = json["GUID"];
+		GUID = GUIDValue;
+	}
 }
 
 void AssetItem::init(std::string name, FolderItem* folder, std::string extension)

@@ -33,10 +33,15 @@ namespace Tristeon
 			 */
 			virtual void removeFile() = 0;
 
+			nlohmann::json serialize() override;
+
+			void deserialize(nlohmann::json json) override;
+
 			bool isFolder = false;
 			std::string name = "";
 			std::string filepath = "";
 			FolderItem* parent = nullptr;
+			std::string GUID;
 		};
 	}
 }

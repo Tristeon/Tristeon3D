@@ -211,21 +211,14 @@ void FolderItem::drawHierarchy(FileItemManager* itemManager)
 
 nlohmann::json FolderItem::serialize()
 {
-	nlohmann::json output;
+	nlohmann::json output = FileItem::serialize();
 	output["typeID"] = typeid(FolderItem).name();
-	output["isFolder"] = isFolder;
-	output["filepath"] = filepath;
-	output["name"] = name;
 	return output;
 }
 
 void FolderItem::deserialize(nlohmann::json json)
 {
-	isFolder = json["isFolder"];
-	const string filepathValue = json["filepath"];
-	filepath = filepathValue;
-	const string nameValue = json["name"];
-	name = nameValue;
+	FileItem::deserialize(json);
 }
 
 void FolderItem::removeFile()

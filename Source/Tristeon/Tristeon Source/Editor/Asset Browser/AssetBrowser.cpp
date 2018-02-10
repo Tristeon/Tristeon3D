@@ -22,7 +22,7 @@ const std::string AssetBrowser::assetPath = "Assets/";
 AssetBrowser::AssetBrowser()
 {
 	//Setup rootfolder
-	rootFolder = std::make_shared<FolderItem>();
+	rootFolder = std::make_unique<FolderItem>();
 	rootFolder->filepath = "Assets";
 	rootFolder->isFolder = true;
 	rootFolder->setup(true);
@@ -49,7 +49,7 @@ void AssetBrowser::onGui()
 
 	//Draw folder hierarchy
 	ImGui::BeginChild("Left panel", ImVec2(150, 0), true, ImGuiWindowFlags_HorizontalScrollbar);
-	folderHierarchy.drawHierarchy(rootFolder,itemManager.get());
+	folderHierarchy.drawHierarchy(rootFolder.get(),itemManager.get());
 	ImGui::EndChild();
 
 	ImGui::SameLine();
@@ -75,8 +75,8 @@ void AssetBrowser::onGui()
 				folder->init(createdItemName, itemManager->currentFolder); //Create both folder and meta data
 				//Set parenting and child relations
 				folder->parent = itemManager->currentFolder;
-				itemManager->currentFolder->children.push_back(std::move(folder));
 				itemManager->currentFolder->fileItems.push_back(folder.get());
+				itemManager->currentFolder->children.push_back(std::move(folder));
 				ImGui::CloseCurrentPopup();
 			}
 			if (ImGui::Button("Create scene"))
