@@ -112,6 +112,14 @@ namespace Tristeon
 					ShaderFile getShaderFile() const { return file; }
 
 					bool getEnableLighting() const { return enableLighting; }
+
+					/**
+					* \brief Creates a generic shader module
+					* \param code The shader code
+					* \param device The vulkan device, used to create the shader module
+					* \return Returns the resulting shader module
+					*/
+					static vk::ShaderModule createShaderModule(const std::vector<char>& code, vk::Device device);
 				private:
 					void createDescriptorLayout(std::map<int, ShaderProperty> properties);
 					/**
@@ -182,13 +190,6 @@ namespace Tristeon
 					vk::DescriptorSetLayout descriptorSetLayout1; //Transformations
 					vk::DescriptorSetLayout descriptorSetLayout2; //User properties
 					vk::DescriptorSetLayout descriptorSetLayout3; //Lighting
-					/**
-					 * \brief Creates a generic shader module
-					 * \param code The shader code 
-					 * \param device The vulkan device, used to create the shader module
-					 * \return Returns the resulting shader module
-					 */
-					static vk::ShaderModule createShaderModule(const std::vector<char>& code, vk::Device device);
 
 					/**
 					 * \return Gets the binding description, describing what vertex data will be passed to the shader
