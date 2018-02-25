@@ -75,7 +75,7 @@ Planned (rendering/engine):
 
 # Showcase
 Watch the showcase video here:
-https://youtu.be/Ea_PRZsOZNA
+https://www.youtube.com/watch?v=6kVTGHOJu-E
 ![Screenshot of the showcase video](https://i.imgur.com/R6GoWQ6.png)
 
 # Engine architecture
