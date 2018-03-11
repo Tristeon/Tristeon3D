@@ -2,7 +2,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "Misc/Console.h"
+#include <filesystem>
 
 namespace Tristeon
 {
@@ -18,11 +18,8 @@ namespace Tristeon
 				return cachedImages[path];
 
 			//Load new
-			if (!load(path))
-			{
-				Misc::Console::warning("ImageBatch: Failed to load image [" + path + "]. Returning an image filled with white pixels");
+			if (!std::experimental::filesystem::exists(path) || !load(path))
 				return getImage("Files/Textures/white.jpg");
-			}
 
 			//We did load, return loaded
 			return cachedImages[path];
@@ -36,6 +33,7 @@ namespace Tristeon
 
 			//Load image
 			Image img;
+
 			img.filePath = path;
 			img.pixels = stbi_load(path.c_str(), &img.width, &img.height, &img.channels, STBI_rgb_alpha);
 

@@ -41,11 +41,11 @@ namespace Tristeon
 					vk->device.bindImageMemory(image, imageMemory, 0);
 				}
 
-				vk::ImageView VulkanImage::createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType)
+				vk::ImageView VulkanImage::createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType, vk::ImageSubresourceRange subresource_range)
 				{
 					vk::ComponentMapping const components = vk::ComponentMapping(); //Specifies color component mapping
-					vk::ImageSubresourceRange const sub = vk::ImageSubresourceRange(aspectFlags, 0, 1, 0, 1); //Aspectmask, baseMipLevel, levelCount, baseArrayLayer, layerCount
-					vk::ImageViewCreateInfo viewInfo = vk::ImageViewCreateInfo({}, img, viewType, format, components, sub);
+					subresource_range.setAspectMask(aspectFlags);
+					vk::ImageViewCreateInfo viewInfo = vk::ImageViewCreateInfo({}, img, viewType, format, components, subresource_range);
 
 					//Create image view
 					vk::ImageView view;
@@ -104,6 +104,14 @@ namespace Tristeon
 
 						src = vk::PipelineStageFlagBits::eTopOfPipe;
 						dst = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+					}
+					else if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eColorAttachmentOptimal)
+					{
+						barrier.srcAccessMask = {};
+						barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
+
+						src = vk::PipelineStageFlagBits::eTopOfPipe;
+						dst = vk::PipelineStageFlagBits::eFragmentShader;
 					}
 					else if (oldLayout == vk::ImageLayout::eShaderReadOnlyOptimal && newLayout == vk::ImageLayout::eTransferDstOptimal)
 					{

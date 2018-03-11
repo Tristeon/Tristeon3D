@@ -14,17 +14,17 @@ layout(location = 0) in vec3 pos;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
 
-layout (location = 0) out vec3 inWorldPos;
-layout(location = 1) out vec3 inNormal;
-layout(location = 2) out vec2 inUV;
-layout(location = 3) out vec3 inViewPos;
+layout (location = 0) out vec3 outWorldPos;
+layout(location = 1) out vec3 outNormal;
+layout(location = 2) out vec2 outUV;
+layout(location = 3) out vec3 outViewPos;
 
 void main()
 {
-  inWorldPos =  vec3(ubo.model * vec4(pos, 1));
-  inNormal = vec3(ubo.model * vec4(normal, 1));
-  inUV = texCoord;
-  inViewPos = vec3(inverse(ubo.view)[3]);
+  outWorldPos =  vec3(ubo.model * vec4(pos, 1));
+  outNormal = mat3(transpose(inverse(ubo.model))) * normal;
+  outUV = texCoord;
+  outViewPos = vec3(inverse(ubo.view)[3]);
 
   gl_Position = ubo.proj * ubo.view * ubo.model * vec4(pos, 1);
 }

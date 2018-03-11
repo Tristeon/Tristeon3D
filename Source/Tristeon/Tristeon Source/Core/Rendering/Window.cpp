@@ -70,6 +70,7 @@ namespace Tristeon
 				_window = glfwCreateWindow(width, height, "Tristeon", monitor, nullptr);
 				if (window == nullptr)
 					Misc::Console::error("Failed to open GLFW window!");
+				glfwMaximizeWindow(_window);
 				//Store this in the GLFW userdata for reference later
 				glfwSetWindowUserPointer(window, this);
 

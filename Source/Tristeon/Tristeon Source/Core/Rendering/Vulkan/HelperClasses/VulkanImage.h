@@ -48,7 +48,7 @@ namespace Tristeon
 					 * \param aspectFlags Specifies which aspects of the image are included in the view
 					 * \return Returns the resulting image view
 					 */
-					static vk::ImageView createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType = vk::ImageViewType::e2D);
+					static vk::ImageView createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType = vk::ImageViewType::e2D, vk::ImageSubresourceRange subresource_range = vk::ImageSubresourceRange({}, 0, 1, 0, 1));
 					/**
 					 * \brief Transitions the layout of the given image from one layout to another
 					 * \param bind Rendering data
