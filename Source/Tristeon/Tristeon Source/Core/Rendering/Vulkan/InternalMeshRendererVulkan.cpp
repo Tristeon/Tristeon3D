@@ -8,9 +8,9 @@
 #include "Core/Rendering/Components/Renderer.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
 
-#include "HelperClasses/VulkanBuffer.h"
 #include "HelperClasses/Pipeline.h"
 #include "Core/GameObject.h"
+#include "API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -31,16 +31,6 @@ namespace Tristeon
 				{
 					//Cleanup
 					vk->device.waitIdle();
-
-					vk->device.destroyBuffer(vertexBuffer);
-					vk->device.freeMemory(vertexBufferMemory);
-
-					vk->device.destroyBuffer(indexBuffer);
-					vk->device.freeMemory(indexBufferMemory);
-
-					vk->device.destroyBuffer(uniformBuffer);
-					vk->device.freeMemory(uniformBufferMemory);
-
 					vk->device.freeDescriptorSets(vk->descriptorPool, 1, &set);
 				}
 
@@ -48,7 +38,7 @@ namespace Tristeon
 				{
 					if (meshRenderer->mesh.vertices.size() == 0 || meshRenderer->mesh.indices.size() == 0)
 						return;
-					if ((VkBuffer)vertexBuffer == VK_NULL_HANDLE || (VkBuffer)indexBuffer == VK_NULL_HANDLE)
+					if ((VkBuffer)vertexBuffer->getBuffer() == VK_NULL_HANDLE || (VkBuffer)indexBuffer->getBuffer() == VK_NULL_HANDLE)
 					{
 						Misc::Console::warning("Not rendering [" + meshRenderer->gameObject->name + "] because either the vertex or index buffer hasn't been set up!");
 						return;
@@ -64,7 +54,7 @@ namespace Tristeon
 					if ((VkDescriptorSet)set == VK_NULL_HANDLE || (VkDescriptorSet)vkm->set == VK_NULL_HANDLE)
 						return;
 
-					vkm->setActiveUniformBufferMemory(uniformBufferMemory);
+					vkm->setActiveUniformBufferMemory(uniformBuffer->getDeviceMemory());
 					vkm->render(model, data->view, data->projection);
 
 					//Start secondary cmd buffer
@@ -86,10 +76,10 @@ namespace Tristeon
 					secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, vkm->pipeline->getPipelineLayout(), 0, sets.size(), sets.data(), 0, nullptr);
 
 					//Vertex / index buffer
-					vk::Buffer vertexBuffers[] = { vertexBuffer };
+					vk::Buffer vertexBuffers[] = { vertexBuffer->getBuffer() };
 					vk::DeviceSize offsets[1] = { 0 };
 					secondary.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-					secondary.bindIndexBuffer(indexBuffer, 0, vk::IndexType::eUint16);
+					secondary.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint16);
 
 					//Line width
 					secondary.setLineWidth(2);
@@ -137,75 +127,25 @@ namespace Tristeon
 
 				void InternalMeshRenderer::createVertexBuffer(Data::SubMesh mesh)
 				{
-					if ((VkBuffer)vertexBuffer != VK_NULL_HANDLE)
-						vk->device.destroyBuffer(vertexBuffer);
-
-					//Vulkan's buffers will be able to enable high performance memory when we're using a staging buffer instead of directly copying data to the gpu
 					vk::DeviceSize const size = sizeof(Data::Vertex) * mesh.vertices.size();
 					if (size == 0)
 						return;
 
-					//Create staging buffer
-					vk::Buffer staging;
-					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(vk, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
-					
-					//Upload data to staging buffer
-					void* data;
-					vk->device.mapMemory(stagingMemory, 0, size, {}, &data);
-					memcpy(data, mesh.vertices.data(), size);
-					vk->device.unmapMemory(stagingMemory);
-
-					//Create vertex buffer
-					
-					VulkanBuffer::createBuffer(vk, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer, vertexBufferMemory);
-
-					//Copy from staging buffer to vertex buffer
-					VulkanBuffer::copyBuffer(vk, staging, vertexBuffer, size);
-
-					//Cleanup staging buffer
-					vk->device.destroyBuffer(staging);
-					vk->device.freeMemory(stagingMemory);
+					vertexBuffer = BufferVulkan::createOptimized(vk, size, mesh.vertices.data(), vk::BufferUsageFlagBits::eVertexBuffer);
 				}
 
 				void InternalMeshRenderer::createIndexBuffer(Data::SubMesh mesh)
 				{
-					if ((VkBuffer)indexBuffer != VK_NULL_HANDLE)
-						vk->device.destroyBuffer(indexBuffer);
-
 					vk::DeviceSize const size = sizeof(uint16_t) * mesh.indices.size();
 					if (size == 0)
 						return;
-
-					//Create staging buffer
-					vk::Buffer staging;
-					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(vk, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
-					
-					//Upload data to staging buffer
-					void* data;
-					vk->device.mapMemory(stagingMemory, 0, size, {}, &data);
-					memcpy(data, mesh.indices.data(), size);
-					vk->device.unmapMemory(stagingMemory);
-
-					//Create index buffer
-					VulkanBuffer::createBuffer(vk, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer, indexBufferMemory);
-
-					//Copy data from staging buffer to index buffer
-					VulkanBuffer::copyBuffer(vk, staging, indexBuffer, size);
-
-					//Cleanup staging buffer
-					vk->device.destroyBuffer(staging);
-					vk->device.freeMemory(stagingMemory);
+					indexBuffer = BufferVulkan::createOptimized(vk, size, mesh.indices.data(), vk::BufferUsageFlagBits::eIndexBuffer);
 				}
 
 				void InternalMeshRenderer::createUniformBuffer(VulkanBindingData* binding)
 				{
-					//Create a uniform buffer of the size of UniformBufferObject
-					VulkanBuffer::createBuffer(binding, sizeof(UniformBufferObject),
-						vk::BufferUsageFlagBits::eUniformBuffer,
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-						uniformBuffer, uniformBufferMemory);
+					uniformBuffer = std::make_unique<BufferVulkan>(binding, sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
+						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 				}
 
 				void InternalMeshRenderer::createDescriptorSets()
@@ -227,7 +167,7 @@ namespace Tristeon
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					//Write info
-					vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(uniformBuffer, 0, sizeof(UniformBufferObject));
+					vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(uniformBuffer->getBuffer(), 0, sizeof(UniformBufferObject));
 					vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
 
 					//Update descriptor with our new write info

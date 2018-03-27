@@ -3,7 +3,6 @@
 #include "MaterialVulkan.h"
 #include "Core/BindingData.h"
 #include "HelperClasses/Pipeline.h"
-#include "HelperClasses/VulkanBuffer.h"
 #include "Core/Components/Camera.h"
 
 namespace Tristeon
@@ -47,10 +46,8 @@ namespace Tristeon
 				void DebugDrawManager::createDescriptorSets()
 				{
 					//Create a uniform buffer of the size of UniformBufferObject
-					VulkanBuffer::createBuffer(binding, sizeof(UniformBufferObject),
-						vk::BufferUsageFlagBits::eUniformBuffer,
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-						uniformBuffer, uniformBufferMemory);
+					uniformBuffer = std::make_unique<BufferVulkan>(binding, sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
+						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
 					//Create a temporary layout describing the uniform buffer input
 					vk::DescriptorSetLayout layout;
@@ -67,7 +64,7 @@ namespace Tristeon
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					//Write info
-					vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(uniformBuffer, 0, sizeof(UniformBufferObject));
+					vk::DescriptorBufferInfo buffer = vk::DescriptorBufferInfo(uniformBuffer->getBuffer(), 0, sizeof(UniformBufferObject));
 					vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &buffer, nullptr);
 
 					//Update descriptor with our new write info
@@ -83,15 +80,7 @@ namespace Tristeon
 					delete pipeline;
 					
 					binding->device.freeCommandBuffers(binding->commandPool, cmd);
-
-					binding->device.freeMemory(uniformBufferMemory);
-					binding->device.destroyBuffer(uniformBuffer);
 					binding->device.freeDescriptorSets(binding->descriptorPool, set);
-
-					for (const auto buf : vertexBuffers)
-						binding->device.destroyBuffer(buf);
-					for (const auto mem : vertexBuffersMemory)
-						binding->device.freeMemory(mem);
 				}
 
 				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass) const
@@ -105,34 +94,12 @@ namespace Tristeon
 					if (size == 0)
 						return;
 
-					//Create staging buffer
-					vk::Buffer staging;
-					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(binding, size, 
-						vk::BufferUsageFlagBits::eTransferSrc, 
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
+					BufferVulkan staging = BufferVulkan(binding, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					staging.copyFromData(mesh.vertices.data());
 
-					//Upload data to staging buffer
-					void* data;
-					binding->device.mapMemory(stagingMemory, 0, size, {}, &data);
-					memcpy(data, mesh.vertices.data(), size);
-					binding->device.unmapMemory(stagingMemory);
-
-					//Create vertex buffer
-					if (!vertexBuffers[i] || !vertexBuffersMemory[i])
-					{
-						VulkanBuffer::createBuffer(
-							binding, size, 
-							vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, 
-							vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffers[i], vertexBuffersMemory[i]);
-					}
-
-					//Copy from staging buffer to vertex buffer
-					VulkanBuffer::copyBuffer(binding, staging, vertexBuffers[i], size);
-
-					//Cleanup staging buffer
-					binding->device.destroyBuffer(staging);
-					binding->device.freeMemory(stagingMemory);
+					if (!vertexBuffers[i])
+						vertexBuffers[i] = std::make_unique<BufferVulkan>(binding, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+					vertexBuffers[i]->copyFromBuffer(staging.getBuffer(), binding->commandPool, binding->graphicsQueue);
 				}
 
 				void DebugDrawManager::render()
@@ -166,7 +133,7 @@ namespace Tristeon
 
 						//TODO: Fix colors (only the last color is applied coz the same buffer is being used)
 						material->setColor("Color.color", l.color);
-						m->setActiveUniformBufferMemory(uniformBufferMemory);
+						m->setActiveUniformBufferMemory(uniformBuffer->getDeviceMemory());
 						m->render(model, data->view, data->projection);
 
 						Data::SubMesh mesh;
@@ -181,7 +148,8 @@ namespace Tristeon
 						createVertexBuffer(mesh, i);
 
 						vk::DeviceSize offsets[1] = { 0 };
-						secondary.bindVertexBuffers(0, 1, &vertexBuffers[i], offsets);
+						vk::Buffer vertex = vertexBuffers[i]->getBuffer();
+						secondary.bindVertexBuffers(0, 1, &vertex, offsets);
 
 						//Line width
 						secondary.setLineWidth(l.width);

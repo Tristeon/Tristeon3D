@@ -2,6 +2,7 @@
 #include "Core/Rendering/Internal/InternalRenderer.h"
 #include "RenderManagerVulkan.h"
 #include <vulkan/vulkan.hpp>
+#include "API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -84,32 +85,9 @@ namespace Tristeon
 					 */
 					std::vector<vk::CommandBuffer> cmdBuffers;
 
-					/**	
-					 * \brief The vertex buffer containing vertex info
-					 */
-					vk::Buffer vertexBuffer;
-					/**
-					 * \brief The vertex buffer memory, used to send data to the gpu
-					 */
-					vk::DeviceMemory vertexBufferMemory;
-
-					/**
-					 * \brief The index buffer containing index info
-					 */
-					vk::Buffer indexBuffer;
-					/**
-					 * \brief The index buffer memory, used to send data to the gpu
-					 */
-					vk::DeviceMemory indexBufferMemory;
-
-					/**
-					* \brief The uniform buffer, used for passing uniform data to the shaders
-					*/
-					vk::Buffer uniformBuffer;
-					/**
-					* \brief The uniform buffer memory, containing the uniform data
-					*/
-					vk::DeviceMemory uniformBufferMemory;
+					std::unique_ptr<BufferVulkan> vertexBuffer;
+					std::unique_ptr<BufferVulkan> indexBuffer;
+					std::unique_ptr<BufferVulkan> uniformBuffer;
 
 					/**
 					 * \brief Allocates the command buffers

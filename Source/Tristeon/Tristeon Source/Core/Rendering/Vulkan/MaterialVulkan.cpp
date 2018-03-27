@@ -7,7 +7,6 @@
 
 #include "HelperClasses/CommandBuffer.h"
 #include "HelperClasses/VulkanImage.h"
-#include "HelperClasses/VulkanBuffer.h"
 #include "HelperClasses/Pipeline.h"
 #include "Core/BindingData.h"
 #include "Misc/Hardware/Keyboard.h"
@@ -139,12 +138,8 @@ namespace Tristeon
 						}
 						}
 
-						vk::DeviceSize const size = p.size;
-
-						void* d;
-						pipeline->device.mapMemory(uniformBuffers[p.name].mem, 0, size, {}, &d);
-						memcpy(d, mem, size);
-						pipeline->device.unmapMemory(uniformBuffers[p.name].mem);
+						uniformBuffers[p.name]->copyFromData(mem);
+						free(mem);
 					}
 
 					//Reset so we don't acidentally use the buffer from last object
@@ -267,12 +262,6 @@ namespace Tristeon
 						pipeline->device.destroyImage(t.second.img);
 						pipeline->device.freeMemory(t.second.mem);
 					}
-					//Destroy uniform buffers
-					for (auto const b : uniformBuffers)
-					{
-						pipeline->device.destroyBuffer(b.second.buf);
-						pipeline->device.freeMemory(b.second.mem);
-					}
 
 					uniformBuffers.clear();
 					textures.clear();
@@ -288,18 +277,9 @@ namespace Tristeon
 					vk::DeviceSize const size = img.getWidth() * img.getHeight() * 4;
 
 					//Create staging buffer to allow vulkan to optimize the texture buffer's memory
-					vk::Buffer staging;
-					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(pipeline->binding, size,
-						vk::BufferUsageFlagBits::eTransferSrc,
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-						staging, stagingMemory);
-
-					//Upload our memory to the staging buffer
-					void* data;
-					pipeline->binding->device.mapMemory(stagingMemory, 0, size, {}, &data);
-					memcpy(data, pixels, size);
-					pipeline->binding->device.unmapMemory(stagingMemory);
+					BufferVulkan staging = BufferVulkan(pipeline->binding, size, vk::BufferUsageFlagBits::eTransferSrc, 
+						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					staging.copyFromData(pixels);
 
 					//Create vulkan image
 					VulkanImage::createImage(
@@ -311,16 +291,10 @@ namespace Tristeon
 						vk::MemoryPropertyFlagBits::eDeviceLocal,
 						texture.img, texture.mem);
 
-					//Change texture format to transfer destination
+					//Transition to transfer destination, transfer data, transition to shader read only
 					VulkanImage::transitionImageLayout(pipeline->binding, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-					//Send data from our staging buffer to our image
-					VulkanImage::copyBufferToImage(pipeline->binding, staging, texture.img, img.getWidth(), img.getHeight());
-					//Change texture format to shader read only
+					VulkanImage::copyBufferToImage(pipeline->binding, staging.getBuffer(), texture.img, img.getWidth(), img.getHeight());
 					VulkanImage::transitionImageLayout(pipeline->binding, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-
-					//Cleanup staging buffer
-					pipeline->device.destroyBuffer(staging);
-					pipeline->device.freeMemory(stagingMemory);
 
 					//Create image view for texture
 					texture.view = VulkanImage::createImageView(pipeline->device, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
@@ -378,11 +352,10 @@ namespace Tristeon
 							case DT_Vector3:
 							case DT_Struct:
 							{
-								UniformBuffer const buf = createUniformBuffer(p.name, p.size);
-								descBufInfos[p.name] = vk::DescriptorBufferInfo(buf.buf, 0, p.size);
+								BufferVulkan* const buf = createUniformBuffer(p.name, p.size);
+								descBufInfos[p.name] = vk::DescriptorBufferInfo(buf->getBuffer(), 0, p.size);
 								vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(set, i, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &descBufInfos[p.name], nullptr);
 								writes.push_back(uboWrite);
-								uniformBuffers[p.name] = buf;
 								break;
 							}
 						}
@@ -393,20 +366,15 @@ namespace Tristeon
 					binding->device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
 				}
 
-				UniformBuffer Material::createUniformBuffer(std::string name, vk::DeviceSize size)
+				BufferVulkan* Material::createUniformBuffer(std::string name, vk::DeviceSize size)
 				{
-					UniformBuffer buf;
 					//Create a uniform buffer of the size of UniformBufferObject
 					if (uniformBuffers.find(name) != uniformBuffers.end())
-						return uniformBuffers[name];
+						return uniformBuffers[name].get();
 
-					VulkanBuffer::createBuffer(pipeline->binding, size,
-						vk::BufferUsageFlagBits::eUniformBuffer,
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-						buf.buf, buf.mem);
-
-					uniformBuffers[name] = buf;
-					return buf;
+					VulkanBindingData* bind = pipeline->binding;
+					uniformBuffers[name] = std::make_unique<BufferVulkan>(bind->device, bind->physicalDevice, bind->swapchain->getSurface(), size, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					return uniformBuffers[name].get();
 				}
 			}
 		}

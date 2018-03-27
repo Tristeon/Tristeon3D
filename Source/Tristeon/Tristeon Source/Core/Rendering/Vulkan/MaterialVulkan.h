@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Core/Rendering/Material.h"
 #include <vulkan/vulkan.hpp>
+#include "API/BufferVulkan.h"
+
 namespace Tristeon
 {
 	namespace Core
@@ -58,22 +60,6 @@ namespace Tristeon
 					 * \brief The image sampler is used to pass the image onto the GPU, while applying filtering
 					 */
 					vk::Sampler sampler = nullptr;
-				};
-
-				/**
-				 * \brief The uniform buffer struct wraps around the required vulkan objects
-				 * to create a uniform buffer, that is used to send uniform data to the GPU.
-				 */
-				struct UniformBuffer
-				{
-					/**
-					 * \brief The buffer. Used to bind the buffer memory to the shader
-					 */
-					vk::Buffer buf = nullptr;
-					/**
-					 * \brief The buffer memory. Used to send uniform data to the GPU
-					 */
-					vk::DeviceMemory mem = nullptr;
 				};
 
 				/**
@@ -141,7 +127,7 @@ namespace Tristeon
 					 */
 					void createDescriptorSets();
 
-					UniformBuffer createUniformBuffer(std::string name, vk::DeviceSize size);
+					BufferVulkan* createUniformBuffer(std::string name, vk::DeviceSize size);
 					/**
 					 * \brief Creates the vulkan image for the material's textures
 					 */
@@ -168,7 +154,7 @@ namespace Tristeon
 					/**
 					 * \brief The uniform buffers for all non-texture properties
 					 */
-					std::map<std::string, UniformBuffer> uniformBuffers;
+					std::map<std::string, std::unique_ptr<BufferVulkan>> uniformBuffers;
 
 					REGISTER_TYPE_H(Vulkan::Material)
 				};

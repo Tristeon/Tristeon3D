@@ -4,7 +4,6 @@
 #include <gli/core/load.inl>
 
 #include "Core/BindingData.h"
-#include "HelperClasses/VulkanBuffer.h"
 #include "HelperClasses/CommandBuffer.h"
 #include "HelperClasses/Pipeline.h"
 #include "Data/Mesh.h"
@@ -29,15 +28,6 @@ namespace Tristeon
 					device.destroyImageView(image.view);
 					device.destroySampler(image.sampler);
 					device.freeDescriptorSets(bindingData->descriptorPool, image.set);
-
-					device.destroyBuffer(uniformBuffer.buf);
-					device.freeMemory(uniformBuffer.mem);
-
-					device.destroyBuffer(vertexBuffer.buf);
-					device.freeMemory(vertexBuffer.mem);
-					
-					device.destroyBuffer(indexBuffer.buf);
-					device.freeMemory(indexBuffer.mem);
 
 					device.freeCommandBuffers(bindingData->commandPool, secondary);
 
@@ -70,10 +60,7 @@ namespace Tristeon
 					ubo.proj = proj;
 					ubo.proj[1][1] *= -1;
 
-					void* d;
-					bindingData->device.mapMemory(uniformBuffer.mem, 0, ubo_size, {}, &d);
-					memcpy(d, &ubo, ubo_size);
-					bindingData->device.unmapMemory(uniformBuffer.mem);
+					uniformBuffer->copyFromData(&ubo);
 					
 					//Start secondary cmd buffer
 					const vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue, &data->inheritance);
@@ -89,10 +76,10 @@ namespace Tristeon
 					secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->getPipelineLayout(), 0, 1, &image.set, 0, nullptr);
 
 					//Vertex / index buffer
-					vk::Buffer vertexBuffers[] = { vertexBuffer.buf };
+					vk::Buffer vertexBuffers[] = { vertexBuffer->getBuffer() };
 					vk::DeviceSize offsets[1] = { 0 };
 					secondary.bindVertexBuffers(0, 1, vertexBuffers, offsets);
-					secondary.bindIndexBuffer(indexBuffer.buf, 0, vk::IndexType::eUint16);
+					secondary.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint16);
 
 					//Draw
 					secondary.drawIndexed(mesh.indices.size(), 1, 0, 0, 0);
@@ -139,19 +126,8 @@ namespace Tristeon
 					const size_t height = tex.extent().y;
 					const size_t mipLevels = tex.levels();
 
-					//Staging buffer
-					vk::Buffer sbuf;
-					vk::DeviceMemory smem;
-					VulkanBuffer::createBuffer(bindingData,
-						size,
-						vk::BufferUsageFlagBits::eTransferSrc,
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-						sbuf, smem);
-
-					//Copy image data to staging buffer
-					void* data;
-					device.mapMemory(smem, 0, size, {}, &data);
-					memcpy(data, tex.data(), size);
+					BufferVulkan staging = BufferVulkan(bindingData, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					staging.copyFromData(tex.data());
 
 					//Create image
 					VulkanImage::createImage(
@@ -186,7 +162,7 @@ namespace Tristeon
 					vk::ImageSubresourceRange const subresource_range = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 6);
 
 					VulkanImage::transitionImageLayout(bindingData, image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, subresource_range);
-					onetime.copyBufferToImage(sbuf, image.img, vk::ImageLayout::eTransferDstOptimal, bufCopyRegions.size(), bufCopyRegions.data());
+					onetime.copyBufferToImage(staging.getBuffer(), image.img, vk::ImageLayout::eTransferDstOptimal, bufCopyRegions.size(), bufCopyRegions.data());
 					CommandBuffer::end(onetime, bindingData->graphicsQueue, bindingData->device, bindingData->commandPool);
 					VulkanImage::transitionImageLayout(bindingData, image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, subresource_range);
 
@@ -210,10 +186,6 @@ namespace Tristeon
 						vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 6)
 					);
 					image.view = device.createImageView(view);
-
-					//Clear staging buffer
-					device.destroyBuffer(sbuf);
-					device.freeMemory(smem);
 				}
 
 				void Skybox::setupPipeline()
@@ -238,10 +210,8 @@ namespace Tristeon
 
 				void Skybox::createUniformBuffer()
 				{
-					VulkanBuffer::createBuffer(bindingData, sizeof(UniformBufferObject),
-						vk::BufferUsageFlagBits::eUniformBuffer,
-						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-						uniformBuffer.buf, uniformBuffer.mem);
+					uniformBuffer = std::make_unique<BufferVulkan>(bindingData, sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
+						vk::MemoryPropertyFlagBits::eHostCoherent | vk::MemoryPropertyFlagBits::eHostVisible);
 				}
 
 				void Skybox::createCommandBuffers()
@@ -258,7 +228,7 @@ namespace Tristeon
 					bindingData->device.allocateDescriptorSets(&alloc, &image.set);
 
 					//Ubo
-					vk::DescriptorBufferInfo uboInfo = vk::DescriptorBufferInfo(uniformBuffer.buf, 0, sizeof(ubo));
+					vk::DescriptorBufferInfo uboInfo = vk::DescriptorBufferInfo(uniformBuffer->getBuffer(), 0, sizeof(ubo));
 					vk::WriteDescriptorSet const uboWrite = vk::WriteDescriptorSet(image.set, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &uboInfo, nullptr);
 
 					//Sampler
@@ -293,33 +263,12 @@ namespace Tristeon
 
 				void Skybox::createVertexBuffer()
 				{
-					vk::Device device = bindingData->device;
-
 					//Vulkan's buffers will be able to enable high performance memory when we're using a staging buffer instead of directly copying data to the gpu
 					vk::DeviceSize const size = sizeof(Data::Vertex) * mesh.vertices.size();
 					if (size == 0)
 						return;
 
-					//Create staging buffer
-					vk::Buffer staging;
-					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(bindingData, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
-
-					//Upload data to staging buffer
-					void* data;
-					device.mapMemory(stagingMemory, 0, size, {}, &data);
-					memcpy(data, mesh.vertices.data(), size);
-					device.unmapMemory(stagingMemory);
-
-					//Create vertex buffer
-					VulkanBuffer::createBuffer(bindingData, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, vertexBuffer.buf, vertexBuffer.mem);
-
-					//Copy from staging buffer to vertex buffer
-					VulkanBuffer::copyBuffer(bindingData, staging, vertexBuffer.buf, size);
-
-					//Cleanup staging buffer
-					device.destroyBuffer(staging);
-					device.freeMemory(stagingMemory);
+					vertexBuffer = BufferVulkan::createOptimized(bindingData, size, mesh.vertices.data(), vk::BufferUsageFlagBits::eVertexBuffer);
 				}
 
 				void Skybox::createIndexBuffer()
@@ -328,26 +277,7 @@ namespace Tristeon
 					if (size == 0)
 						return;
 
-					//Create staging buffer
-					vk::Buffer staging;
-					vk::DeviceMemory stagingMemory;
-					VulkanBuffer::createBuffer(bindingData, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
-
-					//Upload data to staging buffer
-					void* data;
-					bindingData->device.mapMemory(stagingMemory, 0, size, {}, &data);
-					memcpy(data, mesh.indices.data(), size);
-					bindingData->device.unmapMemory(stagingMemory);
-
-					//Create index buffer
-					VulkanBuffer::createBuffer(bindingData, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal, indexBuffer.buf, indexBuffer.mem);
-
-					//Copy data from staging buffer to index buffer
-					VulkanBuffer::copyBuffer(bindingData, staging, indexBuffer.buf, size);
-
-					//Cleanup staging buffer
-					bindingData->device.destroyBuffer(staging);
-					bindingData->device.freeMemory(stagingMemory);
+					indexBuffer = BufferVulkan::createOptimized(bindingData, size, mesh.indices.data(), vk::BufferUsageFlagBits::eIndexBuffer);
 				}
 			}
 		}

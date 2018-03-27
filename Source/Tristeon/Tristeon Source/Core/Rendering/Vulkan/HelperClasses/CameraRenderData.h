@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vulkan/vulkan.hpp>
 #include "Core/TObject.h"
+#include "Core/Rendering/Vulkan/API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -152,8 +153,7 @@ namespace Tristeon
 						 */
 						std::array<vk::DescriptorSet, 2> sets;
 
-						vk::Buffer tempBuf;
-						vk::DeviceMemory tempBufMem;
+						std::unique_ptr<BufferVulkan> tempBuf;
 
 						/**
 						 * \brief Allocates the offscreen commandbuffer and creates the descriptorset

@@ -44,7 +44,6 @@
     <ClCompile Include="Tristeon Source\Application.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\CommandBuffer.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanImage.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanBuffer.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFormat.cpp" />
     <ClCompile Include="Tristeon Source\Data\Mesh.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorWindow.cpp" />
@@ -98,6 +97,7 @@
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\SkyboxVulkan.cpp" />
     <ClCompile Include="Tristeon Source\Editor\Prefab.cpp" />
     <ClCompile Include="Tristeon Source\AssetManager.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\BufferVulkan.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tristeon Source\Core\Managers\InputManager.h" />
@@ -150,7 +150,6 @@
     <ClInclude Include="Tristeon Source\Application.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\CommandBuffer.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanImage.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanBuffer.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFormat.h" />
     <ClInclude Include="Tristeon Source\Misc\vector.h" />
     <ClInclude Include="Tristeon Source\Editor\EditorWindow.h" />
@@ -214,5 +213,6 @@
     <ClInclude Include="Tristeon Source\Misc\ObjectPool.h" />
     <ClInclude Include="Tristeon Source\Editor\Prefab.h" />
     <ClInclude Include="Tristeon Source\AssetManager.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\BufferVulkan.h" />
   </ItemGroup>
 </Project>

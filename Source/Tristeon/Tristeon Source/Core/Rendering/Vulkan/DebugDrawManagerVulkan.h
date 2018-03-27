@@ -4,6 +4,7 @@
 #include "Core/Rendering/Components/MeshRenderer.h"
 #include "Core/Rendering/ShaderFile.h"
 #include "MaterialVulkan.h"
+#include "API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -92,20 +93,14 @@ namespace Tristeon
 					/**
 					 * \brief The vertex buffers, every line gets their own buffer
 					 */
-					std::vector<vk::Buffer> vertexBuffers;
+					std::vector<std::unique_ptr<BufferVulkan>> vertexBuffers;
 					/**
 					 * \brief The memory bound to the vertex buffers
 					 */
 					std::vector<vk::DeviceMemory> vertexBuffersMemory;
 				
-					/**
-					* \brief The uniform buffer, used for passing uniform data to the shaders
-					*/
-					vk::Buffer uniformBuffer;
-					/**
-					* \brief The uniform buffer memory, containing the uniform data
-					*/
-					vk::DeviceMemory uniformBufferMemory;
+					std::unique_ptr<BufferVulkan> uniformBuffer;
+
 					vk::DescriptorSet set;
 
 					void createDescriptorSets();

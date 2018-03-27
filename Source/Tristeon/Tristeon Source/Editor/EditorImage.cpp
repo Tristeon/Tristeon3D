@@ -1,9 +1,9 @@
 ﻿#include "EditorImage.h"
-#include "Core/Rendering/Vulkan/HelperClasses/VulkanBuffer.h"
 #include "Core/Rendering/Vulkan/HelperClasses/VulkanImage.h"
 #include "Misc/Console.h"
 #include "Core/Rendering/Vulkan/MaterialVulkan.h"
 #include "Core/BindingData.h"
+#include "Core/Rendering/Vulkan/API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -44,15 +44,9 @@ namespace Tristeon
 			vk::DeviceSize const size = image.getWidth() * image.getHeight() * 4;
 
 			//Create staging buffer
-			vk::Buffer staging;
-			vk::DeviceMemory stagingMemory;
-			Core::Rendering::Vulkan::VulkanBuffer::createBuffer(binding, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, staging, stagingMemory);
-
-			//Map memory to staging buffer
-			void* data;
-			binding->device.mapMemory(stagingMemory, 0, size, {}, &data);
-			memcpy(data, pixels, size);
-			binding->device.unmapMemory(stagingMemory);
+			Core::Rendering::Vulkan::BufferVulkan staging = Core::Rendering::Vulkan::BufferVulkan(binding, size, vk::BufferUsageFlagBits::eTransferSrc, 
+				vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+			staging.copyFromData(pixels);
 
 			//Create vulkan image
 			Core::Rendering::Vulkan::VulkanImage::createImage(
@@ -67,13 +61,9 @@ namespace Tristeon
 			//Change texture format to transfer destination
 			Core::Rendering::Vulkan::VulkanImage::transitionImageLayout(binding, img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 			//Send data from our staging buffer to our image
-			Core::Rendering::Vulkan::VulkanImage::copyBufferToImage(binding, staging, img, image.getWidth(), image.getHeight());
+			Core::Rendering::Vulkan::VulkanImage::copyBufferToImage(binding, staging.getBuffer(), img, image.getWidth(), image.getHeight());
 			//Change texture format to shader read only
 			Core::Rendering::Vulkan::VulkanImage::transitionImageLayout(binding, img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-
-			//Cleanup staging buffer
-			binding->device.destroyBuffer(staging);
-			binding->device.freeMemory(stagingMemory);
 		}
 
 		void EditorImage::createTextureImageView()

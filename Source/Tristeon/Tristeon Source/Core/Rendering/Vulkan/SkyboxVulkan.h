@@ -58,14 +58,10 @@ namespace Tristeon
 					Image image;
 
 					UniformBufferObject ubo;
-					struct Buffer
-					{
-						vk::Buffer buf;
-						vk::DeviceMemory mem;
-					};
-					Buffer uniformBuffer;
-					Buffer vertexBuffer;
-					Buffer indexBuffer;
+			
+					std::unique_ptr<BufferVulkan> uniformBuffer;
+					std::unique_ptr<BufferVulkan> vertexBuffer;
+					std::unique_ptr<BufferVulkan> indexBuffer;
 
 					vk::CommandBuffer secondary;
 					Pipeline* pipeline = nullptr;

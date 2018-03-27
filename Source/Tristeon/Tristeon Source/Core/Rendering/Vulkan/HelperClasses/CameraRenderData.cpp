@@ -4,9 +4,8 @@
 #include "Core/Rendering/Vulkan/RenderManagerVulkan.h"
 #include "Pipeline.h"
 #include "VulkanCore.h"
-#include "VulkanBuffer.h"
 #include <gli/gli.hpp>
-#include "Core/Rendering/Vulkan/SkyboxVulkan.h"
+#include "Core/Rendering/Vulkan/API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -134,12 +133,10 @@ namespace Tristeon
 						binding->device.allocateDescriptorSets(&alloc1, &sets[0]);
 
 						//Create a temporary buffer so we can fit the pipeline descriptor set layout
-						VulkanBuffer::createBuffer(binding,
-							1, vk::BufferUsageFlagBits::eUniformBuffer,
-							vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
-							tempBuf, tempBufMem);
+						tempBuf = std::make_unique<BufferVulkan>(binding, 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
 						//Update the descriptor set with our "buffer"
-						vk::DescriptorBufferInfo bufi = vk::DescriptorBufferInfo(tempBuf, 0, 1);
+						vk::DescriptorBufferInfo bufi = vk::DescriptorBufferInfo(tempBuf->getBuffer(), 0, 1);
 						vk::WriteDescriptorSet buf = vk::WriteDescriptorSet(sets[0], 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufi, nullptr);
 						binding->device.updateDescriptorSets(1, &buf, 0, nullptr);
 						
@@ -164,9 +161,6 @@ namespace Tristeon
 
 				void CameraRenderData::Onscreen::destroy(vk::Device device, vk::DescriptorPool pool) const
 				{
-					//Clean up the resources that we've created
-					device.destroyBuffer(tempBuf);
-					device.freeMemory(tempBufMem);
 					device.freeDescriptorSets(pool, 2, sets.data());
 				}
 

@@ -2,8 +2,8 @@
 #include "Misc/Console.h"
 #include "CommandBuffer.h"
 #include "Core/BindingData.h"
-#include "VulkanBuffer.h"
 #include "VulkanFormat.h"
+#include "Core/Rendering/Vulkan/API/BufferVulkan.h"
 
 namespace Tristeon
 {
@@ -31,7 +31,7 @@ namespace Tristeon
 
 					//Get memory requirements and memory type
 					vk::MemoryRequirements const memReqs = vk->device.getImageMemoryRequirements(image);
-					vk::MemoryAllocateInfo alloc = vk::MemoryAllocateInfo(memReqs.size, VulkanBuffer::findMemoryType(vk, memReqs.memoryTypeBits, properties));
+					vk::MemoryAllocateInfo alloc = vk::MemoryAllocateInfo(memReqs.size, BufferVulkan::findMemoryType(vk->physicalDevice, memReqs.memoryTypeBits, properties));
 
 					//Allocate memory
 					r = vk->device.allocateMemory(&alloc, nullptr, &imageMemory);
