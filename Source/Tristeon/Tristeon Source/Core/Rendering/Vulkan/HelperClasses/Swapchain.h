@@ -10,9 +10,6 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				//Forward decl
-				class Device;
-
 				/**
 				 * \brief A helper struct for obtaining and selecting supported swapchain components
 				 */
@@ -66,14 +63,9 @@ namespace Tristeon
 				{
 					friend class RenderManager;
 				public:
-					/**
-					 * \brief Creates a new instance of swapchain, creating the Vulkan swapchain
-					 * \param device The vulkan logical device
-					 * \param surface The vulkan window surface
-					 * \param width The width of the window
-					 * \param height The height of the window
-					 */
-					Swapchain(Device* device, vk::SurfaceKHR surface, int width, int height);
+
+					Swapchain(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, int width, int height);
+
 					/**
 					 * \brief Deallocates all resources created by swapchain
 					 */
@@ -157,48 +149,19 @@ namespace Tristeon
 					 */
 					void cleanup();
 
-					/**
-					 * \brief The vulkan swapchain object
-					 */
 					vk::SwapchainKHR swapChain = nullptr;
-					/**
-					 * \brief The main swapchain renderpass
-					 */
 					vk::RenderPass _renderPass;
 
-					/**
-					 * \brief The swapchain images
-					 */
 					std::vector<vk::Image> images;
-					/**
-					 * \brief The swapchain image views
-					 */
 					std::vector<vk::ImageView> imageViews;
-					/**
-					 * \brief The swapchain framebuffers
-					 */
+
 					std::vector<vk::Framebuffer> framebuffers;
 
-					/**
-					 * \brief The selected swapchain format
-					 */
 					vk::Format _format;
-					/**
-					 * \brief The swapchain extent
-					 */
 					vk::Extent2D extent;
-
-					/**
-					 * \brief The vulkan logical devices
-					 */
+					
 					vk::Device device;
-					/**
-					 * \brief The vulkan physical device
-					 */
 					vk::PhysicalDevice physicalDevice;
-					/**
-					 * \brief The vulkan window surface
-					 */
 					vk::SurfaceKHR surface;
 				};
 			}

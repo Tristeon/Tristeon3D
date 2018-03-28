@@ -2,7 +2,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "../HelperClasses/CommandBuffer.h"
-#include "../HelperClasses/Device.h"
+#include "../HelperClasses/QueueFamilyIndices.h"
 
 #include <Misc/Console.h>
 #include "Core/BindingData.h"
@@ -18,7 +18,7 @@ namespace Tristeon
 				BufferVulkan::BufferVulkan(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, size_t size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : size(size), device(device)
 				{
 					//Create a vulkan buffer with our given settings
-					QueueFamilyIndices indices = QueueFamilyIndices::get(gpu, surface);
+					QueueFamilyIndices const indices = QueueFamilyIndices::get(gpu, surface);
 					uint32_t families[] = { indices.graphicsFamily, indices.presentFamily };
 
 					vk::BufferCreateInfo ci = vk::BufferCreateInfo({}, size, usage, sharingMode, 2, families);

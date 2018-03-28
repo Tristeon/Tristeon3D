@@ -3,9 +3,10 @@
 #include "VulkanFormat.h"
 #include "Core/Rendering/Vulkan/RenderManagerVulkan.h"
 #include "Pipeline.h"
-#include "VulkanCore.h"
 #include <gli/gli.hpp>
 #include "Core/Rendering/Vulkan/API/BufferVulkan.h"
+#include "Core/Rendering/Vulkan/API/WindowContextVulkan.h"
+#include "Core/BindingData.h"
 
 namespace Tristeon
 {
@@ -34,27 +35,27 @@ namespace Tristeon
 					createImages(rm);
 					createSampler(rm);
 					createFramebuffer(rm);
-					sema = rm->vulkan->device.createSemaphore({});
+					sema = rm->vkContext->rop_device.createSemaphore({});
 
 					//Allocate command buffers
 					vk::CommandBufferAllocateInfo const alloc = vk::CommandBufferAllocateInfo(rm->commandPool, vk::CommandBufferLevel::ePrimary, 1);
-					cmd = rm->vulkan->device.allocateCommandBuffers(alloc)[0];
+					cmd = rm->vkContext->rop_device.allocateCommandBuffers(alloc)[0];
 				}
 
 				void CameraRenderData::Offscreen::createImages(RenderManager* vkRenderManager)
 				{
 					//Get depth format
-					vk::Format const depthformat = VulkanFormat::findDepthFormat(vkRenderManager->vulkan->physicalDevice);
+					vk::Format const depthformat = VulkanFormat::findDepthFormat(vkRenderManager->vkContext->rop_gpu);
 
 					//Color 
-					vk::Extent2D const extent = vkRenderManager->swapchain->extent2D;
+					vk::Extent2D const extent = vkRenderManager->vkContext->rop_extent;
 					VulkanImage::createImage((VulkanBindingData*)vkRenderManager->bindingData,
 						extent.width, extent.height,
 						vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal,
 						vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
 						vk::MemoryPropertyFlagBits::eDeviceLocal,
 						color.img, color.mem);
-					color.view = VulkanImage::createImageView(vkRenderManager->vulkan->device, color.img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
+					color.view = VulkanImage::createImageView(vkRenderManager->vkContext->rop_device, color.img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
 
 					//Depth
 					VulkanImage::createImage((VulkanBindingData*)vkRenderManager->bindingData,
@@ -63,7 +64,7 @@ namespace Tristeon
 						vk::ImageUsageFlagBits::eDepthStencilAttachment,
 						vk::MemoryPropertyFlagBits::eDeviceLocal,
 						depth.img, depth.mem);
-					depth.view = VulkanImage::createImageView(vkRenderManager->vulkan->device, depth.img, depthformat,
+					depth.view = VulkanImage::createImageView(vkRenderManager->vkContext->rop_device, depth.img, depthformat,
 						vk::ImageAspectFlagBits::eDepth);
 				}
 
@@ -79,7 +80,7 @@ namespace Tristeon
 						VK_FALSE, vk::CompareOp::eNever,
 						0, 1,
 						vk::BorderColor::eFloatOpaqueWhite);
-					sampler = vkRenderManager->vulkan->device.createSampler(smplr);
+					sampler = vkRenderManager->vkContext->rop_device.createSampler(smplr);
 				}
 
 				void CameraRenderData::Offscreen::createFramebuffer(RenderManager* vkRenderManager)
@@ -87,14 +88,14 @@ namespace Tristeon
 					//Attaching our two images
 					vk::ImageView attachments[2] = { color.view, depth.view };
 
-					vk::Extent2D const extent = vkRenderManager->swapchain->extent2D;
+					vk::Extent2D const extent = vkRenderManager->vkContext->rop_extent;
 					
 					vk::FramebufferCreateInfo const fbuf = vk::FramebufferCreateInfo({},
 						pass,
 						2, attachments,
 						extent.width, extent.height,
 						1);
-					buffer = vkRenderManager->vulkan->device.createFramebuffer(fbuf);
+					buffer = vkRenderManager->vkContext->rop_device.createFramebuffer(fbuf);
 				}
 
 				void CameraRenderData::Onscreen::init(VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline)
@@ -174,7 +175,7 @@ namespace Tristeon
 					this->binding = binding;
 					this->isEditorCam = isEditorCamera;
 
-					lastExtent = rm->swapchain->extent2D;
+					lastExtent = rm->vkContext->rop_extent;
 
 					if (isPrepared)
 						rebuild(rm, offscreenPass, onscreenPipeline);
@@ -200,10 +201,10 @@ namespace Tristeon
 				{
 					//Cleanup
 					vk::CommandBuffer cmds[] = { offscreen.cmd, onscreen.secondary };
-					rm->vulkan->device.freeCommandBuffers(rm->commandPool, 2, cmds);
+					rm->vkContext->rop_device.freeCommandBuffers(rm->commandPool, 2, cmds);
 
-					offscreen.destroy(rm->vulkan->device);
-					onscreen.destroy(rm->vulkan->device, rm->descriptorPool);
+					offscreen.destroy(rm->vkContext->rop_device);
+					onscreen.destroy(rm->vkContext->rop_device, rm->descriptorPool);
 
 					//Rebuild
 					setup(rm, offscreenPass, onscreenPipeline);

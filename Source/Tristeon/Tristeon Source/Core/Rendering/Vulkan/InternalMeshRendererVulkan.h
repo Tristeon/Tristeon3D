@@ -83,7 +83,7 @@ namespace Tristeon
 					/**
 					 * \brief The command buffers
 					 */
-					std::vector<vk::CommandBuffer> cmdBuffers;
+					vk::CommandBuffer cmd;
 
 					std::unique_ptr<BufferVulkan> vertexBuffer;
 					std::unique_ptr<BufferVulkan> indexBuffer;

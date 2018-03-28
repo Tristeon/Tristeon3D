@@ -3,6 +3,7 @@
 #include "Misc/Delegate.h"
 #include "Misc/vector.h"
 #include "Skybox.h"
+#include "API/WindowContext.h"
 
 namespace Tristeon
 {
@@ -155,6 +156,8 @@ namespace Tristeon
 				 * \brief Keeps track of wether the grid should be rendered or not.
 				 */
 				bool gridEnabled = true;
+
+				std::unique_ptr<WindowContext> windowContext;
 
 				/**
 				 * \brief The only instance of RenderManager ever. Used so that getMaterial() can access local variables

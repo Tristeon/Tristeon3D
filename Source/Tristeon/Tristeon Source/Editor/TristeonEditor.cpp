@@ -150,11 +150,11 @@ namespace Tristeon
 		Core::Rendering::Vulkan::RenderData* d = dynamic_cast<Core::Rendering::Vulkan::RenderData*>(renderable->data);
 
 		vk::CommandBufferBeginInfo const begin = vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue, &d->inheritance);
-		cmdBuffers[d->index].begin(begin);
-		ImGui_ImplGlfwVulkan_Render(static_cast<VkCommandBuffer>(cmdBuffers[d->index]));
-		cmdBuffers[d->index].end();
+		cmd.begin(begin);
+		ImGui_ImplGlfwVulkan_Render(static_cast<VkCommandBuffer>(cmd));
+		cmd.end();
 
-		d->lastUsedSecondaryBuffer = cmdBuffers[d->index];
+		d->lastUsedSecondaryBuffer = cmd;
 	}
 
 	Core::BindingData* TristeonEditor::getBindingData()
@@ -213,9 +213,8 @@ namespace Tristeon
 		Core::VulkanBindingData* binding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData);
 		Misc::Console::t_assert(binding != nullptr, "Tristeon editor currently only supports vulkan!");
 
-		cmdBuffers.resize(binding->swapchain->getFramebufferCount());
-		vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, cmdBuffers.size());
-		vk::Result const r = binding->device.allocateCommandBuffers(&alloc, cmdBuffers.data());
+		vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+		vk::Result const r = binding->device.allocateCommandBuffers(&alloc, &cmd);
 		Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate command buffers: " + to_string(r));
 	}
 }

@@ -11,6 +11,7 @@
 #include "HelperClasses/Swapchain.h"
 #include "DebugDrawManagerVulkan.h"
 #include "SkyboxVulkan.h"
+#include "API/WindowContextVulkan.h"
 
 namespace Tristeon
 {
@@ -42,7 +43,7 @@ namespace Tristeon
 					clear[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0.0f);
 
 					//Get extent
-					vk::Extent2D const extent = vkRenderManager->swapchain->extent2D;
+					vk::Extent2D const extent = vkRenderManager->vkContext->rop_extent;
 					vk::Rect2D const renderArea = vk::Rect2D(vk::Offset2D(0, 0), extent);
 
 					//Begin renderpass
@@ -54,13 +55,11 @@ namespace Tristeon
 					primary.beginRenderPass(&renderPassBegin, vk::SubpassContents::eSecondaryCommandBuffers);
 
 					std::vector<vk::CommandBuffer> buffers;
-					int const index = vkRenderManager->index;
 
 					//Setup renderdata
 					vk::CommandBufferInheritanceInfo const inheritance = vk::CommandBufferInheritanceInfo(d->offscreen.pass, 0, d->offscreen.buffer); //ignore query
 					RenderData data;
 					data.inheritance = inheritance;
-					data.index = index;
 					data.viewport = vk::Viewport(0, 0, extent.width, extent.height, 0, 1.0f);
 					data.scissor = vk::Rect2D({ 0, 0 }, extent);
 					data.primary = primary;
@@ -144,29 +143,27 @@ namespace Tristeon
 					clear[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0.0f);
 
 					//Screen area
-					vk::Extent2D const extent = vkRenderManager->swapchain->extent2D;
+					vk::Extent2D const extent = vkRenderManager->vkContext->rop_extent;
 					vk::Rect2D const renderArea = vk::Rect2D(vk::Offset2D(0, 0), extent);
 
 					//Begin commandbuffer
 					vk::CommandBufferBeginInfo cmdBegin = vk::CommandBufferBeginInfo();
-					vk::CommandBuffer primary = vkRenderManager->primaryBuffers[vkRenderManager->index];
+					vk::CommandBuffer primary = vkRenderManager->primaryCmd;
 					primary.begin(&cmdBegin);
 	
 					//Begin renderpass
 					vk::RenderPassBeginInfo renderPassBegin = vk::RenderPassBeginInfo(
-						vkRenderManager->swapchain->renderpass, fb,
+						vkRenderManager->vkContext->rop_renderpass, fb,
 						renderArea, 2, clear);
 					primary.beginRenderPass(&renderPassBegin, vk::SubpassContents::eSecondaryCommandBuffers);
 
 					//Store secondary buffers, submit in bulk afterwards
 					std::vector<vk::CommandBuffer> buffers;
-					int const index = vkRenderManager->index;
 
 					//Store renderdata, used by render objects
-					vk::CommandBufferInheritanceInfo const inheritance = vk::CommandBufferInheritanceInfo(vkRenderManager->swapchain->renderpass, 0, fb); //ignore query
+					vk::CommandBufferInheritanceInfo const inheritance = vk::CommandBufferInheritanceInfo(vkRenderManager->vkContext->rop_renderpass, 0, fb); //ignore query
 					RenderData data;
 					data.inheritance = inheritance;
-					data.index = index;
 					data.viewport = vk::Viewport(0, 0, extent.width, extent.height, 0, 1.0f);
 					data.scissor = vk::Rect2D({ 0, 0 }, extent);
 					data.primary = primary;

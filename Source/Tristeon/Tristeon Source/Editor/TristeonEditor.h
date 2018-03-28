@@ -66,7 +66,7 @@ namespace Tristeon
 
 			//Rendering
 			Core::Rendering::UIRenderable* renderable = nullptr;
-			std::vector<vk::CommandBuffer> cmdBuffers;
+			vk::CommandBuffer cmd;
 			vk::Device vkDevice;
 
 			//Ref

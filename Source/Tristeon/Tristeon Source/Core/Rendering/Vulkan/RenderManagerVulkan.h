@@ -20,7 +20,6 @@ namespace Tristeon
 		namespace Rendering
 		{
 			class Skybox;
-
 			namespace Vulkan
 			{
 				//Forward decl
@@ -34,6 +33,7 @@ namespace Tristeon
 				class DebugReportCallbackEXT;
 				class VulkanCore;
 				class Skybox;
+				class WindowContextVulkan;
 
 				/**
 				 * \brief EditorData is a small struct wrapping around  
@@ -63,10 +63,6 @@ namespace Tristeon
 					 * \brief The Inheritance info any state that will be inherited from the primary command buffer
 					 */
 					vk::CommandBufferInheritanceInfo inheritance;
-					/**
-					 * \brief The current active framebuffer index
-					 */
-					uint32_t index;
 					/**
 					 * \brief The camera viewport
 					 */
@@ -207,14 +203,12 @@ namespace Tristeon
 					void submitCameras();
 
 					/**
-					 * \brief Wrapper for the core vulkan classes
-					 */
-					VulkanCore* vulkan = nullptr;
-
-					/**
 					 * \brief Reference to the binding data struct
 					 */
 					VulkanBindingData* data = nullptr;
+
+					//Non-owning pointer
+					WindowContextVulkan* vkContext = nullptr;
 
 					/**
 					 * \brief Reference to the window, used to bind the rendering to the GLFW window
@@ -222,51 +216,16 @@ namespace Tristeon
 					GLFWwindow* window = nullptr;
 
 					/**
-					 * \brief The vulkan swapchain
-					 */
-					Swapchain* swapchain = nullptr;
-
-					/**
 					 * \brief Shader pipelines defining the rendering pipeline for a shader combination
 					 */
 					std::vector<Pipeline*> pipelines;
 
-					/**
-					 * \brief The command pool, used to allocate commandbuffers
-					 */
 					vk::CommandPool commandPool;
-					/**
-					 * \brief The primary command buffers, used to render to the screen
-					 */
-					std::vector<vk::CommandBuffer> primaryBuffers;
-
-					/**
-					 * \brief Image available semaphore, used to wait till there's an image available before we render
-					 */
-					vk::Semaphore imageAvailable;
-					/**
-					 * \brief Render finished semaphore, used to wait till we know for sure that the last frame was done rendering
-					 */
-					vk::Semaphore renderFinished;
-
-					/**
-					 * \brief Descriptorpool, used to allocate descriptorsets
-					 */
 					vk::DescriptorPool descriptorPool;
 
-					/**
-					 * \brief The current active frame image index
-					 */
-					uint32_t index = 0;
+					vk::CommandBuffer primaryCmd;
 
-					/**
-					 * \brief A list of internal renderers
-					 */
-					Tristeon::vector<InternalMeshRenderer*> internalRenderers;
-
-					/**
-					 * \brief A map containing the cameras and their respective render data
-					 */
+					vector<InternalMeshRenderer*> internalRenderers;
 					std::map<Components::Camera*, CameraRenderData*> cameraData;
 					ObjectPool<CameraRenderData*> cameraDataPool;
 #ifdef EDITOR

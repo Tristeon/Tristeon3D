@@ -34,7 +34,6 @@
     <ClCompile Include="Tristeon Source\Core\Components\Camera.cpp" />
     <ClCompile Include="Tristeon Source\Core\Components\Component.cpp" />
     <ClCompile Include="Tristeon Source\Core\Components\ComponentManager.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\Device.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\Swapchain.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\ShaderFile.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\Pipeline.cpp" />
@@ -76,8 +75,6 @@
     <ClCompile Include="Tristeon Source\Editor\Asset Browser\AssetItem.cpp" />
     <ClCompile Include="Tristeon Source\Standard\TranslationTest.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanCore.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFrame.cpp" />
     <ClCompile Include="Tristeon Source\Editor\EditorImage.cpp" />
     <ClCompile Include="Tristeon Source\Data\MeshBatch.cpp" />
     <ClCompile Include="Tristeon Source\Misc\StringUtils.cpp" />
@@ -98,6 +95,10 @@
     <ClCompile Include="Tristeon Source\Editor\Prefab.cpp" />
     <ClCompile Include="Tristeon Source\AssetManager.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\BufferVulkan.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\API\WindowContext.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\WindowContextVulkan.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\GPUVulkan.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\QueueFamilyIndices.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tristeon Source\Core\Managers\InputManager.h" />
@@ -138,7 +139,6 @@
     <ClInclude Include="Tristeon Source\Core\Components\Camera.h" />
     <ClInclude Include="Tristeon Source\Core\Components\Component.h" />
     <ClInclude Include="Tristeon Source\Core\Components\ComponentManager.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\Device.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\Swapchain.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\ShaderFile.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\Pipeline.h" />
@@ -189,8 +189,6 @@
     <ClInclude Include="Tristeon Source\Editor\Asset Browser\AssetItem.h" />
     <ClInclude Include="Tristeon Source\Standard\TranslationTest.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\EditorGrid.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanCore.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanFrame.h" />
     <ClInclude Include="Tristeon Source\Editor\EditorImage.h" />
     <ClInclude Include="Tristeon Source\Data\MeshBatch.h" />
     <ClInclude Include="Tristeon Source\Misc\StringUtils.h" />
@@ -214,5 +212,9 @@
     <ClInclude Include="Tristeon Source\Editor\Prefab.h" />
     <ClInclude Include="Tristeon Source\AssetManager.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\BufferVulkan.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\API\WindowContext.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\WindowContextVulkan.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\GPUVulkan.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\QueueFamilyIndices.h" />
   </ItemGroup>
 </Project>

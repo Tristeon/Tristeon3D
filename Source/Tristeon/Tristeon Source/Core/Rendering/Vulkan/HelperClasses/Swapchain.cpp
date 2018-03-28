@@ -1,8 +1,7 @@
 ﻿#include "Swapchain.h"
-#include "Device.h"
+#include "QueueFamilyIndices.h"
 #include "Misc/Console.h"
 #include "VulkanImage.h"
-#include "VulkanFormat.h"
 
 namespace Tristeon
 {
@@ -69,11 +68,11 @@ namespace Tristeon
 					return imageCount;
 				}
 
-				Swapchain::Swapchain(Device* device, vk::SurfaceKHR surface, int width, int height)
+				Swapchain::Swapchain(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, int width, int height)
 				{
 					//Init
-					this->device = device->getLogical();
-					this->physicalDevice = device->getPhysical();
+					this->device = device;
+					this->physicalDevice = gpu;
 					this->surface = surface;
 					create(width, height);
 				}

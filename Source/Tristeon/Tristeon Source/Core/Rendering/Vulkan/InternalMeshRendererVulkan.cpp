@@ -59,7 +59,7 @@ namespace Tristeon
 
 					//Start secondary cmd buffer
 					const vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue, &data->inheritance);
-					vk::CommandBuffer secondary = cmdBuffers[data->index];
+					vk::CommandBuffer secondary = cmd;
 					secondary.begin(beginInfo);
 
 					//Viewport/scissor
@@ -90,7 +90,7 @@ namespace Tristeon
 					//Stop secondary cmd buffer
 					secondary.end();
 
-					data->lastUsedSecondaryBuffer = cmdBuffers[data->index];
+					data->lastUsedSecondaryBuffer = cmd;
 				}
 
 				void InternalMeshRenderer::init(BindingData* data)
@@ -115,13 +115,8 @@ namespace Tristeon
 
 				void InternalMeshRenderer::createCommandBuffers()
 				{
-					//Create a command buffer for each framebuffer
-					//TODO: Could this be changed to a single command buffer?
-					cmdBuffers.resize(vk->swapchain->getFramebufferCount());
-
-					//Allocate command buffers
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(vk->commandPool, vk::CommandBufferLevel::eSecondary, cmdBuffers.size());
-					vk::Result const r = vk->device.allocateCommandBuffers(&alloc, cmdBuffers.data());
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(vk->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					vk::Result const r = vk->device.allocateCommandBuffers(&alloc, &cmd);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate command buffers: " + to_string(r));
 				}
 
