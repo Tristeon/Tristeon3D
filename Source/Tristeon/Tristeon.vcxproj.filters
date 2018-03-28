@@ -28,9 +28,6 @@
     <ClCompile Include="Tristeon Source\Core\Rendering\Components\MeshRenderer.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Components\Renderer.cpp" />
     <ClCompile Include="Tristeon Source\Math\Rect.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\ValidationLayers.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanExtensions.cpp" />
-    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\DebugReportCallbackEXT.cpp" />
     <ClCompile Include="Tristeon Source\Core\Components\Camera.cpp" />
     <ClCompile Include="Tristeon Source\Core\Components\Component.cpp" />
     <ClCompile Include="Tristeon Source\Core\Components\ComponentManager.cpp" />
@@ -99,6 +96,9 @@
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\WindowContextVulkan.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\GPUVulkan.cpp" />
     <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\QueueFamilyIndices.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\Extensions\DebugReportCallbackEXT.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\Extensions\ValidationLayers.cpp" />
+    <ClCompile Include="Tristeon Source\Core\Rendering\Vulkan\API\Extensions\VulkanExtensions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Tristeon Source\Core\Managers\InputManager.h" />
@@ -133,9 +133,6 @@
     <ClInclude Include="Tristeon Source\Core\Rendering\Components\MeshRenderer.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Components\Renderer.h" />
     <ClInclude Include="Tristeon Source\Math\Rect.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\ValidationLayers.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\VulkanExtensions.h" />
-    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\DebugReportCallbackEXT.h" />
     <ClInclude Include="Tristeon Source\Core\Components\Camera.h" />
     <ClInclude Include="Tristeon Source\Core\Components\Component.h" />
     <ClInclude Include="Tristeon Source\Core\Components\ComponentManager.h" />
@@ -216,5 +213,8 @@
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\WindowContextVulkan.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\GPUVulkan.h" />
     <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\HelperClasses\QueueFamilyIndices.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\Extensions\DebugReportCallbackEXT.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\Extensions\ValidationLayers.h" />
+    <ClInclude Include="Tristeon Source\Core\Rendering\Vulkan\API\Extensions\VulkanExtensions.h" />
   </ItemGroup>
 </Project>

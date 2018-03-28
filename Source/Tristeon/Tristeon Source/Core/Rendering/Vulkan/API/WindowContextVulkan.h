@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Core/Rendering/API/WindowContext.h"
 #include <vulkan/vulkan.hpp>
-#include "Core/Rendering/Vulkan/HelperClasses/DebugReportCallbackEXT.h"
+#include "Core/Rendering/Vulkan/API/Extensions/DebugReportCallbackEXT.h"
 #include <Core/Rendering/Vulkan/HelperClasses/Swapchain.h>
 namespace Tristeon
 {

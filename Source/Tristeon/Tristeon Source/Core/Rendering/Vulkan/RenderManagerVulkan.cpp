@@ -26,7 +26,7 @@
 #include "../RenderTechniques/RTechniques.h"
 
 //Vulkan help classes
-#include "HelperClasses/VulkanExtensions.h"
+#include "API/Extensions/VulkanExtensions.h"
 #include "HelperClasses/VulkanFormat.h"
 #include "Editor/JsonSerializer.h"
 #include "DebugDrawManagerVulkan.h"

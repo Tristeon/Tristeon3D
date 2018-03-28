@@ -7,8 +7,8 @@
 
 #include <Core/Rendering/Vulkan/WindowVulkan.h>
 #include <Core/Rendering/Vulkan/HelperClasses/Swapchain.h>
-#include "Core/Rendering/Vulkan/HelperClasses/ValidationLayers.h"
-#include "Core/Rendering/Vulkan/HelperClasses/VulkanExtensions.h"
+#include "Core/Rendering/Vulkan/API/Extensions/ValidationLayers.h"
+#include "Core/Rendering/Vulkan/API/Extensions/VulkanExtensions.h"
 #include <GLFW/glfw3.h>
 #include <set>
 #include "Core/Rendering/Vulkan/HelperClasses/QueueFamilyIndices.h"
