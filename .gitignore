@@ -5,8 +5,8 @@
 [Rr]eleases/
 [Rr]elease[Dd]ebug/
 [Rr]elease[Ww]ith[Dd]ebug[Ii]nfo/
-[Bb]in/
 [Ll]og/
+**/[Bb]in/
 x64/
 x86/
 
