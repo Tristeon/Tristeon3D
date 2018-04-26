@@ -53,11 +53,6 @@ namespace Tristeon
 			//Setup scene manager and load first scene
 			instance->sceneSys = new Scenes::SceneManager();
 			instance->sceneSys->init();
-
-			//Auto start game if we aren't in the editor
-#ifndef EDITOR
-			sendMessage(Message(MT_GAME_LOGIC_START));
-#endif
 		}
 
 		void ManagerProtocol::setupRenderAPI()
