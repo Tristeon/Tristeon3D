@@ -10,6 +10,18 @@ set (Tristeon_VERSION_MAJOR 1)
 set (Tristeon_VERSION_MINOR 1)	
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+    if (_cpp_latest_flag_supported)
+        add_compile_options("/std:c++latest")
+    endif()
+endif()
+
 #Debug editor config
 set(CMAKE_CXX_FLAGS_DEBUGEDITOR "${CMAKE_CXX_FLAGS_DEBUG} -DTRISTEON_EDITOR=1 -DTRISTEON_LOGENABLED=1")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUGEDITOR ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
@@ -62,6 +74,11 @@ endmacro()
 read_directory(${PROJECT_SOURCE_DIR}/src)
 add_executable(Tristeon ${tristeonSRC})
 
+set_target_properties(Tristeon 
+	PROPERTIES
+	CXX_STANDARD_REQUIRED 17 
+)
+			
 #Set output dir, has to be after add_executable or the target won't be defined yet
 set_target_properties(Tristeon
 	PROPERTIES

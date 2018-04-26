@@ -1,5 +1,5 @@
 # Tristeon
-Tristeon is an open source game engine built from scratch in C++ by two game engineering students. The project uses MSVC-specific keywords thus can only be compiled using the MSVC compiler. 
+Tristeon is an open source game engine built from scratch in C++ by two game engineering students.
 
 ![screenshot of the editor](https://i.imgur.com/T663Nb6.png)
 
@@ -36,10 +36,14 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
 * Supported image formats: JPG, PNG, TGA, BMP, PSD and more
 
 # How to build the project
-You will need visual studio to build the project, we use specific MSVC keywords which can only be compiled using visual studio. The visual studio project is pushed within the project so you can simply open that to access the project.
-1. If you do not have the Vulkan SDK installed you can get it here: https://vulkan.lunarg.com/
-2. Currently non-editor builds don't work so make sure to select either Editor or EditorDebug https://puu.sh/yYkob/94b290228c.png
-3. Make sure to compile it at x64 as we currently don't support compiling at x86
+Tristeon uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
+Officially confirmed configurations:
+* MSVC Visual Studio 2017 with x64
+
+If you do not hav the Vulkan SDK installed, make sure to install it to allow for additional debugging. You can get it here: https://vulkan.lunarg.com/
+
+# Why?
+Tristeon is a learning / portfolio project of Tristan Metz and Leon Brands. The project started as a 5 month school project with as focus to extend/improve our engine development skills and knowledge. As of now, it's being maintained and updated on an irregular basis as a portfolio piece.
 
 # Roadmap
 Near future:
@@ -63,15 +67,18 @@ Planned (rendering/engine):
 * Preview renderer for materials/meshes
 * Normal mapping
 * Image effect system
+* Havok physics engine integration
+* FMOD Audio integration
 
 # Known bugs
-* Asset browser deletion doesn't delete file
-* Material changes don't always get applied
-* Camera doesn't exist until pressing it (after scene load)
-* New folders won't display until you reload the engine
-* Material properties won't get applied properly with vectors
-* The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s)
-* DebugDrawManager only ever uses the color from the last add...() call
+* #1 Scene view won't display properly until the engine's game mode has been run at least once.
+* #2 Asset browser deletion doesn't delete file
+* #3 Material changes don't always get applied
+* #4 Camera doesn't exist until pressing it (after scene load)
+* #5 New folders won't display until you reload the engine
+* #6 Material properties won't get applied properly with vectors
+* #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s)
+* #8 DebugDrawManager only ever uses the color from the last add...() call
 
 # Showcase
 Watch the showcase video here:

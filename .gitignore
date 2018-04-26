@@ -10,6 +10,10 @@
 x64/
 x86/
 
+# Build files
+*.exe
+*.exp
+
 # Build/Temp files
 *.obj
 *.pch
