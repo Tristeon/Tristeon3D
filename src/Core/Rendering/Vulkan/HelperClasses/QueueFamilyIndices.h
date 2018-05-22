@@ -17,14 +17,14 @@ namespace Tristeon
 					/**
 					 * \brief The graphics family
 					 */
-					int graphicsFamily = -1;
+					uint32_t graphicsFamily = -1;
 					/**
 					 * \brief The present family
 					 */
-					int presentFamily = -1;
+					uint32_t presentFamily = -1;
 
 					/**
-					 * \return Returns true if both the graphics and the present family have been found 
+					 * \return Returns true if both the graphics and the present family have been found
 					 */
 					bool isComplete() const;
 
@@ -32,7 +32,7 @@ namespace Tristeon
 					 * \brief Tries to find a suitable graphics and present queue
 					 * \param device The physicaldevice, used to get the available queue families
 					 * \param surface The surface, used to get the available queue families
-					 * \return 
+					 * \return
 					 */
 					static QueueFamilyIndices get(vk::PhysicalDevice device, vk::SurfaceKHR surface);
 				};

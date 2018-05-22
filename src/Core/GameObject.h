@@ -5,7 +5,6 @@
 #include "Misc/Console.h"
 
 #include <memory>
-#include "XPlatform/enable_template.h"
 
 namespace Tristeon
 {
@@ -59,14 +58,15 @@ namespace Tristeon
 			GetProperty(transform) { return _transform.get(); }
 
 			template <typename T>
-			using ComponentIsBase = std::enable_if_t<std::is_base_of<Components::Component, T>::value, T>;
+			using ComponentIsBase = std::enable_if<std::is_base_of<Components::Component, T>::value>;
 
 			/**
 			 * \brief Adds a component to the component list of type T
 			 * \tparam T The type of component to be added
 			 * \return Returns the new component
 			 */
-			template <typename T, TRISTEON_ENABLE_TEMPLATE ComponentIsBase<T>> T* addComponent();
+			template <typename T>
+			typename std::enable_if<std::is_base_of<Components::Component, T>::value, T>::type* addComponent();
 
 			/**
 			 * \brief Gets the first component of the given type T
@@ -112,8 +112,9 @@ namespace Tristeon
 			REGISTER_TYPE_H(GameObject)
 		};
 
-		template <typename T, TRISTEON_ENABLE_TEMPLATE std::enable_if_t<std::is_base_of<Components::Component, T>::value, T>>
-		T* GameObject::addComponent()
+
+		template <typename T>
+        typename std::enable_if<std::is_base_of<Components::Component, T>::value, T>::type* GameObject::addComponent()
 		{
 			//Create a new component of type T
 			T* component = new T();

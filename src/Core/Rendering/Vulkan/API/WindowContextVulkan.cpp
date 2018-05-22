@@ -127,11 +127,11 @@ namespace Tristeon
 					const QueueFamilyIndices indices = QueueFamilyIndices::get(gpu, surface);
 
 					std::vector<vk::DeviceQueueCreateInfo> qcis;
-					std::set<int> uniqueFamilies = { indices.graphicsFamily, indices.presentFamily };
+					std::set<uint32_t> uniqueFamilies = { indices.graphicsFamily, indices.presentFamily };
 
 					//Queues
 					const float queuePriority = 1.0f;
-					for (int queueFamily : uniqueFamilies)
+					for (uint32_t queueFamily : uniqueFamilies)
 					{
 						const vk::DeviceQueueCreateInfo qci = vk::DeviceQueueCreateInfo(vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority);
 						qcis.push_back(qci);

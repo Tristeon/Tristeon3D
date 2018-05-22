@@ -35,7 +35,7 @@ namespace Tristeon
 			case 2:
 				return z;
 			default:
-				throw std::exception("Axis is out of range, using vector3's index 2 is the maximum");
+				throw std::runtime_error("Axis is out of range, using vector3's index 2 is the maximum");
 			}
 		}
 

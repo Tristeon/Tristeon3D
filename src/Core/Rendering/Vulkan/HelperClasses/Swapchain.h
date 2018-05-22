@@ -21,7 +21,7 @@ namespace Tristeon
 					 * \param surface The vulkan window surface
 					 */
 					SwapChainSupportDetails(vk::PhysicalDevice device, vk::SurfaceKHR surface);
-					
+
 					/**
 					 * \brief The capabilities of the window surface
 					 */
@@ -49,7 +49,7 @@ namespace Tristeon
 					 * \brief Chooses the most ideal extent
 					 * \return Returns a supported swapchain extent
 					 */
-					vk::Extent2D chooseExtent(int, int) const;
+					vk::Extent2D chooseExtent(uint32_t, uint32_t) const;
 					/**
 					 * \return Returns the amount of supported swapchain images
 					 */
@@ -97,15 +97,15 @@ namespace Tristeon
 					GetProperty(renderpass) { return _renderPass; }
 
 					/**
-					 * \return Returns the amount of framebuffers of this swapchain 
+					 * \return Returns the amount of framebuffers of this swapchain
 					 */
 					size_t getFramebufferCount() const { return framebuffers.size(); }
 					/**
-					 * \return Returns the vulkan swapchain object 
+					 * \return Returns the vulkan swapchain object
 					 */
 					vk::SwapchainKHR getSwapchain() const { return swapChain; }
 					/**
-					 * \return Returns the vulkan window surface object 
+					 * \return Returns the vulkan window surface object
 					 */
 					vk::SurfaceKHR getSurface() const { return surface; }
 
@@ -159,7 +159,7 @@ namespace Tristeon
 
 					vk::Format _format;
 					vk::Extent2D extent;
-					
+
 					vk::Device device;
 					vk::PhysicalDevice physicalDevice;
 					vk::SurfaceKHR surface;

@@ -31,7 +31,7 @@ namespace Tristeon
 						if (format.format == vk::Format::eB8G8R8A8Unorm && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
 							return format;
 					}
-						
+
 					//Else just return whatever
 					return formats[0];
 				}
@@ -49,7 +49,7 @@ namespace Tristeon
 					return vk::PresentModeKHR::eFifo;
 				}
 
-				vk::Extent2D SwapChainSupportDetails::chooseExtent(int windowWidth, int windowHeight) const
+				vk::Extent2D SwapChainSupportDetails::chooseExtent(uint32_t windowWidth, uint32_t windowHeight) const
 				{
 					VkExtent2D actualExtent = { windowWidth, windowHeight };
 					//Not smaller than minimum, not bigger than maximum
@@ -100,7 +100,7 @@ namespace Tristeon
 					int queueFamilyIndexCount;
 
 					uint32_t* queueFamilyIndices;
-					
+
 					//Concurrent due to graphics and present family being different
 					if (indices.graphicsFamily != indices.presentFamily)
 					{
@@ -174,9 +174,9 @@ namespace Tristeon
 
 						//Create framebuffer
 						vk::FramebufferCreateInfo ci = vk::FramebufferCreateInfo(
-							{}, _renderPass, 
-							attachments.size(), attachments.data(), 
-							extent.width, extent.height, 
+							{}, _renderPass,
+							attachments.size(), attachments.data(),
+							extent.width, extent.height,
 							1);
 						const vk::Result r = device.createFramebuffer(&ci, nullptr, &framebuffers[i]);
 						Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to create framebuffer");

@@ -643,7 +643,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER mat<4, 4, T, defaultp> tweakedInfinitePerspective(T fovy, T aspect, T zNear)
 	{
-		return tweakedInfinitePerspective(fovy, aspect, zNear, epsilon<T>());
+		return tweakedInfinitePerspective(fovy, aspect, zNear, std::numeric_limits<T>::epsilon());
 	}
 
 	template<typename T, typename U, qualifier Q>

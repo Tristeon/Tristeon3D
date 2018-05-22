@@ -881,6 +881,13 @@ public:
 	{
 		*this = std::move(other);
 	}
+
+	Variant(const Variant& other)
+	{
+        holder = std::make_unique<IVariant>(*other.holder);
+        type = other.type;
+	}
+
 	Variant &operator=(Variant &&other)
 	{
 		if (this != &other)

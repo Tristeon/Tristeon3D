@@ -37,7 +37,7 @@ namespace Tristeon
 			/**
 			 * \brief Timer to keep track of when the time started
 			 */
-			static std::chrono::steady_clock::time_point start;
+			static std::chrono::time_point<std::chrono::high_resolution_clock> start;
 			/**
 			 * \brief The deltatime of the past frame
 			 */

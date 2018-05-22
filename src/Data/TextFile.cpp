@@ -27,7 +27,7 @@ namespace Tristeon
 		std::vector<char> TextFile::readAllVector() const
 		{
 			//Open file
-			std::ifstream file = std::ifstream(filePath, std::ios::ate | filemode);
+			std::ifstream file = std::ifstream(filePath, std::ios::ate | (std::ios::openmode)filemode);
 
 			//Failure
 			if (!file.is_open())
