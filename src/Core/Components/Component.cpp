@@ -14,9 +14,9 @@ namespace Tristeon
 					ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_DEREGISTER, this });
 			}
 
-			Core::Transform* Component::property__get_transform() const
+			Component::property__tmp_type_transform Component::get_transform()
 			{
-				return gameObject->transform;
+				return _gameObject->transform.get();
 			}
 
 			void Component::init()

@@ -22,45 +22,19 @@ namespace Tristeon
 					void prepareFrame() override;
 					void finishFrame() override;
 
-					ReadOnlyProperty(vk::Instance, rop_instance);
-					GetPropertyConst(rop_instance) { return instance; }
-
-					ReadOnlyProperty(vk::SurfaceKHR, rop_surface);
-					GetPropertyConst(rop_surface) { return surface; }
-
-					ReadOnlyProperty(vk::PhysicalDevice, rop_gpu);
-					GetPropertyConst(rop_gpu) { return gpu; }
-
-					ReadOnlyProperty(vk::Device, rop_device);
-					GetPropertyConst(rop_device) { return device; }
-
-					ReadOnlyProperty(vk::Queue, rop_presentQueue);
-					GetPropertyConst(rop_presentQueue) { return presentQueue; }
-
-					ReadOnlyProperty(vk::Queue, rop_graphicsQueue);
-					GetPropertyConst(rop_graphicsQueue) { return graphicsQueue; }
-
-					ReadOnlyProperty(vk::SwapchainKHR, rop_swapchain_khr);
-					GetPropertyConst(rop_swapchain_khr) { return swapchain->getSwapchain(); }
-
-					ReadOnlyProperty(Swapchain*, rop_swapchain);
-					GetPropertyConst(rop_swapchain) { return swapchain.get(); }
-
-					ReadOnlyProperty(size_t, frameBufferCount);
-					GetPropertyConst(frameBufferCount) { return swapchain->getFramebufferCount(); }
-
-					ReadOnlyProperty(vk::Extent2D, rop_extent);
-					GetPropertyConst(rop_extent) { return swapchain->extent2D; }
-					
-					ReadOnlyProperty(vk::RenderPass, rop_renderpass);
-					GetPropertyConst(rop_renderpass) { return swapchain->renderpass; }
-
-					ReadOnlyProperty(vk::Semaphore, rop_imageAvailable);
-					GetProperty(rop_imageAvailable) { return imageAvailable; }
-
-					ReadOnlyProperty(vk::Semaphore, rop_renderFinished);
-					GetProperty(rop_renderFinished) { return renderFinished; }
-
+					vk::Instance getInstance() const { return instance; }
+					vk::SurfaceKHR getSurfaceKHR() const { return surface; }
+					vk::PhysicalDevice getGPU() const { return gpu; }
+					vk::Device getDevice() const { return device; }
+					vk::Queue getPresentQueue() const { return presentQueue; }
+					vk::Queue getGraphicsQueue() const { return graphicsQueue; }
+					vk::SwapchainKHR getSwapchainKHR() const { return swapchain->getSwapchain(); }
+					Swapchain* getSwapchain() const { return swapchain.get(); }
+					size_t getFramebufferCount() const { return swapchain->getFramebufferCount(); }
+					vk::Extent2D getExtent() const { return swapchain->extent2D.get(); }
+					vk::RenderPass getRenderpass() const { return swapchain->renderpass.get(); }
+					vk::Semaphore getImageAvailable() const { return imageAvailable; }
+					vk::Semaphore getRenderFinished() const { return renderFinished; }
 					vk::Framebuffer getActiveFramebuffer() const { return swapchain->getFramebufferAt(imgIndex); }
 
 				protected:

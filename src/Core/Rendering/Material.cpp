@@ -1,9 +1,12 @@
 #include "Material.h"
 #include "Editor/JsonSerializer.h"
 
-namespace Tristeon 
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
+
+namespace Tristeon
 {
-	namespace Core 
+	namespace Core
 	{
 		namespace Rendering
 		{
@@ -108,10 +111,9 @@ namespace Tristeon
 			}
 
 			void Material::updateShader()
-			{					
+			{
 				//Try to set it if possible
-				if (std::experimental::filesystem::exists(shaderFilePath) &&
-					std::experimental::filesystem::path(shaderFilePath).extension() == ".shader")
+				if (filesystem::exists(shaderFilePath) && filesystem::path(shaderFilePath).extension() == ".shader")
 					shader = std::unique_ptr<ShaderFile>(JsonSerializer::deserialize<ShaderFile>(shaderFilePath));
 				//Remove old shader
 				else

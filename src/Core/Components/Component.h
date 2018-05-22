@@ -21,7 +21,7 @@ namespace Tristeon
 				friend GameObject;
 
 			public:
-				/** 
+				/**
 				 * \brief Deregisters itself from engine callbacks
 				 */
 				~Component();
@@ -29,14 +29,14 @@ namespace Tristeon
 				/**
 				* \brief The gameobject that this component is attached to
 				*/
-				ReadOnlyProperty(Core::GameObject*, gameObject);
-				GetPropertyConst(gameObject) { return _gameObject; }
+				ReadOnlyProperty(Component, gameObject, GameObject*);
+				GetProperty(gameObject) { return _gameObject; }
 
 				/**
 				* \brief The transform of the gameobject that this component is attached to
 				*/
-				ReadOnlyProperty(Core::Transform*, transform);
-				Transform* property__get_transform() const;
+				ReadOnlyProperty(Component, transform, Core::Transform*);
+				GetProperty(transform);
 
 				/**
 				 * \brief Initializes the component and registers itself to engine callbacks. Can be overriden
@@ -62,7 +62,7 @@ namespace Tristeon
 			private:
 				/**
 				 * \brief Stores the gameobject it's attached to. Only GameObject can call this function
-				 * \param go 
+				 * \param go
 				 */
 				void setup(GameObject* go);
 				/**

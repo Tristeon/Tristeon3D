@@ -2,6 +2,7 @@
 #include "ManagerProtocol.h"
 #include "BindingData.h"
 #include "Misc/Property.h"
+#include <memory>
 
 namespace Tristeon
 {
@@ -38,14 +39,14 @@ namespace Tristeon
 			/**
 			* \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
 			*/
-			ReadOnlyProperty(BindingData*, bindingData);
+			ReadOnlyProperty(Engine, bindingData, BindingData*);
 			GetProperty(bindingData) { return bind.get(); }
 
 		private:
 			/**
 			 * \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
 			 */
-			std::unique_ptr<BindingData> bind = nullptr;
+			std::unique_ptr<BindingData> bind {};
 		};
 	}
 }

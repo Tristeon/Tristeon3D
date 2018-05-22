@@ -35,7 +35,7 @@ namespace Tristeon
 			if (Misc::Keyboard::getKey(Misc::KeyCode::D))
 				translation.x += sp;
 
-			transform->translate(translation);
+			transform.get()->translate(translation);
 		}
 	}
 }

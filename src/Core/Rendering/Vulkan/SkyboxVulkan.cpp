@@ -101,11 +101,6 @@ namespace Tristeon
 					vk::Device device = bindingData->device;
 
 					//Image data
-					namespace fs = std::experimental::filesystem;
-
-					//Data::Image img = Data::ImageBatch::getImage(texturePath);
-					//gli::texture t = gli::texture(gli::TARGET_CUBE, gli::FORMAT_RGBA8_UNORM_PACK8, gli::texture::extent_type(img.getWidth(), img.getHeight(), 1), 1, 6, 1);
-					//memcpy(t.data(), img.getPixels(), img.getWidth() * img.getHeight() * 4);
 					gli::texture t = gli::load(texturePath);
 					if (t.empty())
 					{

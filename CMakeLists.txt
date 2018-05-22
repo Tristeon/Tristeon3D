@@ -1,25 +1,19 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-	message(FATAL_ERROR "Build Tristeon outside of the source folder to keep a cleaner hierarchy!")
-endif()
-
 #Project
 project(Tristeon)
 set (Tristeon_VERSION_MAJOR 1)
 set (Tristeon_VERSION_MINOR 1)	
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+#C++ build settings
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (MSVC_VERSION GREATER_EQUAL "1900")
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
-    if (_cpp_latest_flag_supported)
-        add_compile_options("/std:c++latest")
-    endif()
+if (MSVC)
+	#MSVC Specific compile options if needed
+elseif (MINGW)
+	add_compile_options("-lstdc++fs")
 endif()
 
 #Debug editor config
@@ -79,7 +73,7 @@ set_target_properties(Tristeon
 	CXX_STANDARD_REQUIRED 17 
 )
 			
-#Set output dir, has to be after add_executable or the target won't be defined yet
+#Set target output directory
 set_target_properties(Tristeon
 	PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin"
@@ -99,7 +93,7 @@ set_target_properties(Tristeon
 	RUNTIME_OUTPUT_DIRECTORY_EDITOR "${CMAKE_SOURCE_DIR}/bin"
 )
 
-#Set working directory to build
+#Set working directory to build in MSVC
 if (MSVC)
 file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/Tristeon.vcxproj.user" 
     "<?xml version=\"1.0\" encoding=\"utf-8\"?>     \
@@ -123,7 +117,8 @@ file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/Tristeon.vcxproj.user"
     </Project>")
 endif()
 
-
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+	
 #Vulkan
 IF(WIN32)
 	IF (NOT Vulkan_FOUND)
@@ -156,7 +151,9 @@ add_subdirectory(external/glfw)
 target_link_libraries(Tristeon glfw)
 
 #ASSIMP
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_IFC_IMPORTER OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/assimp)
 include_directories(${PROJECT_SOURCE_DIR}/external/assimp/include)
 include_directories(${PROJECT_BINARY_DIR}/external/assimp/include)
@@ -182,6 +179,13 @@ target_link_libraries(Tristeon spirv-cross-msl)
 
 include_directories(${PROJECT_SOURCE_DIR}/external/spirv_cross/include)
 include_directories(${PROJECT_BINARY_DIR}/external/spirv_cross/include)
+
+#Boost
+set(BOOST_URL "")
+set(BOOST_SOURCE ${PROJECT_SOURCE_DIR}/external/boost)
+add_subdirectory(external/boost-cmake)
+target_link_libraries(Tristeon Boost::filesystem)
+
 
 #Sets startup project to Tristeon
 if (MSVC)

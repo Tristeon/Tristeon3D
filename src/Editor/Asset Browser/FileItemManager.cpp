@@ -1,7 +1,10 @@
 ﻿#if TRISTEON_EDITOR
 
 #include "FileItemManager.h"
-#include <filesystem>
+
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
+
 #include "FolderItem.h"
 #include <GLFW/glfw3.h>
 #include "SceneFileItem.h"
@@ -11,7 +14,6 @@
 
 using namespace std;
 using namespace Tristeon::Editor;
-namespace fs = experimental::filesystem;
 using Scene = Tristeon::Scenes::Scene;
 
 FileItemManager::FileItemManager(Tristeon::Core::BindingData* bindingData)
@@ -144,7 +146,7 @@ void FileItemManager::drawFileItems()
 		}
 
 		//Changes rows and columns of the item layout to fit the window
-		const float columnWidth = ImGui::GetWindowContentRegionWidth() - 45;
+		const auto columnWidth = ImGui::GetWindowContentRegionWidth() - 45;
 		if (iconSize.x) {
 			int horizontalFolderAmount = columnWidth / iconSize.x;
 			if (horizontalFolderAmount == 0) horizontalFolderAmount += 1;

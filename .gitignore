@@ -10,6 +10,11 @@
 x64/
 x86/
 
+bin/[Ee]ditor/
+bin/[Dd]ebug[Ee]ditor/
+bin/[Dd]ebug/
+bin/[Rr]elease/
+
 # Build files
 *.exe
 *.exp
@@ -57,3 +62,5 @@ x86/
 *.booproj
 *.svd
 *.pdb
+
+*.lib

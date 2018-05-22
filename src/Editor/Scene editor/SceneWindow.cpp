@@ -48,7 +48,7 @@ void Tristeon::Editor::SceneWindow::onGui()
 			Core::GameObject temp;
 			temp.deserialize(*data);
 
-			glm::mat4 model = temp.transform->getTransformationMatrix();
+			glm::mat4 model = temp.transform.get()->getTransformationMatrix();
 
 			//Draw
 			drawGizmos(model);
@@ -56,9 +56,9 @@ void Tristeon::Editor::SceneWindow::onGui()
 			//Get our modified matrix and apply to transform
 			float t[3], r[3], s[3];
 			ImGuizmo::DecomposeMatrixToComponents(&model[0][0], t, r, s);
-			temp.transform->localPosition = Math::Vector3(t[0], t[1], t[2]);
-			temp.transform->localRotation = Math::Quaternion::euler(r[0], r[1], r[2]);
-			temp.transform->localScale = Math::Vector3(s[0], s[1], s[2]);
+			temp.transform.get()->localPosition = Math::Vector3(t[0], t[1], t[2]);
+			temp.transform.get()->localRotation = Math::Quaternion::euler(r[0], r[1], r[2]);
+			temp.transform.get()->localScale = Math::Vector3(s[0], s[1], s[2]);
 
 			//Save
 			*data = temp.serialize();

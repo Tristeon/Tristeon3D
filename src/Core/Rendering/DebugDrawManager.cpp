@@ -50,7 +50,7 @@ namespace Tristeon
 
 			void DebugDrawManager::addSphere(const Math::Vector3& center, float r, float lineWidth, const Misc::Color& color, int circles, int resolution)
 			{
-				float const PI = 3.14159265;
+				float const PI = 3.14159265f;
 				std::vector<Math::Vector3> positions;
 
 				//Horizontal lines

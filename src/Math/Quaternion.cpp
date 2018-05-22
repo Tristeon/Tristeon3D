@@ -54,6 +54,15 @@ namespace Tristeon
 			return Quaternion(quaternion * other.quaternion);
 		}
 
+		Quaternion Quaternion::operator=(Quaternion other)
+		{
+			quaternion.x = other.x;
+			quaternion.y = other.y;
+			quaternion.z = other.z;
+			quaternion.w = other.w;
+			return *this;
+		}
+
 		void Quaternion::operator*=(Quaternion other)
 		{
 			quaternion *= other.quaternion;
@@ -114,19 +123,19 @@ namespace Tristeon
 		{
 			nlohmann::json j;
 			j["typeID"] = typeid(Quaternion).name();
-			j["x"] = x;
-			j["y"] = y;
-			j["z"] = z;
-			j["w"] = w;
+			j["x"] = x.get();
+			j["y"] = y.get();
+			j["z"] = z.get();
+			j["w"] = w.get();
 			return j;
 		}
 
 		void Quaternion::deserialize(nlohmann::json json)
 		{
-			x = json["x"];
-			y = json["y"];
-			z = json["z"];
-			w = json["w"];
+			x = (float) json["x"];
+			y = (float) json["y"];
+			z = (float) json["z"];
+			w = (float) json["w"];
 		}
 
 		Vector3 operator*(Quaternion quaternion, Vector3 vec)

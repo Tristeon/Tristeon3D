@@ -5,6 +5,7 @@
 #include "Misc/Console.h"
 
 #include <memory>
+#include "XPlatform/enable_template.h"
 
 namespace Tristeon
 {
@@ -54,7 +55,7 @@ namespace Tristeon
 			/**
 			* \brief The transform of the gameobject. Describes position, rotation, scale and a parent-child structure
 			*/
-			ReadOnlyProperty(Transform*, transform);
+			ReadOnlyProperty(GameObject, transform, Transform*);
 			GetProperty(transform) { return _transform.get(); }
 
 			template <typename T>
@@ -65,7 +66,7 @@ namespace Tristeon
 			 * \tparam T The type of component to be added
 			 * \return Returns the new component
 			 */
-			template <typename T, typename = ComponentIsBase<T>> T* addComponent();
+			template <typename T, TRISTEON_ENABLE_TEMPLATE ComponentIsBase<T>> T* addComponent();
 
 			/**
 			 * \brief Gets the first component of the given type T
@@ -111,7 +112,7 @@ namespace Tristeon
 			REGISTER_TYPE_H(GameObject)
 		};
 
-		template <typename T, typename = std::enable_if_t<std::is_base_of<Components::Component, T>::value, T>>
+		template <typename T, TRISTEON_ENABLE_TEMPLATE std::enable_if_t<std::is_base_of<Components::Component, T>::value, T>>
 		T* GameObject::addComponent()
 		{
 			//Create a new component of type T

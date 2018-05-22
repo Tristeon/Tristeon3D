@@ -4,12 +4,11 @@
 #include "Misc/Color.h"
 #include <glm/mat4x4.hpp>
 #include "Editor/TypeRegister.h"
-#include <filesystem>
 #include "ShaderFile.h"
 #include "Math/Vector3.h"
 
 #ifdef TRISTEON_EDITOR
-namespace Tristeon { 
+namespace Tristeon {
 	namespace Editor {
 		class MaterialFileItem;
 	}

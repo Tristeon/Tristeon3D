@@ -29,36 +29,36 @@ namespace Tristeon
 				/**
 				* \brief The field of view of the camera
 				*/
-				Property(float, fov);
+				Property(Camera, fov, float);
 				SetProperty(fov) { _fov = value; }
-				GetPropertyConst(fov) { return _fov; }
+				GetProperty(fov) { return _fov; }
 				
 				/**
 				* \brief The near clipping plane of the camera
 				*/
-				Property(float, nearClippingPlane);
+				Property(Camera, nearClippingPlane, float);
 				SetProperty(nearClippingPlane) { _nearClippingPlane = value; }
-				GetPropertyConst(nearClippingPlane) { return _nearClippingPlane; }
+				GetProperty(nearClippingPlane) { return _nearClippingPlane; }
 
 				/**
 				* \brief The far clipping plane of the camera
 				*/
-				Property(float, farClippingPlane);
+				Property(Camera, farClippingPlane, float);
 				SetProperty(farClippingPlane) { _farClippingPlane = value; }
-				GetPropertyConst(farClippingPlane) { return _farClippingPlane; }
+				GetProperty(farClippingPlane) { return _farClippingPlane; }
 
 				/**
 				* \brief The screen rect of the camera
 				*/
-				Property(Math::Rect, rect);
+				Property(Camera, rect, Math::Rect);
 				SetProperty(rect) { _rect = value; }
-				GetPropertyConst(rect) { return _rect; }
+				GetProperty(rect) { return _rect; }
 
 				/**
 				* \brief Defines if the camera is rendered to the screen or not
 				*/
-				ReadOnlyProperty(bool, offscreen);
-				GetPropertyConst(offscreen) { return _offscreen; }
+				ReadOnlyProperty(Camera, offscreen, bool);
+				GetProperty(offscreen) { return _offscreen; }
 
 				void setSkybox(std::string path);
 				Rendering::Skybox* getSkybox() const;
@@ -67,7 +67,7 @@ namespace Tristeon
 				 * \brief Returns the view matrix of this camera
 				 * \return The view matrix
 				 */
-				glm::mat4 getViewMatrix() const;
+				glm::mat4 getViewMatrix();
 				/**
 				 * \brief Returns the projection matrix of this camera
 				 * \param aspect The aspect ratio of the screen

@@ -36,17 +36,17 @@ namespace Tristeon
 
 				void InternalMeshRenderer::render()
 				{
-					if (meshRenderer->mesh.vertices.size() == 0 || meshRenderer->mesh.indices.size() == 0)
+					if (meshRenderer->mesh.get().vertices.size() == 0 || meshRenderer->mesh.get().indices.size() == 0)
 						return;
 					if ((VkBuffer)vertexBuffer->getBuffer() == VK_NULL_HANDLE || (VkBuffer)indexBuffer->getBuffer() == VK_NULL_HANDLE)
 					{
-						Misc::Console::warning("Not rendering [" + meshRenderer->gameObject->name + "] because either the vertex or index buffer hasn't been set up!");
+						Misc::Console::warning("Not rendering [" + meshRenderer->gameObject.get()->name + "] because either the vertex or index buffer hasn't been set up!");
 						return;
 					}
 
 					//Get our material, and render it with the meshrenderer's model matrix
-					Rendering::Material* m = meshRenderer->material;
-					glm::mat4 const model = meshRenderer->transform->getTransformationMatrix();
+					Rendering::Material* m = meshRenderer->material.get();
+					glm::mat4 const model = meshRenderer->transform.get()->getTransformationMatrix();
 
 					Vulkan::Material* vkm = dynamic_cast<Vulkan::Material*>(m);
 					if (vkm == nullptr)
@@ -85,7 +85,7 @@ namespace Tristeon
 					secondary.setLineWidth(2);
 
 					//Draw
-					secondary.drawIndexed(meshRenderer->mesh.indices.size(), 1, 0, 0, 0);
+					secondary.drawIndexed(meshRenderer->mesh.get().indices.size(), 1, 0, 0, 0);
 
 					//Stop secondary cmd buffer
 					secondary.end();
@@ -103,8 +103,8 @@ namespace Tristeon
 					createCommandBuffers();
 					createUniformBuffer(vk);
 					createDescriptorSets();
-					createVertexBuffer(meshRenderer->mesh);
-					createIndexBuffer(meshRenderer->mesh);
+					createVertexBuffer(meshRenderer->mesh.get());
+					createIndexBuffer(meshRenderer->mesh.get());
 				}
 
 				void InternalMeshRenderer::onMeshChange(Data::SubMesh mesh)

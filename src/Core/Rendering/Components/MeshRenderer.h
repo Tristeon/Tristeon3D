@@ -19,7 +19,7 @@ namespace Tristeon
 				/**
 				* \brief The Mesh of the meshrenderer
 				*/
-				Property(Data::SubMesh, mesh);
+				Property(MeshRenderer, mesh, Data::SubMesh);
 				SetProperty(mesh)
 				{
 					_mesh = value;

@@ -96,7 +96,7 @@ namespace Tristeon
 
 	void TristeonEditor::init(Core::Engine* engine)
 	{
-		Core::VulkanBindingData *vkBinding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData);
+		Core::VulkanBindingData *vkBinding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData.get());
 		this->vkDevice = vkBinding->device;
 		this->engine = engine;
 
@@ -161,7 +161,7 @@ namespace Tristeon
 
 	Core::BindingData* TristeonEditor::getBindingData()
 	{
-		return engine->bindingData;
+		return engine->bindingData.get();
 	}
 
 	void TristeonEditor::bindImGui(Core::VulkanBindingData* vkBinding)
@@ -212,7 +212,7 @@ namespace Tristeon
 
 	void TristeonEditor::createCommandBuffers()
 	{
-		Core::VulkanBindingData* binding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData);
+		Core::VulkanBindingData* binding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData.get());
 		Misc::Console::t_assert(binding != nullptr, "Tristeon editor currently only supports vulkan!");
 
 		vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);

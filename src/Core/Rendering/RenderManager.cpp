@@ -6,6 +6,9 @@
 #include <Core/Rendering/Components/Renderer.h>
 #include <Misc/Console.h>
 
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
+
 namespace Tristeon
 {
 	namespace Core
@@ -132,11 +135,11 @@ namespace Tristeon
 					return instance->skyboxes[filePath].get(); //We keep ownership, give the user a reference
 
 				//Don't even bother doing anything if the material doesn't exist
-				if (!std::experimental::filesystem::exists(filePath))
+				if (!filesystem::exists(filePath))
 					return nullptr;
 
 				//Our materials can only be .mat files
-				if (std::experimental::filesystem::path(filePath).extension() != ".skybox")
+				if (filesystem::path(filePath).extension() != ".skybox")
 					return nullptr;
 
 				return instance->_getSkybox(filePath);

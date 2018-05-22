@@ -820,7 +820,7 @@ namespace nlohmann
 				val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::boolean_t*>());
 				break;
 			}
-			case 0:
+			case static_cast<value_t>(0):
 			{
 				std::cout << "Ur trying to call a node that does not exist!\t";
 				break;

@@ -39,17 +39,17 @@ namespace Tristeon
 			if (keepWorldTransform)
 			{
 				//Store old transformation
-				Math::Vector3 const oldGlobalPos = position;
-				Math::Vector3 const oldGlobalScale = scale;
-				Math::Quaternion const oldGlobalRot = rotation;
+				Math::Vector3 const oldGlobalPos = position.get();
+				Math::Vector3 const oldGlobalScale = scale.get();
+				Math::Quaternion const oldGlobalRot = rotation.get();
 
 				//Apply
 				this->parent = parent;
 
 				//Reset transform
-				position = oldGlobalPos;
-				scale = oldGlobalScale;
-				rotation = oldGlobalRot;
+				position.set(oldGlobalPos);
+				scale.set(oldGlobalScale);
+				rotation.set(oldGlobalRot);
 			}
 			//Apply
 			else
@@ -83,13 +83,13 @@ namespace Tristeon
 			_localRotation = Math::Quaternion::euler(eulerAngles);
 		}
 
-		Math::Vector3 Transform::transformPoint(Math::Vector3 point) const
+		Math::Vector3 Transform::transformPoint(Math::Vector3 point)
 		{
 			glm::vec4 const res = glm::vec4(point.x, point.y, point.z, 1.0) * getTransformationMatrix();
 			return{ res.x, res.y, res.z };
 		}
 
-		Math::Vector3 Transform::inverseTransformPoint(Math::Vector3 point) const
+		Math::Vector3 Transform::inverseTransformPoint(Math::Vector3 point)
 		{
 			glm::vec4 const res = glm::vec4(point.x, point.y, point.z, 1.0) *  inverse(getTransformationMatrix());
 			return{ res.x, res.y, res.z };
@@ -97,8 +97,8 @@ namespace Tristeon
 
 		void Transform::lookAt(Transform* target, Math::Vector3 up)
 		{
-			Math::Vector3 pos = position;
-			Math::Vector3 tar = target->position;
+			Math::Vector3 pos = position.get();
+			Math::Vector3 tar = target->position.get();
 			glm::mat4 transf = glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } );
 
 			glm::vec3 s, p;
@@ -110,22 +110,22 @@ namespace Tristeon
 			rotation = Math::Quaternion(r);
 		}
 
-		Math::Vector3 Transform::up() const
+		Math::Vector3 Transform::up()
 		{
 			return transformPoint(Math::Vector3::up);
 		}
 
-		Math::Vector3 Transform::right() const
+		Math::Vector3 Transform::right()
 		{
 			return transformPoint(Math::Vector3::right);
 		}
 
-		Math::Vector3 Transform::forward() const
+		Math::Vector3 Transform::forward()
 		{
 			return transformPoint(Math::Vector3::forward);
 		}
 
-		Math::Vector3 Transform::getGlobalPosition() const
+		Math::Vector3 Transform::getGlobalPosition()
 		{
 			if (parent == nullptr)
 				return _localPosition;
@@ -141,7 +141,7 @@ namespace Tristeon
 				_localPosition = parent->inverseTransformPoint(pos);
 		}
 
-		Math::Vector3 Transform::getGlobalScale() const
+		Math::Vector3 Transform::getGlobalScale()
 		{
 			if (parent == nullptr)
 				return _localScale;
@@ -184,7 +184,7 @@ namespace Tristeon
 			}
 		}
 
-		Math::Quaternion Transform::getGlobalRotation() const
+		Math::Quaternion Transform::getGlobalRotation()
 		{
 			if (parent == nullptr)
 				return _localRotation;
@@ -235,7 +235,7 @@ namespace Tristeon
 			}
 		}
 
-		glm::mat4 Transform::getTransformationMatrix() const
+		glm::mat4 Transform::getTransformationMatrix()
 		{
 			//TODO: Cache local transformation [Optimization]
 
@@ -245,9 +245,9 @@ namespace Tristeon
 				p *= parent->getTransformationMatrix();
 
 			//Get transformation
-			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert3(localPosition));
-			glm::mat4 const r = glm::mat4(localRotation.getGLMQuat());
-			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert3(localScale));
+			glm::mat4 const t = glm::translate(glm::mat4(1.0f), Vec_Convert3(localPosition.get()));
+			glm::mat4 const r = glm::mat4(localRotation.get().getGLMQuat());
+			glm::mat4 const s = glm::scale(glm::mat4(1.0f), Vec_Convert3(localScale.get()));
 
 			//Apply and return
 			return t * r * s * p;
@@ -255,12 +255,12 @@ namespace Tristeon
 
 		void Transform::rotate(Math::Vector3 axis, float rot)
 		{
-			rotation = rotation.rotate(axis, rot);
+			rotation = rotation.get().rotate(axis, rot);
 		}
 
 		void Transform::translate(Math::Vector3 t)
 		{
-			localPosition += t;
+			localPosition = localPosition.get() + t;
 		}
 
 		void Transform::translate(float x, float y, float z)

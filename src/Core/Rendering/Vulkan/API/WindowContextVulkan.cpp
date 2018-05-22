@@ -87,7 +87,7 @@ namespace Tristeon
 					vk::ApplicationInfo appInfo = vk::ApplicationInfo("Tristeon", VK_MAKE_VERSION(2, 0, 0), "Tristeon", VK_MAKE_VERSION(2, 0, 0), VK_API_VERSION_1_0);
 
 					//Instance Create Info
-					const int layerCount = ValidationLayers::enabled() ? ValidationLayers::validationLayers.size() : 0;
+					const auto layerCount = ValidationLayers::enabled() ? ValidationLayers::validationLayers.size() : 0;
 					const char* const* layerNames = ValidationLayers::enabled() ? ValidationLayers::validationLayers.data() : nullptr;
 					vk::InstanceCreateInfo instanceCI = vk::InstanceCreateInfo({}, &appInfo, layerCount, layerNames, extensions.size(), extensions.data());
 
@@ -111,7 +111,7 @@ namespace Tristeon
 				{
 					//Create window khr surface using GLFW's helper function
 					VkSurfaceKHR psurf = VK_NULL_HANDLE;
-					const VkResult r = glfwCreateWindowSurface(VkInstance(instance), window->window, nullptr, &psurf);
+					const VkResult r = glfwCreateWindowSurface(VkInstance(instance), window->window.get(), nullptr, &psurf);
 					surface = vk::SurfaceKHR(psurf);
 					Misc::Console::t_assert(r == VK_SUCCESS, "Failed to create window surface!");
 				}
@@ -143,11 +143,11 @@ namespace Tristeon
 					features.wideLines = VK_TRUE;
 
 					//Layers
-					const uint32_t enabledLayerCount = ValidationLayers::validationLayers.size();
+					const auto enabledLayerCount = ValidationLayers::validationLayers.size();
 					const char * const * enabledLayers = ValidationLayers::validationLayers.data();
 
 					//Extensions
-					const int extensionCount = VulkanExtensions::deviceExtensions.size();
+					const auto extensionCount = VulkanExtensions::deviceExtensions.size();
 					const char* const * enabledExtensions = VulkanExtensions::deviceExtensions.data();
 
 					//Create

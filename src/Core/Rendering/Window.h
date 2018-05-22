@@ -48,14 +48,14 @@ namespace Tristeon
 				/**
 				* \brief Read only. Returns the width of the window
 				*/
-				ReadOnlyProperty(int, width);
-				GetPropertyConst(width) { return w; }
+				ReadOnlyProperty(Window, width, int);
+				GetProperty(width) { return w; }
 				
 				/**
 				* \brief Read only. Returns the height of the window
 				*/
-				ReadOnlyProperty(int, height);
-				GetPropertyConst(height) { return h; }
+				ReadOnlyProperty(Window, height, int);
+				GetProperty(height) { return h; }
 
 				/**
 				 * \brief Callback function for when the window gains/loses focus
@@ -65,8 +65,8 @@ namespace Tristeon
 				/**
 				 * \brief The GLFW window
 				 */
-				ReadOnlyProperty(GLFWwindow*, window);
-				GetPropertyConst(window) { return _window; }
+				ReadOnlyProperty(Window, window, GLFWwindow*);
+				GetProperty(window) { return _window; }
 			private:
 				/**
 				 * \brief GLFW error callback, calls Console::error()

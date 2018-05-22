@@ -61,8 +61,8 @@ namespace Tristeon
 		{
 			for (int i = 0; i < activeScene->gameObjects.size(); ++i)
 			{
-				if (activeScene->gameObjects[i]->transform->getInstanceID() == instanceID)
-					return activeScene->gameObjects[i].get()->transform;
+				if (activeScene->gameObjects[i]->transform.get()->getInstanceID() == instanceID)
+					return activeScene->gameObjects[i].get()->transform.get();
 			}
 			return nullptr;
 		}
@@ -72,12 +72,12 @@ namespace Tristeon
 			std::vector<std::unique_ptr<Core::GameObject>>& gameObjects = scene->gameObjects;
 			for (int i = 0; i < gameObjects.size(); ++i)
 			{
-				auto parent = gameObjects[i]->transform->parentID;
+				auto parent = gameObjects[i]->transform.get()->parentID;
 				//Does gameobject have a parent?
 				if (parent != "null")
 				{
 					//Find and set the parent
-					gameObjects[i]->transform->setParent(findTransformByInstanceID(parent));
+					gameObjects[i]->transform.get()->setParent(findTransformByInstanceID(parent));
 				}
 			}
 		}

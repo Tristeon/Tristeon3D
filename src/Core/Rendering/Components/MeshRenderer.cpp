@@ -3,7 +3,9 @@
 #include "Misc/Console.h"
 #include <Core/Rendering/Vulkan/InternalMeshRendererVulkan.h>
 #include "Data/MeshBatch.h"
-#include <filesystem>
+
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
 
 namespace Tristeon
 {
@@ -47,7 +49,7 @@ namespace Tristeon
 
 				if (meshFilePath != meshFilePathValue || subMeshID != submeshIDValue)
 				{
-					if (std::experimental::filesystem::exists(meshFilePathValue))
+					if (filesystem::exists(meshFilePathValue))
 						mesh = Data::MeshBatch::getSubMesh(meshFilePathValue, submeshIDValue);
 					else
 						mesh = Data::SubMesh();

@@ -1,30 +1,71 @@
 #pragma once
 
-namespace Tristeon
+template <typename C, typename T>
+class RWProperty
 {
-	namespace Misc
-	{
-		/**
-		 * Includes multiple defines which wrap around the C++ property to make its usage more like C# properties.
-		 */
+	friend C;
+public:
+	typedef T(C::*Getter_t)();
+	typedef void (C::*Setter_t)(T);
 
-		//Standard property
-		#define Property(t,n)  __declspec( property (put = property__set_##n, get = property__get_##n)) t n; \
-			typedef t property__tmp_type_##n
+	RWProperty(C* instance, Getter_t getter, Setter_t setter) : m_instance(instance), m_getter(getter), m_setter(setter) {}
 
-		//Read Only
-		#define ReadOnlyProperty(t,n) __declspec( property (get = property__get_##n) ) t n;\
-			typedef t property__tmp_type_##n
+	T get() { return (m_instance->*m_getter)(); }
+	operator T() const { return (this->m_instance->*this->m_getter)(); }
 
-		//Write Only
-		#define WriteOnlyProperty(t,n) __declspec( property (put = property__set_##n) ) t n;\
-			typedef t property__tmp_type_##n
+	void set(T value) { (m_instance->*m_setter)(value); }
+	RWProperty<C, T>& operator=(T value) { (this->m_instance->*this->m_setter)(value); return *this; }
 
-		//Get function
-		#define GetProperty(n) property__tmp_type_##n property__get_##n() 
-		#define GetPropertyConst(n) property__tmp_type_##n property__get_##n() const
+private:
+	C* const m_instance;
+	const Getter_t m_getter;
+	const Setter_t m_setter;
+};
 
-		//Set function
-		#define SetProperty(n) void property__set_##n(const property__tmp_type_##n& value)
-	}
-}
+template <typename C, typename T>
+class RProperty
+{
+	friend C;
+public:
+	typedef T(C::*Getter_t)();
+	typedef void (C::*Setter_t)(T);
+
+	RProperty(C* instance, Getter_t getter) : m_instance(instance), m_getter(getter) {}
+
+	T get() { return (m_instance->*m_getter)(); }
+	operator T() const { return (this->m_instance->*this->m_getter)(); }
+
+private:
+	C* const m_instance;
+	const Getter_t m_getter;
+};
+
+template <typename C, typename T>
+class WProperty
+{
+	friend C;
+public:
+	typedef T(C::*Getter_t)();
+	typedef void (C::*Setter_t)(T);
+
+	WProperty(C* instance, Setter_t setter) : m_instance(instance), m_setter(setter) {}
+
+	void set(T value) { (m_instance->*m_setter)(value); }
+	RWProperty<C, T>& operator=(T value) { (this->m_instance->*this->m_setter)(value); return *this; }
+
+private:
+	C* const m_instance;
+	const Setter_t m_setter;
+};
+
+#define Property(CLASS, NAME, TYPE)	RWProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME, &CLASS::set_##NAME }; \
+    typedef TYPE property__tmp_type_##NAME;
+
+#define ReadOnlyProperty(CLASS, NAME, TYPE) RProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME }; \
+    typedef TYPE property__tmp_type_##NAME;
+
+#define WriteOnlyProperty(CLASS, NAME, TYPE) WProperty<CLASS, TYPE> NAME() = { this, &CLASS::set_##NAME }; \
+    typedef TYPE property__tmp_type_##NAME;
+
+#define GetProperty(NAME) property__tmp_type_##NAME get_##NAME()
+#define SetProperty(NAME) void set_##NAME(property__tmp_type_##NAME value)

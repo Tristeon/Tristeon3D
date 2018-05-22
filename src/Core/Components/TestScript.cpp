@@ -8,7 +8,7 @@ DerivedRegister<TestScript> TestScript::reg;
 
 void TestScript::update()
 {
-	transform->rotate(Math::Vector3(0, 1, 0), speed * Misc::Time::getDeltaTime());
+	transform.get()->rotate(Math::Vector3(0, 1, 0), speed * Misc::Time::getDeltaTime());
 }
 
 nlohmann::json TestScript::serialize()

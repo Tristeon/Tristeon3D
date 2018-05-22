@@ -47,7 +47,7 @@ EditorNode* EditorNodeTree::findNodeByInstanceID(std::string nodeInstanceID)
 	for (int i = 0; i < nodes.size(); ++i)
 	{
 		//When correct instanceID is found
-		if (nodes[i]->connectedGameObject->transform->getInstanceID() == nodeInstanceID)
+		if (nodes[i]->connectedGameObject->transform.get()->getInstanceID() == nodeInstanceID)
 			return nodes[i].get();
 	}
 	throw std::exception("InstanceID couldn't be found");
@@ -57,7 +57,7 @@ void EditorNodeTree::createParentalBonds()
 {
 	for (int i = 0; i < nodes.size(); ++i)
 	{
-		const auto parent = nodes[i]->connectedGameObject->transform->getParent();
+		const auto parent = nodes[i]->connectedGameObject->transform.get()->getParent();
 		if (parent == nullptr) continue;
 		const std::string nodeInstanceID = parent->getInstanceID();
 		nodes[i]->move(findNodeByInstanceID(nodeInstanceID));

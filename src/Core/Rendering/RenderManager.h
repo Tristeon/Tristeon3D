@@ -4,6 +4,7 @@
 #include "Misc/vector.h"
 #include "Skybox.h"
 #include "API/WindowContext.h"
+#include "Core/Rendering/ShaderFile.h"
 
 namespace Tristeon
 {
@@ -20,7 +21,6 @@ namespace Tristeon
 			class Material;
 			class RenderTechnique;
 			class Renderer;
-			class ShaderFile;
 
 			/**
 			 * \brief UIRenderable is a struct that's used to render UI after the scene has been rendered.
@@ -58,7 +58,7 @@ namespace Tristeon
 				 * \brief Render is an abstract function that is intended to be defined by API specific subclasses. It gets called in the window MT_RENDER callback.
 				 */
 				virtual void render() = 0;
-			
+
 				/**
 				 * \brief Gets all the registered renderers and returns them as a vector/list
 				 * \return Returns the renderers as a std::vector
@@ -77,7 +77,7 @@ namespace Tristeon
 				* \return A material serialized from the given filepath, or from the cached materials
 				*/
 				static Material* getMaterial(std::string filePath);
-				
+
 				static Skybox* getSkybox(std::string filePath);
 			protected:
 				virtual Skybox* _getSkybox(std::string filePath) = 0;
@@ -90,7 +90,7 @@ namespace Tristeon
 				virtual Material* getmaterial(std::string filePath) = 0;
 
 				/**
-				 * \brief Registers a renderer to the renderers or UIrenderers list. 
+				 * \brief Registers a renderer to the renderers or UIrenderers list.
 				 * \param msg The message coming from the manager protocol message system. Message.userData is expected to contain our renderer
 				 */
 				virtual TObject* registerRenderer(Message msg);
@@ -128,7 +128,7 @@ namespace Tristeon
 				 */
 				Tristeon::vector<Renderer*> renderers;
 				/**
-				 * \brief All the UIrenderables 
+				 * \brief All the UIrenderables
 				 */
 				Tristeon::vector<UIRenderable*> renderables;
 				/**

@@ -21,7 +21,7 @@ void EditorCameraController::update(Tristeon::Core::Transform* editorCamera)
 		if (dynamic_cast<EditorNode*>(EditorSelection::getSelectedItem()) != nullptr)
 		{
 			auto node = dynamic_cast<EditorNode*>(EditorSelection::getSelectedItem());
-			focusPoint.position = node->connectedGameObject->transform->position;
+			focusPoint.position = node->connectedGameObject->transform.get()->position.get();
 		}
 	}
 
@@ -42,7 +42,7 @@ void EditorCameraController::update(Tristeon::Core::Transform* editorCamera)
 void EditorCameraController::setPosition(Tristeon::Core::Transform* editorCamera)
 {
 	//editorCamera->position = focusPoint.position + -distanceFromTarget * focusPoint.forward();
-	editorCamera->position = focusPoint.position + Math::Vector3::back * distanceFromTarget * Math::Quaternion::euler(xRotation,yRotation,0);
+	editorCamera->position = focusPoint.position.get() + Math::Vector3::back * distanceFromTarget * Math::Quaternion::euler(xRotation,yRotation,0);
 	editorCamera->lookAt(&focusPoint);
 }
 

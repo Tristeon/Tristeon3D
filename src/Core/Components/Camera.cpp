@@ -41,9 +41,9 @@ namespace Tristeon
 				return skybox;
 			}
 
-			glm::mat4 Camera::getViewMatrix() const
+			glm::mat4 Camera::getViewMatrix()
 			{
-				return getViewMatrix(gameObject->transform);
+				return getViewMatrix(gameObject.get()->transform.get());
 			}
 
 			glm::mat4 Camera::getProjectionMatrix(float aspect) const
@@ -59,8 +59,8 @@ namespace Tristeon
 					par = getViewMatrix(t->getParent());
 
 				//Get transformation
-				glm::mat4 const tran = translate(glm::mat4(1.0f), Vec_Convert3(t->position));
-				glm::mat4 const rot = glm::mat4(t->rotation.getGLMQuat());
+				glm::mat4 const tran = translate(glm::mat4(1.0f), Vec_Convert3(t->position.get()));
+				glm::mat4 const rot = glm::mat4(t->rotation.get().getGLMQuat());
 
 				//TODO: Parent calculation untested
 				glm::mat4 const r = (tran * rot) * par;

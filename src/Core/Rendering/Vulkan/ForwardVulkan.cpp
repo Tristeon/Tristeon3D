@@ -43,7 +43,7 @@ namespace Tristeon
 					clear[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0.0f);
 
 					//Get extent
-					vk::Extent2D const extent = vkRenderManager->vkContext->rop_extent;
+					vk::Extent2D const extent = vkRenderManager->vkContext->getExtent();
 					vk::Rect2D const renderArea = vk::Rect2D(vk::Offset2D(0, 0), extent);
 
 					//Begin renderpass
@@ -143,7 +143,7 @@ namespace Tristeon
 					clear[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0.0f);
 
 					//Screen area
-					vk::Extent2D const extent = vkRenderManager->vkContext->rop_extent;
+					vk::Extent2D const extent = vkRenderManager->vkContext->getExtent();
 					vk::Rect2D const renderArea = vk::Rect2D(vk::Offset2D(0, 0), extent);
 
 					//Begin commandbuffer
@@ -153,7 +153,7 @@ namespace Tristeon
 	
 					//Begin renderpass
 					vk::RenderPassBeginInfo renderPassBegin = vk::RenderPassBeginInfo(
-						vkRenderManager->vkContext->rop_renderpass, fb,
+						vkRenderManager->vkContext->getRenderpass(), fb,
 						renderArea, 2, clear);
 					primary.beginRenderPass(&renderPassBegin, vk::SubpassContents::eSecondaryCommandBuffers);
 
@@ -161,7 +161,7 @@ namespace Tristeon
 					std::vector<vk::CommandBuffer> buffers;
 
 					//Store renderdata, used by render objects
-					vk::CommandBufferInheritanceInfo const inheritance = vk::CommandBufferInheritanceInfo(vkRenderManager->vkContext->rop_renderpass, 0, fb); //ignore query
+					vk::CommandBufferInheritanceInfo const inheritance = vk::CommandBufferInheritanceInfo(vkRenderManager->vkContext->getRenderpass(), 0, fb); //ignore query
 					RenderData data;
 					data.inheritance = inheritance;
 					data.viewport = vk::Viewport(0, 0, extent.width, extent.height, 0, 1.0f);

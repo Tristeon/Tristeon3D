@@ -70,8 +70,8 @@ namespace Tristeon
 					/**
 					* \brief The name of the pipeline
 					*/
-					ReadOnlyProperty(std::string, name);
-					GetPropertyConst(name) { return _name; }
+					ReadOnlyProperty(Pipeline, name, std::string);
+					GetProperty(name) { return _name; }
 
 					/**
 					 * \return Returns the Vulkan pipeline object 

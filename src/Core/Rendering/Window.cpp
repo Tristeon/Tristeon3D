@@ -68,11 +68,11 @@ namespace Tristeon
 
 				//Create window
 				_window = glfwCreateWindow(width, height, "Tristeon", monitor, nullptr);
-				if (window == nullptr)
+				if (window.get() == nullptr)
 					Misc::Console::error("Failed to open GLFW window!");
 				glfwMaximizeWindow(_window);
 				//Store this in the GLFW userdata for reference later
-				glfwSetWindowUserPointer(window, this);
+				glfwSetWindowUserPointer(window.get(), this);
 
 				//Set GLFW callbacks
 				setupCallbacks();
@@ -100,7 +100,7 @@ namespace Tristeon
 				int elapsedFrames = 0;
 				float elapsedTime = 0;
 
-				while (!glfwWindowShouldClose(window))
+				while (!glfwWindowShouldClose(window.get()))
 				{
 					glfwPollEvents();
 

@@ -44,7 +44,7 @@ namespace Tristeon
 			Quaternion(float x, float y, float z, float w);
 
 			/**
-			 * \brief Gets the quaternion value based on the given index 
+			 * \brief Gets the quaternion value based on the given index
 			 * \param index The index of the value
 			 * \return A float describing the value
 			 */
@@ -68,6 +68,8 @@ namespace Tristeon
 			 */
 			Quaternion operator*(Quaternion other) const;
 
+            Quaternion operator=(Quaternion other);
+
 			/**
 			* \brief Multiplies this quaternion with the given quaternion
 			* \param other The other quaternion
@@ -77,29 +79,29 @@ namespace Tristeon
 			/**
 			* \brief The w component of this Quaternion
 			*/
-			Property(float, w);
-			GetPropertyConst(w) { return quaternion.w; }
+			Property(Quaternion, w, float);
+			GetProperty(w) { return quaternion.w; }
 			SetProperty(w) { quaternion.w = value; }
 
 			/**
 			* \brief The x component of this Quaternion
 			*/
-			Property(float, x);
-			GetPropertyConst(x) { return quaternion.x; }
+			Property(Quaternion, x, float);
+			GetProperty(x) { return quaternion.x; }
 			SetProperty(x) { quaternion.x = value; }
 
 			/**
 			* \brief The t component of this Quaternion
 			*/
-			Property(float, y);
-			GetPropertyConst(y) { return quaternion.y; }
+			Property(Quaternion, y, float);
+			GetProperty(y) { return quaternion.y; }
 			SetProperty(y) { quaternion.y = value; }
 
 			/**
 			* \brief The z component of this Quaternion
 			*/
-			Property(float, z);
-			GetPropertyConst(z) { return quaternion.z; }
+			Property(Quaternion, z, float);
+			GetProperty(z) { return quaternion.z; }
 			SetProperty(z) { quaternion.z = value; }
 
 			/**
@@ -185,7 +187,7 @@ namespace Tristeon
 			 * \brief The glm quaternion
 			 */
 			glm::quat quaternion;
-			
+
 			//Register
 			REGISTER_TYPE_H(Quaternion)
 		};

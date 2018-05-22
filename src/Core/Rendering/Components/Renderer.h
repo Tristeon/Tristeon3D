@@ -48,7 +48,7 @@ namespace Tristeon
 				/**
 				* \brief The (shared) material of the renderer
 				*/
-				Property(Material*, material);
+				Property(Renderer, material, Material*);
 				GetProperty(material) { return _material; }
 				SetProperty(material) { _material = value; }
 

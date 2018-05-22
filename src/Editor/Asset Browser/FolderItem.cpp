@@ -2,7 +2,6 @@
 
 #include "FolderItem.h"
 #include "FileItemManager.h"
-#include <filesystem>
 #include "AssetItem.h"
 #include "Editor/JsonSerializer.h"
 #include "Misc/StringUtils.h"
@@ -11,9 +10,11 @@
 #include "MeshFileItem.h"
 #include <assimp/Importer.hpp>
 
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
+
 using namespace std;
 using namespace Tristeon::Editor;
-namespace fs = experimental::filesystem;
 
 DerivedRegister<FolderItem> FolderItem::reg;
 

@@ -2,7 +2,9 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include <filesystem>
+
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
 
 namespace Tristeon
 {
@@ -18,7 +20,7 @@ namespace Tristeon
 				return cachedImages[path];
 
 			//Load new
-			if (!std::experimental::filesystem::exists(path) || !load(path))
+			if (!filesystem::exists(path) || !load(path))
 				return getImage("Files/Textures/white.jpg");
 
 			//We did load, return loaded

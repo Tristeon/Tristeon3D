@@ -18,7 +18,7 @@ namespace Tristeon
 	namespace Core
 	{
 		/**
-		 * \brief Transform is a class used to describe the transform, rotation and scale of an object. 
+		 * \brief Transform is a class used to describe the transform, rotation and scale of an object.
 		 * It's most commonly used by GameObject. Every GameObject will always have a Transform at any time.
 		 * Transform also describes parent-child relationships between gameobjects.
 		 */
@@ -34,49 +34,49 @@ namespace Tristeon
 			/**
 			* \brief The global position of this transform
 			*/
-			Property(Math::Vector3, position);
-			GetPropertyConst(position) { return getGlobalPosition(); }
+			Property(Transform, position, Math::Vector3);
+			GetProperty(position) { return getGlobalPosition(); }
 			SetProperty(position) { setGlobalPosition(value); }
 
 			/**
 			* \brief The local position of this transform
 			*/
-			Property(Math::Vector3, localPosition);
-			GetPropertyConst(localPosition) { return _localPosition; }
+			Property(Transform, localPosition, Math::Vector3);
+			GetProperty(localPosition) { return _localPosition; }
 			SetProperty(localPosition) { _localPosition = value; }
 
 			/**
 			* \brief The global scale of this transform
 			*/
-			Property(Math::Vector3, scale);
-			GetPropertyConst(scale) { return getGlobalScale(); }
+			Property(Transform, scale, Math::Vector3);
+			GetProperty(scale) { return getGlobalScale(); }
 			SetProperty(scale) { setGlobalScale(value); }
 
 			/**
 			* \brief The local scale of this transform
 			*/
-			Property(Math::Vector3, localScale);
-			GetPropertyConst(localScale) { return _localScale; }
+			Property(Transform, localScale, Math::Vector3);
+			GetProperty(localScale) { return _localScale; }
 			SetProperty(localScale) { _localScale = value; }
 
 			/**
 			* \brief The local rotation of this transform
 			*/
-			Property(Math::Quaternion, localRotation);
-			GetPropertyConst(localRotation) { return _localRotation; }
+			Property(Transform, localRotation, Math::Quaternion);
+			GetProperty(localRotation) { return _localRotation; }
 			SetProperty(localRotation) { _localRotation = value; }
 
 			/**
 			* \brief The global rotation of this transform
 			*/
-			Property(Math::Quaternion, rotation);
-			GetPropertyConst(rotation) { return getGlobalRotation(); }
+			Property(Transform, rotation, Math::Quaternion);
+			GetProperty(rotation) { return getGlobalRotation(); }
 			SetProperty(rotation) { setGlobalRotation(value); }
-			
+
 			/**
 			 * \brief Sets the parent of this transform
 			 * \param parent The parent
-			 * \param keepWorldTransform Defines wether or not our world transformation should be kept 
+			 * \param keepWorldTransform Defines wether or not our world transformation should be kept
 			 */
 			void setParent(Transform* parent, bool keepWorldTransform = true);
 			/**
@@ -100,7 +100,7 @@ namespace Tristeon
 			 * \brief Returns a transformation matrix based on the position, scale, rotation and parent of this transform
 			 * \return Returns a transformation matrix
 			 */
-			glm::mat4 getTransformationMatrix() const;
+			glm::mat4 getTransformationMatrix();
 
 			/**
 			 * \brief Rotates around axis [axis] with rotation [rot]
@@ -126,37 +126,37 @@ namespace Tristeon
 			 * \param point The position to be transformed
 			 * \return The transformed position
 			 */
-			Math::Vector3 transformPoint(Math::Vector3 point) const	;
+			Math::Vector3 transformPoint(Math::Vector3 point);
 			/**
 			 * \brief Transforms a given point from global to local space
 			 * \param point The position to be transformed
 			 * \return The transformed position
 			 */
-			Math::Vector3 inverseTransformPoint(Math::Vector3 point) const;
+			Math::Vector3 inverseTransformPoint(Math::Vector3 point);
 
 			void lookAt(Transform* target, Math::Vector3 worldUp = Math::Vector3::up);
 
 			/**
 			* \brief The green axis of the transform in world space.
 			*/
-			Math::Vector3 up() const;
-			
+			Math::Vector3 up();
+
 			/**
 			 * \brief The red axis of the transform in world space.
 			 */
-			Math::Vector3 right() const;
+			Math::Vector3 right();
 
 			/**
 			 * \brief The blue axis of the transform in world space.
 			 */
-			Math::Vector3 forward() const;
+			Math::Vector3 forward();
 
 		private:
 			/**
 			 * \brief Gets the global position of this transform
 			 * \return Returns the global position
 			 */
-			Math::Vector3 getGlobalPosition() const;
+			Math::Vector3 getGlobalPosition();
 			/**
 			 * \brief Sets the global position of this transform
 			 * \param pos The global position
@@ -167,7 +167,7 @@ namespace Tristeon
 			 * \brief Gets the global scale of this transform
 			 * \return Returns the global scale
 			 */
-			Math::Vector3 getGlobalScale() const;
+			Math::Vector3 getGlobalScale();
 			/**
 			 * \brief Sets the global scale of this transform
 			 * \param scale The global scale
@@ -178,7 +178,7 @@ namespace Tristeon
 			 * \brief Gets the global rotation of this transform
 			 * \return Returns the global rotation
 			 */
-			Math::Quaternion getGlobalRotation() const;
+			Math::Quaternion getGlobalRotation();
 			/**
 			 * \brief Sets the global rotation of this transform
 			 * \param rot The rotation
@@ -188,15 +188,15 @@ namespace Tristeon
 			/**
 			 * \brief The local position of this transform
 			 */
-			Math::Vector3 _localPosition = Math::Vector3(0, 0, 0);
+			Math::Vector3 _localPosition = { 0, 0, 0 };
 			/**
 			 * \brief The local scale of this transform
 			 */
-			Math::Vector3 _localScale = Math::Vector3(1, 1, 1);
+			Math::Vector3 _localScale = { 1, 1, 1 };
 			/**
 			 * \brief The local rotation of this transform
 			 */
-			Math::Quaternion _localRotation = Math::Quaternion();
+			Math::Quaternion _localRotation = {};
 
 			/**
 			 * \brief The parent of this transform

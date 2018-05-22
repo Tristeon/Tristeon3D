@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <functional>
+#include <algorithm> //Required in GNU GCC
 
 namespace Tristeon
 {
@@ -25,7 +26,7 @@ namespace Tristeon
 			* Requires the same parameters as this delegate has been defined with.
 			*/
 			void operator()(std::function<void(P...)> f);
-			
+
 			/**
 			 * Adds a function to the delegate.
 			 * The function must have the same parameters as this delegate has been defined with.

@@ -1,12 +1,13 @@
 #if TRISTEON_EDITOR
 
 #include "AssetItem.h"
-#include <filesystem>
 #include "FolderItem.h"
 #include "Editor/JsonSerializer.h"
 #include "Scenes/Scene.h"
 
-namespace fs = std::experimental::filesystem;
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
+
 using namespace Tristeon::Editor;
 DerivedRegister<AssetItem> AssetItem::reg;
 
@@ -84,7 +85,7 @@ void AssetItem::createFile(nlohmann::json json)
 void AssetItem::move(FolderItem* destination)
 {
 	std::string destinationFilepath = destination->filepath + destination->name + "/" + name + "." + extension;
-	if (fs::exists(destinationFilepath))
+	if (filesystem::exists(destinationFilepath))
 	{
 		std::cout << "Can't move " << name << " to folder " << destination->name << std::endl;
 		return;
@@ -99,11 +100,12 @@ void AssetItem::move(FolderItem* destination)
 
 	std::string p1 = filepath + name + "." + extension;
 	std::string p2 = destinationFilepath;
+
 	//Copy file
-	fs::copy_file(p1,p2, fs::copy_options::overwrite_existing);
+	filesystem::copy_file(p1,p2, filesystem::copy_option::overwrite_if_exists);
 	//Remove old file and meta file
-	fs::remove(p1);
-	fs::remove(p1 + ".meta");
+	filesystem::remove(p1);
+	filesystem::remove(p1 + ".meta");
 
 	//Create new fileitem metadata
 	init(name, destination, extension);
@@ -112,8 +114,8 @@ void AssetItem::move(FolderItem* destination)
 void AssetItem::removeFile()
 {
 	//Remove original file and meta file
-	fs::remove(filepath + name + "." + extension);
-	fs::remove(filepath + name + "." + extension + ".meta");
+	filesystem::remove(filepath + name + "." + extension);
+	filesystem::remove(filepath + name + "." + extension + ".meta");
 }
 
 void AssetItem::onDoubleClick()

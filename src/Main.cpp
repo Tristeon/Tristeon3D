@@ -4,7 +4,7 @@
 #include <windows.h>
 #endif
 
-int main(int argc, char* argv)
+int main(int argc, char** argv)
 {
 	//Create app
 	Tristeon::Application app;

@@ -35,6 +35,10 @@
 #include "Misc/ObjectPool.h"
 #include "Core/GameObject.h"
 #include "API/WindowContextVulkan.h"
+
+#include <boost/filesystem.hpp>
+namespace filesystem = boost::filesystem;
+
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -127,7 +131,7 @@ namespace Tristeon
 					
 					Pipeline *p = new Pipeline(rm->data, 
 						file, 
-						rm->vkContext->rop_swapchain->extent2D, 
+						rm->vkContext->getSwapchain()->extent2D.get(), 
 						rm->offscreenPass, 
 						true, 
 						vk::PrimitiveTopology::eTriangleList, 
@@ -154,7 +158,7 @@ namespace Tristeon
 						//Render gameplay cameras
 						for (auto const cam : cameraData)
 						{
-							vk::Extent2D const extent = vkContext->rop_extent;
+							vk::Extent2D const extent = vkContext->getExtent();
 							glm::mat4 const view = cam.first->getViewMatrix();
 							glm::mat4 const proj = cam.first->getProjectionMatrix((float)extent.width / (float)extent.height);
 							technique->renderScene(view, proj, cam.second, cam.first->getSkybox());
@@ -165,7 +169,7 @@ namespace Tristeon
 				RenderManager::~RenderManager()
 				{
 					//Wait till the device is finished
-					vk::Device d = vkContext->rop_device;
+					vk::Device d = vkContext->getDevice();
 					d.waitIdle();
 
 					delete DebugDrawManager::instance;
@@ -215,13 +219,13 @@ namespace Tristeon
 					vkContext = new WindowContextVulkan(reinterpret_cast<Window*>(bindingData->tristeonWindow));
 					windowContext = std::unique_ptr<WindowContextVulkan>(vkContext);
 					
-					data->physicalDevice = vkContext->rop_gpu;
-					data->device = vkContext->rop_device;
-					data->graphicsQueue = vkContext->rop_graphicsQueue;
-					data->presentQueue = vkContext->rop_presentQueue;
+					data->physicalDevice = vkContext->getGPU();
+					data->device = vkContext->getDevice();
+					data->graphicsQueue = vkContext->getGraphicsQueue();
+					data->presentQueue = vkContext->getPresentQueue();
 
-					data->swapchain = vkContext->rop_swapchain;
-					data->renderPass = vkContext->rop_swapchain->renderpass;
+					data->swapchain = vkContext->getSwapchain();
+					data->renderPass = vkContext->getSwapchain()->renderpass;
 
 					//Pools
 					createDescriptorPool();
@@ -232,7 +236,7 @@ namespace Tristeon
 					prepareOnscreenPipeline();
 
 					//Create main screen framebuffers
-					vkContext->rop_swapchain->createFramebuffers();
+					vkContext->getSwapchain()->createFramebuffers();
 
 					//Create main screen command buffers
 					createCommandBuffer();
@@ -252,7 +256,7 @@ namespace Tristeon
 					//Create pool
 					std::array<vk::DescriptorPoolSize, 2> poolSizes = { poolUniform, poolSampler };
 					vk::DescriptorPoolCreateInfo poolInfo = vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, materials.size() + 1000*11, poolSizes.size(), poolSizes.data());
-					vk::Result const r = vkContext->rop_device.createDescriptorPool(&poolInfo, nullptr, &descriptorPool);
+					vk::Result const r = vkContext->getDevice().createDescriptorPool(&poolInfo, nullptr, &descriptorPool);
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create descriptor pool: " + to_string(r));
 					
 					//Store data
@@ -261,10 +265,10 @@ namespace Tristeon
 
 				void RenderManager::submitCameras()
 				{
-					vk::Semaphore imgav = vkContext->rop_imageAvailable;
+					vk::Semaphore imgav = vkContext->getImageAvailable();
 
 					//Wait till present queue is ready to receive more commands
-					vkContext->rop_presentQueue.waitIdle();
+					vkContext->getPresentQueue().waitIdle();
 					vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
 					CameraRenderData* last = nullptr;
@@ -276,7 +280,7 @@ namespace Tristeon
 							CameraRenderData* c = p.second;
 							vk::Semaphore wait = last == nullptr ? imgav : last->offscreen.sema;
 							vk::SubmitInfo s = vk::SubmitInfo(1, &wait, waitStages, 1, &c->offscreen.cmd, 1, &c->offscreen.sema );
-							vkContext->rop_graphicsQueue.submit(1, &s, nullptr);
+							vkContext->getGraphicsQueue().submit(1, &s, nullptr);
 							last = c;
 						}
 					}
@@ -289,26 +293,26 @@ namespace Tristeon
 						{
 							vk::Semaphore wait = imgav;
 							vk::SubmitInfo s = vk::SubmitInfo(1, &wait, waitStages, 1, &c->offscreen.cmd, 1, &c->offscreen.sema);
-							vkContext->rop_graphicsQueue.submit(1, &s, nullptr);
+							vkContext->getGraphicsQueue().submit(1, &s, nullptr);
 							last = c;
 						}
 #endif
 					}
 					
 					//Submit onscreen
-					vk::Semaphore renderFinished = vkContext->rop_renderFinished;
+					vk::Semaphore renderFinished = vkContext->getRenderFinished();
 					vk::SubmitInfo s2 = vk::SubmitInfo(
 						1, last == nullptr ? &imgav : &last->offscreen.sema,
 						waitStages, 
 						1, &primaryCmd, 
 						1, &renderFinished);
-					vkContext->rop_graphicsQueue.submit(1, &s2, nullptr); 
+					vkContext->getGraphicsQueue().submit(1, &s2, nullptr); 
 				}
 
 				void RenderManager::prepareOnscreenPipeline()
 				{
 					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF");
-					onscreenPipeline = new Pipeline(data, file, vkContext->rop_extent, vkContext->rop_renderpass, false, vk::PrimitiveTopology::eTriangleList, false, vk::CullModeFlagBits::eFront);
+					onscreenPipeline = new Pipeline(data, file, vkContext->getExtent(), vkContext->getRenderpass(), false, vk::PrimitiveTopology::eTriangleList, false, vk::CullModeFlagBits::eFront);
 				}
 
 				void RenderManager::prepareOffscreenPass()
@@ -323,7 +327,7 @@ namespace Tristeon
 
 					//The offscreen pass renders 3D data and as such it uses a depth buffer
 					vk::AttachmentDescription const depth = vk::AttachmentDescription({},
-						VulkanFormat::findDepthFormat(vkContext->rop_gpu),
+						VulkanFormat::findDepthFormat(vkContext->getGPU()),
 						vk::SampleCountFlagBits::e1,
 						vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eDontCare,
 						vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
@@ -362,18 +366,16 @@ namespace Tristeon
 						1, &subpass,
 						dependencies.size(), dependencies.data()
 					);
-					offscreenPass = vkContext->rop_device.createRenderPass(rp);
+					offscreenPass = vkContext->getDevice().createRenderPass(rp);
 				}
 
 				Rendering::Skybox* RenderManager::_getSkybox(std::string filePath)
 				{
-					namespace fs = std::experimental::filesystem;
-
 					if (filePath == "")
 						return nullptr;
-					if (!fs::exists(filePath))
+					if (!filesystem::exists(filePath))
 						return nullptr;
-					if (fs::path(filePath).extension() != ".skybox")
+					if (filesystem::path(filePath).extension() != ".skybox")
 						return nullptr;
 
 					Skybox* skybox = new Skybox(data, offscreenPass);
@@ -455,9 +457,9 @@ namespace Tristeon
 				void RenderManager::createCommandPool()
 				{
 					//Commandpool creation, requires the graphics family we're using
-					const QueueFamilyIndices indices = QueueFamilyIndices::get(vkContext->rop_gpu, vkContext->rop_surface);
+					const QueueFamilyIndices indices = QueueFamilyIndices::get(vkContext->getGPU(), vkContext->getSurfaceKHR());
 					vk::CommandPoolCreateInfo ci = vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, indices.graphicsFamily);
-					const vk::Result r = vkContext->rop_device.createCommandPool(&ci, nullptr, &commandPool);
+					const vk::Result r = vkContext->getDevice().createCommandPool(&ci, nullptr, &commandPool);
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create command pool: " + to_string(r));
 
 					//Store data
@@ -468,7 +470,7 @@ namespace Tristeon
 				{
 					//Create a commandbuffer for every framebuffer
 					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(commandPool, vk::CommandBufferLevel::ePrimary, 1);
-					const vk::Result r = vkContext->rop_device.allocateCommandBuffers(&alloc, &primaryCmd);
+					const vk::Result r = vkContext->getDevice().allocateCommandBuffers(&alloc, &primaryCmd);
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate command buffers: " + to_string(r)); 
 				}
 
@@ -479,10 +481,10 @@ namespace Tristeon
 						return;
 
 					windowContext->resize(newWidth, newHeight);
-					data->renderPass = vkContext->rop_renderpass;
+					data->renderPass = vkContext->getRenderpass();
 
 					//Rebuild offscreen renderpass
-					vkContext->rop_device.destroyRenderPass(offscreenPass);
+					vkContext->getDevice().destroyRenderPass(offscreenPass);
 					prepareOffscreenPass();
 
 					//Rebuild camera data
@@ -493,20 +495,20 @@ namespace Tristeon
 					if (editor.cam != nullptr)
 						editor.cam->rebuild(this, offscreenPass, onscreenPipeline);
 					grid->rebuild(offscreenPass);
-					editorSkybox->rebuild(vkContext->rop_extent, offscreenPass);
+					editorSkybox->rebuild(vkContext->getExtent(), offscreenPass);
 #endif
 					//Rebuild pipelines
 					for (int i = 0; i < pipelines.size(); i++)
-						pipelines[i]->rebuild(vkContext->rop_extent, offscreenPass);
+						pipelines[i]->rebuild(vkContext->getExtent(), offscreenPass);
 
-					((Vulkan::DebugDrawManager*)DebugDrawManager::instance)->rebuild(offscreenPass);
+					((DebugDrawManager*)DebugDrawManager::instance)->rebuild(offscreenPass);
 
 					//Rebuild framebuffers
-					vkContext->rop_swapchain->createFramebuffers();
+					vkContext->getSwapchain()->createFramebuffers();
 
 					const auto end = skyboxes.end();
 					for (auto i = skyboxes.begin(); i != end; ++i)
-						((Vulkan::Skybox*)i->second.get())->rebuild(vkContext->rop_extent, offscreenPass);
+						((Skybox*)i->second.get())->rebuild(vkContext->getExtent(), offscreenPass);
 				}
 
 				vk::Framebuffer RenderManager::getActiveFrameBuffer() const
@@ -521,11 +523,11 @@ namespace Tristeon
 						return materials[filePath];
 
 					//Don't even bother doing anything if the material doesn't exist
-					if (!std::experimental::filesystem::exists(filePath))
+					if (!filesystem::exists(filePath))
 						return nullptr;
 
 					//Our materials can only be .mat files
-					if (std::experimental::filesystem::path(filePath).extension() != ".mat")
+					if (filesystem::path(filePath).extension() != ".mat")
 						return nullptr;
 					
 					Vulkan::Material* m = new Vulkan::Material();

@@ -33,7 +33,7 @@ namespace Tristeon
 			xRot -= y;
 			yRot -= x;
 
-			transform->rotation = Math::Quaternion::euler(xRot, yRot, 0);
+			transform.get()->rotation = Math::Quaternion::euler(xRot, yRot, 0);
 		}
 	}
 }

@@ -136,7 +136,7 @@ namespace Tristeon
 				{
 					//Color attachment description
 					vk::AttachmentDescription const colorAttachment = vk::AttachmentDescription({},
-						format, vk::SampleCountFlagBits::e1,
+						_format, vk::SampleCountFlagBits::e1,
 						vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
 						vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
 						vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR);
@@ -174,7 +174,7 @@ namespace Tristeon
 
 						//Create framebuffer
 						vk::FramebufferCreateInfo ci = vk::FramebufferCreateInfo(
-							{}, renderpass, 
+							{}, _renderPass, 
 							attachments.size(), attachments.data(), 
 							extent.width, extent.height, 
 							1);

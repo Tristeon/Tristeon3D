@@ -81,19 +81,19 @@ namespace Tristeon
 					/**
 					* \brief The extent of the swapchain (width, height)
 					*/
-					ReadOnlyProperty(vk::Extent2D, extent2D);
+					ReadOnlyProperty(Swapchain, extent2D, vk::Extent2D);
 					GetProperty(extent2D) { return extent; }
 
 					/**
 					* \brief The format of the swapchain
 					*/
-					ReadOnlyProperty(vk::Format, format);
+					ReadOnlyProperty(Swapchain, format, vk::Format);
 					GetProperty(format) { return _format; }
 
 					/**
 					* \brief The main render pass
 					*/
-					ReadOnlyProperty(vk::RenderPass, renderpass);
+					ReadOnlyProperty(Swapchain, renderpass, vk::RenderPass);
 					GetProperty(renderpass) { return _renderPass; }
 
 					/**
