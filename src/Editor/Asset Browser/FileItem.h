@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include <string>
 #include "Editor/Serializable.h"

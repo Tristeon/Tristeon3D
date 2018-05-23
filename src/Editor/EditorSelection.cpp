@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "EditorSelection.h"
 #include "Selectable.h"

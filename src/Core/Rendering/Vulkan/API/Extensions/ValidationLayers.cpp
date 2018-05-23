@@ -13,7 +13,7 @@ namespace Tristeon
 				//Required validation layers
 				std::vector<const char*> ValidationLayers::validationLayers = { "VK_LAYER_LUNARG_standard_validation" };
 				
-#if TRISTEON_EDITOR 
+#ifdef TRISTEON_EDITOR 
 				int ValidationLayers::enableValidationLayers = true;
 #else
 				int ValidationLayers::enableValidationLayers = false;

@@ -1,10 +1,11 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "SkyboxFileItem.h"
 #include "Core/Rendering/Skybox.h"
 #include "Core/Rendering/RenderManager.h"
 #include <ImGUI/imgui.h>
 #include "Editor/JsonSerializer.h"
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -33,7 +34,7 @@ namespace Tristeon
 		nlohmann::json SkyboxFileItem::serialize()
 		{
 			nlohmann::json j = AssetItem::serialize();
-			j["typeID"] = typeid(SkyboxFileItem).name();
+			j["typeID"] = TRISTEON_TYPENAME(SkyboxFileItem);
 			return j;
 		}
 	}

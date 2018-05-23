@@ -228,7 +228,7 @@ namespace Tristeon
 					vector<InternalMeshRenderer*> internalRenderers;
 					std::map<Components::Camera*, CameraRenderData*> cameraData;
 					ObjectPool<CameraRenderData*> cameraDataPool;
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 					/**
 					 * \brief EditorData, stores the information we need for the editor camera to render
 					 */

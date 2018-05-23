@@ -1,5 +1,6 @@
 #include "Material.h"
 #include "Editor/JsonSerializer.h"
+#include "XPlatform/typename.h"
 
 #include <boost/filesystem.hpp>
 namespace filesystem = boost::filesystem;
@@ -15,7 +16,7 @@ namespace Tristeon
 			nlohmann::json Material::serialize()
 			{
 				nlohmann::json j;
-				j["typeID"] = typeid(Material).name();
+				j["typeID"] = TRISTEON_TYPENAME(Material);
 				j["texturePaths"] = texturePaths;
 				j["vectors"] = vectors;
 				j["colors"] = colors;

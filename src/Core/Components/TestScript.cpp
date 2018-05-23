@@ -4,6 +4,8 @@
 #include "Misc/Hardware/Keyboard.h"
 #include "Misc/Hardware/Time.h"
 
+#include "XPlatform/typename.h"
+
 DerivedRegister<TestScript> TestScript::reg;
 
 void TestScript::update()
@@ -14,7 +16,7 @@ void TestScript::update()
 nlohmann::json TestScript::serialize()
 {
 	nlohmann::json output;
-	output["typeID"] = typeid(TestScript).name();
+	output["typeID"] = TRISTEON_TYPENAME(TestScript);
 	output["speed"] = speed;
 	return output;
 }

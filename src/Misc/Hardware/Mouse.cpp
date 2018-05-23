@@ -3,7 +3,7 @@
 #include "Keyboard.h"
 #include "Data/Image.h"
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 #include "ImGUI/imgui_impl_glfw_vulkan.h"
 #endif
 
@@ -124,7 +124,7 @@ namespace Tristeon
 			//Store button state
 			buttons[button] = action;
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 			//Imgui callback
 			ImGui_ImplGlfwVulkan_MouseButtonCallback(nullptr, button, action, mods);
 #endif
@@ -152,7 +152,7 @@ namespace Tristeon
 		{
 			//Store new info and call imgui callback
 			scroll = Math::Vector2(x, y);
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 			//Imgui callback
 			ImGui_ImplGlfwVulkan_ScrollCallback(nullptr, x, y);
 #endif

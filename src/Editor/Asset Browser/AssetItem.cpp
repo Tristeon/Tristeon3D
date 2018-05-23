@@ -1,15 +1,16 @@
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include "AssetItem.h"
 #include "FolderItem.h"
 #include "Editor/JsonSerializer.h"
 #include "Scenes/Scene.h"
+#include "XPlatform/typename.h"
 
 #include <boost/filesystem.hpp>
 namespace filesystem = boost::filesystem;
 
 using namespace Tristeon::Editor;
-DerivedRegister<AssetItem> AssetItem::reg;
+DerivedRegister<Tristeon::Editor::AssetItem> AssetItem::reg{};
 
 AssetItem::AssetItem()
 {
@@ -23,7 +24,7 @@ AssetItem::~AssetItem()
 nlohmann::json AssetItem::serialize()
 {
 	nlohmann::json output = FileItem::serialize();
-	output["typeID"] = typeid(AssetItem).name();
+	output["typeID"] = TRISTEON_TYPENAME(AssetItem);
 	output["extension"] = extension;
 	return output;
 }

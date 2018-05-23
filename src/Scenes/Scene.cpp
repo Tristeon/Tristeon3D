@@ -1,4 +1,6 @@
 ﻿#include "Scene.h"
+#include <iostream>
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -19,7 +21,7 @@ namespace Tristeon
 		nlohmann::json Scene::serialize()
 		{
 			nlohmann::json output;
-			output["typeID"] = typeid(Scene).name();
+			output["typeID"] = TRISTEON_TYPENAME(Scene);
 			output["name"] = name;
 			nlohmann::json jsonArray = nlohmann::json::array();
 			for (int i = 0; i < gameObjects.size(); i++)

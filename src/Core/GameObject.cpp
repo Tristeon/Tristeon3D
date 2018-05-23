@@ -1,5 +1,6 @@
 ﻿#include "GameObject.h"
 #include "Scenes/SceneManager.h"
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -25,7 +26,7 @@ namespace Tristeon
 		{
 			//Write gameobject data into json
 			nlohmann::json output;
-			output["typeID"] = typeid(GameObject).name();
+			output["typeID"] = TRISTEON_TYPENAME(GameObject);
 			output["instanceID"] = getInstanceID();
 			output["active"] = active;
 			output["name"] = name;

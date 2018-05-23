@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "MaterialFileItem.h"
 #include "Editor/EditorImage.h"
@@ -6,6 +6,7 @@
 #include "Core/Rendering/RenderManager.h"
 #include "Core/Rendering/Vulkan/MaterialVulkan.h"
 #include <string.h>
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -39,7 +40,7 @@ namespace Tristeon
 		nlohmann::json MaterialFileItem::serialize()
 		{
 			nlohmann::json output = AssetItem::serialize();
-			output["typeID"] = typeid(MaterialFileItem).name();
+			output["typeID"] = TRISTEON_TYPENAME(MaterialFileItem);
 			return output;
 		}
 
@@ -68,9 +69,9 @@ namespace Tristeon
 					if (ImGui::IsMouseClicked(0))
 					{
 						const auto mouse = ImGui::GetMousePos();
-						if (mouse.x > ImGui::GetItemRectMax().x || 
+						if (mouse.x > ImGui::GetItemRectMax().x ||
 							mouse.y > ImGui::GetItemRectMax().y ||
-							mouse.x < ImGui::GetItemRectMin().x || 
+							mouse.x < ImGui::GetItemRectMin().x ||
 							mouse.y < ImGui::GetItemRectMin().y)
 						{
 							openColorPicker = "";
@@ -85,7 +86,7 @@ namespace Tristeon
 					ImGui::SameLine();
 					ImGui::Text(name.c_str());
 				}
-				
+
 				material->setColor(name, Misc::Color(value[0], value[1], value[2], value[3]));
 				break;
 			}

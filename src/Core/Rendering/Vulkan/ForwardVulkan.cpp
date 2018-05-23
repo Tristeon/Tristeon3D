@@ -67,7 +67,7 @@ namespace Tristeon
 					data.view = view;
 					data.skyboxSet = skybox != nullptr ? ((Skybox*)skybox)->lightingSet : nullptr;
 		
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 					//Draw grid
 					if (!vkRenderManager->inPlayMode && vkRenderManager->grid != nullptr)
 					{

@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "EditorNodeTree.h"
 #include "Scenes/SceneManager.h"
@@ -50,7 +50,7 @@ EditorNode* EditorNodeTree::findNodeByInstanceID(std::string nodeInstanceID)
 		if (nodes[i]->connectedGameObject->transform.get()->getInstanceID() == nodeInstanceID)
 			return nodes[i].get();
 	}
-	throw std::exception("InstanceID couldn't be found");
+	throw std::runtime_error("InstanceID couldn't be found");
 }
 
 void EditorNodeTree::createParentalBonds()

@@ -1,4 +1,5 @@
 ﻿#include "Color.h"
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -28,7 +29,7 @@ namespace Tristeon
 		{
 			//Serialize into a json file
 			nlohmann::json j;
-			j["typeID"] = typeid(Color).name();
+			j["typeID"] = TRISTEON_TYPENAME(Color);
 			j["r"] = r;
 			j["g"] = g;
 			j["b"] = b;

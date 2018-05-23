@@ -6,7 +6,7 @@ class JsonSerializer
 public:
 	/**
 	 * \brief Serializes the obj into json and creates a file using the given path
-	 * \param path the filepath that is used to create the file 
+	 * \param path the filepath that is used to create the file
 	 * \param obj the object that is turned into json
 	 */
 	template <typename T> static void serialize(const std::string& path, T& obj);
@@ -38,7 +38,8 @@ template <typename T>
 void JsonSerializer::serialize(const std::string& path, T& obj)
 {
 	//Convert the object instance to json data
-	JsonSerializer::serialize(path,obj.serialize());
+	nlohmann::json j = obj.serialize();
+	JsonSerializer::serialize(path, j);
 }
 
 inline nlohmann::json JsonSerializer::load(const std::string& path)

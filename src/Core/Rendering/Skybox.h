@@ -4,7 +4,7 @@
 #include <glm/mat4x4.hpp>
 #include "Data/Mesh.h"
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 namespace Tristeon {
 	namespace Editor {
 		class SkyboxFileItem;
@@ -21,7 +21,7 @@ namespace Tristeon
 		{
 			class Skybox : public TObject
 			{
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 				friend Editor::SkyboxFileItem;
 #endif
 			public:

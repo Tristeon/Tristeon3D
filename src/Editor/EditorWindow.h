@@ -1,5 +1,5 @@
 #pragma once
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include <ImGUI/imgui.h>
 
@@ -7,13 +7,15 @@ namespace Tristeon
 {
 	namespace Editor
 	{
+	    class TristeonEditor;
+
 		/**
 		 * \brief EditorWindow is an interface to inherit from to create your own window, using imgui calls and overriding the ongui
 		 * function which currently is called every frame. EditorWindows currently have to be manually registered to the Editor
 		 */
 		class EditorWindow
 		{
-			friend class TristeonEditor;
+			friend TristeonEditor;
 		public:
 			EditorWindow();
 			virtual ~EditorWindow();

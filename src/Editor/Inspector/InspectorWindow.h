@@ -1,5 +1,5 @@
 #pragma once
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include "Editor/EditorWindow.h"
 #include <vector>
@@ -27,7 +27,7 @@ namespace Tristeon
 			 * \brief Draws a gameobject to the inspector
 			 */
 			void drawEditorNode(EditorNode* node);
-			
+
 			void drawPrefab(PrefabFileItem* prefabData);
 
 			/**
@@ -42,7 +42,7 @@ namespace Tristeon
 			void drawSerializedObject(nlohmann::json& serializedComponent);
 
 			/**
-			 * \brief typeid(T).name() is used to store typeids, in order to retrieve the name of a type the function
+			 * \brief TRISTEON_TYPENAME is used to store typeids, in order to retrieve the name of a type the function
 			 * splits the string until it only has the pure name without namespace and other strings.
 			 */
 			std::string typeIdNameToClassName(std::string typeIdName);

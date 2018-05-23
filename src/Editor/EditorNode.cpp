@@ -1,4 +1,4 @@
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include "EditorNode.h"
 #include "JsonSerializer.h"

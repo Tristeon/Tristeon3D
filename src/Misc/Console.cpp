@@ -8,7 +8,7 @@ namespace Tristeon
 	{
 		void Console::init()
 		{
-			#if TRISTEON_LOGENABLED
+			#ifdef TRISTEON_LOGENABLED
 			//Clear and set the color to white
 			clear();
 			setColor(rlutil::WHITE);
@@ -17,7 +17,7 @@ namespace Tristeon
 
 		void Console::t_assert(bool condition, std::string errorMessage)
 		{
-			#if TRISTEON_LOGENABLED
+			#ifdef TRISTEON_LOGENABLED
 			if (!condition)
 				error(errorMessage);
 			#endif
@@ -25,7 +25,7 @@ namespace Tristeon
 
 		void Console::clear()
 		{
-			#if TRISTEON_LOGENABLED
+			#ifdef TRISTEON_LOGENABLED
 			if (system("CLS"))
 				system("clear");
 			#endif
@@ -33,14 +33,14 @@ namespace Tristeon
 
 		void Console::write(std::string data)
 		{
-			#if TRISTEON_LOGENABLED
+			#ifdef TRISTEON_LOGENABLED
 			std::cout << data << std::endl;
 			#endif
 		}
 
 		void Console::warning(std::string data)
 		{
-			#if TRISTEON_LOGENABLED
+			#ifdef TRISTEON_LOGENABLED
 			setColor(rlutil::YELLOW);
 			std::cout << "[WARNING]\t" << data << std::endl;
 			setColor(rlutil::WHITE);
@@ -49,7 +49,7 @@ namespace Tristeon
 
 		void Console::error(std::string data)
 		{
-#if TRISTEON_LOGENABLED
+#ifdef TRISTEON_LOGENABLED
 			setColor(rlutil::LIGHTRED);
 			std::cout << "[ERROR]\t" << data << std::endl;
 			setColor(rlutil::WHITE);

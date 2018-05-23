@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "InspectorWindow.h"
 #include <ImGUI/imgui.h>

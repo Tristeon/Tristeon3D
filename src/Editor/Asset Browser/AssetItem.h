@@ -1,6 +1,6 @@
 #pragma once
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include "FileItem.h"
 #include "Editor/TypeRegister.h"
@@ -30,7 +30,7 @@ namespace Tristeon
 			* \param extension The file extension of the file
 			*/
 			void init(std::string name, FolderItem* folder, std::string extension = "") override;
-			
+
 			/**
 			 * \brief Creates the actual file, must be called after init
 			 * \param json The serialized data to create the file with
@@ -41,7 +41,7 @@ namespace Tristeon
 			* \brief Moves the file to a new filepath
 			*/
 			void move(FolderItem* destination) override;
-			
+
 			/**
 			* \brief Remove the file including the meta file
 			*/
@@ -55,13 +55,13 @@ namespace Tristeon
 			virtual void drawOnInspector();
 
 			/**
-			 * \return Returns the filepath of the asset based on the name, filepath and extension 
+			 * \return Returns the filepath of the asset based on the name, filepath and extension
 			 */
 			std::string getFilePath() const;
 
 			std::string extension;
 		private:
-			static DerivedRegister<AssetItem> reg;
+			REGISTER_TYPE_H(Tristeon::Editor::AssetItem)
 		};
 	}
 }

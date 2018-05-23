@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "SceneWindow.h"
 #include "Editor/Asset Browser/AssetBrowser.h"
@@ -13,6 +13,7 @@
 #include "Core/GameObject.h"
 #include "Core/Components/Camera.h"
 #include "Editor/EditorNode.h"
+#include "XPlatform/typename.h"
 
 const int yOffset = 110;
 
@@ -38,12 +39,12 @@ void Tristeon::Editor::SceneWindow::onGui()
 
 	//Draws gizmos over the scene
 	EditorNode* obj = dynamic_cast<EditorNode*>(EditorSelection::getSelectedItem());
-	
+
 	//Is the selected editor item an EditorNode?
 	if (obj != nullptr)
 	{
 		nlohmann::json* data = obj->getData();
-		if ((*data)["typeID"] == typeid(Core::GameObject).name())
+		if ((*data)["typeID"] == TRISTEON_TYPENAME(Core::GameObject))
 		{
 			Core::GameObject temp;
 			temp.deserialize(*data);

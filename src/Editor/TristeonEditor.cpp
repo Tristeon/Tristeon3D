@@ -1,4 +1,4 @@
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include "TristeonEditor.h"
 #include <ImGUI/imgui_impl_glfw_vulkan.h>

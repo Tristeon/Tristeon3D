@@ -55,7 +55,7 @@ namespace Tristeon
 			//Store key state
 			keys[key] = action;
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 			//Imgui callback
 			ImGui_ImplGlfwVulkan_KeyCallback(nullptr, key, scancode, action, mods);
 #endif

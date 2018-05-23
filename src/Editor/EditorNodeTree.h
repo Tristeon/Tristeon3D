@@ -1,5 +1,5 @@
 ﻿#pragma once
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include <vector>
 #include "EditorNode.h"

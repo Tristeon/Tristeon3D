@@ -1,5 +1,5 @@
 ﻿#pragma once
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 
 #include "AssetItem.h"
 #include "Core/Rendering/Material.h"

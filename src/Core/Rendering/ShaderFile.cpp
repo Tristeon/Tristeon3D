@@ -3,6 +3,7 @@
 #include <spirv_cross/spirv_cross.hpp>
 #include "Core/Settings.h"
 #include <fstream>
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -58,7 +59,7 @@ namespace Tristeon
 			nlohmann::json ShaderFile::serialize()
 			{
 				nlohmann::json j;
-				j["typeID"] = typeid(ShaderFile).name();
+				j["typeID"] = TRISTEON_TYPENAME(ShaderFile);
 				j["nameID"] = nameID;
 				j["directory"] = directory;
 				j["vertexName"] = vertexName;
@@ -129,12 +130,12 @@ namespace Tristeon
 			bool ShaderFile::hasVariable(int set, int binding, DataType data, ShaderType stage)
 			{
 				spirv_cross::Compiler compiler = getCompiler(Settings::getRenderAPI(), stage);
-				
+
 				spirv_cross::ShaderResources res = compiler.get_shader_resources();
 
 				switch(data)
 				{
-				case DT_Image: 
+				case DT_Image:
 					for (const auto s : res.sampled_images)
 					{
 						if (compiler.get_decoration(s.id, spv::DecorationDescriptorSet) != set ||
@@ -143,7 +144,7 @@ namespace Tristeon
 						return true;
 					}
 					break;
-				case DT_Color: 
+				case DT_Color:
 				case DT_Float:
 				case DT_Vector3:
 				case DT_Struct:
@@ -183,7 +184,7 @@ namespace Tristeon
 				prop.size = 0;
 
 				spirv_cross::SPIRType t = comp.get_type(typeID);
-				
+
 				if (t.vecsize == 3)
 				{
 					prop.valueType = DT_Vector3;
@@ -270,7 +271,7 @@ namespace Tristeon
 					if (u.name != "UniformBufferObject")
 					{
 						unsigned int const binding = comp.get_decoration(u.id, spv::DecorationBinding);
-						
+
 						ShaderProperty const p = getProperty(comp, u.name, u.base_type_id, u.id, stage);
 						if (p.valueType != DT_Unknown)
 							properties[binding] = p;

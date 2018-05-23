@@ -2,6 +2,7 @@
 #include "IntrospectionInterface.h"
 #include "Serializable.h"
 #include "Misc/Console.h"
+#include "XPlatform/typename.h"
 
 template <typename T> std::unique_ptr<IntrospectionInterface> CreateInstance() { return std::make_unique<T>(); }
 
@@ -11,8 +12,7 @@ template <typename T> std::unique_ptr<IntrospectionInterface> CreateInstance() {
  */
 struct TypeRegister
 {
-	//Map that contains typeid as key and createinstance methods as value
-	//the keys are saved as typeid(T).name()
+	//Map that contains typename as key and createinstance methods as value
 	using TypeMap = std::map<std::string, std::unique_ptr<IntrospectionInterface>(*)()>;
 
 	/**
@@ -46,7 +46,7 @@ struct DerivedRegister : TypeRegister
 {
 	DerivedRegister()
 	{
-		getMap()->emplace(typeid(T).name(), &CreateInstance<T>);
+		getMap()->emplace(TRISTEON_TYPENAME(T), &CreateInstance<T>);
 	}
 };
 

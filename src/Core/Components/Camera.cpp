@@ -8,6 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Core/Rendering/RenderManager.h"
 
+#include <XPlatform/typename.h>
+
 namespace Tristeon
 {
 	namespace Core
@@ -75,7 +77,7 @@ namespace Tristeon
 			nlohmann::json Camera::serialize()
 			{
 				nlohmann::json output;
-				output["typeID"] = typeid(Camera).name();
+				output["typeID"] = TRISTEON_TYPENAME(Camera);
 				output["fov"] = _fov;
 				output["nearClippingPlane"] = _nearClippingPlane;
 				output["farClippingPlane"] = _farClippingPlane;

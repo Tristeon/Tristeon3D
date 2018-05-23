@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "EditorImage.h"
 #include "Core/Rendering/Vulkan/HelperClasses/VulkanImage.h"

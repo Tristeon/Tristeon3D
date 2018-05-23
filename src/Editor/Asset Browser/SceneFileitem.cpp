@@ -1,9 +1,9 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "SceneFileItem.h"
-#include "Editor/JsonSerializer.h"
 #include "Scenes/Scene.h"
 #include "Scenes/SceneManager.h"
+#include "XPlatform/typename.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -35,7 +35,7 @@ void SceneFileItem::removeFile()
 nlohmann::json SceneFileItem::serialize()
 {
 	nlohmann::json output;
-	output["typeID"] = typeid(SceneFileItem).name();
+	output["typeID"] = TRISTEON_TYPENAME(SceneFileItem);
 	output["isFolder"] = isFolder;
 	output["filepath"] = filepath;
 	output["name"] = name;

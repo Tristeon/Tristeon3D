@@ -9,7 +9,7 @@ namespace spirv_cross {
 	class Compiler;
 }
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 namespace Tristeon {
 	namespace Editor {
 		class ShaderFileItem;
@@ -77,7 +77,7 @@ namespace Tristeon
 			 */
 			class ShaderFile : public Serializable
 			{
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 				friend Editor::ShaderFileItem;
 #endif
 			public:

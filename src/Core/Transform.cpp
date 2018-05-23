@@ -1,6 +1,7 @@
 ﻿#include "Transform.h"
 
 #include <glm/gtx/matrix_decompose.hpp>
+#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -61,7 +62,7 @@ namespace Tristeon
 		nlohmann::json Transform::serialize()
 		{
 			nlohmann::json output;
-			output["typeID"] = typeid(Transform).name();
+			output["typeID"] = TRISTEON_TYPENAME(Transform);
 			output["instanceID"] = getInstanceID();
 			output["parentID"] = parent == nullptr ? "null" : parent->getInstanceID();
 			output["localPosition"] = _localPosition.serialize();
@@ -145,10 +146,10 @@ namespace Tristeon
 		{
 			if (parent == nullptr)
 				return _localScale;
-			
+
 			//Get scale off our transformation matrix
 			glm::mat4 const trans = getTransformationMatrix();
-				
+
 			glm::vec3 scale;
 			//Unused variables but required in the function
 			glm::quat rotation;
@@ -178,7 +179,7 @@ namespace Tristeon
 				//New localscale, defined as x
 				//x * parent = goal //When we multiply our new localscale with parent it should equal to our goal
 				//x = goal / parent //Which means that we can define x as this
-				//so 
+				//so
 				//_localScale = scale / parent
 				_localScale = scale / Math::Vector3(s.x, s.y, s.z);
 			}
@@ -188,7 +189,7 @@ namespace Tristeon
 		{
 			if (parent == nullptr)
 				return _localRotation;
-			
+
 			//Get global rotation off our matrix
 			glm::mat4 const trans = getTransformationMatrix();
 			glm::quat rotation;
@@ -228,7 +229,7 @@ namespace Tristeon
 				//So x = gl / pr
 				glm::mat4 const x = gl / pr;
 				decompose(x, scale, rotation, translation, skew, perspective);
-				
+
 				//Local rotation
 				glm::quat const local = rotation;
 				_localRotation = Math::Quaternion(local);

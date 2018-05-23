@@ -3,7 +3,7 @@
 #include <string>
 #include "Scene.h"
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 #include "Editor/Asset Browser/SceneFileitem.h"
 #endif
 
@@ -13,7 +13,7 @@ namespace Tristeon
 	{
 		class SceneManager final : public Core::Managers::Manager
 		{
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 			friend class Tristeon::Editor::SceneFileItem;
 #endif
 		public:

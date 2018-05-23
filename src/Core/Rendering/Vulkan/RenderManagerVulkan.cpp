@@ -67,7 +67,7 @@ namespace Tristeon
 						resizeWindow(static_cast<int>(vec->x), static_cast<int>(vec->y));
 					});
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 					ManagerProtocol::subscribeToMessage(MT_PRERENDER, [&](Message msg) { ManagerProtocol::sendMessage({ MT_SHARE_DATA, &editor }); });
 #endif
 
@@ -85,7 +85,7 @@ namespace Tristeon
 					//Setup vulkan
 					setupVulkan();
 
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 					//Setup editor camera
 					editor.trans = new Transform();
 					editor.cam = new CameraRenderData();
@@ -146,7 +146,7 @@ namespace Tristeon
 				{
 					if (!inPlayMode)
 					{
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 						//Render editor camera
 						glm::mat4 const view = Components::Camera::getViewMatrix(editor.trans);
 						glm::mat4 const proj = Components::Camera::getProjectionMatrix((float)editor.size.x / (float)editor.size.y, 60, 0.1f, 1000.0f);
@@ -184,7 +184,7 @@ namespace Tristeon
 					d.destroyRenderPass(offscreenPass);
 
 					skyboxes.clear();
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 					//Editor
 					delete editor.trans;
 					delete grid;
@@ -286,7 +286,7 @@ namespace Tristeon
 					}
 					else
 					{
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 						//Submit editor camera
 						CameraRenderData* c = editor.cam;
 						if (c != nullptr)
@@ -490,7 +490,7 @@ namespace Tristeon
 					//Rebuild camera data
 					for (auto const p : cameraData)
 						p.second->rebuild(this, offscreenPass, onscreenPipeline);
-#if TRISTEON_EDITOR
+#ifdef TRISTEON_EDITOR
 					//Rebuild editor data
 					if (editor.cam != nullptr)
 						editor.cam->rebuild(this, offscreenPass, onscreenPipeline);

@@ -1,4 +1,4 @@
-﻿#if TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "FolderItem.h"
 #include "FileItemManager.h"
@@ -9,6 +9,7 @@
 #include "Editor/EditorDragging.h"
 #include "MeshFileItem.h"
 #include <assimp/Importer.hpp>
+#include "XPlatform/typename.h"
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -127,11 +128,11 @@ void FolderItem::setup(bool doChildren)
 			}
 			metaFiles.push_back(filePathGenericString);
 			metadata[originalFilePath] = "Has meta file";
-			cout << "Found meta file: " << filePathGenericString << endl;
+			Misc::Console::write("Found meta file: " + filePathGenericString);
 		}
 		else
 		{
-			cout << "Found file: " << filePathGenericString << endl;
+			Misc::Console::write("Found file: " + filePathGenericString);
 			filesInFolder.push_back(filePathGenericString);
 		}
 	}
@@ -147,17 +148,19 @@ void FolderItem::setup(bool doChildren)
 			cout << "Adding metadata for " << filepath << endl;
 		}
 	}
-
-	for (string metafilepath : metaFiles) {
+	for (string metafilepath : metaFiles)
+    {
 		FileItem* fileItemToAdd = nullptr;
 		ifstream stream(metafilepath);
 		if (!stream.good()) {
 			cout << "Serializer can't serialize cus can't read file: " << filepath << "\n";
 			continue;
 		}
+
 		nlohmann::json input;
 		stream >> input;
 		auto deserializedObject = TypeRegister::createInstance(input["typeID"]);
+
 		fileItemToAdd = (FileItem*) deserializedObject.get();
 		deserializedObject.release();
 		fileItemToAdd->parent = this;
@@ -215,7 +218,7 @@ void FolderItem::drawHierarchy(FileItemManager* itemManager)
 nlohmann::json FolderItem::serialize()
 {
 	nlohmann::json output = FileItem::serialize();
-	output["typeID"] = typeid(FolderItem).name();
+	output["typeID"] = TRISTEON_TYPENAME(FolderItem);
 	return output;
 }
 
@@ -278,7 +281,7 @@ void FolderItem::move(FolderItem* destination)
 			if (!childItem->isFolder) childItem->move(destination);
 			else childItem->move(this);
 		}
-		
+
 		//Delete old folder & meta data
 		fs::remove_all(oldFilepath +name);
 		fs::remove(oldFilepath + name + ".meta");
