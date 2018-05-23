@@ -7,10 +7,10 @@ template<typename T>
 std::string getTypename()
 {
     std::string name = typeid(T).name();
-    const auto vec = StringUtils::split(name, ' ');
+    std::vector<std::string> vec = StringUtils::split(name, ' ');
     if (vec.size() < 2)
     {
-        Misc::Console::warning("Failed to getTypename. Returning empty string!");
+        Tristeon::Misc::Console::warning("Failed to getTypename. Returning empty string!");
         return "";
     }
 
