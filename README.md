@@ -38,7 +38,8 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
 # How to build the project
 Tristeon uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
 Officially confirmed configurations:
-* MSVC Visual Studio 2017 with x64
+* MSVC Visual Studio 2017 | x64
+* GCC MingW-w64 | x64
 
 If you do not hav the Vulkan SDK installed, make sure to install it to allow for additional debugging. You can get it here: https://vulkan.lunarg.com/
 
@@ -85,9 +86,6 @@ Watch the showcase video here:
 https://www.youtube.com/watch?v=6kVTGHOJu-E
 ![Screenshot of the showcase video](https://i.imgur.com/R6GoWQ6.png)
 
-# Engine architecture
-<img src="Documents/Engine Architecture/Tristeon Core Architecture.png">
-
 # Authors
 Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress.com/)
 
@@ -108,6 +106,8 @@ Tristeon uses the following third-party libraries:
 * [stb](https://github.com/nothings/stb)
 * [Vulkan](https://github.com/KhronosGroup/Vulkan-Hpp)
 * [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
+* [Boost](https://www.boost.org/doc/libs/1_67_0/libs/filesystem/doc/index.htm)
+* [Boost-cmake](https://github.com/Orphis/boost-cmake)
 
 Other resources:
 * [Vulkan tutorial by Alexander Overvoorde](https://vulkan-tutorial.com/)
