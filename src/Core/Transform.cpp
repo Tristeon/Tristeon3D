@@ -100,7 +100,7 @@ namespace Tristeon
 		{
 			Math::Vector3 pos = position.get();
 			Math::Vector3 tar = target->position.get();
-			glm::mat4 transf = glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } );
+			glm::mat4 transf = glm::inverse(glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } ));
 
 			glm::vec3 s, p;
 			glm::quat r;
