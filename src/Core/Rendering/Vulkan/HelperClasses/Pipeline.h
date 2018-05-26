@@ -120,6 +120,8 @@ namespace Tristeon
 					* \return Returns the resulting shader module
 					*/
 					static vk::ShaderModule createShaderModule(const std::vector<char>& code, vk::Device device);
+
+					void recompile(ShaderFile file);
 				private:
 					void createDescriptorLayout(std::map<int, ShaderProperty> properties);
 					/**
@@ -204,6 +206,9 @@ namespace Tristeon
 					 * \brief The shaderfile describing the shader filepath
 					 */
 					ShaderFile file;
+
+					vk::Extent2D extent;
+					vk::RenderPass renderpass;
 				};
 			}
 		}

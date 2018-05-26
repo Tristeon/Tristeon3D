@@ -1,4 +1,5 @@
-﻿#ifdef TRISTEON_EDITOR
+﻿#include "Core/Rendering/RenderManager.h"
+#ifdef TRISTEON_EDITOR
 
 #include "ShaderFileItem.h"
 #include "Core/Rendering/ShaderFile.h"
@@ -27,6 +28,9 @@ void ShaderFileItem::drawOnInspector()
 	file->directory = inputString("Shader directory", file->directory);
 	file->vertexName = inputString("Vertex shader name", file->vertexName);
 	file->fragmentName = inputString("Fragment shader name", file->fragmentName);
+
+	if (ImGui::Button("Recompile"))
+		Core::Rendering::RenderManager::recompileShader(*file);
 
 	JsonSerializer::serialize<Core::Rendering::ShaderFile>(getFilePath(), *file);
 	delete file;

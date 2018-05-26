@@ -128,6 +128,7 @@ namespace Tristeon
 						if (p->getShaderFile().getNameID() == file.getNameID())
 							return p;
 
+					print("Creating a new Pipeline with name " + file.getNameID());
 					
 					Pipeline *p = new Pipeline(rm->data, 
 						file, 
@@ -383,6 +384,13 @@ namespace Tristeon
 					skybox->init();
 					skyboxes[filePath] = std::unique_ptr<Rendering::Skybox>(skybox);
 					return skyboxes[filePath].get();
+				}
+
+				void RenderManager::_recompileShader(ShaderFile file)
+				{
+					print("Recompiling pipeline " + file.getNameID());
+					Pipeline* pipeline = getPipeline(file);
+					pipeline->recompile(file);
 				}
 
 				TObject* RenderManager::registerRenderer(Message msg)

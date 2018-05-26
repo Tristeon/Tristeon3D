@@ -38,11 +38,17 @@ namespace Tristeon
 				void Skybox::init()
 				{
 					setupCubemap();
-					if (!cubemapLoaded) return;
+					if (!cubemapLoaded)
+					{
+						Misc::Console::warning("Failed to load Skybox map " + texturePath);
+						return;
+					}
 					setupPipeline();
 					createUniformBuffer();
 					createVertexBuffer();
 					createIndexBuffer();
+					if (!vertexBuffer || !indexBuffer)
+						Misc::Console::warning("Failed to load Skybox model!");
 					createDescriptorSet();
 					createCommandBuffers();
 					createOffscreenDescriptorSet();
@@ -50,9 +56,10 @@ namespace Tristeon
 
 				void Skybox::draw(glm::mat4 view, glm::mat4 proj)
 				{
-					static const size_t ubo_size = sizeof(UniformBufferObject);
-
 					if (data == nullptr)
+						return;
+
+					if (vertexBuffer == nullptr || indexBuffer == nullptr)
 						return;
 
 					ubo.model = glm::mat4(1.0);

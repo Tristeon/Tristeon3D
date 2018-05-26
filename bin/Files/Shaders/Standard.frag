@@ -108,6 +108,7 @@ void main()
 
     //Result
     frag_color = vec4(color, 1);
+    //frag_color = vec4(1, 1, 1, 1);
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)

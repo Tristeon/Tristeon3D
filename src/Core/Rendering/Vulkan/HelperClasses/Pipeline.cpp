@@ -140,6 +140,12 @@ namespace Tristeon
 					return device.createShaderModule(info, nullptr);
 				}
 
+				void Pipeline::recompile(ShaderFile file)
+				{
+					this->file = file;
+					rebuild(extent, renderpass);
+				}
+
 				Pipeline::~Pipeline()
 				{
 					//Destroy all resources allocated by pipeline
@@ -158,6 +164,9 @@ namespace Tristeon
 
 				void Pipeline::create(vk::Extent2D extent, vk::RenderPass renderPass, vk::CompareOp compare_op)
 				{
+					this->extent = extent;
+					this->renderpass = renderPass;
+
 					//Load shaders and create modules
 					Data::TextFile vertex = Data::TextFile(file.getPath(RAPI_Vulkan, ST_Vertex), Data::FileMode::FM_Binary);
 					Data::TextFile fragment = Data::TextFile(file.getPath(RAPI_Vulkan, ST_Fragment), Data::FileMode::FM_Binary);
