@@ -72,7 +72,7 @@ Planned (rendering/engine):
 * FMOD Audio integration
 
 # Known bugs
-* #1 Scene view won't display properly until the engine's game mode has been run at least once.
+* ~~#1 Scene view won't display properly until the engine's game mode has been run at least once.~~
 * #2 Asset browser deletion doesn't delete file
 * #3 Material changes don't always get applied
 * #4 Camera doesn't exist until pressing it (after scene load)
@@ -92,8 +92,8 @@ Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress
 Tristan Metz - Engine tool programmer (https://tristanmetz.software/)
 
 # Contribute
-Don't hesitate to contribute. You can contribute to the development of Tristeon by:
-* Submitting an issue 
+We'd love your help! You can contribute to the development of Tristeon by:
+* Submitting an issue
 * Submitting a pull request
 
 # Credits
