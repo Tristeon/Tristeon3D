@@ -80,6 +80,7 @@ Planned (rendering/engine):
 * #6 Material properties won't get applied properly with vectors
 * #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s, their subcomponents are called the same)
 * #8 DebugDrawManager only ever uses the color from the last add...() call
+* #9 Editor doesn't recognize engine filetypes correctly when they haven't been created in-engine. Will default to AssetItem
 
 # Showcase
 Watch the showcase video here:
