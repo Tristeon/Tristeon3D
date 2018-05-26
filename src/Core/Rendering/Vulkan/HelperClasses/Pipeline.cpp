@@ -143,6 +143,13 @@ namespace Tristeon
 				void Pipeline::recompile(ShaderFile file)
 				{
 					this->file = file;
+
+					//Destroy all resources allocated by pipeline
+					device.destroyDescriptorSetLayout(descriptorSetLayout1);
+					device.destroyDescriptorSetLayout(descriptorSetLayout2);
+					device.destroyDescriptorSetLayout(descriptorSetLayout3);
+					createDescriptorLayout(file.getProps());
+
 					rebuild(extent, renderpass);
 				}
 

@@ -71,9 +71,7 @@ namespace Tristeon
 				 */
 				virtual void setGridEnabled(bool enable);
 
-
-				static void recompileShader(ShaderFile file) { instance->_recompileShader(file); }
-
+				static void recompileShader(std::string filePath) { instance->_recompileShader(filePath); }
 
 				/**
 				* \brief Returns a material serialized from the given filepath
@@ -85,7 +83,7 @@ namespace Tristeon
 				static Skybox* getSkybox(std::string filePath);
 			protected:
 				virtual Skybox* _getSkybox(std::string filePath) = 0;
-				virtual void _recompileShader(ShaderFile file) = 0;
+				virtual void _recompileShader(std::string filePath) = 0;
 
 				/**
 				* \brief Returns a material serialized from the given filepath

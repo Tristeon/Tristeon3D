@@ -128,8 +128,6 @@ namespace Tristeon
 						if (p->getShaderFile().getNameID() == file.getNameID())
 							return p;
 
-					print("Creating a new Pipeline with name " + file.getNameID());
-					
 					Pipeline *p = new Pipeline(rm->data, 
 						file, 
 						rm->vkContext->getSwapchain()->extent2D.get(), 
@@ -386,11 +384,20 @@ namespace Tristeon
 					return skyboxes[filePath].get();
 				}
 
-				void RenderManager::_recompileShader(ShaderFile file)
+				void RenderManager::_recompileShader(std::string filePath)
 				{
-					print("Recompiling pipeline " + file.getNameID());
-					Pipeline* pipeline = getPipeline(file);
-					pipeline->recompile(file);
+					ShaderFile* file = JsonSerializer::deserialize<ShaderFile>(filePath);
+					Pipeline* pipeline = getPipeline(*file);
+					pipeline->recompile(*file);
+
+					for (const auto mat : materials)
+					{
+						if (mat.second->shaderFilePath == filePath)
+						{
+							mat.second->updateShader();
+							mat.second->updateProperties(true);
+						}
+					}
 				}
 
 				TObject* RenderManager::registerRenderer(Message msg)

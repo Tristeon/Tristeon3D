@@ -30,7 +30,7 @@ void ShaderFileItem::drawOnInspector()
 	file->fragmentName = inputString("Fragment shader name", file->fragmentName);
 
 	if (ImGui::Button("Recompile"))
-		Core::Rendering::RenderManager::recompileShader(*file);
+		Core::Rendering::RenderManager::recompileShader(getFilePath());
 
 	JsonSerializer::serialize<Core::Rendering::ShaderFile>(getFilePath(), *file);
 	delete file;

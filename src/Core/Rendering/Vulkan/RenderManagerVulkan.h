@@ -259,7 +259,7 @@ namespace Tristeon
 					void prepareOffscreenPass();
 				protected:
 					Rendering::Skybox* _getSkybox(std::string filePath) override;
-					void _recompileShader(ShaderFile file) override;
+					void _recompileShader(std::string file) override;
 				};
 			}
 		}
