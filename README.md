@@ -74,11 +74,11 @@ Planned (rendering/engine):
 # Known bugs
 * ~~#1 Scene view won't display properly until the engine's game mode has been run at least once.~~
 * #2 Asset browser deletion doesn't delete file
-* #3 Material changes don't always get applied
-* #4 Camera doesn't exist until pressing it (after scene load)
+* ~~#3 Material changes don't always get applied~~
+* ~~#4 Camera doesn't exist until pressing it (after scene load)~~
 * #5 New folders won't display until you reload the engine
 * #6 Material properties won't get applied properly with vectors
-* #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s)
+* #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s, their subcomponents are called the same)
 * #8 DebugDrawManager only ever uses the color from the last add...() call
 
 # Showcase
