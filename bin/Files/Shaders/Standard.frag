@@ -29,6 +29,7 @@ layout (location = 0) in vec3 inWorldPos;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
 layout(location = 3) in vec3 inViewPos;
+layout(location = 4) in float inDepth;
 
 //Output
 layout(location = 0) out vec4 frag_color;
@@ -97,18 +98,21 @@ void main()
         light += (kD * albedo / PI + specular) * NdotL * radiance;
     }
 
-    //Ambient light (improvised)
-    vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + light;
+    vec3 color = light * ao;
 
     //Convert from HDR to LDR range
     color = color / (color + vec3(1.0));
-    //Gamma correct from linear space (PBR required linear)
-    color = pow(color, vec3(1.0/2.2));
 
-    //Result
+    //PBR lighting is calculated in linear space with gamma 1
+    //Linear space is the physically "correct" space, lighting calculations and effects should be done in linear space
+    //However, CRT screens and modern LCD screens apply a gamma of around 2.2
+    //To negate this, we apply a gamma correction of 0.45 (or 1 / 2.2)
+    color = _pow(color, 0.45);
+	
+	//Simple fog
+	color = mix(color, vec3(inDepth), inDepth);
+	
     frag_color = vec4(color, 1);
-    //frag_color = vec4(1, 1, 1, 1);
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
