@@ -13,16 +13,7 @@ namespace Tristeon
 	class Application
 	{
 	public:
-		/**
-		 * \brief Cleans up the engine and the editor
-		 */
-		~Application();
-
-		/**
-		 * \brief Creates the engine and the editor and sets up the binding between the two
-		 */
-		void init();
-
+		Application();
 	private:
 		/**
 		 * \brief The main engine class

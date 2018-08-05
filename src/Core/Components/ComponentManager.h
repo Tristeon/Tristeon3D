@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Core/Managers/Manager.h"
 #include "Component.h"
 #include "Misc/vector.h"
 
@@ -7,31 +6,19 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
 		class Message;
 
 		namespace Components
 		{
-			//Forward decl
 			class Component;
 
 			/**
 			 * \brief ComponentManager manages the scripting components and calls their functions
 			 */
-			class ComponentManager : public Managers::Manager
+			class ComponentManager
 			{
 			public:
-				/**
-				 * \brief Sets up the function callbacks
-				 */
-				void init() override;
-
-			protected:
-				/**
-				 * \brief Removes all references to registered components
-				 */
-				void reset() override;
-
+				ComponentManager();
 			private:
 				/**
 				 * \brief Calls function func on every component

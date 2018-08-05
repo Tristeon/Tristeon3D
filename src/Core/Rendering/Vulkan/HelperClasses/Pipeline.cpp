@@ -175,8 +175,8 @@ namespace Tristeon
 					this->renderpass = renderPass;
 
 					//Load shaders and create modules
-					Data::TextFile vertex = Data::TextFile(file.getPath(RAPI_Vulkan, ST_Vertex), Data::FileMode::FM_Binary);
-					Data::TextFile fragment = Data::TextFile(file.getPath(RAPI_Vulkan, ST_Fragment), Data::FileMode::FM_Binary);
+					Data::TextFile vertex = Data::TextFile(file.getPath("VULKAN", ST_Vertex), Data::FileMode::FM_Binary);
+					Data::TextFile fragment = Data::TextFile(file.getPath("VULKAN", ST_Fragment), Data::FileMode::FM_Binary);
 					vertexShader = createShaderModule(vertex.readAllVector(), device);
 					fragmentShader = createShaderModule(fragment.readAllVector(), device);
 

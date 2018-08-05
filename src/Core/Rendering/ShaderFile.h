@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <string>
-#include "RenderAPI.h"
 #include "Editor/Serializable.h"
 #include "Editor/TypeRegister.h"
 #include <spirv_cross/spirv_cross.hpp>
@@ -100,7 +99,7 @@ namespace Tristeon
 				 * \param type The type of shader (vertex/fragment)
 				 * \return Returns a string describing the exact filepath
 				 */
-				std::string getPath(RenderAPI api, ShaderType type) const;
+				std::string getPath(std::string api, ShaderType type) const;
 				
 				/**
 				 * \return Gets the name id of the shaderfile 
@@ -122,7 +121,7 @@ namespace Tristeon
 
 				bool hasVariable(int set, int binding, DataType data, ShaderType stage);
 			private:
-				spirv_cross::Compiler getCompiler(RenderAPI rapi, ShaderType stage) const;
+				spirv_cross::Compiler getCompiler(std::string rapi, ShaderType stage) const;
 
 				/**
 				 * \brief ShaderFiles can be identified by their nameID

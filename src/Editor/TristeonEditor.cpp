@@ -1,3 +1,4 @@
+#include "Core/MessageBus.h"
 #ifdef TRISTEON_EDITOR
 
 #include "TristeonEditor.h"
@@ -12,20 +13,38 @@
 #include "Misc/Console.h"
 #include "Misc/Hardware/Keyboard.h"
 #include "EditorDragging.h"
-#undef assert
 
 namespace Tristeon
 {
 	using namespace Editor;
 
-	TristeonEditor::TristeonEditor()
+	TristeonEditor::TristeonEditor(Core::Engine* engine)
 	{
 		editorCamera = nullptr;
+
+		Core::VulkanBindingData *vkBinding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData.get());
+		this->vkDevice = vkBinding->device;
+		this->engine = engine;
+
+		bindImGui(vkBinding);
+		initFontsImGui(vkBinding);
+		setupCallbacks();
+		createCommandBuffers();
+
+		//Set style
+		setStyle();
+
+		//Create editor windows
+		EditorWindow::editor = this;
+		windows.push_back(std::move(std::make_unique<AssetBrowser>()));
+		windows.push_back(std::move(std::make_unique<GameObjectHierarchy>()));
+		windows.push_back(std::move(std::make_unique<InspectorWindow>()));
+		windows.push_back(std::move(std::make_unique<SceneWindow>(this)));
 	}
 
 	TristeonEditor::~TristeonEditor()
 	{
-		Core::ManagerProtocol::sendMessage(Core::Message(Core::MT_RENDERINGCOMPONENT_DEREGISTER, renderable));
+		Core::MessageBus::sendMessage(Core::Message(Core::MT_RENDERINGCOMPONENT_DEREGISTER, renderable));
 		delete renderable;
 
 		vkDevice.waitIdle();
@@ -75,7 +94,7 @@ namespace Tristeon
 		style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 		style->Colors[ImGuiCol_Header] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
 		style->Colors[ImGuiCol_HeaderActive] = ImVec4(0, 0, 0, 0);
-		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.301, 0.537, .788, 1);
+		style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.301f, 0.537f, .788f, 1);
 		style->Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
 		style->Colors[ImGuiCol_ColumnHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 		style->Colors[ImGuiCol_ColumnActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
@@ -94,34 +113,12 @@ namespace Tristeon
 		style->Colors[ImGuiCol_TSelectableActive] = ImVec4(1,1,1,1);
 	}
 
-	void TristeonEditor::init(Core::Engine* engine)
-	{
-		Core::VulkanBindingData *vkBinding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData.get());
-		this->vkDevice = vkBinding->device;
-		this->engine = engine;
-
-		bindImGui(vkBinding);
-		initFontsImGui(vkBinding);
-		setupCallbacks();
-		createCommandBuffers();
-
-		//Set style
-		setStyle();
-
-		//Create editor windows
-		EditorWindow::editor = this;
-		windows.push_back(std::move(std::make_unique<AssetBrowser>()));
-		windows.push_back(std::move(std::make_unique<GameObjectHierarchy>()));
-		windows.push_back(std::move(std::make_unique<InspectorWindow>()));
-		windows.push_back(std::move(std::make_unique<SceneWindow>(this)));
-	}
-
 	void TristeonEditor::onGui()
 	{
 		if (Misc::Keyboard::getKeyDown(Misc::KeyCode::SPACE))
 		{
 			inPlayMode = !inPlayMode;
-			Core::ManagerProtocol::sendMessage(inPlayMode ? Core::MT_GAME_LOGIC_START : Core::MT_GAME_LOGIC_STOP);
+			Core::MessageBus::sendMessage(inPlayMode ? Core::MT_GAME_LOGIC_START : Core::MT_GAME_LOGIC_STOP);
 		}
 
 		//If playing the game it will go in fullscreen, thus the editor no longer needs to be rendered, will be subject to change
@@ -197,8 +194,8 @@ namespace Tristeon
 	void TristeonEditor::setupCallbacks()
 	{
 		//Subscribe to render callback
-		Core::ManagerProtocol::subscribeToMessage(Core::MT_PRERENDER, std::bind(&TristeonEditor::onGui, this));
-		Core::ManagerProtocol::subscribeToMessage(Core::MT_SHARE_DATA, [&](Core::Message msg)
+		Core::MessageBus::subscribeToMessage(Core::MT_PRERENDER, std::bind(&TristeonEditor::onGui, this));
+		Core::MessageBus::subscribeToMessage(Core::MT_SHARE_DATA, [&](Core::Message msg)
 		{
 			Core::Rendering::Vulkan::EditorData* data = dynamic_cast<Core::Rendering::Vulkan::EditorData*>(msg.userData);
 			if (data != nullptr)
@@ -207,7 +204,7 @@ namespace Tristeon
 
 		renderable = new Core::Rendering::UIRenderable();
 		renderable->onRender += [&]() { render(); };
-		Core::ManagerProtocol::sendMessage(Core::Message(Core::MT_RENDERINGCOMPONENT_REGISTER, renderable));
+		Core::MessageBus::sendMessage(Core::Message(Core::MT_RENDERINGCOMPONENT_REGISTER, renderable));
 	}
 
 	void TristeonEditor::createCommandBuffers()

@@ -10,7 +10,7 @@ namespace Tristeon
 	{
 		//Forward decl
 		class BindingData;
-		class ManagerProtocol;
+		class MessageBus;
 
 		namespace Rendering
 		{

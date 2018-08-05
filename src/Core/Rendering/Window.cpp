@@ -1,7 +1,7 @@
 ﻿#include "Window.h"
 
-#include "Core/Settings.h"
-#include <Core/ManagerProtocol.h>
+#include "Core/UserPrefs.h"
+#include <Core/MessageBus.h>
 #include "Core/Message.h"
 
 #include "Math/Vector2.h"
@@ -11,7 +11,7 @@
 
 #include <GLFW/glfw3.h>
 
-//Shortcut for calling a static function with the userpointer provided by GLFW
+//Shortcut for getting window from the GLFW user pointer
 #define USER_POINTER_CALL(window) reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))
 
 namespace Tristeon
@@ -22,18 +22,13 @@ namespace Tristeon
 		{
 			Window::~Window()
 			{
-				ManagerProtocol::sendMessage(MT_QUIT);
-				//Destroy glfw
-				glfwDestroyWindow(window);
+				MessageBus::sendMessage(MT_QUIT);
+				glfwDestroyWindow(_window);
 				glfwTerminate();
 			}
 
 			void Window::init()
 			{
-				//Already have a window? don't create another one
-				if (_window != nullptr)
-					return;
-
 				//Set error callback before anything else, so all problems will be recorded immediately
 				glfwSetErrorCallback([](int error, const char* description) { errorCallback(error, description); });
 
@@ -46,38 +41,31 @@ namespace Tristeon
 				glfwWindowHint(GLFW_RESIZABLE, true);
 
 				//Get requested window size
-				int width, height;
 				GLFWmonitor* monitor = nullptr;
-				if (Settings::getFullScreen())
+				if (UserPrefs::getBoolValue("FULLSCREEN"))
 				{
-					//Get fullscreen size
 					monitor = glfwGetPrimaryMonitor();
+					int width, height;
 					glfwGetMonitorPhysicalSize(monitor, &width, &height);
+					w = width;
+					h = height;
 				}
 				else
 				{
-					width = Settings::getScreenWidth();
-					height = Settings::getScreenHeight();
+					w = UserPrefs::getIntValue("SCREENWIDTH");
+					h = UserPrefs::getIntValue("SCREENHEIGHT");
 				}
-				//Store window size
-				w = width;
-				h = height;
 
-				//Callback for inherited classes
 				onPreWindowCreation();
 
-				//Create window
 				_window = glfwCreateWindow(width, height, "Tristeon", monitor, nullptr);
 				if (window.get() == nullptr)
 					Misc::Console::error("Failed to open GLFW window!");
 				glfwMaximizeWindow(_window);
-				//Store this in the GLFW userdata for reference later
 				glfwSetWindowUserPointer(window.get(), this);
 
 				//Set GLFW callbacks
 				setupCallbacks();
-
-				//Callback for inherited classes
 				onPostWindowCreation();
 			}
 
@@ -92,31 +80,27 @@ namespace Tristeon
 				running = true;
 
 				double lastTime = glfwGetTime();
-
-				//FixedUpdate
 				float fixedUpdateTime = 0;
-
-				//FPS
-				int elapsedFrames = 0;
-				float elapsedTime = 0;
+				int frames = 0;
+				float time = 0;
 
 				while (!glfwWindowShouldClose(window.get()))
 				{
 					glfwPollEvents();
 
 					//Measure time
-					double const newTime = glfwGetTime();
+					float const newTime = glfwGetTime();
 					Misc::Time::deltaTime = newTime - lastTime;
 					lastTime = newTime;
 
 					//Calculate the frames per second
-					elapsedFrames++;
-					elapsedTime += Misc::Time::deltaTime;
-					if (elapsedTime >= 1)
+					frames++;
+					time += Misc::Time::deltaTime;
+					if (time >= 1)
 					{
-						Misc::Time::fps = float(elapsedFrames);
-						elapsedFrames = 0;
-						elapsedTime--;
+						Misc::Time::fps = float(frames);
+						frames = 0;
+						time--;
 					}
 
 					//If gameplay is active, call gameplay
@@ -126,23 +110,23 @@ namespace Tristeon
 						//Call fixedUpdate if needed until we caught up
 						while (fixedUpdateTime > 1.0f / 50.0f) //TODO: Make fixed delta time variable
 						{
-							ManagerProtocol::sendMessage(MT_FIXEDUPDATE);
+							MessageBus::sendMessage(MT_FIXEDUPDATE);
 							fixedUpdateTime -= 1.0f / 50.0f;
 						}
 
 						//Update functions
-						ManagerProtocol::sendMessage(MT_UPDATE);
-						ManagerProtocol::sendMessage(MT_LATEUPDATE);
+						MessageBus::sendMessage(MT_UPDATE);
+						MessageBus::sendMessage(MT_LATEUPDATE);
 					}
 
 					//Render unless if we're minimized
 					if (w != 0 && h != 0)
 					{
-						ManagerProtocol::sendMessage(MT_PRERENDER);
-						ManagerProtocol::sendMessage(MT_RENDER);
-						ManagerProtocol::sendMessage(MT_POSTRENDER);
+						MessageBus::sendMessage(MT_PRERENDER);
+						MessageBus::sendMessage(MT_RENDER);
+						MessageBus::sendMessage(MT_POSTRENDER);
 
-						ManagerProtocol::sendMessage(MT_AFTERFRAME);
+						MessageBus::sendMessage(MT_AFTERFRAME);
 					}
 				}
 			}
@@ -164,12 +148,12 @@ namespace Tristeon
 				glfwSetWindowFocusCallback(window, [](GLFWwindow* w, int focus) { USER_POINTER_CALL(w)->onFocus.invoke(focus == 1); });
 
 				//Game logic start/stop calls
-				ManagerProtocol::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg)
+				MessageBus::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg)
 				{
-					ManagerProtocol::sendMessage(MT_START);
+					MessageBus::sendMessage(MT_START);
 					inPlayMode = true;
 				});
-				ManagerProtocol::subscribeToMessage(MT_GAME_LOGIC_STOP, [&](Message msg) { inPlayMode = false; });
+				MessageBus::subscribeToMessage(MT_GAME_LOGIC_STOP, [&](Message msg) { inPlayMode = false; });
 			}
 
 			void Window::onResize(int width, int height)
@@ -180,7 +164,7 @@ namespace Tristeon
 				
 				//Share our size information with the world
 				Math::Vector2 size = Math::Vector2((float)width, (float)height);
-				ManagerProtocol::sendMessage(Message(MT_WINDOW_RESIZE, &size));
+				MessageBus::sendMessage(Message(MT_WINDOW_RESIZE, &size));
 			}
 
 			void Window::errorCallback(int error, const char* description)

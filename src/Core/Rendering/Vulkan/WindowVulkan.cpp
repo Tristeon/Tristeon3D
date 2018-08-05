@@ -13,7 +13,6 @@ namespace Tristeon
 			{
 				void Window::onPreWindowCreation()
 				{
-					//Tell GLFW to not create an OpenGL context
 					glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 				}
 			}

@@ -1,9 +1,13 @@
 ﻿#pragma once
-#include "ManagerProtocol.h"
-#include "BindingData.h"
 #include "Misc/Property.h"
 #include <memory>
 
+#include <Core/Managers/InputManager.h>
+#include <Core/Rendering/Window.h>
+#include <Core/Rendering/RenderManager.h>
+#include <Scenes/SceneManager.h>
+#include <Core/Components/ComponentManager.h>
+#include <Core/BindingData.h>
 namespace Tristeon
 {
 	namespace Core
@@ -14,27 +18,11 @@ namespace Tristeon
 		class Engine
 		{
 		public:
-			/**
-			 * \brief Creates the manager protocol and binding data
-			 */
-			void init();
+			Engine();
 			/**
 			 * \brief Runs the main engine loop. Does not start the game
 			 */
 			void run() const;
-			/**
-			 * \brief Starts the gameplay loop
-			 */
-			void startGame() const;
-			/**
-			 * \brief Stops the gameplay loop
-			 */
-			void stopGame() const;
-
-			/**
-			 * \brief Cleans up the bindingdata and the managerprotocol
-			 */
-			~Engine();
 
 			/**
 			* \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
@@ -47,6 +35,12 @@ namespace Tristeon
 			 * \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
 			 */
 			std::unique_ptr<BindingData> bind {};
+
+			std::unique_ptr<Rendering::RenderManager> renderSys = nullptr;
+			std::unique_ptr<Scenes::SceneManager> sceneSys = nullptr;
+			std::unique_ptr<Rendering::Window> window = nullptr;
+			std::unique_ptr<Components::ComponentManager> componentSys = nullptr;
+			std::unique_ptr<Managers::InputManager> inputSys = nullptr;
 		};
 	}
 }

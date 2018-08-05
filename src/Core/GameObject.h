@@ -23,7 +23,7 @@ namespace Tristeon
 	namespace Core
 	{
 		//Forward decl
-		class ManagerProtocol;
+		class MessageBus;
 
 		/**
 		 * \brief GameObject is a container of gameobjects. It also owns an instance of Transform, and it is the only type of object that is directly allowed in the scene.

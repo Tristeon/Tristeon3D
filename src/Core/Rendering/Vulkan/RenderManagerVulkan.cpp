@@ -3,12 +3,12 @@
 //Engine 
 #include <Core/BindingData.h>
 #include "Core/Message.h"
-#include "Core/Settings.h"
+#include "Core/UserPrefs.h"
 #include "Misc/Console.h"
 #include "Math/Vector2.h"
 #include "Core/Transform.h"
 
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 #include "Core/Rendering/Components/Renderer.h"
 #include "InternalMeshRendererVulkan.h"
 
@@ -23,7 +23,6 @@
 
 //RenderTechniques
 #include "ForwardVulkan.h"
-#include "../RenderTechniques/RTechniques.h"
 
 //Vulkan help classes
 #include "API/Extensions/VulkanExtensions.h"
@@ -49,38 +48,26 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				RenderManager::RenderManager(BindingData* data) : Rendering::RenderManager(data)
+				RenderManager::RenderManager(BindingData* pData) : Rendering::RenderManager(pData), data(dynamic_cast<VulkanBindingData*>(pData)), window(pData->window)
 				{
-					//Store data
-					this->window = data->window;
-					this->data = dynamic_cast<VulkanBindingData*>(data);
-					Console::t_assert(this->data != nullptr, "RenderManagerVulkan received binding data that isn't for vulkan!");
-				}
+					Console::t_assert(data != nullptr, "RenderManagerVulkan received binding data that isn't for vulkan!");
 
-				void RenderManager::init()
-				{
-					//Subscribe to callbacks
-					Rendering::RenderManager::init();
-					ManagerProtocol::subscribeToMessage(MT_WINDOW_RESIZE, [&](Message msg)
+					MessageBus::subscribeToMessage(MT_WINDOW_RESIZE, [&](Message msg)
 					{
 						Math::Vector2* vec = reinterpret_cast<Math::Vector2*>(msg.userData);
 						resizeWindow(static_cast<int>(vec->x), static_cast<int>(vec->y));
 					});
 
 #ifdef TRISTEON_EDITOR
-					ManagerProtocol::subscribeToMessage(MT_PRERENDER, [&](Message msg) { ManagerProtocol::sendMessage({ MT_SHARE_DATA, &editor }); });
+					MessageBus::subscribeToMessage(MT_PRERENDER, [&](Message msg) { MessageBus::sendMessage({ MT_SHARE_DATA, &editor }); });
 #endif
 
 					//Create render technique
-					switch (Settings::getRenderTechnique())
-					{
-					case RT_Forward: 
+					const std::string tech = UserPrefs::getStringValue("RENDERTECHNIQUE");
+					if (tech == "FORWARD")
 						technique = new Forward(this);
-						break;
-					default: 
-						Console::error("Trying to use an unsupported Render technique: " + std::to_string(Settings::getRenderTechnique()));
-						break;
-					}
+					else
+						Console::error("Trying to use an unsupported Render technique: " + tech);
 
 					//Setup vulkan
 					setupVulkan();
@@ -203,13 +190,6 @@ namespace Tristeon
 					//Core
 					vkContext = nullptr;
 					windowContext.reset();
-				}
-
-				void RenderManager::reset()
-				{
-					for (const auto c : cameraData)
-						cameraDataPool.release(c.second);
-					cameraData.clear();
 				}
 
 				void RenderManager::setupVulkan()

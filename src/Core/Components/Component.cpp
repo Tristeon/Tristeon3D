@@ -1,5 +1,5 @@
 ﻿#include "Component.h"
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 #include "Core/GameObject.h"
 
 namespace Tristeon
@@ -11,7 +11,7 @@ namespace Tristeon
 			Component::~Component()
 			{
 				if (registered)
-					ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_DEREGISTER, this });
+					MessageBus::sendMessage({ MT_SCRIPTINGCOMPONENT_DEREGISTER, this });
 			}
 
 			Component::property__tmp_type_transform Component::get_transform()
@@ -22,7 +22,7 @@ namespace Tristeon
 			void Component::init()
 			{
 				if (!registered)
-					ManagerProtocol::sendMessage({ MT_SCRIPTINGCOMPONENT_REGISTER, this });
+					MessageBus::sendMessage({ MT_SCRIPTINGCOMPONENT_REGISTER, this });
 				registered = true;
 			}
 

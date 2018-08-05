@@ -1,6 +1,6 @@
 ﻿#include "SceneManager.h"
 #include "Core/Message.h"
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 #include "Scene.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
 #include "Editor/JsonSerializer.h"
@@ -12,7 +12,7 @@ namespace Tristeon
 		std::unique_ptr<Scene> SceneManager::activeScene = nullptr;
 		std::map<std::string, std::string> SceneManager::sceneFilePaths;
 
-		void SceneManager::init()
+		SceneManager::SceneManager()
 		{
 			activeScene = std::make_unique<Scene>();
 			activeScene->name = "UnNamed";
@@ -28,7 +28,7 @@ namespace Tristeon
 				std::cout << "file is either a non-json file or corrupted" << std::endl;
 				throw std::invalid_argument("file is either a non-json file or corrupted");
 			}
-			for (auto iterator = json.begin(); iterator != json.end(); iterator++)
+			for (auto iterator = json.begin(); iterator != json.end(); ++iterator)
 			{
 				const std::string stringValue = iterator.value();
 				sceneFilePaths[iterator.key()] = stringValue;
@@ -42,7 +42,7 @@ namespace Tristeon
 
 		void SceneManager::loadScene(std::string name)
 		{
-			Core::ManagerProtocol::sendMessage(Core::MT_MANAGER_RESET);
+			Core::MessageBus::sendMessage(Core::MT_MANAGER_RESET);
 			auto scene = JsonSerializer::deserialize<Scene>(sceneFilePaths[name]);
 			if (!scene)
             {
@@ -58,7 +58,7 @@ namespace Tristeon
 
 		void SceneManager::loadScene(Scene* scene)
 		{
-			Core::ManagerProtocol::sendMessage(Core::MT_MANAGER_RESET);
+			Core::MessageBus::sendMessage(Core::MT_MANAGER_RESET);
 			scene->init();
 			activeScene = std::unique_ptr<Scene>(scene);
 			createParentalBonds(activeScene.get());
@@ -94,11 +94,6 @@ namespace Tristeon
 			sceneFilePaths[name] = path;
 			nlohmann::json json(sceneFilePaths);
 			JsonSerializer::serialize("Scenes.ProjectSettings", json);
-		}
-
-		void SceneManager::reset()
-		{
-			//TODO: SceneManager::reset()
 		}
 	}
 }

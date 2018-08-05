@@ -1,36 +1,24 @@
 ﻿#include "Application.h"
+
+#ifdef TRISTEON_EDITOR
 #include "Scenes/SceneManager.h"
+#else
+#include "Core/MessageBus.h"
+#endif
 
 namespace Tristeon
 {
-	Application::~Application()
+	Application::Application()
 	{
-		//Cleanup
-#ifdef TRISTEON_EDITOR
-		editor.reset();
-#endif
-		engine.reset();
-	}
-
-	void Application::init()
-	{
-		//Init engine
 		engine = std::make_unique<Core::Engine>();
-		engine->init();
 
-		//Init editor
 #ifdef TRISTEON_EDITOR
-		editor = std::make_unique<Editor::TristeonEditor>();
-		editor->init(engine.get());
-#endif
-
-		//Auto start game if we are running in release mode
-#ifndef TRISTEON_EDITOR
+		editor = std::make_unique<Editor::TristeonEditor>(engine.get());
+#else
+		//Auto start game if there's no editor
 		Scenes::SceneManager::loadScene(0);
-		engine->startGame();
+		Core::MessageBus::sendMessage(Core::MessageType::MT_GAME_LOGIC_START);
 #endif
-
 		engine->run();
-
 	}
 }

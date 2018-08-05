@@ -1,48 +1,51 @@
 ﻿#include "Engine.h"
-#include "Settings.h"
+#include "BindingData.h"
+#include "UserPrefs.h"
 #include "Misc/Console.h"
+
+#include "Rendering/Vulkan/WindowVulkan.h"
+#include "Rendering/Vulkan/RenderManagerVulkan.h"
+#include "Managers/InputManager.h"
+#include "Components/ComponentManager.h"
+#include "Scenes/SceneManager.h"
+#include "MessageBus.h"
 
 namespace Tristeon
 {
 	namespace Core
 	{
-		void Engine::init()
+		Engine::Engine()
 		{
-			//Create new binding data based on the selected API
-			switch(Settings::getRenderAPI())
-			{
-			case Rendering::RAPI_Vulkan: 
-				bind = std::make_unique<VulkanBindingData>();
-				break;
-			default: 
-				Misc::Console::error("Trying to create bindingdata for unsupported graphics API!");
-			}
+			UserPrefs::readPrefs();
 
-			//Create protocol
-			ManagerProtocol::instance = new ManagerProtocol(bindingData);
-			ManagerProtocol::init();
+			const std::string api = UserPrefs::getStringValue("RENDERAPI");
+
+			if (api == "VULKAN")
+			{
+				bind = std::make_unique<VulkanBindingData>();
+
+				//Create vulkan window
+				window = std::make_unique<Rendering::Vulkan::Window>();
+				window->init();
+
+				//Store in bindingdata to allow others to know about our window. 
+				bind->tristeonWindow = window.get();
+				bind->window = window->window;
+
+				//Create vulkan render manager
+				renderSys = std::make_unique<Rendering::Vulkan::RenderManager>(bindingData);
+			}
+			else
+				Misc::Console::error(api + " is not yet supported as a rendering API!");
+
+			inputSys = std::make_unique<Managers::InputManager>(window->window);
+			componentSys = std::make_unique<Components::ComponentManager>();
+			sceneSys = std::make_unique<Scenes::SceneManager>();
 		}
 
 		void Engine::run() const
 		{
-			ManagerProtocol::run();
-		}
-
-		void Engine::startGame() const
-		{
-			ManagerProtocol::sendMessage(MT_GAME_LOGIC_START);
-		}
-
-		void Engine::stopGame() const
-		{
-			ManagerProtocol::sendMessage(MT_GAME_LOGIC_STOP);
-		}
-
-		Engine::~Engine()
-		{
-			//Cleanup
-			delete ManagerProtocol::instance;
-			ManagerProtocol::instance = nullptr;
+			window->mainLoop();
 		}
 	}
 }

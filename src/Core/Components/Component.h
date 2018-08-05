@@ -8,7 +8,7 @@ namespace Tristeon
 	{
 		//Forward decl
 		class GameObject;
-		class ManagerProtocol;
+		class MessageBus;
 		class Transform;
 
 		namespace Components

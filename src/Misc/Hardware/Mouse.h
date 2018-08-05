@@ -5,16 +5,11 @@
 
 #define MAXBUTTONS 7
 
-//Forward decl
 struct GLFWwindow;
 
 namespace Tristeon
 {
-	namespace Data {
-		class Image;
-	}
-
-	//Forward decl
+	namespace Data { class Image; }
 	namespace Core { namespace Managers { class InputManager; } }
 
 	namespace Misc

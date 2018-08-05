@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Core/Managers/Manager.h"
 #include "Misc/Delegate.h"
 #include "Misc/vector.h"
 #include "Skybox.h"
@@ -10,14 +9,12 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
 		class BindingData;
 		class Message;
 		namespace Components { class Camera; }
 
 		namespace Rendering
 		{
-			//Forward decl
 			class Material;
 			class RenderTechnique;
 			class Renderer;
@@ -41,7 +38,7 @@ namespace Tristeon
 			 * \brief RenderManager is the base class of RenderManagers and gets overriden to define API specific behavior.
 			 * This class defines standard behavior for (de)registering (ui)renderers, and it manages materials and shaders.
 			 */
-			class RenderManager : public Managers::Manager
+			class RenderManager
 			{
 			public:
 				/**
@@ -49,10 +46,6 @@ namespace Tristeon
 				 * \param data BindingData gets stored as reference to share render information with other engine systems
 				 */
 				RenderManager(BindingData* data);
-				/**
-				 * \brief Sets up all the callbacks and gets shader information
-				 */
-				void init() override;
 
 				/**
 				 * \brief Render is an abstract function that is intended to be defined by API specific subclasses. It gets called in the window MT_RENDER callback.

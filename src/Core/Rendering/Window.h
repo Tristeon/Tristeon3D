@@ -2,15 +2,13 @@
 #include <Misc/Property.h>
 #include "Misc/Delegate.h"
 
-//Forward decl
 struct GLFWwindow;
 
 namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
-		class ManagerProtocol;
+		class MessageBus;
 
 		namespace Rendering
 		{
@@ -21,14 +19,14 @@ namespace Tristeon
 			{
 			public:
 				/**
+				 * Constructor except we're able to call virtual functions here
+				 */
+				void init();
+				/**
 				 * \brief Destroys the glfw window and cleans up all other resources
 				 */
 				virtual ~Window();
 
-				/**
-				 * \brief Creates the GLFW window and sets up the callbacks
-				 */
-				virtual void init();
 				/**
 				 * \brief Starts the main engine loop. This function won't return until the end of the application
 				 */

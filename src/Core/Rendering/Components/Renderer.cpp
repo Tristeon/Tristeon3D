@@ -1,6 +1,6 @@
 ﻿#include "Renderer.h"
 #include "Core/Message.h"
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 
 namespace Tristeon
 {
@@ -19,7 +19,7 @@ namespace Tristeon
 			{
 				//Deregister ourselves
 				if (registered)
-					ManagerProtocol::sendMessage({ MT_RENDERINGCOMPONENT_DEREGISTER, dynamic_cast<TObject*>(this) });
+					MessageBus::sendMessage({ MT_RENDERINGCOMPONENT_DEREGISTER, dynamic_cast<TObject*>(this) });
 
 				//Cleanup renderer
 				if (renderer != nullptr)
@@ -29,7 +29,7 @@ namespace Tristeon
 			void Renderer::init()
 			{
 				if (!registered)
-					ManagerProtocol::sendMessage({MT_RENDERINGCOMPONENT_REGISTER, dynamic_cast<TObject*>(this) });
+					MessageBus::sendMessage({MT_RENDERINGCOMPONENT_REGISTER, dynamic_cast<TObject*>(this) });
 				registered = true;
 			}
 		}

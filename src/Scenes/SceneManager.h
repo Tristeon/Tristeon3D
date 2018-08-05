@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Core/Managers/Manager.h"
 #include <string>
 #include "Scene.h"
 
@@ -11,15 +10,14 @@ namespace Tristeon
 {
 	namespace Scenes
 	{
-		class SceneManager final : public Core::Managers::Manager
+		class SceneManager final
 		{
 #ifdef TRISTEON_EDITOR
 			friend class Tristeon::Editor::SceneFileItem;
 #endif
 		public:
+			SceneManager();
 			~SceneManager() { activeScene.reset(); }
-
-			void init() override;
 
 			static void loadScene(int id);
 			static void loadScene(std::string name);
@@ -36,7 +34,6 @@ namespace Tristeon
 
 			static std::map<std::string,std::string> sceneFilePaths;
 
-			void reset() override;
 			static std::unique_ptr<Scene> activeScene;
 		};
 	}

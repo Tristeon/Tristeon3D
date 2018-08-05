@@ -1,7 +1,7 @@
 ﻿#include "Camera.h"
 #include "Core/GameObject.h"
 #include "Core/Transform.h"
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 #include <Math/Vector3.h>
 #include "Core/Message.h"
 #include <glm/glm.hpp>
@@ -21,7 +21,7 @@ namespace Tristeon
 			void Camera::init()
 			{
 				if (!registered)
-					ManagerProtocol::sendMessage({ MT_CAMERA_REGISTER, this });
+					MessageBus::sendMessage({ MT_CAMERA_REGISTER, this });
 				Component::init();
 			}
 
@@ -29,7 +29,7 @@ namespace Tristeon
 			{
 				//Deregister
 				if (registered)
-					ManagerProtocol::sendMessage({ MT_CAMERA_DEREGISTER, this });
+					MessageBus::sendMessage({ MT_CAMERA_DEREGISTER, this });
 			}
 
 			void Camera::setSkybox(std::string path)
