@@ -41,7 +41,6 @@ namespace Tristeon
 					 * \param topologyMode The way the shaders are supposed to render data
 					 */
 					Pipeline(
-						VulkanBindingData* binding, 
 						ShaderFile file, 
 						vk::Extent2D extent, 
 						vk::RenderPass renderPass, 
@@ -52,7 +51,6 @@ namespace Tristeon
 						bool enableLighting = false);
 					
 					Pipeline(
-						VulkanBindingData* binding,
 						ShaderFile file,
 						vk::Extent2D extent,
 						vk::RenderPass renderPass,
@@ -140,10 +138,6 @@ namespace Tristeon
 					 */
 					vk::PrimitiveTopology topology;
 
-					/**
-					 * \brief Rendering data
-					 */
-					VulkanBindingData* binding;
 					/**
 					 * \brief Enable/disable vertex input binding/attributes
 					 */

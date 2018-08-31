@@ -49,8 +49,7 @@ namespace Tristeon
 
 					//Color 
 					vk::Extent2D const extent = vkRenderManager->vkContext->getExtent();
-					VulkanImage::createImage((VulkanBindingData*)vkRenderManager->bindingData,
-						extent.width, extent.height,
+					VulkanImage::createImage(extent.width, extent.height,
 						vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal,
 						vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
 						vk::MemoryPropertyFlagBits::eDeviceLocal,
@@ -58,8 +57,7 @@ namespace Tristeon
 					color.view = VulkanImage::createImageView(vkRenderManager->vkContext->getDevice(), color.img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
 
 					//Depth
-					VulkanImage::createImage((VulkanBindingData*)vkRenderManager->bindingData,
-						extent.width, extent.height,
+					VulkanImage::createImage(extent.width, extent.height,
 						depthformat, vk::ImageTiling::eOptimal,
 						vk::ImageUsageFlagBits::eDepthStencilAttachment,
 						vk::MemoryPropertyFlagBits::eDeviceLocal,
@@ -98,8 +96,9 @@ namespace Tristeon
 					buffer = vkRenderManager->vkContext->getDevice().createFramebuffer(fbuf);
 				}
 
-				void CameraRenderData::Onscreen::init(VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline)
+				void CameraRenderData::Onscreen::init(Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline)
 				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 					//The editor camera has its own descriptor set due to ImGUI binding settings
 					if (isEditorCam)
 					{
@@ -107,19 +106,19 @@ namespace Tristeon
 						//ImGUI's shaders take 1 image sampler in the fragment shader. nothing else
 						vk::DescriptorSetLayoutBinding b = vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
 						vk::DescriptorSetLayoutCreateInfo const ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &b);
-						vk::DescriptorSetLayout layout = binding->device.createDescriptorSetLayout(ci);
+						vk::DescriptorSetLayout layout = bindingData->device.createDescriptorSetLayout(ci);
 
 						//Allocate the descriptor set with our layout
-						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
-						binding->device.allocateDescriptorSets(&alloc_info, &sets[0]);
+						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
+						bindingData->device.allocateDescriptorSets(&alloc_info, &sets[0]);
 
 						//Update the descriptor set with our offscreen rendered image
 						vk::DescriptorImageInfo image = vk::DescriptorImageInfo(offscreen.sampler, offscreen.color.view, vk::ImageLayout::eShaderReadOnlyOptimal);
 						vk::WriteDescriptorSet samplerWrite = vk::WriteDescriptorSet(sets[0], 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
-						binding->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
+						bindingData->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
 						
 						//Clean up the descriptor set layout as we don't need it anymore
-						binding->device.destroyDescriptorSetLayout(layout);
+						bindingData->device.destroyDescriptorSetLayout(layout);
 					}
 					else
 					{
@@ -130,34 +129,34 @@ namespace Tristeon
 						//Descriptor layout for the uniform buffer
 						vk::DescriptorSetLayout layout1 = onscreenPipeline->getUniformLayout();
 						//Uniform buffer descriptor set creation
-						vk::DescriptorSetAllocateInfo alloc1 = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout1);
-						binding->device.allocateDescriptorSets(&alloc1, &sets[0]);
+						vk::DescriptorSetAllocateInfo alloc1 = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout1);
+						bindingData->device.allocateDescriptorSets(&alloc1, &sets[0]);
 
 						//Create a temporary buffer so we can fit the pipeline descriptor set layout
-						tempBuf = std::make_unique<BufferVulkan>(binding, 1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+						tempBuf = std::make_unique<BufferVulkan>(1, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
 						//Update the descriptor set with our "buffer"
 						vk::DescriptorBufferInfo bufi = vk::DescriptorBufferInfo(tempBuf->getBuffer(), 0, 1);
 						vk::WriteDescriptorSet buf = vk::WriteDescriptorSet(sets[0], 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufi, nullptr);
-						binding->device.updateDescriptorSets(1, &buf, 0, nullptr);
+						bindingData->device.updateDescriptorSets(1, &buf, 0, nullptr);
 						
 						//The sampler is used in the fragment shader to show the texture on screen
 						//We're binding the color texture that our offscreen camera is rendering to 
 						//to this shader pipeline
 						//Get the layout and create the descriptor set
 						vk::DescriptorSetLayout layout2 = onscreenPipeline->getSamplerLayout();
-						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout2);
-						binding->device.allocateDescriptorSets(&alloc_info, &sets[1]);
+						vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout2);
+						bindingData->device.allocateDescriptorSets(&alloc_info, &sets[1]);
 
 						//Update the descriptor set with our sampler and our offscreen view
 						vk::DescriptorImageInfo image = vk::DescriptorImageInfo(offscreen.sampler, offscreen.color.view, vk::ImageLayout::eShaderReadOnlyOptimal);
 						vk::WriteDescriptorSet samplerWrite = vk::WriteDescriptorSet(sets[1], 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
-						binding->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
+						bindingData->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
 					}
 
 					//Create the command buffer used to render this camera's texture to the screen
-					vk::CommandBufferAllocateInfo const a = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					secondary = binding->device.allocateCommandBuffers(a)[0];
+					vk::CommandBufferAllocateInfo const a = vk::CommandBufferAllocateInfo(bindingData->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					secondary = bindingData->device.allocateCommandBuffers(a)[0];
 				}
 
 				void CameraRenderData::Onscreen::destroy(vk::Device device, vk::DescriptorPool pool) const
@@ -167,12 +166,11 @@ namespace Tristeon
 
 				bool CameraRenderData::isValid() const
 				{
-					return binding != nullptr && lastExtent == binding->swapchain->extent2D;
+					return isPrepared && lastExtent == VulkanBindingData::getInstance()->swapchain->extent2D;
 				}
 
-				void CameraRenderData::init(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline, bool isEditorCamera)
+				void CameraRenderData::init(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline, bool isEditorCamera)
 				{
-					this->binding = binding;
 					this->isEditorCam = isEditorCamera;
 
 					lastExtent = rm->vkContext->getExtent();
@@ -186,14 +184,15 @@ namespace Tristeon
 
 				CameraRenderData::~CameraRenderData()
 				{
-					offscreen.destroy(binding->device);
-					onscreen.destroy(binding->device, binding->descriptorPool);
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+					offscreen.destroy(bindingData->device);
+					onscreen.destroy(bindingData->device, bindingData->descriptorPool);
 				}
 
 				void CameraRenderData::setup(RenderManager* rm, vk::RenderPass offscreenPass, Pipeline* onscreenPipeline)
 				{
 					offscreen.init(rm, offscreenPass);
-					onscreen.init(binding, offscreen, isEditorCam, onscreenPipeline);
+					onscreen.init(offscreen, isEditorCam, onscreenPipeline);
 					isPrepared = true;
 				}
 

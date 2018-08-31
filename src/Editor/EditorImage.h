@@ -65,11 +65,6 @@ namespace Tristeon
 			vk::DescriptorSet set;
 
 			/**
-			 * \brief The vulkan rendering data
-			 */
-			Core::VulkanBindingData* binding;
-
-			/**
 			* \brief Creates the descriptor sets for the textures
 			*/
 			void createDescriptorSets();

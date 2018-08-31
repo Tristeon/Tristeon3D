@@ -16,15 +16,13 @@ namespace Tristeon
 		{
 			REGISTER_TYPE_CPP(MeshRenderer)
 
-			void MeshRenderer::initInternalRenderer(BindingData* data)
+			void MeshRenderer::initInternalRenderer()
 			{
 				//Select based on rendering api
 				if (UserPrefs::getStringValue("RENDERAPI") == "VULKAN")
 					renderer = new Vulkan::InternalMeshRenderer(this);
 				else
 					Misc::Console::error("Trying to create a MeshRenderer with unsupported rendering API");
-
-				renderer->init(data);
 			}
 
 			nlohmann::json MeshRenderer::serialize()

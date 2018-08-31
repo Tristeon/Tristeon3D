@@ -1,6 +1,8 @@
 #pragma once
-#include "TObject.h"
 #include "Rendering/Window.h"
+#include <memory>
+
+#include <vulkan/vulkan.hpp>
 #include "Rendering/Vulkan/HelperClasses/Swapchain.h"
 
 namespace Tristeon
@@ -8,62 +10,53 @@ namespace Tristeon
 	namespace Core
 	{
 		/**
-		 * \brief BindingData is a class that is used to share rendering data inbetween engine subsystems. API specific binding data can inherit from this class.
+		 * \brief BindingData is used to share rendering data between engine subsystems. API specific binding data can inherit from this class.
 		 */
-		class BindingData : public TObject
+		class BindingData
 		{
+			friend std::unique_ptr<BindingData>::deleter_type;
 		public:
-			/**
-			 * \brief The tristeon window class
-			 */
 			Rendering::Window* tristeonWindow;
+			GLFWwindow* window = nullptr;
 
 			/**
-			 * \brief The GLFW window
+			 * \brief Default getInstance function for BindingData. Will return the base class, is not guaranteed to return an instance.
 			 */
-			GLFWwindow* window = nullptr;
+			static BindingData* getInstance()
+			{
+				return instance.get();
+			}
+		protected: 
+			BindingData() = default;
+			virtual ~BindingData() = default;
+
+			static std::unique_ptr<BindingData> instance;
 		};
 
-		/**
-		 * \brief Vulkan specific binding data
-		 */
 		class VulkanBindingData : public BindingData
 		{
 		public:
 			/**
-			 * \brief The selected GPU
+			 * \brief Creates a VulkanBindingData instance if there isn't any, otherwise it'll simply just return instance.
+			 * Might return nullptr if the instance is of a different type than VulkanBindingData.
 			 */
+			static VulkanBindingData* getInstance()
+			{
+				if (!instance)
+					instance = std::unique_ptr<BindingData>(new VulkanBindingData());
+				return dynamic_cast<VulkanBindingData*>(instance.get());
+			}
+
 			vk::PhysicalDevice physicalDevice;
-			/**
-			 * \brief The logical device
-			 */
 			vk::Device device;
-			/**
-			 * \brief The main render pass
-			 */
 			vk::RenderPass renderPass;
-			/**
-			 * \brief The descriptor pool, for allocation of descriptorsets
-			 */
 			vk::DescriptorPool descriptorPool;
-
-			/**
-			 * \brief The command pool, for allocation of commandbuffers
-			 */
 			vk::CommandPool commandPool;
-			/**
-			 * \brief The swapchain
-			 */
 			Rendering::Vulkan::Swapchain* swapchain;
-
-			/**
-			 * \brief The graphics queue
-			 */
 			vk::Queue graphicsQueue;
-			/**
-			 * \brief The present queue
-			 */
 			vk::Queue presentQueue;
+		protected:
+			VulkanBindingData() = default;
 		};
 	}
 }

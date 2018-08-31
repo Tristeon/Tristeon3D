@@ -243,7 +243,7 @@ namespace Tristeon
 
 						textures[name] = tex;
 
-						pipeline->device.freeDescriptorSets(pipeline->binding->descriptorPool, set);
+						pipeline->device.freeDescriptorSets(VulkanBindingData::getInstance()->descriptorPool, set);
 						createDescriptorSets();
 					}
 				}
@@ -267,7 +267,7 @@ namespace Tristeon
 					textures.clear();
 
 					//Free descriptor set
-					pipeline->device.freeDescriptorSets(pipeline->binding->descriptorPool, set);
+					pipeline->device.freeDescriptorSets(VulkanBindingData::getInstance()->descriptorPool, set);
 				}
 
 				void Material::createTextureImage(Data::Image img, Texture& texture) const
@@ -277,13 +277,12 @@ namespace Tristeon
 					vk::DeviceSize const size = img.getWidth() * img.getHeight() * 4;
 
 					//Create staging buffer to allow vulkan to optimize the texture buffer's memory
-					BufferVulkan staging = BufferVulkan(pipeline->binding, size, vk::BufferUsageFlagBits::eTransferSrc, 
+					BufferVulkan staging = BufferVulkan(size, vk::BufferUsageFlagBits::eTransferSrc, 
 						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 					staging.copyFromData(pixels);
 
 					//Create vulkan image
 					VulkanImage::createImage(
-						pipeline->binding,
 						img.getWidth(), img.getHeight(),
 						vk::Format::eR8G8B8A8Unorm,
 						vk::ImageTiling::eOptimal,
@@ -292,9 +291,9 @@ namespace Tristeon
 						texture.img, texture.mem);
 
 					//Transition to transfer destination, transfer data, transition to shader read only
-					VulkanImage::transitionImageLayout(pipeline->binding, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-					VulkanImage::copyBufferToImage(pipeline->binding, staging.getBuffer(), texture.img, img.getWidth(), img.getHeight());
-					VulkanImage::transitionImageLayout(pipeline->binding, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+					VulkanImage::transitionImageLayout(texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+					VulkanImage::copyBufferToImage(staging.getBuffer(), texture.img, img.getWidth(), img.getHeight());
+					VulkanImage::transitionImageLayout(texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
 					//Create image view for texture
 					texture.view = VulkanImage::createImageView(pipeline->device, texture.img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
@@ -321,7 +320,7 @@ namespace Tristeon
 					//Don't bother if we don't even have a shader pipeline
 					if (shader == nullptr || pipeline == nullptr)
 						return;
-					VulkanBindingData* binding = pipeline->binding; //Reference
+					VulkanBindingData* binding = VulkanBindingData::getInstance();
 
 					//Allocate the descriptor set we're using to pass material properties to the shader
 					vk::DescriptorSetLayout layout = pipeline->getSamplerLayout();
@@ -372,7 +371,7 @@ namespace Tristeon
 					if (uniformBuffers.find(name) != uniformBuffers.end())
 						return uniformBuffers[name].get();
 
-					VulkanBindingData* bind = pipeline->binding;
+					VulkanBindingData* bind = VulkanBindingData::getInstance();
 					uniformBuffers[name] = std::make_unique<BufferVulkan>(bind->device, bind->physicalDevice, bind->swapchain->getSurface(), size, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 					return uniformBuffers[name].get();
 				}

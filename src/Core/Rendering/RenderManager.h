@@ -41,11 +41,7 @@ namespace Tristeon
 			class RenderManager
 			{
 			public:
-				/**
-				 * \brief Creates a new RenderManager
-				 * \param data BindingData gets stored as reference to share render information with other engine systems
-				 */
-				RenderManager(BindingData* data);
+				RenderManager();
 
 				/**
 				 * \brief Render is an abstract function that is intended to be defined by API specific subclasses. It gets called in the window MT_RENDER callback.
@@ -138,11 +134,6 @@ namespace Tristeon
 				 * \brief All the shaderfiles in the project
 				 */
 				std::vector<ShaderFile> shaderFiles;
-
-				/**
-				 * \brief A reference to bindingData, used to share binding data between engine systems
-				 */
-				BindingData* bindingData;
 
 				/**
 				 * \brief Keeps track of wether the engine is in playmode or not.

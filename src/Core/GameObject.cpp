@@ -6,25 +6,21 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//Registers GameObject to the type register
 		REGISTER_TYPE_CPP(GameObject)
 
 		GameObject::GameObject()
 		{
-			//Create transform
 			_transform = std::make_unique<Transform>();
 		}
 
 		void GameObject::init()
 		{
-			//Init all our components
 			for (unsigned int i = 0; i < components.size(); i++)
 				components[i]->init();
 		}
 
 		nlohmann::json GameObject::serialize()
 		{
-			//Write gameobject data into json
 			nlohmann::json output;
 			output["typeID"] = TRISTEON_TYPENAME(GameObject);
 			output["instanceID"] = getInstanceID();
@@ -43,7 +39,6 @@ namespace Tristeon
 
 		void GameObject::deserialize(nlohmann::json json)
 		{
-			//Read gameobject data from json
 			const std::string instanceIDValue = json["instanceID"];
 			instanceID = instanceIDValue;
 			active = json["active"];

@@ -29,10 +29,9 @@ namespace Tristeon
 				public:
 					/**
 					 * \brief Creates a new instance of EditorGrid and sets up all its resources
-					 * \param data Binding data for rendering references 
 					 * \param offscreenPass The offscreen renderpass that the grid should be rendered to
 					 */
-					EditorGrid(VulkanBindingData* data, vk::RenderPass offscreenPass);
+					EditorGrid(vk::RenderPass offscreenPass);
 					/**
 					 * \brief Cleans up all the resources created by EditorGrid
 					 */
@@ -67,12 +66,6 @@ namespace Tristeon
 					 * \brief The shader file for line rendering
 					 */
 					ShaderFile file;
-
-				private:
-					/**
-					 * \brief A reference to VulkanBindingData to get rendering information
-					 */
-					VulkanBindingData* data;
 				};
 			}
 		}

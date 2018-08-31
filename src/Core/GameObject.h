@@ -3,26 +3,17 @@
 #include "Components/Component.h"
 #include "Editor/TypeRegister.h"
 #include "Misc/Console.h"
-
 #include <memory>
 
 namespace Tristeon
 {
-	namespace Editor {
-		class EditorNodeTree;
-		class EditorNode;
-	}
-
-	//Forward decl
-	namespace Scenes
-	{
-		class SceneManager;
-		class Scene;
-	}
+#ifdef TRISTEON_EDITOR
+	namespace Editor { class EditorNodeTree; class EditorNode; }
+#endif
+	namespace Scenes { class SceneManager; class Scene; }
 
 	namespace Core
 	{
-		//Forward decl
 		class MessageBus;
 
 		/**
@@ -33,8 +24,10 @@ namespace Tristeon
 			//Scenes can access our information
 			friend Scenes::Scene;
 			friend Scenes::SceneManager;
+#ifdef TRISTEON_EDITOR
 			friend Editor::EditorNode;
 			friend Editor::EditorNodeTree;
+#endif
 		public:
 			/**
 			 * \brief Creates a new gameobject and initializes transform
@@ -116,37 +109,26 @@ namespace Tristeon
 		template <typename T>
         typename std::enable_if<std::is_base_of<Components::Component, T>::value, T>::type* GameObject::addComponent()
 		{
-			//Create a new component of type T
 			T* component = new T();
-
-			//Initialize component
 			component->setup(this);
-
-			//Add to our component list
 			components.push_back(std::move(std::unique_ptr<T>(component)));
-
-			//Return result for user reference
 			return component;
 		}
 
 		template <typename T>
 		T* GameObject::getComponent()
 		{
-			//Confirm that type T is a component
 			if (!std::is_base_of<Components::Component, T>())
 			{
 				Misc::Console::error("Type T is not of type Component in getComponent<T>!");
 				return nullptr;
 			}
 
-			//Search for a component that can be cast to T
 			for (int i = 0; i < components.size(); i++)
 			{
 				if (dynamic_cast<T>(components[i].get()) != nullptr)
 					return components[i].get();
 			}
-
-			//Return null if we can't find anything
 			return nullptr;
 		}
 
@@ -155,7 +137,7 @@ namespace Tristeon
 		 * \return Returns the transform component
 		 */
 		template <>
-		inline Core::Transform* Core::GameObject::getComponent()
+		inline Transform* GameObject::getComponent()
 		{
 			return _transform.get();
 		}
@@ -163,24 +145,18 @@ namespace Tristeon
 		template <typename T>
 		std::vector<T*> GameObject::getComponents()
 		{
-			//Confirm that type T is a component
 			if (!std::is_base_of<Components::Component, T>())
 			{
 				Misc::Console::error("Type T is not of type Component in getComponents<T>!");
 				return nullptr;
 			}
 
-			//A list of components
 			std::vector<Components::Component*> result;
-
-			//Look through the component list and find every component that can cast to T
 			for (int i = 0; i < components.size(); i++)
 			{
 				if (dynamic_cast<T>(components[i].get()) != nullptr)
 					result.push_back(components[i].get());
 			}
-
-			//Return the resulting list
 			return result;
 		}
 	}

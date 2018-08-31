@@ -30,9 +30,8 @@ namespace Tristeon
 				
 				/**
 				* \brief Creates and initializes the internal renderer
-				* \param data Rendering binding data, used to initialize the renderer
 				*/
-				void initInternalRenderer(BindingData* data) override;
+				void initInternalRenderer() override;
 
 				nlohmann::json serialize() override;
 				void deserialize(nlohmann::json json) override;

@@ -7,6 +7,7 @@
 #include <Misc/Console.h>
 
 #include <boost/filesystem.hpp>
+#include "Core/BindingData.h"
 namespace filesystem = boost::filesystem;
 
 namespace Tristeon
@@ -17,7 +18,7 @@ namespace Tristeon
 		{
 			RenderManager* RenderManager::instance;
 
-			RenderManager::RenderManager(BindingData* data) : bindingData(data)
+			RenderManager::RenderManager()
 			{
 				//Store instance
 				instance = this;
@@ -55,7 +56,7 @@ namespace Tristeon
 					//Successfully found a renderer
 					renderers.push_back(r);
 					//Init
-					r->initInternalRenderer(bindingData);
+					r->initInternalRenderer();
 					return r;
 				}
 				else

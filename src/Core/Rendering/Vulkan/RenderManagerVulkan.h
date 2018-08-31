@@ -103,11 +103,7 @@ namespace Tristeon
 					friend Forward;
 
 				public:
-					/**
-					 * \brief Creates a new instance of RenderManager
-					 * \param data The render binding data
-					 */
-					explicit RenderManager(BindingData* data);
+					explicit RenderManager();
 					/**
 					 * \brief Deallocates all resources allocated by render manager
 					 */
@@ -192,12 +188,6 @@ namespace Tristeon
 					 */
 					void submitCameras();
 
-					/**
-					 * \brief Reference to the binding data struct
-					 */
-					VulkanBindingData* data = nullptr;
-
-					//Non-owning pointer
 					WindowContextVulkan* vkContext = nullptr;
 
 					/**

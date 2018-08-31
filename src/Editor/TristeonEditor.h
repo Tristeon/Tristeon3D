@@ -37,7 +37,6 @@ namespace Tristeon
 			 */
 			void render();
 
-			Core::BindingData* getBindingData();
 		private:
 			/**
 			 * \brief Binds imgui to the rendering implementation

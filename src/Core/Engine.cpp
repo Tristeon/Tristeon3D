@@ -19,21 +19,17 @@ namespace Tristeon
 			UserPrefs::readPrefs();
 
 			const std::string api = UserPrefs::getStringValue("RENDERAPI");
-
 			if (api == "VULKAN")
 			{
-				bind = std::make_unique<VulkanBindingData>();
+				VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 
-				//Create vulkan window
+				//Init window + store window info in bindingdata
 				window = std::make_unique<Rendering::Vulkan::Window>();
 				window->init();
+				bindingData->tristeonWindow = window.get();
+				bindingData->window = window->window;
 
-				//Store in bindingdata to allow others to know about our window. 
-				bind->tristeonWindow = window.get();
-				bind->window = window->window;
-
-				//Create vulkan render manager
-				renderSys = std::make_unique<Rendering::Vulkan::RenderManager>(bindingData);
+				renderSys = std::make_unique<Rendering::Vulkan::RenderManager>();
 			}
 			else
 				Misc::Console::error(api + " is not yet supported as a rendering API!");

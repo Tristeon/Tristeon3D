@@ -31,7 +31,7 @@ namespace Tristeon
 					 * \brief Creates a new instance of InternalMeshRenderer
 					 * \param renderer The renderer that owns this object
 					 */
-					explicit InternalMeshRenderer(Renderer* renderer);
+					explicit InternalMeshRenderer(MeshRenderer* renderer);
 					/**
 					 * \brief Frees all the memory that has been allocated by this instance
 					 */
@@ -42,12 +42,6 @@ namespace Tristeon
 					void render() override;
 
 					/**
-					 * \brief Creates the command, index and vertex buffers
-					 * \param data Global binding data
-					 */
-					void init(BindingData* data) override;
-
-					/**
 					* \brief Callback function for when the mesh has been changed
 					* \param mesh The new mesh
 					*/
@@ -56,7 +50,7 @@ namespace Tristeon
 					/**
 					* \brief Creates the uniform buffer, used for passing uniform data to the shaders
 					*/
-					void createUniformBuffer(VulkanBindingData* binding);
+					void createUniformBuffer();
 					/**
 					* \brief Creates the descriptor sets for the textures
 					*/
@@ -76,10 +70,6 @@ namespace Tristeon
 					 */
 					MeshRenderer* meshRenderer;
 
-					/**
-					 * \brief A reference to the binding data class
-					 */
-					VulkanBindingData* vk = nullptr;
 					/**
 					 * \brief The command buffers
 					 */

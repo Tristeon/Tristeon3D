@@ -41,9 +41,8 @@ namespace Tristeon
 				void init() override;
 				/**
 				 * \brief Creates and initializes the internal renderer
-				 * \param data Rendering binding data, used to initialize the renderer
 				 */
-				virtual void initInternalRenderer(BindingData* data) = 0;
+				virtual void initInternalRenderer() = 0;
 
 				/**
 				* \brief The (shared) material of the renderer

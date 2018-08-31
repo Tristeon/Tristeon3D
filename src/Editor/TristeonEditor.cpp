@@ -22,7 +22,7 @@ namespace Tristeon
 	{
 		editorCamera = nullptr;
 
-		Core::VulkanBindingData *vkBinding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData.get());
+		Core::VulkanBindingData *vkBinding = Core::VulkanBindingData::getInstance();
 		this->vkDevice = vkBinding->device;
 		this->engine = engine;
 
@@ -156,11 +156,6 @@ namespace Tristeon
 		d->lastUsedSecondaryBuffer = cmd;
 	}
 
-	Core::BindingData* TristeonEditor::getBindingData()
-	{
-		return engine->bindingData.get();
-	}
-
 	void TristeonEditor::bindImGui(Core::VulkanBindingData* vkBinding)
 	{
 		ImGui_ImplGlfwVulkan_Init_Data init_data;
@@ -209,7 +204,7 @@ namespace Tristeon
 
 	void TristeonEditor::createCommandBuffers()
 	{
-		Core::VulkanBindingData* binding = dynamic_cast<Core::VulkanBindingData*>(engine->bindingData.get());
+		Core::VulkanBindingData* binding = Core::VulkanBindingData::getInstance();
 		Misc::Console::t_assert(binding != nullptr, "Tristeon editor currently only supports vulkan!");
 
 		vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);

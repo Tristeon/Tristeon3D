@@ -59,12 +59,11 @@ namespace Tristeon
 					/**
 					 * \brief Creates a new instance of CameraRenderData. Creates all resources
 					 * \param rm Reference to the rendermanager for rendering data
-					 * \param binding BindingData for rendering information
 					 * \param offscreenPass Used for offscreen rendering
 					 * \param onscreenPipeline Onscreen shader/rendering pipeline
 					 * \param isEditorCamera Will create descriptorsets from ImGui if true
 					 */
-					void init(RenderManager* rm, VulkanBindingData* binding, vk::RenderPass offscreenPass,
+					void init(RenderManager* rm, vk::RenderPass offscreenPass,
 					                 Pipeline* onscreenPipeline, bool isEditorCamera = false);
 					/**
 					 * \brief Cleans up all the resources used by this CameraRenderData
@@ -157,12 +156,11 @@ namespace Tristeon
 
 						/**
 						 * \brief Allocates the offscreen commandbuffer and creates the descriptorset
-						 * \param binding Bindingdata used for rendering information
 						 * \param offscreen Used to get some information from the offscreen pass
 						 * \param isEditorCam Creates descriptorsets that fit the editor pass if true, renderpass if false
 						 * \param onscreenPipeline Used to get the descriptor layouts
 						 */
-						void init(VulkanBindingData* binding, Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline);
+						void init(Offscreen offscreen, bool isEditorCam, Pipeline* onscreenPipeline);
 						/**
 						 * \brief Destroys the resources that have been created
 						 * \param device Used to destroy the resources that were created
@@ -183,10 +181,6 @@ namespace Tristeon
 					 * \brief Describes wether or not the camera is an editor camera
 					 */
 					bool isEditorCam = false;
-					/**
-					 * \brief A reference ot VulkanBindingData, used to receive rendering data from other systems
-					 */
-					VulkanBindingData* binding = nullptr;
 					/**
 					 * \brief Initializes both the offscreen and onscreen pass
 					 * \param rm Reference to the rendermanager for render info

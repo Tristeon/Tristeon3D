@@ -34,12 +34,6 @@ namespace Tristeon
 				 */
 				virtual void render() = 0;
 				/**
-				 * \brief Init allows you to initialize render based information with the given binding data.
-				 * \param data Render data used to share global information / classes that the renderer needs to access.
-				 */
-				virtual void init(BindingData* data) = 0;
-
-				/**
 				 * \brief Callback function for when the mesh has been changed
 				 * \param mesh The new mesh
 				 */

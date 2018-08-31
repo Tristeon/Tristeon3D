@@ -20,18 +20,25 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				InternalMeshRenderer::InternalMeshRenderer(Renderer* renderer) : InternalRenderer(renderer)
+				InternalMeshRenderer::InternalMeshRenderer(MeshRenderer* renderer) : InternalRenderer(renderer), meshRenderer(renderer)
 				{
 					//We expect a meshrenderer
 					meshRenderer = dynamic_cast<MeshRenderer*>(renderer);
-					Misc::Console::t_assert(meshRenderer != nullptr, "Vulkan Internal Mesh Renderer received renderer component that isn't a mesh renderer!");
+
+					//Store rendering data
+					createCommandBuffers();
+					createUniformBuffer();
+					createDescriptorSets();
+					createVertexBuffer(meshRenderer->mesh.get());
+					createIndexBuffer(meshRenderer->mesh.get());
 				}
 
 				InternalMeshRenderer::~InternalMeshRenderer()
 				{
 					//Cleanup
-					vk->device.waitIdle();
-					vk->device.freeDescriptorSets(vk->descriptorPool, 1, &set);
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+					bindingData->device.waitIdle();
+					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, 1, &set);
 				}
 
 				void InternalMeshRenderer::render()
@@ -93,20 +100,6 @@ namespace Tristeon
 					data->lastUsedSecondaryBuffer = cmd;
 				}
 
-				void InternalMeshRenderer::init(BindingData* data)
-				{
-					//Store rendering data
-					vk = dynamic_cast<VulkanBindingData*>(data);
-					Misc::Console::t_assert(vk != nullptr, "Vulkan Internal mesh renderer received binding data that isn't made for vulkan!");
-
-					//INIT
-					createCommandBuffers();
-					createUniformBuffer(vk);
-					createDescriptorSets();
-					createVertexBuffer(meshRenderer->mesh.get());
-					createIndexBuffer(meshRenderer->mesh.get());
-				}
-
 				void InternalMeshRenderer::onMeshChange(Data::SubMesh mesh)
 				{
 					createVertexBuffer(mesh);
@@ -115,8 +108,8 @@ namespace Tristeon
 
 				void InternalMeshRenderer::createCommandBuffers()
 				{
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(vk->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					vk::Result const r = vk->device.allocateCommandBuffers(&alloc, &cmd);
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(VulkanBindingData::getInstance()->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					vk::Result const r = VulkanBindingData::getInstance()->device.allocateCommandBuffers(&alloc, &cmd);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate command buffers: " + to_string(r));
 				}
 
@@ -126,7 +119,7 @@ namespace Tristeon
 					if (size == 0)
 						return;
 
-					vertexBuffer = BufferVulkan::createOptimized(vk, size, mesh.vertices.data(), vk::BufferUsageFlagBits::eVertexBuffer);
+					vertexBuffer = BufferVulkan::createOptimized(size, mesh.vertices.data(), vk::BufferUsageFlagBits::eVertexBuffer);
 				}
 
 				void InternalMeshRenderer::createIndexBuffer(Data::SubMesh mesh)
@@ -134,18 +127,18 @@ namespace Tristeon
 					vk::DeviceSize const size = sizeof(uint16_t) * mesh.indices.size();
 					if (size == 0)
 						return;
-					indexBuffer = BufferVulkan::createOptimized(vk, size, mesh.indices.data(), vk::BufferUsageFlagBits::eIndexBuffer);
+					indexBuffer = BufferVulkan::createOptimized(size, mesh.indices.data(), vk::BufferUsageFlagBits::eIndexBuffer);
 				}
 
-				void InternalMeshRenderer::createUniformBuffer(VulkanBindingData* binding)
+				void InternalMeshRenderer::createUniformBuffer()
 				{
-					uniformBuffer = std::make_unique<BufferVulkan>(binding, sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
+					uniformBuffer = std::make_unique<BufferVulkan>(sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
 						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 				}
 
 				void InternalMeshRenderer::createDescriptorSets()
 				{
-					VulkanBindingData* binding = vk; //Easy reference for now
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 
 					//Create a temporary layout describing the uniform buffer input
 					vk::DescriptorSetLayout layout;
@@ -154,11 +147,11 @@ namespace Tristeon
 						1, vk::ShaderStageFlagBits::eVertex,
 						nullptr);
 					vk::DescriptorSetLayoutCreateInfo ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &ubo);
-					binding->device.createDescriptorSetLayout(&ci, nullptr, &layout);
+					bindingData->device.createDescriptorSetLayout(&ci, nullptr, &layout);
 
 					//Allocate
-					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
-					vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
+					vk::Result const r = bindingData->device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					//Write info
@@ -167,9 +160,9 @@ namespace Tristeon
 
 					//Update descriptor with our new write info
 					std::array<vk::WriteDescriptorSet, 1> write = { uboWrite };
-					binding->device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
+					bindingData->device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
 
-					binding->device.destroyDescriptorSetLayout(layout);
+					bindingData->device.destroyDescriptorSetLayout(layout);
 				}
 			}
 		}

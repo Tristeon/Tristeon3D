@@ -19,7 +19,7 @@ namespace Tristeon
 					BufferVulkan(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, size_t size, 
 						vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal, vk::SharingMode sharingMode = vk::SharingMode::eExclusive);
 
-					BufferVulkan(VulkanBindingData* bindingData, size_t size,
+					BufferVulkan(size_t size,
 						vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal, vk::SharingMode sharingMode = vk::SharingMode::eExclusive);
 
 					~BufferVulkan();
@@ -32,8 +32,7 @@ namespace Tristeon
 					static std::unique_ptr<BufferVulkan> createOptimized(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, vk::CommandPool cmdPool, vk::Queue graphicsQueue, 
 						size_t size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal, vk::SharingMode sharingMode = vk::SharingMode::eExclusive);
 
-					static std::unique_ptr<BufferVulkan> createOptimized(VulkanBindingData* bindingData,
-						size_t size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal, vk::SharingMode sharingMode = vk::SharingMode::eExclusive);
+					static std::unique_ptr<BufferVulkan> createOptimized(size_t size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal, vk::SharingMode sharingMode = vk::SharingMode::eExclusive);
 
 					static uint32_t findMemoryType(vk::PhysicalDevice gpu, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 				private:

@@ -21,6 +21,8 @@ namespace Tristeon
 			{
 				Skybox::~Skybox()
 				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+
 					vk::Device device = bindingData->device;
 
 					device.destroyImage(image.img);
@@ -105,6 +107,7 @@ namespace Tristeon
 				void Skybox::setupCubemap()
 				{
 					//Vulkan
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 					vk::Device device = bindingData->device;
 
 					//Image data
@@ -128,12 +131,11 @@ namespace Tristeon
 					const size_t height = tex.extent().y;
 					const size_t mipLevels = tex.levels();
 
-					BufferVulkan staging = BufferVulkan(bindingData, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					BufferVulkan staging = BufferVulkan(size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 					staging.copyFromData(tex.data());
 
 					//Create image
 					VulkanImage::createImage(
-						bindingData,
 						width, height, vk::Format::eR8G8B8A8Unorm,
 						vk::ImageTiling::eOptimal,
 						vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst,
@@ -163,10 +165,10 @@ namespace Tristeon
 					vk::CommandBuffer onetime = CommandBuffer::begin(bindingData->commandPool, bindingData->device);
 					vk::ImageSubresourceRange const subresource_range = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 6);
 
-					VulkanImage::transitionImageLayout(bindingData, image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, subresource_range);
+					VulkanImage::transitionImageLayout(image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, subresource_range);
 					onetime.copyBufferToImage(staging.getBuffer(), image.img, vk::ImageLayout::eTransferDstOptimal, bufCopyRegions.size(), bufCopyRegions.data());
 					CommandBuffer::end(onetime, bindingData->graphicsQueue, bindingData->device, bindingData->commandPool);
-					VulkanImage::transitionImageLayout(bindingData, image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, subresource_range);
+					VulkanImage::transitionImageLayout(image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, subresource_range);
 
 					//Create sampler
 					vk::SamplerCreateInfo samp = vk::SamplerCreateInfo({},
@@ -192,17 +194,17 @@ namespace Tristeon
 
 				void Skybox::setupPipeline()
 				{
+
 					vk::DescriptorSetLayoutBinding const ubo = vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr);
 					vk::DescriptorSetLayoutBinding const cubesampler = vk::DescriptorSetLayoutBinding(1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
 					std::array<vk::DescriptorSetLayoutBinding, 2> bindings = { ubo, cubesampler };
 
 					vk::DescriptorSetLayoutCreateInfo const ci = vk::DescriptorSetLayoutCreateInfo({}, bindings.size(), bindings.data());
-					vk::DescriptorSetLayout const descriptorSetLayout = bindingData->device.createDescriptorSetLayout(ci);
+					vk::DescriptorSetLayout const descriptorSetLayout = VulkanBindingData::getInstance()->device.createDescriptorSetLayout(ci);
 
 					pipeline = new Pipeline(
-						bindingData, 
 						ShaderFile("Skybox", "Files/Shaders/", "SkyboxV", "SkyboxF"), 
-						bindingData->swapchain->extent2D, 
+						VulkanBindingData::getInstance()->swapchain->extent2D,
 						renderPass, 
 						descriptorSetLayout,
 						vk::PrimitiveTopology::eTriangleList,
@@ -212,19 +214,21 @@ namespace Tristeon
 
 				void Skybox::createUniformBuffer()
 				{
-					uniformBuffer = std::make_unique<BufferVulkan>(bindingData, sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
+					uniformBuffer = std::make_unique<BufferVulkan>(sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
 						vk::MemoryPropertyFlagBits::eHostCoherent | vk::MemoryPropertyFlagBits::eHostVisible);
 				}
 
 				void Skybox::createCommandBuffers()
 				{
 					//Allocate command buffers
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(bindingData->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					bindingData->device.allocateCommandBuffers(&alloc, &secondary);
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(VulkanBindingData::getInstance()->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					VulkanBindingData::getInstance()->device.allocateCommandBuffers(&alloc, &secondary);
 				}
 
 				void Skybox::createDescriptorSet()
 				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+
 					vk::DescriptorSetLayout layout = pipeline->getUniformLayout();
 					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
 					bindingData->device.allocateDescriptorSets(&alloc, &image.set);
@@ -244,6 +248,8 @@ namespace Tristeon
 
 				void Skybox::createOffscreenDescriptorSet()
 				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+
 					vk::DescriptorSetLayoutBinding const s = vk::DescriptorSetLayoutBinding(
 						0, vk::DescriptorType::eCombinedImageSampler,
 						1, vk::ShaderStageFlagBits::eFragment,
@@ -270,7 +276,7 @@ namespace Tristeon
 					if (size == 0)
 						return;
 
-					vertexBuffer = BufferVulkan::createOptimized(bindingData, size, mesh.vertices.data(), vk::BufferUsageFlagBits::eVertexBuffer);
+					vertexBuffer = BufferVulkan::createOptimized(size, mesh.vertices.data(), vk::BufferUsageFlagBits::eVertexBuffer);
 				}
 
 				void Skybox::createIndexBuffer()
@@ -279,7 +285,7 @@ namespace Tristeon
 					if (size == 0)
 						return;
 
-					indexBuffer = BufferVulkan::createOptimized(bindingData, size, mesh.indices.data(), vk::BufferUsageFlagBits::eIndexBuffer);
+					indexBuffer = BufferVulkan::createOptimized(size, mesh.indices.data(), vk::BufferUsageFlagBits::eIndexBuffer);
 				}
 			}
 		}

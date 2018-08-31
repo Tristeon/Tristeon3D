@@ -23,13 +23,13 @@ namespace Tristeon
 					render();
 				}
 
-				DebugDrawManager::DebugDrawManager(VulkanBindingData* data, vk::RenderPass offscreenPass)
+				DebugDrawManager::DebugDrawManager(vk::RenderPass offscreenPass)
 				{
-					binding = data;
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 
 					//ShaderFile
 					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-					pipeline = new Pipeline(binding, file, binding->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
+					pipeline = new Pipeline(file, bindingData->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
 					material = new Vulkan::Material();
 					material->pipeline = pipeline;
@@ -37,16 +37,18 @@ namespace Tristeon
 					material->updateProperties(true);
 
 					//Allocate command buffers
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					binding->device.allocateCommandBuffers(&alloc, &cmd);
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(bindingData->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					bindingData->device.allocateCommandBuffers(&alloc, &cmd);
 
 					createDescriptorSets();
 				}
 
 				void DebugDrawManager::createDescriptorSets()
 				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+
 					//Create a uniform buffer of the size of UniformBufferObject
-					uniformBuffer = std::make_unique<BufferVulkan>(binding, sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer, 
+					uniformBuffer = std::make_unique<BufferVulkan>(sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer,
 						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
 					//Create a temporary layout describing the uniform buffer input
@@ -56,11 +58,11 @@ namespace Tristeon
 						1, vk::ShaderStageFlagBits::eVertex,
 						nullptr);
 					vk::DescriptorSetLayoutCreateInfo ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &ubo);
-					binding->device.createDescriptorSetLayout(&ci, nullptr, &layout);
+					bindingData->device.createDescriptorSetLayout(&ci, nullptr, &layout);
 
 					//Allocate
-					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
-					vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
+					vk::Result const r = bindingData->device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					//Write info
@@ -69,9 +71,9 @@ namespace Tristeon
 
 					//Update descriptor with our new write info
 					std::array<vk::WriteDescriptorSet, 1> write = { uboWrite };
-					binding->device.updateDescriptorSets((uint32_t)write.size(), write.data(), 0, nullptr);
+					bindingData->device.updateDescriptorSets((uint32_t)write.size(), write.data(), 0, nullptr);
 
-					binding->device.destroyDescriptorSetLayout(layout);
+					bindingData->device.destroyDescriptorSetLayout(layout);
 				}
 
 				DebugDrawManager::~DebugDrawManager()
@@ -79,13 +81,14 @@ namespace Tristeon
 					delete material;
 					delete pipeline;
 					
-					binding->device.freeCommandBuffers(binding->commandPool, cmd);
-					binding->device.freeDescriptorSets(binding->descriptorPool, set);
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+					bindingData->device.freeCommandBuffers(bindingData->commandPool, cmd);
+					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, set);
 				}
 
 				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass) const
 				{
-					pipeline->rebuild(binding->swapchain->extent2D, offscreenPass);
+					pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
 				}
 
 				void DebugDrawManager::createVertexBuffer(Data::SubMesh mesh, int i)
@@ -94,12 +97,12 @@ namespace Tristeon
 					if (size == 0)
 						return;
 
-					BufferVulkan staging = BufferVulkan(binding, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					BufferVulkan staging = BufferVulkan(size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 					staging.copyFromData(mesh.vertices.data());
 
 					if (!vertexBuffers[i])
-						vertexBuffers[i] = std::make_unique<BufferVulkan>(binding, size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-					vertexBuffers[i]->copyFromBuffer(staging.getBuffer(), binding->commandPool, binding->graphicsQueue);
+						vertexBuffers[i] = std::make_unique<BufferVulkan>(size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+					vertexBuffers[i]->copyFromBuffer(staging.getBuffer(), VulkanBindingData::getInstance()->commandPool, VulkanBindingData::getInstance()->graphicsQueue);
 				}
 
 				void DebugDrawManager::render()
