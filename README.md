@@ -52,7 +52,7 @@ Near future:
 * Point/Spot/Directional lights
 * Shadow mapping
 * Optimized component serialization
-* Dragging/dropping (file)items
+* Dragging/dropping (file)items into the inspector
 
 Planned (editor/serialization):
 * Automized serialization
