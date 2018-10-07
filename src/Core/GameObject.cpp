@@ -37,26 +37,25 @@ namespace Tristeon
 			return output;
 		}
 
+		//Temporary till the std::string from nlohmann::json is fixed
+		#define GET_STRING(name, stringName) const std::string value_##name = json[##stringName]; name = value_##name;
+
 		void GameObject::deserialize(nlohmann::json json)
 		{
-			const std::string instanceIDValue = json["instanceID"];
-			instanceID = instanceIDValue;
+			GET_STRING(instanceID, "instanceID");
 			active = json["active"];
-			const std::string nameValue = json["name"];
-			name = nameValue;
-			const std::string tagValue = json["tag"];
-			tag = tagValue;
+			GET_STRING(name, "name");
+			GET_STRING(tag, "tag");
 			if (!json["prefabFilePath"].is_null())
 			{
-				const std::string prefabFilePathValue = json["prefabFilePath"];
-				prefabFilePath = prefabFilePathValue;
+				GET_STRING(prefabFilePath, "prefabFilePath");
 			}
 			_transform->deserialize(json["transform"]);
 			components.clear();
 			for (auto serializedComponent : json["components"])
 			{
 				//TODO: instead of recreating identify already existing components instead of removing those and load those
-				//in to avoid weird behavior
+				//in to avoid weird behavior and increase performance
 
 				//Create an instance using the given typeid, this creates an instance of the type
 				//which was serialized using its unique ID thus to retrieve the type.

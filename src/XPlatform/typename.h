@@ -3,6 +3,10 @@
 #if defined(_MSC_VER)
 #include "Misc/StringUtils.h"
 #include "Misc/Console.h"
+
+/**
+ * Wrapper around typeid(T).name(), to enforce a consistent return style across all (supported) compilers.
+ */
 template<typename T>
 std::string getTypename()
 {
@@ -26,6 +30,10 @@ std::string getTypename()
 
 #else
 #include <cxxabi.h>
+
+/**
+ * Wrapper around typeid(T).name(), to enforce a consistent return style across all (supported) compilers.
+ */
 template<typename T>
 std::string getTypename()
 {

@@ -16,7 +16,7 @@ namespace Tristeon
 		 * 
 		 * This class is not intended to be accessed or used by users.
 		 */
-		class Engine
+		class Engine final
 		{
 		public:
 			Engine();
@@ -32,6 +32,8 @@ namespace Tristeon
 			std::unique_ptr<Rendering::Window> window;
 			std::unique_ptr<Components::ComponentManager> componentSys;
 			std::unique_ptr<Managers::InputManager> inputSys;
+
+			bool inPlayMode = false;
 		};
 	}
 }

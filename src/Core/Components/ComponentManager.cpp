@@ -12,6 +12,7 @@ namespace Tristeon
 		{
 			ComponentManager::ComponentManager()
 			{
+				//Subscribe to message events regarding callbacks and (de)registering of components
 				MessageBus::subscribeToMessage(MT_SCRIPTINGCOMPONENT_REGISTER, [&](Message message) { registerComponent(message); });
 				MessageBus::subscribeToMessage(MT_SCRIPTINGCOMPONENT_DEREGISTER, [&](Message message) { deregisterComponent(message); });
 				MessageBus::subscribeToMessage(MT_START, [&](Message)       { callFunction<&Component::start>(); });

@@ -22,7 +22,6 @@ namespace Tristeon
 
 		void MessageBus::validateMessageType(MessageType type)
 		{
-			//Check for unknown message types
 			if (!messageCallbacks.count(type))
 				messageCallbacks[type] = Misc::Delegate<Message>();
 		}

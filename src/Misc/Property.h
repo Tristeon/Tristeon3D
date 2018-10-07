@@ -41,6 +41,18 @@ private:
 };
 
 template <typename C, typename T>
+class SimpleRProperty
+{
+	friend C;
+public:
+	T get() { return value; }
+	operator T() const { return value; }
+
+private:
+	T value;
+};
+
+template <typename C, typename T>
 class WProperty
 {
 	friend C;
@@ -57,6 +69,8 @@ private:
 	C* const m_instance;
 	const Setter_t m_setter;
 };
+
+#define SimpleReadOnlyProperty(CLASS, NAME, TYPE) SimpleRProperty<CLASS, TYPE> NAME = {};
 
 #define Property(CLASS, NAME, TYPE)	RWProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME, &CLASS::set_##NAME }; \
     typedef TYPE property__tmp_type_##NAME;

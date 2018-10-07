@@ -17,11 +17,11 @@ namespace Tristeon
 		class MessageBus;
 
 		/**
-		 * \brief GameObject is a container of gameobjects. It also owns an instance of Transform, and it is the only type of object that is directly allowed in the scene.
+		 * \brief GameObject is a container of components, with an instance of Transform which describes its position, scale and rotation.
+		 * GameObject is the only type of entity that is directly allowed as an instance in the scene.
 		 */
 		class GameObject : public TObject
 		{
-			//Scenes can access our information
 			friend Scenes::Scene;
 			friend Scenes::SceneManager;
 #ifdef TRISTEON_EDITOR
@@ -29,79 +29,50 @@ namespace Tristeon
 			friend Editor::EditorNodeTree;
 #endif
 		public:
-			/**
-			 * \brief Creates a new gameobject and initializes transform
-			 */
 			GameObject();
-
-			/**
-			 * \brief Initializes all the gameobjects' components. This function gets called after the scene has been fully loaded. The game does not have to be running
-			 */
-			void init();
-
-			/**
-			 * \brief The tag of this gameobject
-			 */
 			std::string tag;
 
 			/**
-			* \brief The transform of the gameobject. Describes position, rotation, scale and a parent-child structure
+			* \brief The transform of the gameobject. Describes position, rotation, scale and a parent-child structure.
 			*/
 			ReadOnlyProperty(GameObject, transform, Transform*);
 			GetProperty(transform) { return _transform.get(); }
 
-			template <typename T>
-			using ComponentIsBase = std::enable_if<std::is_base_of<Components::Component, T>::value>;
-
 			/**
-			 * \brief Adds a component to the component list of type T
-			 * \tparam T The type of component to be added
-			 * \return Returns the new component
+			 * \brief Creates a new component of type T and adds it to the component list. Will also return the newly created component.
 			 */
 			template <typename T>
 			typename std::enable_if<std::is_base_of<Components::Component, T>::value, T>::type* addComponent();
 
 			/**
-			 * \brief Gets the first component of the given type T
-			 * \tparam T The type of the component to be searched for
-			 * \return Returns the component
+			 * \brief Gets the first component of the given type T. Null if no matching component can be found.
 			 */
 			template <typename T> T* getComponent();
+
 			/**
-			 * \brief Gets all the components of type T
-			 * \tparam T The type of the components to be searched for
-			 * \return Returns a list of components of the given type T
+			 * \brief Gets all the components of type T. Will return an empty vector if no components can be found.
 			 */
 			template <typename T> std::vector<T*> getComponents();
 
-			/**
-			 * \brief Serializes the gameobject into a json structure
-			 * \return Returns a json structure containing the gameobject data
-			 */
 			nlohmann::json serialize() override;
-			/**
-			 * \brief Deserializes the gameobject from a json structure
-			 * \param json The json structure containing the gameobject data
-			 */
 			void deserialize(nlohmann::json json) override;
 		private:
 			/**
-			 * \brief The transform. Describes position, rotation, scale and the parent-child structure. GameObject creates and destroys this object
+			 * \brief Initializes all the gameobjects' components. 
+			 * This function gets called after the scene has been fully loaded. The game does not have to be running.
 			 */
+			void init();
+
 			std::unique_ptr<Transform> _transform;
-			/**
-			 * \brief The list of components owned by this gameobject
-			 */
 			std::vector<std::unique_ptr<Components::Component>> components;
 
-			/**
-			 * \brief The local active state of this GameObject.
-			 */
 			bool active = true;
 
+			/**
+			 * The filepath of the prefab this GameObject might be attached to. "" if it's not a prefab.
+			 */
 			std::string prefabFilePath = "";
 
-			//Registers GameObject to the type register
 			REGISTER_TYPE_H(GameObject)
 		};
 

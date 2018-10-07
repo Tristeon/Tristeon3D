@@ -4,7 +4,6 @@ namespace Tristeon
 {
 	namespace Misc
 	{
-		//Static variables
 		std::chrono::time_point<std::chrono::high_resolution_clock> Time::start = std::chrono::high_resolution_clock::now();
 		float Time::deltaTime = 0;
 		float Time::fps = 60;

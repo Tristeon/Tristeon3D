@@ -7,13 +7,11 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//TODO: Global rotation and scale are untested. Parent transformations are untested
-
 		REGISTER_TYPE_CPP(Transform)
 
 		Transform::~Transform()
 		{
-			//Get rid of all relationships
+			//Remove all our children
 			for (int i = 0; i < children.size(); i++)
 				children[i]->parent = nullptr;
 			children.clear();
@@ -25,18 +23,18 @@ namespace Tristeon
 
 		void Transform::setParent(Transform* parent, bool keepWorldTransform)
 		{
-			//Can't parent to ourselves
+			//Can't parent to ourselves. TODO: In a deeper parent hierarchy, we could still accidentally parent loop.
 			if (parent == this || parent != nullptr && parent->parent == this)
 				return;
 
 			//Deregister ourselves from our old parent
 			if (this->parent != nullptr)
 				this->parent->children.remove(this);
+
 			//Add ourselves to the new parent
 			if (parent != nullptr)
 				parent->children.push_back(this);
 
-			//Transformation
 			if (keepWorldTransform)
 			{
 				//Store old transformation
@@ -44,7 +42,6 @@ namespace Tristeon
 				Math::Vector3 const oldGlobalScale = scale.get();
 				Math::Quaternion const oldGlobalRot = rotation.get();
 
-				//Apply
 				this->parent = parent;
 
 				//Reset transform
@@ -52,7 +49,6 @@ namespace Tristeon
 				scale.set(oldGlobalScale);
 				rotation.set(oldGlobalRot);
 			}
-			//Apply
 			else
 			{
 				this->parent = parent;
@@ -98,15 +94,15 @@ namespace Tristeon
 
 		void Transform::lookAt(Transform* target, Math::Vector3 up)
 		{
-			Math::Vector3 pos = position.get();
-			Math::Vector3 tar = target->position.get();
-			glm::mat4 transf = glm::inverse(glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } ));
+			Math::Vector3 const pos = position.get();
+			Math::Vector3 const tar = target->position.get();
+			glm::mat4 const transf = glm::inverse(glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } ));
 
 			glm::vec3 s, p;
 			glm::quat r;
 			glm::vec3 skew;
 			glm::vec4 persp;
-			glm::decompose(transf, s, r, p, skew, persp);
+			decompose(transf, s, r, p, skew, persp);
 
 			rotation = Math::Quaternion(r);
 		}
@@ -238,8 +234,6 @@ namespace Tristeon
 
 		glm::mat4 Transform::getTransformationMatrix()
 		{
-			//TODO: Cache local transformation [Optimization]
-
 			//Get parent transformation (recursive)
 			glm::mat4 p = glm::mat4(1.0f);
 			if (parent != nullptr)

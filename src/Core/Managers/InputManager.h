@@ -1,6 +1,9 @@
 ﻿#pragma once
+#include <XPlatform/access.h>
 
 struct GLFWwindow;
+
+TRISTEON_UNIQUE_ACCESS_DECL()
 
 namespace Tristeon
 {
@@ -11,18 +14,17 @@ namespace Tristeon
 		namespace Managers
 		{
 			/**
-			 * \brief InputManager manages all the input calls coming from the window context and converts them to Mouse/Keyboard/Joystick data
+			 * \brief InputManager manages all the input calls coming from the window context and caches them for usage as Mouse/Keyboard/Joystick data
+			 *
+			 * This class is not intended to be accessed or used by users.
 			 */
 			class InputManager final
 			{
-				friend Engine;
-
-			public:
+				TRISTEON_UNIQUE_ACCESS(InputManager)
 				/**
 				 * \param window The GLFW window, used to subscribe to callbacks 
 				 */
 				explicit InputManager(GLFWwindow* window);
-			private:
 				/**
 				 * \brief Resets keydown and keyup, called every frame
 				 */

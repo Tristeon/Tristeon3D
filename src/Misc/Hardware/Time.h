@@ -3,8 +3,11 @@
 
 namespace Tristeon
 {
-	//Forward decl
-	namespace Core { namespace Rendering { class Window; } }
+	namespace Core
+	{
+		class Engine;
+		namespace Rendering { class Window; }
+	}
 
 	namespace Misc
 	{
@@ -16,6 +19,7 @@ namespace Tristeon
 		public:
 			//Window can set our private values
 			friend Core::Rendering::Window;
+			friend Core::Engine;
 
 			/**
 			 * \brief Gets the real time that has passed since the application started

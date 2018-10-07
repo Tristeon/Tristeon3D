@@ -45,7 +45,7 @@
  * Comments on wanted future improvements / changes and/or temporary code should start with TODO.
  
  EDITOR
- * Editor code is allowed to reference editor code
+ * Editor code is allowed to reference engine code
  * The engine should be capable of running without any editor code at all times.
  * Editor code should be encapsulated by #ifdef TRSITEON_EDITOR and #endif
 */

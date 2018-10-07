@@ -8,10 +8,6 @@ namespace Tristeon
 	{
 		REGISTER_TYPE_CPP(Scene)
 
-		Scene::Scene()
-		{
-		}
-
 		void Scene::init()
 		{
 			for (int i = 0; i < gameObjects.size(); i++)
@@ -53,8 +49,7 @@ namespace Tristeon
 
 		void Scene::addGameObject(std::unique_ptr<Core::GameObject> gameObj)
 		{
-			nlohmann::json json = gameObj->serialize();
-			gameObj->deserialize(json);
+			gameObj->deserialize(gameObj->serialize());
 			gameObjects.push_back(std::move(gameObj));
 		}
 
