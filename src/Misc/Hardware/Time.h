@@ -3,7 +3,7 @@
 
 namespace Tristeon
 {
-	namespace Core
+	namespace Core 
 	{
 		class Engine;
 		namespace Rendering { class Window; }
@@ -12,43 +12,30 @@ namespace Tristeon
 	namespace Misc
 	{
 		/**
-		 * \brief The time class is used to get time information from Tristeon
+		 * The time class is used to get time information from Tristeon
 		 */
 		class Time
 		{
 		public:
-			//Window can set our private values
 			friend Core::Rendering::Window;
 			friend Core::Engine;
 
 			/**
-			 * \brief Gets the real time that has passed since the application started
-			 * \return Returns the time in seconds
+			 * Gets the real time in seconds that has passed since the application started
 			 */
 			static float getTimeSinceStart();
 			/**
-			 * \brief Gets the current frame deltatime
-			 * \return Returns the frame deltatime in seconds
+			 * Gets the current frame deltatime in seconds
 			 */
 			static float getDeltaTime();
 			/**
-			 * \brief Returns the current frames per second
-			 * \return The amount of frames per second
+			 * Returns the current amount of frames per second
 			 */
 			static float getFPS();
 
 		private:
-			/**
-			 * \brief Timer to keep track of when the time started
-			 */
 			static std::chrono::time_point<std::chrono::high_resolution_clock> start;
-			/**
-			 * \brief The deltatime of the past frame
-			 */
 			static float deltaTime;
-			/**
-			 * \brief The amount of frames per second
-			 */
 			static float fps;
 		};
 	}

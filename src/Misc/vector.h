@@ -5,7 +5,7 @@
 namespace Tristeon
 {
 	/**
-	 * \brief Tristeon::Vector is an extension of the standard std::vector, simplifying functionality such as contains() and remove()
+	 * Tristeon::Vector is an extension of the standard std::vector, simplifying functionality such as contains() and remove()
 	 */
 	template<class _Ty, class _Alloc = std::allocator<_Ty>>
 	class vector : public std::vector<_Ty, _Alloc>
@@ -16,11 +16,11 @@ namespace Tristeon
 		vector(std::initializer_list<_Ty> _Ilist, const _Alloc& _Al = _Alloc());
 
 		/**
-		* \brief Checks if the given parameter _Ty is contained inside of this vector
+		* Checks if the given parameter _Ty is contained inside of this vector
 		*/
 		bool contains(_Ty t);
 		/**
-		* \brief Removes item t from the vector
+		* Removes item t from the vector
 		*/
 		void remove(_Ty t);
 	};

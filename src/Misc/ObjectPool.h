@@ -3,47 +3,43 @@
 #include "vector.h"
 
 /**
- * \brief Objectpool is a class that manages a set of initialized objects kept ready to use – a "pool" – rather than allocating and destroying them on demand. 
+ * Objectpool is a class that manages a set of initialized objects kept ready to use – a "pool" – rather than allocating and destroying them on demand. 
  * The user of the pool can request an object from the pool using get() and perform operations on the returned object. 
  * When the client has finished, they can return the object to the pool using release(), rather than destroying it. 
- * \tparam Resource The type of resource. Has to be a pointer.
+ * Resource The type of resource. Has to be a pointer.
  */
 template<typename Resource>
 class ObjectPool
 {
 public:
-	//There is no point(er haha) in using value types in a objectpool
 	static_assert(std::is_pointer<Resource>::value, "ObjectPool expects a pointer type!");
 
-	/**
-	 * \brief Calls reset()
-	 */
 	~ObjectPool();
 
 	/**
-	 * \brief Returns a resource from the pool. Creates a new resource if no resources are available
+	 * Returns an unused resource from the pool. Creates a new resource if no resources are available
 	 */
 	Resource get();
 
 	/**
-	 * \brief Puts the given resource back into the pool
+	 * Puts the given resource back into the pool
 	 */
 	void release(Resource resource);
 	/**
-	 * \brief Deallocates all resources that aren't currently in use
+	 * Deallocates all resources that aren't currently in use
 	 */
 	void clearUnused();
 	/**
-	 * \brief Deallocates all resources created by the pool. Be careful with using this function as any references to pooled objects will turn invalid!
+	 * Deallocates all resources created by the pool. Any references to objects in the pool will turn invalid.
 	 */
 	void reset();
 private:
 	/**
-	 * \brief The currently unused (available) pool objects.
+	 * The currently unused (available) pool objects.
 	 */
 	std::queue<Resource> available;
 	/**
-	 * \brief A list keeping track of the actively used pool objects.
+	 * A list keeping track of the actively used pool objects.
 	 */
 	Tristeon::vector<Resource> used;
 };

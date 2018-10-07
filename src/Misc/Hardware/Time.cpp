@@ -10,7 +10,6 @@ namespace Tristeon
 
 		float Time::getTimeSinceStart()
 		{
-			//Get now
 			auto const current = std::chrono::high_resolution_clock::now();
 			//Time since start is now - start
 			//Divide by 1000 to convert from milliseconds to seconds

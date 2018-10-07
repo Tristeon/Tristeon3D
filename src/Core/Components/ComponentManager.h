@@ -16,7 +16,7 @@ namespace Tristeon
 			class Component;
 
 			/**
-			 * \brief ComponentManager keeps track of existing components and runs callbacks on them when needed.
+			 * ComponentManager keeps track of existing components and runs callbacks on them when needed.
 			 * ComponentManager implements a basic (de)register system that listens to the initailization of new components.
 			 *
 			 * This class is not intended to be accessed or used by users.

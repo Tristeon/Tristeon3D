@@ -2,11 +2,20 @@
 #include <sstream>
 #include <vector>
 
-class StringUtils
+/**
+ * StringUtils is a utility class that implements tedious / repetitive string based behavior that isn't provided by the standard library.
+ */
+class StringUtils final
 {
 public:
+	/**
+	 * Splits a string into separate strings based on the given delimiter.
+	 */
 	static std::vector<std::string> split(const std::string& s, char delim);
 
+	/**
+	 * Generates a string with random characters with a given length.
+	 */
 	static std::string generateRandom(int length);
 
 private:
