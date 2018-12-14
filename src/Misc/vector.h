@@ -5,7 +5,7 @@
 namespace Tristeon
 {
 	/**
-	 * Tristeon::Vector is an extension of the standard std::vector, simplifying functionality such as contains() and remove()
+	 * Tristeon::Vector is an extension of the standard std::vector. It implements simplified functionality such as contains() and remove()
 	 */
 	template<class _Ty, class _Alloc = std::allocator<_Ty>>
 	class vector : public std::vector<_Ty, _Alloc>

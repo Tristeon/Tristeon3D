@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ * RWProperty provides an interface for classes to define public fields with custom get/set functionality.
+ * RWProperty is usually not used directly, but rather through the <Property>, <Get_Property> and <Set_Property> macros defined in this header.
+ */
 template <typename C, typename T>
 class RWProperty
 {
@@ -22,6 +26,10 @@ private:
 	const Setter_t m_setter;
 };
 
+/**
+ * RProperty provides an interface for classes to define public readonly fields with custom get functionality.
+ * RWProperty is usually not used directly, but rather through the <Property>, <Get_Property> and <Set_Property> macros defined in this header.
+ */
 template <typename C, typename T>
 class RProperty
 {

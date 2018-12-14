@@ -43,6 +43,8 @@ namespace Tristeon
 		void SceneManager::loadScene(std::string name)
 		{
 			Core::MessageBus::sendMessage(Core::MT_MANAGER_RESET);
+
+			//Attempt to deserialize scene from file
 			auto const scene = JsonSerializer::deserialize<Scene>(sceneFilePaths[name]);
 			if (!scene)
             {

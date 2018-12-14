@@ -15,6 +15,8 @@ public:
 
 	/**
 	 * Generates a string with random characters with a given length.
+	 * 
+	 * \exception invalid_argument if length <= 0
 	 */
 	static std::string generateRandom(int length);
 

@@ -7,7 +7,7 @@ namespace Tristeon
 	namespace Data
 	{
 		/**
-		 * \brief File reading mode used for text files
+		 * File reading mode used for text files
 		 */
 		enum FileMode
 		{
@@ -16,38 +16,38 @@ namespace Tristeon
 		};
 
 		/**
-		 * \brief Utility class for loading text files.
+		 * Utility class for loading text files.
 		 */
 		class TextFile final
 		{
 		public:
 			/**
-			 * \brief Creates a new instance of TextFile. Filetype still needs to be set, filemode is set to Text.
+			 * Creates a default instance of TextFile with an empty filepath.
 			 */
 			explicit TextFile();
 			
 			/**
-			 * \brief Creates a new instance of TextFile with the given filename and mode
+			 * Creates a new instance of TextFile with the given filename and mode
 			 */
 			TextFile(std::string filename, FileMode mode);
 
 			/**
-			 * \brief Reads the file and returns it as a string
-			 * \return A string with the text data
+			 * Reads the file and returns it as a string.
+			 * \exception std::runtime_error Failed to open file at filepath <path>
 			 */
 			std::string readAllString() const;
 			/**
-			 * \brief Reads the file and returns it as a char vector
-			 * \return A char vector with the text data
+			 * Reads the file and returns it as a char vector
+			 * \exception std::runtime_error Failed to open file at filepath <path>
 			 */
 			std::vector<char> readAllVector() const;
 
 			/**
-			 * \brief The path of the text file
+			 * The path of the text file
 			 */
 			std::string filePath;
 			/**
-			 * \brief The mode of the file (binary/text)
+			 * The mode of the file (binary/text)
 			 */
 			FileMode filemode;
 		};

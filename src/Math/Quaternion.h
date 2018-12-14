@@ -15,6 +15,9 @@ namespace Tristeon
 
 		/**
 		 *  Quaternion dsescribes a 3D rotation. This way of describing 3D rotation prevents issues that are experienced with a euler approach like gimbal lock.
+		 *  
+		 *  Unless if you are well experienced with Quaternions, it is recommended to use the functionality provided through class and static methods, 
+		 *  rather than modifying the components of the quaternion directly.
 		 */
 		class Quaternion : public Core::TObject
 		{

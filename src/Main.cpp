@@ -28,7 +28,6 @@
  POINTERS
  * Raw pointer: Never owns the referenced object. Do NOT attempt to manage/destroy this object if it is given to you.
  * Unique pointer: Owns the referenced object, will destroy the object automatically.
- * Shared pointer: Not in use currently. Standards will be set if this happens to be necessary.
  
  NAMING
  * Class/Struct names: UpperCamelCase
@@ -41,7 +40,7 @@
  * Parameters: UpperCamelCase preceding with p: pUserName
 
  COMMENTING
- * Every function/method and class should be thoroughly commented to explain its purpose, use cases and expected parameter values.
+ * Every function/method and class, where applicable should be thoroughly commented to explain its purpose, use cases and expected parameter values.
  * Comments on wanted future improvements / changes and/or temporary code should start with TODO.
  
  EDITOR
@@ -53,6 +52,7 @@
 #ifndef TRISTEON_LOGENABLED
 #include <windows.h>
 #endif
+
 #include "Core/Engine.h"
 
 #ifdef TRISTEON_EDITOR
