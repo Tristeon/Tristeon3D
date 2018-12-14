@@ -13,9 +13,8 @@ namespace Tristeon
 		/**
 		 * Vector2 interface, describes a 2D point or movement
 		 */
-		class Vector2 : public Core::TObject
+		struct Vector2 : Core::TObject
 		{
-		public:
 			/**
 			 * Creates a (xy, xy) Vector2
 			 * \param xy The x and y of this vector
@@ -63,6 +62,8 @@ namespace Tristeon
 
 			/**
 			* Access the x, y, z components using [0], [1], [2] respectively.
+			* 
+			* \exception invalid_argument  If the axis is higher than the dimensions supported by Vector2, or if it's below 0
 			*/
 			float getAxis(const int& axis) const;
 			/**

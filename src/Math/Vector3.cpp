@@ -1,7 +1,6 @@
 #include "Vector3.h"
 #include "cmath"
 #include <string>
-#include "Misc/Console.h"
 #include "XPlatform/typename.h"
 
 namespace Tristeon
@@ -32,7 +31,7 @@ namespace Tristeon
 			case 2:
 				return z;
 			default:
-				throw std::runtime_error("Axis is out of range, using vector3's index 2 is the maximum");
+				throw std::invalid_argument("Axis is out of range, using vector3's index 2 is the maximum");
 			}
 		}
 
@@ -47,10 +46,7 @@ namespace Tristeon
 		void Vector3::normalize()
 		{
 			if (x == 0 && y == 0 && z == 0)
-			{
-				Misc::Console::warning("You cannot normalize Vector3::zero");
 				return;
-			}
 
 			//Normalize
 			float const magnitude = getLength();

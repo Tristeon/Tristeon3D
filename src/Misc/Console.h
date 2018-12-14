@@ -20,6 +20,8 @@ namespace Tristeon
 			 * Throws an error if the given condition is not true
 			 * \param condition The condition you expect to be true
 			 * \param errorMessage The error message to be shown in the error pop-up
+			 * 
+			 * \exception runtime_error If condition is false
 			 */
 			static void t_assert(bool condition, std::string errorMessage);
 			/**
@@ -38,6 +40,8 @@ namespace Tristeon
 			static void warning(std::string data);
 			/**
 			 * Opens an error pop-up window and stops the program.
+			 * 
+			 * \exception runtime_error
 			 */
 			static void error(std::string data);
 		};

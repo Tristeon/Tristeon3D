@@ -26,8 +26,7 @@ namespace Tristeon
 		void Console::clear()
 		{
 			#ifdef TRISTEON_LOGENABLED
-			if (system("CLS"))
-				system("clear");
+			rlutil::cls();
 			#endif
 		}
 

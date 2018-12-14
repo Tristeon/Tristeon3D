@@ -37,6 +37,7 @@ namespace Tristeon
 
 		/**
 		 * All the supported keyboard keys
+		 * Used in conjunction with GetKey(), GetKeyUp(), and GetKeyDown()
 		 */
 		enum KeyCode
 		{
@@ -216,13 +217,6 @@ namespace Tristeon
 			 */
 			static void reset();
 
-			/**
-			 * A function callback that is used to record keyboard input data. 
-			 * \param key The key that changed state
-			 * \param scancode The system-specific scancode of the key.
-			 * \param action The action that has been performed on the button
-			 * \param mods The key modifiers that are being applied to the button (ctrl, alt, shift, etc)
-			 */
 			static void keyCallback(int key, int scancode, int action, int mods);
 		};
 	}

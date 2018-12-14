@@ -74,6 +74,9 @@ namespace Tristeon
 
 		void Mouse::setCursorImage(Data::Image image, int xHot, int yHot)
 		{
+			if (image.getWidth() <= 0 || image.getHeight() <= 0)
+				throw std::invalid_argument("Invalid image passed to Mouse::setCursorImage!");
+
 			GLFWimage i;
 			i.width = image.getWidth();
 			i.height = image.getHeight();

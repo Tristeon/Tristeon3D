@@ -67,7 +67,7 @@ namespace Tristeon
 					for (size_t j = 0; j < currentMesh->mNumFaces; j++)
 					{
 						const auto face = currentMesh->mFaces[j];
-						Misc::Console::t_assert(face.mNumIndices == 3, "This is not a triangle!");
+						Misc::Console::t_assert(face.mNumIndices == 3, "Non-triangular shape detected inside mesh");
 						submesh.indices.push_back(face.mIndices[0]);
 						submesh.indices.push_back(face.mIndices[1]);
 						submesh.indices.push_back(face.mIndices[2]);

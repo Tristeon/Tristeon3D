@@ -6,12 +6,11 @@ namespace Tristeon
 	namespace Misc
 	{
 		/**
-		 * Color is a class describing a color by using 4 float values (rgba)
+		 * Color is a structure used to describe a color by using 4 float values (rgba)
 		 */
-		class Color final : public Core::TObject
+		struct Color final : Core::TObject
 		{
-		public:
-			Color(float r = 1, float g = 1, float b = 1, float a = 1);
+			explicit Color(float r = 1, float g = 1, float b = 1, float a = 1);
 			Color(const Color& c);
 
 			/**

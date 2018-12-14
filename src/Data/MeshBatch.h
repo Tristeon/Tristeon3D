@@ -36,13 +36,7 @@ namespace Tristeon
 			static void unloadMesh(std::string meshPath);
 
 		private:
-			/**
-			 * All the loaded in meshes
-			 */
 			static std::map<std::string, std::unique_ptr<Mesh>> loadedMeshes;
-			/**
-			 * Unloads all of the loaded meshes
-			 */
 			static void unloadAll();
 		};
 	}

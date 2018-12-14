@@ -12,7 +12,7 @@ namespace Tristeon
 		/**
 		* Vector3 interface, describes a 3D point or movement and implements math operations to modify said point/movement.
 		*/
-		class Vector3 final : public Core::TObject
+		struct Vector3 final : public Core::TObject
 		{
 		public:
 			/**
@@ -63,6 +63,8 @@ namespace Tristeon
 
 			/**
 			* Access the x, y, z components using [0], [1], [2] respectively.
+			* 
+			* \exception invalid_argument If the axis is higher than the dimensions supported by Vector3, or if it's below 0.
 			*/
 			float& getAxis(const int& axis);
 			/**

@@ -44,7 +44,7 @@ namespace Tristeon
 			return channels;
 		}
 
-		int Image::getSize()
+		int Image::getSize() const
 		{
 			return width * height * channels;
 		}

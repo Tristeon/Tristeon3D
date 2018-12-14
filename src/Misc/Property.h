@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * RWProperty provides an interface for classes to define public fields with custom get/set functionality.
+ * RWProperty provides a [READ AND WRITE] interface for classes to define public fields with custom get/set functionality.
  * RWProperty is usually not used directly, but rather through the <Property>, <Get_Property> and <Set_Property> macros defined in this header.
  */
 template <typename C, typename T>
@@ -27,8 +27,8 @@ private:
 };
 
 /**
- * RProperty provides an interface for classes to define public readonly fields with custom get functionality.
- * RWProperty is usually not used directly, but rather through the <Property>, <Get_Property> and <Set_Property> macros defined in this header.
+ * RProperty provides a [READONLY] interface for classes to define public fields with custom get functionality.
+ * RProperty is usually not used directly, but rather through the <Property> and <Get_Property> macros defined in this header.
  */
 template <typename C, typename T>
 class RProperty
@@ -48,6 +48,10 @@ private:
 	const Getter_t m_getter;
 };
 
+/**
+ * SimpleRProperty is a value wrapper with public get functionality. 
+ * It befriends the first template parameter and wraps a value of the second.
+ */
 template <typename C, typename T>
 class SimpleRProperty
 {
@@ -60,6 +64,10 @@ private:
 	T value;
 };
 
+/**
+ * WProperty provides a [WRITEONLY] interface for classes to define public fields with custom set functionality.
+ * WProperty is usually not used directly, but rather through the <Property> and <Set_Property> macros defined in this header.
+ */
 template <typename C, typename T>
 class WProperty
 {
@@ -77,6 +85,9 @@ private:
 	C* const m_instance;
 	const Setter_t m_setter;
 };
+
+
+//Macros wrapping the property classes for ease of use
 
 #define SimpleReadOnlyProperty(CLASS, NAME, TYPE) SimpleRProperty<CLASS, TYPE> NAME = {};
 

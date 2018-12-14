@@ -29,7 +29,7 @@ namespace Tristeon
 			 */
 			static float getDeltaTime();
 			/**
-			 * Returns the current amount of frames per second
+			 * Gets the current amount of frames per second
 			 */
 			static float getFPS();
 

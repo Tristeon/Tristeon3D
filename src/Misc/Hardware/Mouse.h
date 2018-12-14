@@ -15,7 +15,8 @@ namespace Tristeon
 	namespace Misc
 	{
 		/**
-		 * Every available mousebutton in Tristeon.
+		 * Every available mouse button in Tristeon.
+		 * Used in conjunction with GetButton(), GetButtonUp() and GetButtonDown()
 		 */
 		enum MouseButton
 		{
@@ -150,6 +151,8 @@ namespace Tristeon
 			 * \param image The desired cursor image
 			 * \param xHot The desired x coordinate, in pixels, of the cursor hotspot
 			 * \param yHot The desired y coordinate, in pixels, of the cursor hotspot
+			 * 
+			 * \exception invalid_argument If the image.width or height is not more than 0
 			 */
 			static void setCursorImage(Data::Image image, int xHot = 0, int yHot = 0);
 
@@ -173,29 +176,9 @@ namespace Tristeon
 			 */
 			static void reset();
 
-			/**
-			 * A function callback that is used to record button input data
-			 * \param button The button who's state has changed
-			 * \param action The action (pressed, continued, released)
-			 * \param mods The key modifiers applied to this key (ctrl, shift, alt, etc)
-			 */
 			static void buttonCallback(int button, int action, int mods);
-			/**
-			 * A function callback that is used to record mouse position data 
-			 * \param x The new x position of the mouse
-			 * \param y The new y position of the mouse
-			 */
 			static void positionCallback(int x, int y);
-			/**
-			 * A function callback that is used to record when the mouse has entered or exited the window
-			 * \param enter A boolean describing wether or not the mouse is inside of the window
-			 */
 			static void windowEnterCallback(bool enter);
-			/**
-			 * A function callback that is used to record mouse scroll input data
-			 * \param x The x scroll movement
-			 * \param y The y scroll movement
-			 */
 			static void scrollCallback(double x, double y);
 
 			static Math::Vector2 position;

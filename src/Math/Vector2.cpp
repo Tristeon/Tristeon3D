@@ -36,10 +36,7 @@ namespace Tristeon
 		void Vector2::normalize()
 		{
 			if (x == 0 && y == 0)
-			{
-				Misc::Console::warning("You cannot normalize Vector2.zero!");
 				return;
-			}
 
 			//Normalize
 			const float magnitude = getLength();
