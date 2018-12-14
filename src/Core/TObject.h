@@ -7,8 +7,8 @@ namespace Tristeon
 	namespace Core
 	{
 		/**
-		 * \brief TObject is the base class of all Tristeon classes.
-		 * Every TObject contains a name and a instanceID. The instanceID is generated upon creation or loaded in through serialization.
+		 * TObject is the base class of all Tristeon classes.
+		 * Every TObject contains a name and a instanceID. The instanceID is a unique string generated upon creation or loaded in through serialization.
 		 */
 		class TObject : public Serializable
 		{

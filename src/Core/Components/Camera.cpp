@@ -50,7 +50,7 @@ namespace Tristeon
 
 			glm::mat4 Camera::getProjectionMatrix(float aspect) const
 			{
-				return glm::perspective<float>(glm::radians(_fov), aspect, _nearClippingPlane, _farClippingPlane);
+				return glm::perspective<float>(glm::radians(fov), aspect, nearClippingPlane, farClippingPlane);
 			}
 
 			glm::mat4 Camera::getViewMatrix(Transform* t)
@@ -78,18 +78,18 @@ namespace Tristeon
 			{
 				nlohmann::json output;
 				output["typeID"] = TRISTEON_TYPENAME(Camera);
-				output["fov"] = _fov;
-				output["nearClippingPlane"] = _nearClippingPlane;
-				output["farClippingPlane"] = _farClippingPlane;
+				output["fov"] = fov;
+				output["nearClippingPlane"] = nearClippingPlane;
+				output["farClippingPlane"] = farClippingPlane;
 				output["skybox"] = skyboxPath;
 				return output;
 			}
 
 			void Camera::deserialize(nlohmann::json json)
 			{
-				_fov = json["fov"];
-				_nearClippingPlane = json["nearClippingPlane"];
-				_farClippingPlane = json["farClippingPlane"];
+				fov = json["fov"];
+				nearClippingPlane = json["nearClippingPlane"];
+				farClippingPlane = json["farClippingPlane"];
 
 				const std::string skyVal = json["skybox"];
 				if (skyVal != skyboxPath)

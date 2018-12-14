@@ -10,7 +10,7 @@ namespace Tristeon
 	namespace Core
 	{
 		/**
-		 * \brief BindingData is used to share rendering data between engine subsystems. API specific binding data can inherit from this class.
+		 * BindingData is used to share rendering data between engine subsystems. API specific binding data can inherit from this class.
 		 */
 		class BindingData
 		{
@@ -20,7 +20,7 @@ namespace Tristeon
 			GLFWwindow* window = nullptr;
 
 			/**
-			 * \brief Default getInstance function for BindingData. Will return the base class, is not guaranteed to return an instance.
+			 * Default getInstance function for BindingData. Will return the base class, is not guaranteed to return an instance.
 			 */
 			static BindingData* getInstance()
 			{
@@ -37,7 +37,7 @@ namespace Tristeon
 		{
 		public:
 			/**
-			 * \brief Creates a VulkanBindingData instance if there isn't any, otherwise it'll simply just return instance.
+			 * Creates a VulkanBindingData instance if there isn't any, otherwise it'll simply just return instance.
 			 * Might return nullptr if the instance is of a different type than VulkanBindingData.
 			 */
 			static VulkanBindingData* getInstance()

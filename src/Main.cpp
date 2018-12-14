@@ -54,6 +54,8 @@
 #endif
 
 #include "Core/Engine.h"
+#include "Core/Message.h"
+#include "Core/MessageBus.h"
 
 #ifdef TRISTEON_EDITOR
 #include "Editor/TristeonEditor.h"

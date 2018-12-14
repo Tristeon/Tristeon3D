@@ -7,7 +7,7 @@ namespace Tristeon
 	namespace Core
 	{
 		/**
-		 * \brief Static class that loads and exposes user settings.
+		 * Static class that loads and exposes user settings.
 		 */
 		class UserPrefs final
 		{
@@ -30,9 +30,21 @@ namespace Tristeon
 			 */
 			static float getFloatValue(const std::string& pName);
 
+			/**
+			 * Returns true if an integer with the given name is defined.
+			 */
 			static bool hasInt(const std::string& pName);
+			/**
+			 * Returns true if a string with the given name is defined.
+			 */
 			static bool hasString(const std::string& pName);
+			/**
+			 * Returns true if a bool with the given name is defined.
+			 */
 			static bool hasBool(const std::string& pName);
+			/**
+			 * Returns true if a float with the given name is defined.
+			 */
 			static bool hasFloat(const std::string& pName);
 		private:
 			static void readPrefs();

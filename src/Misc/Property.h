@@ -64,6 +64,19 @@ private:
 	T value;
 };
 
+template <typename C, typename T>
+class SimpleProperty
+{
+	friend C;
+public:
+	T get() { return value; }
+	void set(T value) { this.value = value; }
+	operator T() const { return value; }
+
+private:
+	T value;
+};
+
 /**
  * WProperty provides a [WRITEONLY] interface for classes to define public fields with custom set functionality.
  * WProperty is usually not used directly, but rather through the <Property> and <Set_Property> macros defined in this header.
@@ -90,6 +103,7 @@ private:
 //Macros wrapping the property classes for ease of use
 
 #define SimpleReadOnlyProperty(CLASS, NAME, TYPE) SimpleRProperty<CLASS, TYPE> NAME = {};
+#define SimpleProperty(CLASS, NAME, TYPE) SimpleProperty<CLASS, TYPE> NAME = {};
 
 #define Property(CLASS, NAME, TYPE)	RWProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME, &CLASS::set_##NAME }; \
     typedef TYPE property__tmp_type_##NAME;

@@ -12,7 +12,7 @@ namespace Tristeon
 	namespace Core
 	{
 		/**
-		 * \brief Engine is the main engine class which is responsible for the creation of engine subsystems.
+		 * Engine is the main engine class which is responsible for the creation of engine subsystems.
 		 * 
 		 * This class is not intended to be accessed or used by users.
 		 */
@@ -21,8 +21,10 @@ namespace Tristeon
 		public:
 			Engine();
 			/**
-			 * \brief Starts the main engine loop. 
+			 * Starts the main engine loop. 
 			 * Warning: This function starts an (almost) infinite loop. As such it only returns once the Engine closes.
+			 * 
+			 * \exception runtime_error Unsupported rendering API requested
 			 */
 			void run() const;
 

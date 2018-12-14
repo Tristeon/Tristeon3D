@@ -34,12 +34,12 @@ namespace Tristeon
 			 */
 			glm::vec2 texCoord;
 
-			explicit Vertex(Math::Vector3 pos = Math::Vector3(0, 0, 0), 
+			Vertex(Math::Vector3 pos = Math::Vector3(0, 0, 0), 
 				   Math::Vector3 normal = Math::Vector3(0, 0, 0), 
 				   Math::Vector2 texCoord = Math::Vector2(0, 0)) : 
 				pos({ pos.x, pos.y, pos.z }), normal({ normal.x, normal.y, normal.z }), texCoord({ texCoord.x, texCoord.y}) { /*Empty*/ }
 
-			explicit Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 texCoord) : pos(pos), normal(normal), texCoord(texCoord) { /*Empty*/ }
+			Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 texCoord) : pos(pos), normal(normal), texCoord(texCoord) { /*Empty*/ }
 		};
 
 		/**

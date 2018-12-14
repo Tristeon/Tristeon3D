@@ -34,12 +34,12 @@ namespace Tristeon
 
 				/**
 				 * Adds the component that is attached to Message to the component list
-				 * Will throw if msg.userData is null or when msg.userData can not successfuly cast to Component
+				 * \exception runtime_error If msg.userData is null or when msg.userData can not successfuly cast to Component
 				 */
 				void registerComponent(Message msg);
 				/**
 				 * Removes the component that is attached to Message from the component list
-				 * Will throw if msg.userData is null or if msg.userData can not successfuly cast to Component
+				 * \exception runtime_error If msg.userData is null or if msg.userData can not successfuly cast to Component
 				 */
 				void deregisterComponent(Message msg);
 				vector<Component*> components;

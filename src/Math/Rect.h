@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Misc/Property.h"
+#include "Core/Components/Camera.h"
 
 namespace Tristeon
 {
@@ -15,7 +16,8 @@ namespace Tristeon
 			/**
 			 * Creates a new instance of rect with a position and size
 			 */
-			explicit Rect(float x = 0, float y = 0, float width = 0, float height = 0);
+			Rect(float x = 0, float y = 0, float width = 0, float height = 0);
+			Rect& operator=(Rect const& rect);
 
 			float width;
 			float height;

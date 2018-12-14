@@ -14,7 +14,7 @@ namespace Tristeon
 		namespace Managers
 		{
 			/**
-			 * \brief InputManager manages all the input calls coming from the window context and caches them for usage as Mouse/Keyboard/Joystick data
+			 * InputManager manages all the input calls coming from the window context and caches them for usage as Mouse/Keyboard/Joystick data
 			 *
 			 * This class is not intended to be accessed or used by users.
 			 */
@@ -26,7 +26,7 @@ namespace Tristeon
 				 */
 				explicit InputManager(GLFWwindow* window);
 				/**
-				 * \brief Resets keydown and keyup, called every frame
+				 * Resets keydown and keyup, called every frame
 				 */
 				void resetInput() const;
 			};

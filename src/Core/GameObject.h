@@ -17,8 +17,9 @@ namespace Tristeon
 		class MessageBus;
 
 		/**
-		 * \brief GameObject is a container of components, with an instance of Transform which describes its position, scale and rotation.
+		 * GameObject is a container of components, with an instance of Transform which describes its position, scale and rotation.
 		 * GameObject is the only type of entity that is directly allowed as an instance in the scene.
+		 * Its behavior is defined by the attached components (e.g. it might be visible by adding a renderer, might move around through a movement behavior etc)
 		 */
 		class GameObject : public TObject
 		{
@@ -33,24 +34,24 @@ namespace Tristeon
 			std::string tag;
 
 			/**
-			* \brief The transform of the gameobject. Describes position, rotation, scale and a parent-child structure.
+			* The transform of the gameobject. Describes position, rotation, scale and a parent-child structure.
 			*/
 			ReadOnlyProperty(GameObject, transform, Transform*);
 			GetProperty(transform) { return _transform.get(); }
 
 			/**
-			 * \brief Creates a new component of type T and adds it to the component list. Will also return the newly created component.
+			 * Creates a new component of type T and adds it to the component list. Will also return the newly created component.
 			 */
 			template <typename T>
 			typename std::enable_if<std::is_base_of<Components::Component, T>::value, T>::type* addComponent();
 
 			/**
-			 * \brief Gets the first component of the given type T. Null if no matching component can be found.
+			 * Gets the first component of the given type T. Null if no matching component can be found.
 			 */
 			template <typename T> T* getComponent();
 
 			/**
-			 * \brief Gets all the components of type T. Will return an empty vector if no components can be found.
+			 * Gets all the components of type T. Will return an empty vector if no components can be found.
 			 */
 			template <typename T> std::vector<T*> getComponents();
 
@@ -58,7 +59,7 @@ namespace Tristeon
 			void deserialize(nlohmann::json json) override;
 		private:
 			/**
-			 * \brief Initializes all the gameobjects' components. 
+			 * Initializes all the gameobjects' components. 
 			 * This function gets called after the scene has been fully loaded. The game does not have to be running.
 			 */
 			void init();
@@ -104,7 +105,7 @@ namespace Tristeon
 		}
 
 		/**
-		 * \brief Overrides getComponent for T = Transform
+		 * Overrides getComponent for T = Transform
 		 * \return Returns the transform component
 		 */
 		template <>
