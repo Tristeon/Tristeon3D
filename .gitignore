@@ -64,3 +64,4 @@ bin/[Rr]elease/
 *.pdb
 
 *.lib
+.vs/
