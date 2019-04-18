@@ -30,7 +30,7 @@ namespace Tristeon
 					};
 
 				public:
-					explicit Skybox(VulkanBindingData* bindingData, vk::RenderPass renderPass) : bindingData(bindingData), renderPass(renderPass) { }
+					explicit Skybox(vk::RenderPass renderPass) : renderPass(renderPass) { }
 					~Skybox();
 				
 					const Image& getImage() const { return image; }
@@ -50,7 +50,6 @@ namespace Tristeon
 					void createOffscreenDescriptorSet();
 					void createCommandBuffers();
 
-					VulkanBindingData* bindingData = nullptr;
 					vk::RenderPass renderPass = nullptr;
 
 					RenderData* data = nullptr;

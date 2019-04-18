@@ -1,7 +1,7 @@
 ﻿#include "ShaderFile.h"
 #include "Misc/Console.h"
 #include <spirv_cross/spirv_cross.hpp>
-#include "Core/Settings.h"
+#include "Core/UserPrefs.h"
 #include <fstream>
 #include "XPlatform/typename.h"
 
@@ -24,19 +24,17 @@ namespace Tristeon
 				//Empty
 			}
 
-			std::string ShaderFile::getPath(RenderAPI api, ShaderType type) const
+			std::string ShaderFile::getPath(std::string api, ShaderType type) const
 			{
 				//Get the name and the shader file extension of the api
 				std::string apiName, apiExtension;
-				switch (api)
+				if (api == "VULKAN")
 				{
-				case RAPI_Vulkan:
 					apiName = "Vulkan";
 					apiExtension = ".spv";
-					break;
-				default:
-					Misc::Console::error("Trying to create vertex shader with unsupported Graphics API!");
 				}
+				else
+					Misc::Console::error("Trying to create vertex shader with unsupported Graphics API!");
 
 				//Get the name of the file based on the shader type
 				std::string fileName;
@@ -89,11 +87,11 @@ namespace Tristeon
 
 				properties.clear();
 
-				RenderAPI const rapi = Settings::getRenderAPI();
+				const std::string api = UserPrefs::getStringValue("RENDERAPI");
 
 				//Vertex
-				std::ifstream in_vert(getPath(rapi, ST_Vertex), std::ifstream::binary);
-				std::ifstream in_frag(getPath(rapi, ST_Fragment), std::ifstream::binary);
+				std::ifstream in_vert(getPath(api, ST_Vertex), std::ifstream::binary);
+				std::ifstream in_frag(getPath(api, ST_Fragment), std::ifstream::binary);
 
 				if (!in_vert || !in_vert.good() || !in_frag || !in_frag.good())
 				{
@@ -129,7 +127,7 @@ namespace Tristeon
 
 			bool ShaderFile::hasVariable(int set, int binding, DataType data, ShaderType stage)
 			{
-				spirv_cross::Compiler compiler = getCompiler(Settings::getRenderAPI(), stage);
+				spirv_cross::Compiler compiler = getCompiler(UserPrefs::getStringValue("RENDERAPI"), stage);
 
 				spirv_cross::ShaderResources res = compiler.get_shader_resources();
 
@@ -162,7 +160,7 @@ namespace Tristeon
 				return false;
 			}
 
-			spirv_cross::Compiler ShaderFile::getCompiler(RenderAPI rapi, ShaderType stage) const
+			spirv_cross::Compiler ShaderFile::getCompiler(std::string rapi, ShaderType stage) const
 			{
 				std::ifstream in(getPath(rapi, stage), std::ifstream::binary);
 				in.seekg(0, in.end);

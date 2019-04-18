@@ -11,7 +11,6 @@ namespace Tristeon
 {
 	namespace Misc
 	{
-		//Static decl
 		Delegate<MouseButton, KeyMods> Mouse::onButtonDown;
 		Delegate<MouseButton, KeyMods> Mouse::onButtonUp;
 		
@@ -75,6 +74,9 @@ namespace Tristeon
 
 		void Mouse::setCursorImage(Data::Image image, int xHot, int yHot)
 		{
+			if (image.getWidth() <= 0 || image.getHeight() <= 0)
+				throw std::invalid_argument("Invalid image passed to Mouse::setCursorImage!");
+
 			GLFWimage i;
 			i.width = image.getWidth();
 			i.height = image.getHeight();
@@ -97,7 +99,6 @@ namespace Tristeon
 
 		void Mouse::reset()
 		{
-			//Clear data
 			std::fill(std::begin(buttonsDown), std::end(buttonsDown), false);
 			std::fill(std::begin(buttonsUp), std::end(buttonsUp), false);
 			deltaPos = Math::Vector2::zero();
@@ -106,26 +107,20 @@ namespace Tristeon
 
 		void Mouse::buttonCallback(int button, int action, int mods)
 		{
-			//Button was pressed
 			if (action == GLFW_PRESS)
 			{
 				buttonsDown[button] = true;
-				//User callback for custom actions / buttons with modifiers
 				onButtonDown.invoke(static_cast<MouseButton>(button), static_cast<KeyMods>(mods));
-			}
-
-			//Buttons was released
-			if (action == GLFW_RELEASE)
+			} 
+			else if (action == GLFW_RELEASE)
 			{
 				buttonsUp[button] = true;
 				onButtonUp.invoke(static_cast<MouseButton>(button), static_cast<KeyMods>(mods));
 			}
 
-			//Store button state
 			buttons[button] = action;
 
 #ifdef TRISTEON_EDITOR
-			//Imgui callback
 			ImGui_ImplGlfwVulkan_MouseButtonCallback(nullptr, button, action, mods);
 #endif
 		}
@@ -139,7 +134,6 @@ namespace Tristeon
 
 		void Mouse::windowEnterCallback(bool enter)
 		{
-			//Store new info and call callbacks
 			inWindow = enter;
 
 			if (enter)
@@ -153,7 +147,6 @@ namespace Tristeon
 			//Store new info and call imgui callback
 			scroll = Math::Vector2(x, y);
 #ifdef TRISTEON_EDITOR
-			//Imgui callback
 			ImGui_ImplGlfwVulkan_ScrollCallback(nullptr, x, y);
 #endif
 		}

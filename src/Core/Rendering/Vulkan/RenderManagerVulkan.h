@@ -12,7 +12,6 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
 		class BindingData;
 		class VulkanBindingData;
 		class Transform;
@@ -22,7 +21,6 @@ namespace Tristeon
 			class Skybox;
 			namespace Vulkan
 			{
-				//Forward decl
 				class CameraRenderData;
 				class InternalMeshRenderer;
 				class Pipeline;
@@ -105,20 +103,12 @@ namespace Tristeon
 					friend Forward;
 
 				public:
-					/**
-					 * \brief Creates a new instance of RenderManager
-					 * \param data The render binding data
-					 */
-					explicit RenderManager(BindingData* data);
+					explicit RenderManager();
 					/**
 					 * \brief Deallocates all resources allocated by render manager
 					 */
-					~RenderManager() override;
+					~RenderManager();
 
-					/**
-					 * \brief Initializes everything that is required for the rendermanager to function
-					 */
-					void init() override;
 					/**
 					 * \brief Renders the current scene to the screen
 					 */
@@ -132,10 +122,6 @@ namespace Tristeon
 					 * \return A material serialized from the given filepath, or from the cached materials
 					 */
 					Rendering::Material* getmaterial(std::string filePath) override;
-					/**
-					 * \brief Releases all the leftover cameradata
-					 */
-					void reset() override;
 
 					/**
 					 * \brief Registers a renderer and its internal renderer. Used as callback function for the manager protocol only.
@@ -186,7 +172,7 @@ namespace Tristeon
 					void renderScene();
 
 					/**
-					 * \brief Rebuilds all resources that are window size related. Used as callback function for the ManagerProtocol
+					 * \brief Rebuilds all resources that are window size related
 					 * \param newWidth The new width of the window
 					 * \param newHeight The new height of the window
 					 */
@@ -202,12 +188,6 @@ namespace Tristeon
 					 */
 					void submitCameras();
 
-					/**
-					 * \brief Reference to the binding data struct
-					 */
-					VulkanBindingData* data = nullptr;
-
-					//Non-owning pointer
 					WindowContextVulkan* vkContext = nullptr;
 
 					/**
@@ -259,6 +239,7 @@ namespace Tristeon
 					void prepareOffscreenPass();
 				protected:
 					Rendering::Skybox* _getSkybox(std::string filePath) override;
+					void _recompileShader(std::string file) override;
 				};
 			}
 		}

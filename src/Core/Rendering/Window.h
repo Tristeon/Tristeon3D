@@ -1,113 +1,63 @@
 ﻿#pragma once
 #include <Misc/Property.h>
-#include "Misc/Delegate.h"
+#include <memory>
 
-//Forward decl
 struct GLFWwindow;
 
 namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
-		class ManagerProtocol;
-
+		class Engine;
 		namespace Rendering
 		{
 			/**
-			 * \brief Window manages the creation and destruction of a GLFW window, the main engine loop and sends out callbacks during the loop
+			 * \brief Window manages the creation and destruction of a GLFW window. 
+			 * Window provides a few virtual functions to allow rendering API specific behavior to be defined in inherited window classes.
+			 * Window provides a basic API to read and control window functionality, like changing size, position, window mode, etc.
 			 */
 			class Window
 			{
+				friend Engine;
+				friend std::unique_ptr<Window>;
+				friend std::unique_ptr<Window>::deleter_type;
 			public:
 				/**
-				 * \brief Destroys the glfw window and cleans up all other resources
-				 */
-				virtual ~Window();
-
-				/**
-				 * \brief Creates the GLFW window and sets up the callbacks
-				 */
-				virtual void init();
-				/**
-				 * \brief Starts the main engine loop. This function won't return until the end of the application
-				 */
-				virtual void mainLoop();
-
-				/**
-				 * \brief Callback function that gets called before the GLFW window has been created.
-				 * Can be overriden by inherited classes to describe API specific behavior
-				 */
-				virtual void onPreWindowCreation();
-				/**
-				 * \brief Callback function that gets called after the GLFW window has been created.
-				 * Can be overriden by inherited classes to describe API specific behavior
-				 */
-				virtual void onPostWindowCreation();
-
-				/**
-				* \brief Read only. Returns the width of the window
+				* \brief [READONLY] The width of the window in pixels. 
 				*/
-				ReadOnlyProperty(Window, width, int);
-				GetProperty(width) { return w; }
+				SimpleReadOnlyProperty(Window, width, int);
 				
 				/**
-				* \brief Read only. Returns the height of the window
+				* \brief [READONLY] The height of the window in pixels.
 				*/
-				ReadOnlyProperty(Window, height, int);
-				GetProperty(height) { return h; }
+				SimpleReadOnlyProperty(Window, height, int);
+				/**
+				 * \brief [READONLY] The GLFWWindow. Can be used in a variety of glfw calls. See the GLFW API: http://www.glfw.org/docs/latest/
+				 */
+				SimpleReadOnlyProperty(Window, window, GLFWwindow*);
+
+			protected:
+				/**
+				 * Allows for additional features to be added before the GLFW window is created. 
+				 * GLFWWindow is still null at this point in time!
+				 */
+				virtual void onPreWindowCreation() {}
 
 				/**
-				 * \brief Callback function for when the window gains/loses focus
+				 * Allows for additional features to be added after the GLFW window is created.
+				 * GLFWWindow is fully initialized and ready to be used before this call.
 				 */
-				Misc::Delegate<bool> onFocus;
+				virtual void onPostWindowCreation() {}
 
-				/**
-				 * \brief The GLFW window
-				 */
-				ReadOnlyProperty(Window, window, GLFWwindow*);
-				GetProperty(window) { return _window; }
+				virtual ~Window();
+				Window() = default;
 			private:
 				/**
-				 * \brief GLFW error callback, calls Console::error()
-				 * \param error The error id
-				 * \param description The description of the error
-				 */
-				static void errorCallback(int error, const char* description);
-				
-				/**
-				 * \brief Subscribes to all the callbacks
-				 */
-				void setupCallbacks();
-				/**
-				 * \brief Callback function for when the window resizes.
-				 * \param width The new width of the window
-				 * \param height The new height of the window
-				 */
+				* The Init function creates the window and subscribes to window callback functions.
+				* This function is intended to be used as if it were a constructor. It is separate because it allows us to call virtual functions inside.
+				*/
+				void init();
 				void onResize(int width, int height);
-
-				/**
-				 * \brief Describes if the window is in playmode or not
-				 */
-				bool inPlayMode = false;
-
-				/**
-				 * \brief The width of the window
-				 */
-				int w = 0;
-				/**
-				 * \brief The height of the window
-				 */
-				int h = 0;
-				/**
-				 * \brief The GLFW window
-				 */
-				GLFWwindow* _window = nullptr;
-
-				/**
-				 * \brief Keeps track of if we're already running or not, to make sure that we'll never start the gameloop twice
-				 */
-				bool running = false;
 			};
 		}
 	}

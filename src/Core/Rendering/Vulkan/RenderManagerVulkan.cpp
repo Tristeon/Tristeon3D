@@ -3,12 +3,12 @@
 //Engine 
 #include <Core/BindingData.h>
 #include "Core/Message.h"
-#include "Core/Settings.h"
+#include "Core/UserPrefs.h"
 #include "Misc/Console.h"
 #include "Math/Vector2.h"
 #include "Core/Transform.h"
 
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 #include "Core/Rendering/Components/Renderer.h"
 #include "InternalMeshRendererVulkan.h"
 
@@ -23,7 +23,6 @@
 
 //RenderTechniques
 #include "ForwardVulkan.h"
-#include "../RenderTechniques/RTechniques.h"
 
 //Vulkan help classes
 #include "API/Extensions/VulkanExtensions.h"
@@ -49,38 +48,24 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				RenderManager::RenderManager(BindingData* data) : Rendering::RenderManager(data)
+				RenderManager::RenderManager() : window(BindingData::getInstance()->window)
 				{
-					//Store data
-					this->window = data->window;
-					this->data = dynamic_cast<VulkanBindingData*>(data);
-					Console::t_assert(this->data != nullptr, "RenderManagerVulkan received binding data that isn't for vulkan!");
-				}
-
-				void RenderManager::init()
-				{
-					//Subscribe to callbacks
-					Rendering::RenderManager::init();
-					ManagerProtocol::subscribeToMessage(MT_WINDOW_RESIZE, [&](Message msg)
+					MessageBus::subscribeToMessage(MT_WINDOW_RESIZE, [&](Message msg)
 					{
 						Math::Vector2* vec = reinterpret_cast<Math::Vector2*>(msg.userData);
 						resizeWindow(static_cast<int>(vec->x), static_cast<int>(vec->y));
 					});
 
 #ifdef TRISTEON_EDITOR
-					ManagerProtocol::subscribeToMessage(MT_PRERENDER, [&](Message msg) { ManagerProtocol::sendMessage({ MT_SHARE_DATA, &editor }); });
+					MessageBus::subscribeToMessage(MT_PRERENDER, [&](Message msg) { MessageBus::sendMessage({ MT_SHARE_DATA, &editor }); });
 #endif
 
 					//Create render technique
-					switch (Settings::getRenderTechnique())
-					{
-					case RT_Forward: 
+					const std::string tech = UserPrefs::getStringValue("RENDERTECHNIQUE");
+					if (tech == "FORWARD")
 						technique = new Forward(this);
-						break;
-					default: 
-						Console::error("Trying to use an unsupported Render technique: " + std::to_string(Settings::getRenderTechnique()));
-						break;
-					}
+					else
+						Console::error("Trying to use an unsupported Render technique: " + tech);
 
 					//Setup vulkan
 					setupVulkan();
@@ -89,13 +74,13 @@ namespace Tristeon
 					//Setup editor camera
 					editor.trans = new Transform();
 					editor.cam = new CameraRenderData();
-					editor.cam->init(this, data, offscreenPass, onscreenPipeline, true);
+					editor.cam->init(this, offscreenPass, onscreenPipeline, true);
 
-					grid = new EditorGrid(data, offscreenPass);
+					grid = new EditorGrid(offscreenPass);
 					editorSkybox = (Vulkan::Skybox*)getSkybox("Files/Misc/SkyboxEditor.skybox");
 #endif
 					//Create the debug draw manager
-					DebugDrawManager::instance = new Vulkan::DebugDrawManager(data, offscreenPass);
+					DebugDrawManager::instance = new Vulkan::DebugDrawManager(offscreenPass);
 				}
 
 				void RenderManager::render()
@@ -128,9 +113,7 @@ namespace Tristeon
 						if (p->getShaderFile().getNameID() == file.getNameID())
 							return p;
 
-					
-					Pipeline *p = new Pipeline(rm->data, 
-						file, 
+					Pipeline *p = new Pipeline(file, 
 						rm->vkContext->getSwapchain()->extent2D.get(), 
 						rm->offscreenPass, 
 						true, 
@@ -206,26 +189,20 @@ namespace Tristeon
 					windowContext.reset();
 				}
 
-				void RenderManager::reset()
-				{
-					for (const auto c : cameraData)
-						cameraDataPool.release(c.second);
-					cameraData.clear();
-				}
-
 				void RenderManager::setupVulkan()
 				{
 					//Core vulkan
-					vkContext = new WindowContextVulkan(reinterpret_cast<Window*>(bindingData->tristeonWindow));
+					vkContext = new WindowContextVulkan(reinterpret_cast<Window*>(BindingData::getInstance()->tristeonWindow));
 					windowContext = std::unique_ptr<WindowContextVulkan>(vkContext);
 					
-					data->physicalDevice = vkContext->getGPU();
-					data->device = vkContext->getDevice();
-					data->graphicsQueue = vkContext->getGraphicsQueue();
-					data->presentQueue = vkContext->getPresentQueue();
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+					bindingData->physicalDevice = vkContext->getGPU();
+					bindingData->device = vkContext->getDevice();
+					bindingData->graphicsQueue = vkContext->getGraphicsQueue();
+					bindingData->presentQueue = vkContext->getPresentQueue();
 
-					data->swapchain = vkContext->getSwapchain();
-					data->renderPass = vkContext->getSwapchain()->renderpass;
+					bindingData->swapchain = vkContext->getSwapchain();
+					bindingData->renderPass = vkContext->getSwapchain()->renderpass;
 
 					//Pools
 					createDescriptorPool();
@@ -260,7 +237,7 @@ namespace Tristeon
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create descriptor pool: " + to_string(r));
 					
 					//Store data
-					data->descriptorPool = descriptorPool;
+					VulkanBindingData::getInstance()->descriptorPool = descriptorPool;
 				}
 
 				void RenderManager::submitCameras()
@@ -312,7 +289,7 @@ namespace Tristeon
 				void RenderManager::prepareOnscreenPipeline()
 				{
 					ShaderFile file = ShaderFile("Screen", "Files/Shaders/", "ScreenV", "ScreenF");
-					onscreenPipeline = new Pipeline(data, file, vkContext->getExtent(), vkContext->getRenderpass(), false, vk::PrimitiveTopology::eTriangleList, false, vk::CullModeFlagBits::eFront);
+					onscreenPipeline = new Pipeline(file, vkContext->getExtent(), vkContext->getRenderpass(), false, vk::PrimitiveTopology::eTriangleList, false, vk::CullModeFlagBits::eFront);
 				}
 
 				void RenderManager::prepareOffscreenPass()
@@ -378,11 +355,27 @@ namespace Tristeon
 					if (filesystem::path(filePath).extension() != ".skybox")
 						return nullptr;
 
-					Skybox* skybox = new Skybox(data, offscreenPass);
+					Skybox* skybox = new Skybox(offscreenPass);
 					skybox->deserialize(JsonSerializer::load(filePath));
 					skybox->init();
 					skyboxes[filePath] = std::unique_ptr<Rendering::Skybox>(skybox);
 					return skyboxes[filePath].get();
+				}
+
+				void RenderManager::_recompileShader(std::string filePath)
+				{
+					ShaderFile* file = JsonSerializer::deserialize<ShaderFile>(filePath);
+					Pipeline* pipeline = getPipeline(*file);
+					pipeline->recompile(*file);
+
+					for (const auto mat : materials)
+					{
+						if (mat.second->shaderFilePath == filePath)
+						{
+							mat.second->updateShader();
+							mat.second->updateProperties(true);
+						}
+					}
 				}
 
 				TObject* RenderManager::registerRenderer(Message msg)
@@ -426,7 +419,7 @@ namespace Tristeon
 					CameraRenderData* data = cameraDataPool.get();
 					data->tempName = "Camera: " + std::to_string(cameraData.size());
 					if (!data->getIsPrepared())
-						data->init(this, this->data, offscreenPass, onscreenPipeline);
+						data->init(this, offscreenPass, onscreenPipeline);
 					else if (!data->isValid())
 						data->rebuild(this, offscreenPass, onscreenPipeline);
 
@@ -463,7 +456,7 @@ namespace Tristeon
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create command pool: " + to_string(r));
 
 					//Store data
-					data->commandPool = commandPool;
+					VulkanBindingData::getInstance()->commandPool = commandPool;
 				}
 
 				void RenderManager::createCommandBuffer()
@@ -481,7 +474,7 @@ namespace Tristeon
 						return;
 
 					windowContext->resize(newWidth, newHeight);
-					data->renderPass = vkContext->getRenderpass();
+					VulkanBindingData::getInstance()->renderPass = vkContext->getRenderpass();
 
 					//Rebuild offscreen renderpass
 					vkContext->getDevice().destroyRenderPass(offscreenPass);

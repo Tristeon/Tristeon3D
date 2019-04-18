@@ -9,7 +9,7 @@
 #include <assimp/postprocess.h>
 
 #include "Misc/Console.h"
-#include "Core/Settings.h"
+#include "Core/UserPrefs.h"
 
 namespace Tristeon
 {
@@ -35,59 +35,46 @@ namespace Tristeon
 				aiProcess_GenUVCoords |
 				aiProcess_GenSmoothNormals;
 
-			switch(Core::Settings::getRenderAPI())
-			{
-			case Core::Rendering::RAPI_Vulkan: 
-				//Vulkan has flipped uvs
+			const std::string api = Core::UserPrefs::getStringValue("RENDERAPI");
+			if (api == "VULKAN") //Vulkan uses flipped UVs
 				postProcess |= aiProcess_FlipUVs;
-				break;
-			default: 
-				break;
-			}
 
-			//Read the file
-			const aiScene* scene = imp.ReadFile(
-					filePath, postProcess);
+			const auto scene = imp.ReadFile(filePath, postProcess);
 			if (!scene)
 				return;
 
-			//Go over the meshes
 			if (scene->HasMeshes())
 			{
-				for (int i = 0; i < scene->mNumMeshes; i++)
+				for (size_t i = 0; i < scene->mNumMeshes; i++)
 				{
-					//Create submesh
+					const auto currentMesh = scene->mMeshes[i];
+
 					SubMesh submesh;
-					aiMesh* aiMesh = scene->mMeshes[i];
-					//Load vertices
-					for (int j = 0; j < aiMesh->mNumVertices; j++)
+					for (size_t j = 0; j < currentMesh->mNumVertices; j++)
 					{
-						//Positions, normals, uvs
-						aiVector3D const p = aiMesh->mVertices[j];
-						aiVector3D const n = aiMesh->mNormals[j];
-						aiVector3D const t = aiMesh->mTextureCoords[0] ? aiMesh->mTextureCoords[0][j] : aiVector3D(0, 0, 0);
+						const auto position = currentMesh->mVertices[j];
+						const auto normal = currentMesh->mNormals[j];
+						const auto texCoord = currentMesh->mTextureCoords[0] ? currentMesh->mTextureCoords[0][j] : aiVector3D(0, 0, 0);
 
 						//Create vertex and add to our list
-						Vertex v;
-						v.pos = glm::vec3(p.x, p.y, p.z);
-						v.normal = glm::vec3(n.x, n.y, n.z);
-						v.texCoord = glm::vec2(float(t.x), float(t.y));
-						submesh.vertices.push_back(v);
+						Vertex vertex;
+						vertex.pos = glm::vec3(position.x, position.y, position.z);
+						vertex.normal = glm::vec3(normal.x, normal.y, normal.z);
+						vertex.texCoord = glm::vec2(float(texCoord.x), float(texCoord.y));
+						submesh.vertices.push_back(vertex);
 					}
 
-					//Faces
-					for (int j = 0; j < aiMesh->mNumFaces; j++)
+					for (size_t j = 0; j < currentMesh->mNumFaces; j++)
 					{
-						//Get indices
-						const aiFace f = aiMesh->mFaces[j];
-						Misc::Console::t_assert(f.mNumIndices == 3, "This is not a triangle!");
-						submesh.indices.push_back(f.mIndices[0]);
-						submesh.indices.push_back(f.mIndices[1]);
-						submesh.indices.push_back(f.mIndices[2]);
+						const auto face = currentMesh->mFaces[j];
+						Misc::Console::t_assert(face.mNumIndices == 3, "Non-triangular shape detected inside mesh");
+						submesh.indices.push_back(face.mIndices[0]);
+						submesh.indices.push_back(face.mIndices[1]);
+						submesh.indices.push_back(face.mIndices[2]);
 					}
 
 					//Set material (temporary)
-					submesh.materialID = aiMesh->mMaterialIndex;
+					submesh.materialID = currentMesh->mMaterialIndex;
 					submeshes.push_back(submesh);
 				}
 			}

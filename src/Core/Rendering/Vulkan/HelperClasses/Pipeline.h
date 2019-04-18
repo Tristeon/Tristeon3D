@@ -41,7 +41,6 @@ namespace Tristeon
 					 * \param topologyMode The way the shaders are supposed to render data
 					 */
 					Pipeline(
-						VulkanBindingData* binding, 
 						ShaderFile file, 
 						vk::Extent2D extent, 
 						vk::RenderPass renderPass, 
@@ -52,7 +51,6 @@ namespace Tristeon
 						bool enableLighting = false);
 					
 					Pipeline(
-						VulkanBindingData* binding,
 						ShaderFile file,
 						vk::Extent2D extent,
 						vk::RenderPass renderPass,
@@ -120,6 +118,8 @@ namespace Tristeon
 					* \return Returns the resulting shader module
 					*/
 					static vk::ShaderModule createShaderModule(const std::vector<char>& code, vk::Device device);
+
+					void recompile(ShaderFile file);
 				private:
 					void createDescriptorLayout(std::map<int, ShaderProperty> properties);
 					/**
@@ -138,10 +138,6 @@ namespace Tristeon
 					 */
 					vk::PrimitiveTopology topology;
 
-					/**
-					 * \brief Rendering data
-					 */
-					VulkanBindingData* binding;
 					/**
 					 * \brief Enable/disable vertex input binding/attributes
 					 */
@@ -204,6 +200,9 @@ namespace Tristeon
 					 * \brief The shaderfile describing the shader filepath
 					 */
 					ShaderFile file;
+
+					vk::Extent2D extent;
+					vk::RenderPass renderpass;
 				};
 			}
 		}

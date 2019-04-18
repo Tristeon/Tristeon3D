@@ -18,6 +18,7 @@ layout (location = 0) out vec3 outWorldPos;
 layout(location = 1) out vec3 outNormal;
 layout(location = 2) out vec2 outUV;
 layout(location = 3) out vec3 outViewPos;
+layout(location = 4) out float outDepth;
 
 void main()
 {
@@ -25,6 +26,7 @@ void main()
   outNormal = mat3(transpose(inverse(ubo.model))) * normal;
   outUV = texCoord;
   outViewPos = vec3(inverse(ubo.view)[3]);
+  outDepth = (ubo.proj * ubo.view * ubo.model * vec4(pos, 1))[3] / 100; //TODO: Replace 100 with actual camera stat
 
   gl_Position = ubo.proj * ubo.view * ubo.model * vec4(pos, 1);
 }

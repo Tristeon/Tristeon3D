@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Component.h"
-#include "Math/Rect.h"
 #include <glm/mat4x3.hpp>
 #include "Editor/TypeRegister.h"
 #include "Core/Rendering/Skybox.h"
@@ -12,77 +11,52 @@ namespace Tristeon
 		namespace Components
 		{
 			/**
-			 * \brief A camera is a device that is used by the renderer to display the 3D world
+			 * A camera is a device that is used by the renderer to display the 3D world
 			 */
 			class Camera : public Component
 			{
 			public:
 				/**
-				 * \brief Initializes the camera and registers the camera to the rendering system
+				 * Initializes the camera and registers the camera to the rendering system
 				 */
 				void init() override;
 				/**
-				 * \brief Deregisters the camera
+				 * Deregisters the camera
 				 */
 				~Camera() override;
 				
-				/**
-				* \brief The field of view of the camera
-				*/
-				Property(Camera, fov, float);
-				SetProperty(fov) { _fov = value; }
-				GetProperty(fov) { return _fov; }
-				
-				/**
-				* \brief The near clipping plane of the camera
-				*/
-				Property(Camera, nearClippingPlane, float);
-				SetProperty(nearClippingPlane) { _nearClippingPlane = value; }
-				GetProperty(nearClippingPlane) { return _nearClippingPlane; }
+				float fov = 60;
+				float nearClippingPlane = 0.3f;
+				float farClippingPlane = 1000.0f;
 
 				/**
-				* \brief The far clipping plane of the camera
+				* Defines if the camera is rendered to the screen or not
 				*/
-				Property(Camera, farClippingPlane, float);
-				SetProperty(farClippingPlane) { _farClippingPlane = value; }
-				GetProperty(farClippingPlane) { return _farClippingPlane; }
-
-				/**
-				* \brief The screen rect of the camera
-				*/
-				Property(Camera, rect, Math::Rect);
-				SetProperty(rect) { _rect = value; }
-				GetProperty(rect) { return _rect; }
-
-				/**
-				* \brief Defines if the camera is rendered to the screen or not
-				*/
-				ReadOnlyProperty(Camera, offscreen, bool);
-				GetProperty(offscreen) { return _offscreen; }
+				SimpleReadOnlyProperty(Camera, offscreen, bool)
 
 				void setSkybox(std::string path);
 				Rendering::Skybox* getSkybox() const;
 
 				/**
-				 * \brief Returns the view matrix of this camera
+				 * Returns the view matrix of this camera
 				 * \return The view matrix
 				 */
 				glm::mat4 getViewMatrix();
 				/**
-				 * \brief Returns the projection matrix of this camera
+				 * Returns the projection matrix of this camera
 				 * \param aspect The aspect ratio of the screen
 				 * \return The projection matrix
 				 */
 				glm::mat4 getProjectionMatrix(float aspect) const;
 
 				/**
-				 * \brief Returns the view matrix based on transform t
+				 * Returns the view matrix based on transform t
 				 * \param t The transform of the "camera"
 				 * \return Returns a view matrix
 				 */
 				static glm::mat4 getViewMatrix(Transform* t);
 				/**
-				 * \brief Returns a projection matrix
+				 * Returns a projection matrix
 				 * \param aspect The aspection ratio of the screen
 				 * \param fov The field of view
 				 * \param near The near clipping plane
@@ -95,29 +69,8 @@ namespace Tristeon
 
 				void deserialize(nlohmann::json json) override;
 			private:
-				/**
-				 * \brief The field of view of the camera
-				 */
-				float _fov = 60;
-				/**
-				 * \brief The near clipping plane of the camera
-				 */
-				float _nearClippingPlane = 0.3f;
-				/**
-				 * \brief The far clipping plane of the camera
-				 */
-				float _farClippingPlane = 1000.0f;
-				/**
-				 * \brief Defines if the camera is rendered ot the screen or not
-				 */
-				bool _offscreen = false;
-				/**
-				 * \brief The onscreen rect of the camera
-				 */
-				Math::Rect _rect = Math::Rect(-1, -1, 2, 2);
-
 				std::string skyboxPath = "";
-				Rendering::Skybox* skybox;
+				Rendering::Skybox* skybox = nullptr;
 
 				REGISTER_TYPE_H(Camera)
 			};

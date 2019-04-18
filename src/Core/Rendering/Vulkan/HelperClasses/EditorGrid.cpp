@@ -8,17 +8,14 @@
 #include <Core/Rendering/Vulkan/InternalMeshRendererVulkan.h>
 #include "Core/BindingData.h"
 
-Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* data, vk::RenderPass offscreenPass)
+Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(vk::RenderPass offscreenPass)
 {
 	//Editor grid basically simulates a grid by taking a material, pipeline and meshrenderer,
 	//setting the rendermode to linelist, and generating a mesh existing of lines
 
-	//Store binding data
-	this->data = data;
-
 	//Set up our pipeline
 	file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-	pipeline = new Pipeline(data, file, data->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
+	pipeline = new Pipeline(file, VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
 	//Set up our material with our shader pipeline
 	material = new Material();
@@ -69,7 +66,7 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(VulkanBindingData* dat
 	mr = object->addComponent<MeshRenderer>();
 	mr->mesh = mesh;
 	mr->material = material;
-	mr->initInternalRenderer((BindingData*)data);
+	mr->initInternalRenderer();
 
 	//Get internal renderer
 	renderer = dynamic_cast<InternalMeshRenderer*>(mr->getInternalRenderer());
@@ -87,5 +84,5 @@ void Tristeon::Core::Rendering::Vulkan::EditorGrid::rebuild(vk::RenderPass offsc
 {
 	//The pipeline has to be rebuilt the moment the swapchain changes,
 	//to fit the new swapchain/window size
-	pipeline->rebuild(data->swapchain->extent2D, offscreenPass);
+	pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
 }

@@ -5,20 +5,8 @@ namespace Tristeon
 {
 	namespace Misc
 	{
-		Color::Color() : Color(1, 1, 1, 1)
-		{
-			//White color
-		}
-
-		Color::Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a)
-		{
-			//Color from parameters
-		}
-
-		Color::Color(const Color& c) : r(c.r), g(c.g), b(c.b), a(c.a)
-		{
-			//Color from c's values
-		}
+		Color::Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) { }
+		Color::Color(const Color& c) : r(c.r), g(c.g), b(c.b), a(c.a) { }
 
 		nlohmann::json Color::serialize()
 		{
@@ -27,7 +15,6 @@ namespace Tristeon
 
 		nlohmann::json Color::serialize_const() const
 		{
-			//Serialize into a json file
 			nlohmann::json j;
 			j["typeID"] = TRISTEON_TYPENAME(Color);
 			j["r"] = r;
@@ -39,7 +26,6 @@ namespace Tristeon
 
 		void Color::deserialize(nlohmann::json json)
 		{
-			//Deserialize from a json file
 			r = json["r"];
 			g = json["g"];
 			b = json["b"];

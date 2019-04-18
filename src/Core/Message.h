@@ -7,7 +7,7 @@ namespace Tristeon
 		class TObject;
 
 		/**
-		 * \brief Describes a type of message
+		 * Describes a type of message
 		 */
 		enum MessageType
 		{
@@ -41,31 +41,24 @@ namespace Tristeon
 		};
 
 		/**
-		 * \brief The message class is used for sending messages back and forth through the managerprotocol.
+		 * The message class is used for sending messages back and forth through the managerprotocol.
 		 */
 		class Message
 		{
 		public:
 			/**
-			 * \brief Creates a message with the given type. UserData will be nullptr
+			 * Creates a message with the given type. UserData will be nullptr
 			 * \param type The type of the message
 			 */
 			Message(MessageType type);
 			/**
-			 * \brief Creates a message with the given type and userdata
+			 * Creates a message with the given type and userdata
 			 * \param type The type of the message
 			 * \param userData The userdata to be sent with the message
 			 */
 			Message(MessageType type, TObject* userData);
 			
-			/**
-			 * \brief The type of the message
-			 */
 			MessageType type;
-
-			/**
-			 * \brief The userdata. Can be used to send data using messages
-			 */
 			TObject* userData = nullptr;
 		};
 	}

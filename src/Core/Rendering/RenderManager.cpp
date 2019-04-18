@@ -1,5 +1,5 @@
 ﻿#include "RenderManager.h"
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 #include "Core/GameObject.h"
 #include "Core/Message.h"
 #include <Core/Components/Camera.h>
@@ -7,6 +7,7 @@
 #include <Misc/Console.h>
 
 #include <boost/filesystem.hpp>
+#include "Core/BindingData.h"
 namespace filesystem = boost::filesystem;
 
 namespace Tristeon
@@ -17,30 +18,25 @@ namespace Tristeon
 		{
 			RenderManager* RenderManager::instance;
 
-			RenderManager::RenderManager(BindingData* data) : bindingData(data)
+			RenderManager::RenderManager()
 			{
 				//Store instance
 				instance = this;
-			}
-
-			void RenderManager::init()
-			{
-				Manager::init();
 
 				//Render
-				ManagerProtocol::subscribeToMessage(MT_RENDER, [&](Message msg) { render(); });
+				MessageBus::subscribeToMessage(MT_RENDER, [&](Message msg) { render(); });
 
 				//(De)registering of render components
-				ManagerProtocol::subscribeToMessage(MT_RENDERINGCOMPONENT_REGISTER, [&](Message msg) { registerRenderer(msg); });
-				ManagerProtocol::subscribeToMessage(MT_RENDERINGCOMPONENT_DEREGISTER, [&](Message msg) { deregisterRenderer(msg); });
+				MessageBus::subscribeToMessage(MT_RENDERINGCOMPONENT_REGISTER, [&](Message msg) { registerRenderer(msg); });
+				MessageBus::subscribeToMessage(MT_RENDERINGCOMPONENT_DEREGISTER, [&](Message msg) { deregisterRenderer(msg); });
 
 				//(De)registering of cameras
-				ManagerProtocol::subscribeToMessage(MT_CAMERA_REGISTER, [&](Message msg) { registerCamera(msg); });
-				ManagerProtocol::subscribeToMessage(MT_CAMERA_DEREGISTER, [&](Message msg) { deregisterCamera(msg); });
+				MessageBus::subscribeToMessage(MT_CAMERA_REGISTER, [&](Message msg) { registerCamera(msg); });
+				MessageBus::subscribeToMessage(MT_CAMERA_DEREGISTER, [&](Message msg) { deregisterCamera(msg); });
 
 				//Game logic
-				ManagerProtocol::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg) { inPlayMode = true; });
-				ManagerProtocol::subscribeToMessage(MT_GAME_LOGIC_STOP, [&](Message msg) { inPlayMode = false; });
+				MessageBus::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg) { inPlayMode = true; });
+				MessageBus::subscribeToMessage(MT_GAME_LOGIC_STOP, [&](Message msg) { inPlayMode = false; });
 			}
 
 			std::vector<Renderer*> RenderManager::getRenderers() const
@@ -60,7 +56,7 @@ namespace Tristeon
 					//Successfully found a renderer
 					renderers.push_back(r);
 					//Init
-					r->initInternalRenderer(bindingData);
+					r->initInternalRenderer();
 					return r;
 				}
 				else

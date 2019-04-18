@@ -8,8 +8,6 @@ namespace Tristeon
 	{
 		REGISTER_TYPE_CPP(Vector2)
 
-		Vector2::Vector2() : x(0), y(0) {}
-
 		Vector2::Vector2(float xy) : x(xy), y(xy) {}
 
 		Vector2::Vector2(float x, float y) : x(x), y(y) {}
@@ -38,10 +36,7 @@ namespace Tristeon
 		void Vector2::normalize()
 		{
 			if (x == 0 && y == 0)
-			{
-				Misc::Console::warning("You cannot normalize Vector2.zero!");
 				return;
-			}
 
 			//Normalize
 			const float magnitude = getLength();

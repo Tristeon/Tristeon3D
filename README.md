@@ -38,7 +38,8 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
 # How to build the project
 Tristeon uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
 Officially confirmed configurations:
-* MSVC Visual Studio 2017 with x64
+* MSVC Visual Studio 2017 | x64
+* GCC MingW-w64 | x64
 
 If you do not hav the Vulkan SDK installed, make sure to install it to allow for additional debugging. You can get it here: https://vulkan.lunarg.com/
 
@@ -51,7 +52,7 @@ Near future:
 * Point/Spot/Directional lights
 * Shadow mapping
 * Optimized component serialization
-* Dragging/dropping (file)items
+* Dragging/dropping (file)items into the inspector
 
 Planned (editor/serialization):
 * Automized serialization
@@ -71,22 +72,20 @@ Planned (rendering/engine):
 * FMOD Audio integration
 
 # Known bugs
-* #1 Scene view won't display properly until the engine's game mode has been run at least once.
+* ~~#1 Scene view won't display properly until the engine's game mode has been run at least once.~~
 * #2 Asset browser deletion doesn't delete file
-* #3 Material changes don't always get applied
-* #4 Camera doesn't exist until pressing it (after scene load)
+* ~~#3 Material changes don't always get applied~~
+* ~~#4 Camera doesn't exist until pressing it (after scene load)~~
 * #5 New folders won't display until you reload the engine
 * #6 Material properties won't get applied properly with vectors
-* #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s)
+* #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s, their subcomponents are called the same)
 * #8 DebugDrawManager only ever uses the color from the last add...() call
+* #9 Editor doesn't recognize engine filetypes correctly when they haven't been created in-engine. Will default to AssetItem
 
 # Showcase
 Watch the showcase video here:
 https://www.youtube.com/watch?v=6kVTGHOJu-E
 ![Screenshot of the showcase video](https://i.imgur.com/R6GoWQ6.png)
-
-# Engine architecture
-<img src="Documents/Engine Architecture/Tristeon Core Architecture.png">
 
 # Authors
 Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress.com/)
@@ -94,8 +93,8 @@ Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress
 Tristan Metz - Engine tool programmer (https://tristanmetz.software/)
 
 # Contribute
-Don't hesitate to contribute. You can contribute to the development of Tristeon by:
-* Submitting an issue 
+We'd love your help! You can contribute to the development of Tristeon by:
+* Submitting an issue
 * Submitting a pull request
 
 # Credits
@@ -108,6 +107,8 @@ Tristeon uses the following third-party libraries:
 * [stb](https://github.com/nothings/stb)
 * [Vulkan](https://github.com/KhronosGroup/Vulkan-Hpp)
 * [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
+* [Boost](https://www.boost.org/doc/libs/1_67_0/libs/filesystem/doc/index.htm)
+* [Boost-cmake](https://github.com/Orphis/boost-cmake)
 
 Other resources:
 * [Vulkan tutorial by Alexander Overvoorde](https://vulkan-tutorial.com/)

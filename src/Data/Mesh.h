@@ -7,8 +7,8 @@
 
 namespace Tristeon {
 	namespace Math {
-		class Vector3;
-		class Vector2;
+		struct Vector3;
+		struct Vector2;
 	}
 }
 
@@ -17,20 +17,20 @@ namespace Tristeon
 	namespace Data
 	{
 		/**
-		 * \brief The vertex struct describes the vertex and its data.
+		 * The vertex struct describes the vertex and its data.
 		 */
 		struct Vertex
 		{
 			/**
-			 * \brief The position of the vertex
+			 * The position of the vertex
 			 */
 			glm::vec3 pos;
 			/**
-			 * \brief The vertex normal
+			 * The vertex normal
 			 */
 			glm::vec3 normal;
 			/**
-			 * \brief The vertex uv
+			 * The vertex uv
 			 */
 			glm::vec2 texCoord;
 
@@ -43,44 +43,46 @@ namespace Tristeon
 		};
 
 		/**
-		 * \brief A submesh struct defines a struct that is part of a mesh file. 
+		 * A submesh struct defines a struct that is part of a mesh file. 
 		 */
 		struct SubMesh
 		{
 			/**
-			 * \brief The vertices of this mesh
+			 * The vertices of this mesh
 			 */
 			std::vector<Vertex> vertices;
 			/**
-			 * \brief The indices of this mesh
+			 * The indices of this mesh
 			 */
 			std::vector<uint16_t> indices;
 			/**
-			 * \brief The material ID. Temporary
+			 * The material ID. Temporary
 			 */
 			int materialID = 0;
 		};
 
 		/**
-		 * \brief Class for mesh handling
+		 * Class for mesh handling
 		 */
 		struct Mesh : Core::TObject
 		{
 			/**
-			 * \brief The list of submeshes that this mesh exists of
+			 * The list of submeshes that this mesh exists of
 			 */
 			std::vector<SubMesh> submeshes;
 
 			/**
-			 * \brief Returns a mesh object based on the given filepath
+			 * Returns a mesh object based on the given filepath
 			 * \param filePath The filepath of the mesh file
 			 * \return Returns a mesh object
 			 */
 			static Mesh fromFile(std::string filePath);
 
 			/**
-			 * \brief Loads the mesh from a file and fills in the submeshes variable
+			 * Loads the mesh from a file and fills in the submeshes variable
 			 * \param filePath 
+			 * 
+			 * \exception runtime_error Non-triangular shape detected 
 			 */
 			void load(std::string filePath);
 		};

@@ -1,52 +1,41 @@
 ﻿#pragma once
-#include "ManagerProtocol.h"
-#include "BindingData.h"
-#include "Misc/Property.h"
 #include <memory>
+
+#include <Core/Managers/InputManager.h>
+#include <Core/Rendering/Window.h>
+#include <Core/Rendering/RenderManager.h>
+#include <Scenes/SceneManager.h>
+#include <Core/Components/ComponentManager.h>
 
 namespace Tristeon
 {
 	namespace Core
 	{
 		/**
-		 * \brief The main engine class. Owns the manager protocol and allows for gameplay control
+		 * Engine is the main engine class which is responsible for the creation of engine subsystems.
+		 * 
+		 * This class is not intended to be accessed or used by users.
 		 */
-		class Engine
+		class Engine final
 		{
 		public:
+			Engine();
 			/**
-			 * \brief Creates the manager protocol and binding data
-			 */
-			void init();
-			/**
-			 * \brief Runs the main engine loop. Does not start the game
+			 * Starts the main engine loop. 
+			 * Warning: This function starts an (almost) infinite loop. As such it only returns once the Engine closes.
+			 * 
+			 * \exception runtime_error Unsupported rendering API requested
 			 */
 			void run() const;
-			/**
-			 * \brief Starts the gameplay loop
-			 */
-			void startGame() const;
-			/**
-			 * \brief Stops the gameplay loop
-			 */
-			void stopGame() const;
-
-			/**
-			 * \brief Cleans up the bindingdata and the managerprotocol
-			 */
-			~Engine();
-
-			/**
-			* \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
-			*/
-			ReadOnlyProperty(Engine, bindingData, BindingData*);
-			GetProperty(bindingData) { return bind.get(); }
 
 		private:
-			/**
-			 * \brief The bindingdata contains information to be shared over the engine's subsystems and the editor
-			 */
-			std::unique_ptr<BindingData> bind {};
+			std::unique_ptr<Rendering::RenderManager> renderSys;
+			std::unique_ptr<Scenes::SceneManager> sceneSys;
+			std::unique_ptr<Rendering::Window> window;
+			std::unique_ptr<Components::ComponentManager> componentSys;
+			std::unique_ptr<Managers::InputManager> inputSys;
+
+			bool inPlayMode = false;
 		};
 	}
 }

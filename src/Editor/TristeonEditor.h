@@ -22,16 +22,12 @@ namespace Tristeon
 		{
 			friend SceneWindow;
 		public:
-			TristeonEditor();
+			TristeonEditor(Core::Engine* engine);
 			~TristeonEditor();
 			/**
 			 * \brief Sets the style of the editor. colors, spacing, etc.
 			 */
 			void setStyle();
-			/**
-			 * \brief Initialization of the editor needs to be called after the instance is created so it can bind to the engine.
-			 */
-			void init(Core::Engine* bindingData);
 			/**
 			 * \brief OnGui calls the imgui calls and deals with all editor behaviors. might be subject to change
 			 */
@@ -41,7 +37,6 @@ namespace Tristeon
 			 */
 			void render();
 
-			Core::BindingData* getBindingData();
 		private:
 			/**
 			 * \brief Binds imgui to the rendering implementation
@@ -52,7 +47,7 @@ namespace Tristeon
 			 */
 			void initFontsImGui(Core::VulkanBindingData* vkBinding);
 			/**
-			 * \brief Subscribes the editor to all generic callbacks received from the engine through the ManagerProtocol
+			 * \brief Subscribes the editor to callbacks
 			 */
 			void setupCallbacks();
 			/**

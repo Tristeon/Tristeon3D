@@ -30,7 +30,7 @@ AssetBrowser::AssetBrowser()
 	rootFolder->setup(true);
 
 	//Set asset browser view to the asset folder (rootfolder)
-	itemManager = std::make_unique<FileItemManager>(editor->getBindingData());
+	itemManager = std::make_unique<FileItemManager>(Core::BindingData::getInstance());
 	itemManager->setView(rootFolder.get());
 }
 

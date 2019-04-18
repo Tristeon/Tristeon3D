@@ -32,10 +32,9 @@ namespace Tristeon
 				public:
 					/**
 					 * \brief Creates a new instance of DebugDrawManager with the required rendering references
-					 * \param data The binding data
 					 * \param offscreenPass The offscreenpass to render to
 					 */
-					DebugDrawManager(VulkanBindingData* data, vk::RenderPass offscreenPass);
+					DebugDrawManager(vk::RenderPass offscreenPass);
 				protected:
 					/**
 					 * \brief Renders the queued drawables
@@ -85,11 +84,6 @@ namespace Tristeon
 					 */
 					vk::CommandBuffer cmd;
 					
-					/**
-					* \brief A reference to VulkanBindingData to get rendering information
-					*/
-					VulkanBindingData* binding;
-
 					/**
 					 * \brief The vertex buffers, every line gets their own buffer
 					 */

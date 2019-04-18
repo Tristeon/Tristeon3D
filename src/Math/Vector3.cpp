@@ -1,7 +1,6 @@
 #include "Vector3.h"
 #include "cmath"
 #include <string>
-#include "Misc/Console.h"
 #include "XPlatform/typename.h"
 
 namespace Tristeon
@@ -10,11 +9,7 @@ namespace Tristeon
 	{
 		REGISTER_TYPE_CPP(Vector3)
 
-		Vector3::Vector3() : x(0), y(0), z(0) {}
-
 		Vector3::Vector3(float xyz) : x(xyz), y(xyz), z(xyz) {}
-
-		Vector3::Vector3(float x, float y) : x(x), y(y), z(0) {}
 
 		Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
@@ -36,7 +31,7 @@ namespace Tristeon
 			case 2:
 				return z;
 			default:
-				throw std::runtime_error("Axis is out of range, using vector3's index 2 is the maximum");
+				throw std::invalid_argument("Axis is out of range, using vector3's index 2 is the maximum");
 			}
 		}
 
@@ -51,10 +46,7 @@ namespace Tristeon
 		void Vector3::normalize()
 		{
 			if (x == 0 && y == 0 && z == 0)
-			{
-				Misc::Console::warning("You cannot normalize Vector3::zero");
 				return;
-			}
 
 			//Normalize
 			float const magnitude = getLength();
@@ -103,14 +95,12 @@ namespace Tristeon
 			return x*vec.x + y*vec.y + z*vec.z;
 		}
 
-		//const Vector3 operator*(const Vector3& lhs, const float& rhs);
-
 		Vector3 Vector3::lerp(Vector3 a, Vector3 b, float t)
 		{
 			if (b - a == Vector3(0, 0, 0)) return b; //Positions are equal
 
-			float interpolation = a.distance(b) * t; //Get interpolation value
-			Vector3 linearDirection = (b - a).getNormalized(); //Get direction
+			float const interpolation = a.distance(b) * t; //Get interpolation value
+			Vector3 const linearDirection = (b - a).getNormalized(); //Get direction
 			return linearDirection * interpolation + a; //Pos = direction * distance + start
 		}
 

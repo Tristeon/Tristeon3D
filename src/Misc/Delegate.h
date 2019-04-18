@@ -8,8 +8,8 @@ namespace Tristeon
 	namespace Misc
 	{
 		/**
-		* \brief Simple delegate class which supports infinite parameters.
-		* \tparam P All the parameters
+		* Delegate is a callback class that wraps around a vector containing functions. 
+		* You can add or remove functions from this list, or call invoke() to call all subscribed functions.
 		*/
 		template <typename ... P>
 		class Delegate
@@ -17,31 +17,28 @@ namespace Tristeon
 		public:
 			/**
 			 * Calls all the functions added to this delegate.
-			 * Requires the same parameters as this delegate has been defined with.
 			 */
 			void invoke(P... params);
 
 			/**
 			* Calls all the functions added to this delegate.
-			* Requires the same parameters as this delegate has been defined with.
 			*/
 			void operator()(std::function<void(P...)> f);
 
 			/**
-			 * Adds a function to the delegate.
-			 * The function must have the same parameters as this delegate has been defined with.
+			 * Adds a function to the delegate. The function must have the same template as the Delegate.
 			 */
 			void operator+=(std::function<void(P...)> f);
 
 			/**
 			 * Removes the given function from the delegate.
-			 * The function must have the same parameters as this delegate.
+			 * The function must have the same parameters as the delegate.
 			 * If this delegate doesn't contain the given function this will be ignored.
 			 */
 			void operator-=(std::function<void(P...)> f);
 
 			/**
-			 * Resets the delegate to only use the specific given function.
+			 * Resets the delegate and assigns it to the specific given function.
 			 */
 			void operator=(std::function<void(P...)> f);
 
@@ -57,7 +54,6 @@ namespace Tristeon
 		template <typename ... P>
 		void Delegate<P...>::invoke(P... params)
 		{
-			//Call all the events
 			for (unsigned int i = 0; i < events.size(); i++)
 				events[i](params...);
 		}
@@ -71,7 +67,6 @@ namespace Tristeon
 		template <typename ... P>
 		void Delegate<P...>::operator+=(std::function<void(P...)> f)
 		{
-			//Add an event to our vector
 			events.push_back(f);
 		}
 
@@ -80,8 +75,6 @@ namespace Tristeon
 		{
 			//Try to find the given function
 			auto itr = std::find(events.begin(), events.end(), events);
-
-			//If itr == std::end, then we couldn't find our function. Otherwise: erase it.
 			if (itr != std::end(events))
 				events.erase(itr);
 		}
@@ -89,17 +82,13 @@ namespace Tristeon
 		template <typename ... P>
 		void Delegate<P...>::operator=(std::function<void(P...)> f)
 		{
-			//Reset our events
 			events.clear();
-
-			//Add the new event
 			events.push_back(f);
 		}
 
 		template <typename ... P>
 		void Delegate<P...>::clear()
 		{
-			//Reset our events
 			events.clear();
 		}
 	}

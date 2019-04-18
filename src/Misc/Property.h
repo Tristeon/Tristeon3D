@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ * RWProperty provides a [READ AND WRITE] interface for classes to define public fields with custom get/set functionality.
+ * RWProperty is usually not used directly, but rather through the <Property>, <Get_Property> and <Set_Property> macros defined in this header.
+ */
 template <typename C, typename T>
 class RWProperty
 {
@@ -22,6 +26,10 @@ private:
 	const Setter_t m_setter;
 };
 
+/**
+ * RProperty provides a [READONLY] interface for classes to define public fields with custom get functionality.
+ * RProperty is usually not used directly, but rather through the <Property> and <Get_Property> macros defined in this header.
+ */
 template <typename C, typename T>
 class RProperty
 {
@@ -40,6 +48,39 @@ private:
 	const Getter_t m_getter;
 };
 
+/**
+ * SimpleRProperty is a value wrapper with public get functionality. 
+ * It befriends the first template parameter and wraps a value of the second.
+ */
+template <typename C, typename T>
+class SimpleRProperty
+{
+	friend C;
+public:
+	T get() { return value; }
+	operator T() const { return value; }
+
+private:
+	T value;
+};
+
+template <typename C, typename T>
+class SimpleProperty
+{
+	friend C;
+public:
+	T get() { return value; }
+	void set(T value) { this.value = value; }
+	operator T() const { return value; }
+
+private:
+	T value;
+};
+
+/**
+ * WProperty provides a [WRITEONLY] interface for classes to define public fields with custom set functionality.
+ * WProperty is usually not used directly, but rather through the <Property> and <Set_Property> macros defined in this header.
+ */
 template <typename C, typename T>
 class WProperty
 {
@@ -58,8 +99,16 @@ private:
 	const Setter_t m_setter;
 };
 
+
+//Macros wrapping the property classes for ease of use
+
+#define SimpleReadOnlyProperty(CLASS, NAME, TYPE) SimpleRProperty<CLASS, TYPE> NAME = {};
+#define SimpleProperty(CLASS, NAME, TYPE) SimpleProperty<CLASS, TYPE> NAME = {};
+
 #define Property(CLASS, NAME, TYPE)	RWProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME, &CLASS::set_##NAME }; \
     typedef TYPE property__tmp_type_##NAME;
+
+#define PropertyNestedValue(CLASS, NAME, TYPE, VALUE) Property(CLASS, NAME, TYPE); GetProperty(NAME) { return VALUE; } SetProperty(NAME) { ##VALUE = value; } 
 
 #define ReadOnlyProperty(CLASS, NAME, TYPE) RProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME }; \
     typedef TYPE property__tmp_type_##NAME;

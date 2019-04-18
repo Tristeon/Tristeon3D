@@ -1,17 +1,27 @@
 ﻿#include "Rect.h"
+#include "Vector2.h"
 
 namespace Tristeon
 {
 	namespace Math
 	{
-		Rect::Rect(): width(0), height(0), x(0), y(0)
+		Rect::Rect(float x, float y, float width, float height): width(width), height(height), minX(x), minY(y) { }
+
+		Rect& Rect::operator=(Rect const& rect)
 		{
-			//Empty
+			minX = rect.minX;
+			minY = rect.minY;
+			width = rect.width;
+			height = rect.height;
+			return *this;
 		}
 
-		Rect::Rect(float x, float y, float width, float height): width(width), height(height), x(x), y(y)
+		bool Rect::intersects(Vector2 point) const
 		{
-			//Empty
+			return point.x > minX && 
+				point.x < minX + width &&
+				point.y > minY && 
+				point.y < minY + height;
 		}
 	}
 }

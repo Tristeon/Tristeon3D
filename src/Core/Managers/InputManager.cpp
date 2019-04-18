@@ -1,5 +1,5 @@
 ﻿#include "InputManager.h"
-#include "Core/ManagerProtocol.h"
+#include "Core/MessageBus.h"
 
 #include "Misc/Hardware/Keyboard.h"
 #include "Misc/Hardware/Mouse.h"
@@ -12,17 +12,9 @@ namespace Tristeon
 	{
 		namespace Managers
 		{
-			InputManager::InputManager(GLFWwindow* window) : window(window)
+			InputManager::InputManager(GLFWwindow* window)
 			{
-				//Empty
-			}
-
-			void InputManager::init()
-			{
-				//Resets keydown and keyup
-				ManagerProtocol::subscribeToMessage(MT_AFTERFRAME, [&](Message msg) { resetInput(); });
-				
-				//GLFW input callbacks
+				MessageBus::subscribeToMessage(MT_AFTERFRAME, [&](Message msg) { resetInput(); });
 				Misc::Mouse::window = window;
 				glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) { Misc::Keyboard::keyCallback(key, scancode, action, mods); });
 				glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) { Misc::Mouse::buttonCallback(button, action, mods); });
@@ -33,7 +25,6 @@ namespace Tristeon
 
 			void InputManager::resetInput() const
 			{
-				//Reset keydown and key up
 				Misc::Keyboard::reset();
 				Misc::Mouse::reset();
 			}

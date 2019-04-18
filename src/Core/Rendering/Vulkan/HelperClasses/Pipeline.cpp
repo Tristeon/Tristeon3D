@@ -27,14 +27,13 @@ namespace Tristeon
 				using ColorBlendState = vk::PipelineColorBlendStateCreateInfo;
 				using DynamicState = vk::PipelineDynamicStateCreateInfo;
 
-				Pipeline::Pipeline(VulkanBindingData* bind, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet, vk::CullModeFlags cullMode, bool enableLighting)
+				Pipeline::Pipeline(ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet, vk::CullModeFlags cullMode, bool enableLighting)
 				{
 					//Store vars
-					this->device = bind->device;
+					this->device = VulkanBindingData::getInstance()->device;
 					this->file = file;
 					this->topology = topology;
 					this->enableBuffers = enableBuffers;
-					this->binding = bind;
 					this->onlyUniformSet = onlyUniformSet;
 					this->compare_op = vk::CompareOp::eLess;
 					this->cullMode = cullMode;
@@ -45,15 +44,14 @@ namespace Tristeon
 					create(extent, renderPass);
 				}
 
-				Pipeline::Pipeline(VulkanBindingData* binding, ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, vk::DescriptorSetLayout descriptorSet, vk::PrimitiveTopology topologyMode, vk::CompareOp compare_op, vk::CullModeFlags cullMode, bool enableLighting)
+				Pipeline::Pipeline(ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, vk::DescriptorSetLayout descriptorSet, vk::PrimitiveTopology topologyMode, vk::CompareOp compare_op, vk::CullModeFlags cullMode, bool enableLighting)
 				{
 					//Store vars
 					this->file = file;
 					this->topology = topologyMode;
 					this->enableBuffers = true;
-					this->binding = binding;
 					this->onlyUniformSet = true;
-					this->device = binding->device;
+					this->device = VulkanBindingData::getInstance()->device;
 					this->compare_op = compare_op;
 					this->cullMode = cullMode;
 					this->enableLighting = enableLighting;
@@ -140,6 +138,19 @@ namespace Tristeon
 					return device.createShaderModule(info, nullptr);
 				}
 
+				void Pipeline::recompile(ShaderFile file)
+				{
+					this->file = file;
+
+					//Destroy all resources allocated by pipeline
+					device.destroyDescriptorSetLayout(descriptorSetLayout1);
+					device.destroyDescriptorSetLayout(descriptorSetLayout2);
+					device.destroyDescriptorSetLayout(descriptorSetLayout3);
+					createDescriptorLayout(file.getProps());
+
+					rebuild(extent, renderpass);
+				}
+
 				Pipeline::~Pipeline()
 				{
 					//Destroy all resources allocated by pipeline
@@ -158,9 +169,12 @@ namespace Tristeon
 
 				void Pipeline::create(vk::Extent2D extent, vk::RenderPass renderPass, vk::CompareOp compare_op)
 				{
+					this->extent = extent;
+					this->renderpass = renderPass;
+
 					//Load shaders and create modules
-					Data::TextFile vertex = Data::TextFile(file.getPath(RAPI_Vulkan, ST_Vertex), Data::FileMode::FM_Binary);
-					Data::TextFile fragment = Data::TextFile(file.getPath(RAPI_Vulkan, ST_Fragment), Data::FileMode::FM_Binary);
+					Data::TextFile vertex = Data::TextFile(file.getPath("VULKAN", ST_Vertex), Data::FileMode::FM_Binary);
+					Data::TextFile fragment = Data::TextFile(file.getPath("VULKAN", ST_Fragment), Data::FileMode::FM_Binary);
 					vertexShader = createShaderModule(vertex.readAllVector(), device);
 					fragmentShader = createShaderModule(fragment.readAllVector(), device);
 

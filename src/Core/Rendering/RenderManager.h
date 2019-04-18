@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Core/Managers/Manager.h"
 #include "Misc/Delegate.h"
 #include "Misc/vector.h"
 #include "Skybox.h"
@@ -10,14 +9,12 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
 		class BindingData;
 		class Message;
 		namespace Components { class Camera; }
 
 		namespace Rendering
 		{
-			//Forward decl
 			class Material;
 			class RenderTechnique;
 			class Renderer;
@@ -41,18 +38,10 @@ namespace Tristeon
 			 * \brief RenderManager is the base class of RenderManagers and gets overriden to define API specific behavior.
 			 * This class defines standard behavior for (de)registering (ui)renderers, and it manages materials and shaders.
 			 */
-			class RenderManager : public Managers::Manager
+			class RenderManager
 			{
 			public:
-				/**
-				 * \brief Creates a new RenderManager
-				 * \param data BindingData gets stored as reference to share render information with other engine systems
-				 */
-				RenderManager(BindingData* data);
-				/**
-				 * \brief Sets up all the callbacks and gets shader information
-				 */
-				void init() override;
+				RenderManager();
 
 				/**
 				 * \brief Render is an abstract function that is intended to be defined by API specific subclasses. It gets called in the window MT_RENDER callback.
@@ -71,6 +60,8 @@ namespace Tristeon
 				 */
 				virtual void setGridEnabled(bool enable);
 
+				static void recompileShader(std::string filePath) { instance->_recompileShader(filePath); }
+
 				/**
 				* \brief Returns a material serialized from the given filepath
 				* \param filePath The filepath of the material
@@ -81,6 +72,7 @@ namespace Tristeon
 				static Skybox* getSkybox(std::string filePath);
 			protected:
 				virtual Skybox* _getSkybox(std::string filePath) = 0;
+				virtual void _recompileShader(std::string filePath) = 0;
 
 				/**
 				* \brief Returns a material serialized from the given filepath
@@ -142,11 +134,6 @@ namespace Tristeon
 				 * \brief All the shaderfiles in the project
 				 */
 				std::vector<ShaderFile> shaderFiles;
-
-				/**
-				 * \brief A reference to bindingData, used to share binding data between engine systems
-				 */
-				BindingData* bindingData;
 
 				/**
 				 * \brief Keeps track of wether the engine is in playmode or not.

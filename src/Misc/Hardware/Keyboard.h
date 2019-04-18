@@ -2,50 +2,47 @@
 #include "Misc/Delegate.h"
 
 /**
- * \brief Defines the maximum amount of keys supported. Any other key will be defined as unknown (-1)
+ * Defines the maximum amount of keys supported. Any other key will be defined as unknown (-1)
  */
 #define MAXKEYS 348
 
-//Forward decl
 struct GLFWwindow;
-
 namespace Tristeon
 {
-	//Forward decl
 	namespace Core { namespace Managers { class InputManager; } }
-
 	namespace Misc
 	{
 		/**
-		 * \brief Defines bits describing possible key modifiers (shift, control, etc)
+		 * Bits describing key modifiers (shift, control, etc)
 		 */
 		enum KeyMods
 		{
 			/** 
-			 * \brief If this bit is set one or more Shift keys were held down.
+			 * If this bit is set one or more Shift keys were held down.
 			*/
 			SHIFT = 0x0001,
 			/**
-			 * \brief If this bit is set one or more Control keys were held down.
+			 * If this bit is set one or more Control keys were held down.
 			*/
 			CONTROL = 0x0002,
 			/**
-			 * \brief If this bit is set one or more Alt keys were held down.
+			 * If this bit is set one or more Alt keys were held down.
 			*/
 			ALT = 0x0004,
 			/**
-			 * \brief If this bit is set one or more Super keys were held down.
+			 * If this bit is set one or more Super keys were held down.
 			*/
 			SUPER = 0x0008
 		};
 
 		/**
-		 * \brief Defines supported keyboard keys
+		 * All the supported keyboard keys
+		 * Used in conjunction with GetKey(), GetKeyUp(), and GetKeyDown()
 		 */
 		enum KeyCode
 		{
 			/**
-			 * \brief KeyCode for unsupported keys
+			 * KeyCode for unsupported keys
 			 */
 			UNKNOWN = -1,
 			SPACE = 32,
@@ -176,74 +173,50 @@ namespace Tristeon
 			MENU = 348,
 
 			/**
-			 * \brief Describes the last supported key. For iteration purposes
+			 * The last supported key. For iteration purposes
 			 */
 			LAST = MENU
 		};
 
 		/**
-		 * \brief The interface to get keyboard input information from Tristeon
+		 * The interface to get keyboard input information from Tristeon
 		 */
 		class Keyboard
 		{
-			//Allow inputmanager to change our private variables
 			friend Core::Managers::InputManager;
-
 		public:
 			/**
-			 * \brief Returns true if the given key has been pressed down during the current frame
-			 * \param key The key to be checked
-			 * \return Returns true or false
+			 * Returns true if the given key has been pressed down during the current frame
 			 */
 			static bool getKeyDown(KeyCode key);
 			/**
-			 * \brief Returns true if the given key while the given key is being held down
-			 * \param key The key to be checked
-			 * \return Returns true or false
+			 * Returns true if the given key while the given key is being held down
 			 */
 			static bool getKey(KeyCode key);
 			/**
-			 * \brief Returns true if the given key has been released during the current frame
-			 * \param key The key to be checked
-			 * \return Returns true or false
+			 * Returns true if the given key has been released during the current frame
 			 */
 			static bool getKeyUp(KeyCode key);
 
 			/**
-			 * \brief The user callback for when a key gets pressed down
+			 * The user callback for when a key gets pressed down
 			 */
 			static Delegate<KeyCode, KeyMods> onKeyDown;
 			/**
-			 * \brief The user callback for when a key gets released
+			 * The user callback for when a key gets released
 			 */
 			static Delegate<KeyCode, KeyMods> onKeyUp;
 
 		private:
-			/**
-			 * \brief The keys that are being pressed down in the current frame
-			 */
 			static bool keysDown[MAXKEYS];
-			/**
-			 * \brief The keys that are being held down
-			 */
 			static bool keys[MAXKEYS];
-			/**
-			 * \brief The keys that are being released in the current frame
-			 */
 			static bool keysUp[MAXKEYS];
 
 			/**
-			 * \brief Resets the keysDown and keysUp arrays
+			 * Resets the keysDown and keysUp arrays
 			 */
 			static void reset();
 
-			/**
-			 * \brief A function callback that is used to record keyboard input data. 
-			 * \param key The key that changed state
-			 * \param scancode The system-specific scancode of the key.
-			 * \param action The action that has been performed on the button
-			 * \param mods The key modifiers that are being applied to the button (ctrl, alt, shift, etc)
-			 */
 			static void keyCallback(int key, int scancode, int action, int mods);
 		};
 	}

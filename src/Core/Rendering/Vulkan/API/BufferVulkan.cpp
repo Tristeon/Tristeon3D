@@ -37,8 +37,8 @@ namespace Tristeon
 					device.bindBufferMemory(buffer, memory, 0);
 				}
 
-				BufferVulkan::BufferVulkan(VulkanBindingData* bindingData, size_t size, vk::BufferUsageFlags usage,
-					vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : BufferVulkan(bindingData->device, bindingData->physicalDevice, bindingData->swapchain->getSurface(), size, usage, properties, sharingMode)
+				BufferVulkan::BufferVulkan(size_t size, vk::BufferUsageFlags usage,
+					vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : BufferVulkan(VulkanBindingData::getInstance()->device, VulkanBindingData::getInstance()->physicalDevice, VulkanBindingData::getInstance()->swapchain->getSurface(), size, usage, properties, sharingMode)
 				{
 					//Empty
 				}
@@ -59,14 +59,11 @@ namespace Tristeon
 
 				void BufferVulkan::copyFromBuffer(vk::Buffer srcBuffer, vk::CommandPool cmdPool, vk::Queue graphicsQueue)
 				{
-					//Get one time submit command buffer
 					vk::CommandBuffer cmd = CommandBuffer::begin(cmdPool, device);
 
-					//Copy
 					vk::BufferCopy copy = vk::BufferCopy(0, 0, size);
 					cmd.copyBuffer(srcBuffer, buffer, 1, &copy);
-
-					//Submit command buffer
+					
 					CommandBuffer::end(cmd, graphicsQueue, device, cmdPool);
 				}
 
@@ -83,9 +80,10 @@ namespace Tristeon
 					return move(buffer);
 				}
 
-				std::unique_ptr<BufferVulkan> BufferVulkan::createOptimized(VulkanBindingData* bindingData, size_t size, void* data,
+				std::unique_ptr<BufferVulkan> BufferVulkan::createOptimized(size_t size, void* data,
 					vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode)
 				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 					return move(createOptimized(bindingData->device, bindingData->physicalDevice, bindingData->swapchain->getSurface(), 
 						bindingData->commandPool, bindingData->graphicsQueue, 
 						size, data, usage, properties, sharingMode));

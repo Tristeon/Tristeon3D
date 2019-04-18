@@ -1,44 +1,36 @@
 ﻿#pragma once
+#include "Misc/Property.h"
+#include "Core/Components/Camera.h"
 
 namespace Tristeon
 {
 	namespace Math
 	{
-		/**
-		 * \brief Rect class interface
-		 */
-		class Rect
-		{
-		public:
-			/**
-			 * \brief Creates a new instance of rect with width, height, x, and y = 0
-			 */
-			Rect();
-			/**
-			 * \brief Creates a new instance of rect
-			 * \param x the x position of the rect
-			 * \param y the y position of the rect
-			 * \param width the width of the rect
-			 * \param height the height of the rect
-			 */
-			Rect(float x, float y, float width, float height);
+		struct Vector2;
 
+		/**
+		 * A 2D rectangle, described by a position and size.
+		 */
+		struct Rect
+		{
 			/**
-			 * \brief The width of the rect
+			 * Creates a new instance of rect with a position and size
 			 */
+			Rect(float x = 0, float y = 0, float width = 0, float height = 0);
+			Rect& operator=(Rect const& rect);
+
 			float width;
-			/**
-			 * \brief The height of the rect
-			 */
 			float height;
-			/**
-			 * \brief The x position of the rect
-			 */
-			float x;
-			/**
-			 * \brief The y position of the rect
-			 */
-			float y;
+			float minX;
+			float minY;
+
+			ReadOnlyProperty(Rect, maxX, float);
+			GetProperty(maxX) { return minX + width; }
+
+			ReadOnlyProperty(Rect, maxY, float);
+			GetProperty(maxY) { return minY + height; }
+
+			bool intersects(Vector2 point) const;
 		};
 	}
 }
