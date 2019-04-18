@@ -4,7 +4,7 @@
 
 namespace Tristeon
 {
-	namespace Math
+	inline namespace Math
 	{
 		#define Vec_Convert3(vec) { vec.x, vec.y, vec.z }
 		#define Vec_Ptr_Convert3(vec) { vec->x, vec->y, vec->z }

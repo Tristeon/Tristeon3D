@@ -11,7 +11,7 @@ namespace Tristeon
 {
 	namespace Math
 	{
-		class Vector3;
+		struct Vector3;
 
 		/**
 		 *  Quaternion dsescribes a 3D rotation. This way of describing 3D rotation prevents issues that are experienced with a euler approach like gimbal lock.

@@ -5,8 +5,7 @@
 
 namespace Tristeon
 {
-	//Forward decl
-	namespace Math { class Vector3; }
+	namespace Math { struct Vector3; }
 
 	namespace Core
 	{

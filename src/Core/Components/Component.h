@@ -58,6 +58,16 @@ namespace Tristeon
 				 * LateUpdate gets called after all the other update calls
 				 */
 				virtual void lateUpdate() {}
+
+				/**
+				 * Gets the first component of the given type T. Null if no matching component can be found.
+				 */
+				template <typename T> T* getComponent() { return gameObject.get()->getComponent<T>(); }
+
+				/**
+				 * Gets all the components of type T. Will return an empty vector if no components can be found.
+				 */
+				template <typename T> std::vector<T*> getComponents() { return gameObject.get()->getComponents<T>(); }
 			private:
 				/**
 				 * Stores the gameobject it's attached to. Only GameObject can call this function

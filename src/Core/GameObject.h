@@ -57,6 +57,8 @@ namespace Tristeon
 
 			nlohmann::json serialize() override;
 			void deserialize(nlohmann::json json) override;
+
+			bool isActive() const { return active; }
 		private:
 			/**
 			 * Initializes all the gameobjects' components. 
@@ -88,18 +90,18 @@ namespace Tristeon
 		}
 
 		template <typename T>
-		T* GameObject::getComponent()
+		auto GameObject::getComponent() -> T*
 		{
 			if (!std::is_base_of<Components::Component, T>())
 			{
 				Misc::Console::error("Type T is not of type Component in getComponent<T>!");
 				return nullptr;
 			}
-
 			for (int i = 0; i < components.size(); i++)
 			{
-				if (dynamic_cast<T>(components[i].get()) != nullptr)
-					return components[i].get();
+				T* component = dynamic_cast<T*>(components[i].get());
+				if (component != nullptr)
+					return component;
 			}
 			return nullptr;
 		}
@@ -126,8 +128,8 @@ namespace Tristeon
 			std::vector<Components::Component*> result;
 			for (int i = 0; i < components.size(); i++)
 			{
-				if (dynamic_cast<T>(components[i].get()) != nullptr)
-					result.push_back(components[i].get());
+				if (dynamic_cast<T*>(components[i].get()) != nullptr)
+					result.push_back(dynamic_cast<T*>(components[i].get()));
 			}
 			return result;
 		}
