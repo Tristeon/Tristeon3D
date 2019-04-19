@@ -1,4 +1,6 @@
-﻿#ifdef TRISTEON_EDITOR
+﻿#include "Physics/BoxCollider.h"
+#include "Physics/RigidBody.h"
+#ifdef TRISTEON_EDITOR
 
 #include "InspectorWindow.h"
 #include <ImGUI/imgui.h>
@@ -9,7 +11,6 @@
 #include "Core/Components/Camera.h"
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
-#include "Core/Components/TestScript.h"
 #include <string.h>
 using namespace Tristeon::Editor;
 
@@ -63,7 +64,7 @@ void InspectorWindow::drawEditorNode(EditorNode* node)
 
 	//Draw text field without label
 	ImGui::PushItemWidth(-1);
-	ImGui::InputText("##label", nameValue,255);
+	ImGui::InputText("##label", nameValue, 255);
 	ImGui::PopItemWidth();
 
 	//Apply editor changes
@@ -191,7 +192,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	}
 
 	//If there are more components than closeableHeaders increment the array.
-	if (data["components"].size() >= closeableHeaders.size())
+	while(data["components"].size() >= closeableHeaders.size())
 		closeableHeaders.push_back(true);
 
 	int indexToErase = -1;
@@ -200,7 +201,8 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	//Display components
 	for (int i = 0; i < componentsData.size(); i++)
 	{
-		std::string nodeLabel = typeIdNameToClassName(componentsData.at(i)["typeID"]);
+		std::string const typeID = componentsData.at(i)["typeID"];
+		std::string nodeLabel = typeIdNameToClassName(typeID);
 		bool closeableHeader = closeableHeaders[i];
 		if (ImGui::CollapsingHeader(nodeLabel.c_str(), &closeableHeader))
 		{
@@ -223,7 +225,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 
-	std::vector<char*> components = { "Camera","Test", "MeshRenderer" };
+	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody" };
 
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -240,12 +242,17 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 				}
 				else if (i == 1)
 				{
-					data["components"].push_back(TestScript().serialize());
+					data["components"].push_back(Core::Rendering::MeshRenderer().serialize());
 				}
 				else if (i == 2)
 				{
-					data["components"].push_back(Core::Rendering::MeshRenderer().serialize());
+					data["components"].push_back(Physics::BoxCollider().serialize());
 				}
+				else if (i == 3)
+				{
+					data["components"].push_back(Physics::RigidBody().serialize());
+				}
+
 			}
 		}
 		ImGui::EndPopup();
@@ -272,13 +279,30 @@ void InspectorWindow::drawSerializedObject(nlohmann::json& serializedComponent)
 			std::string stringValue = serializedComponent[iterator.key()];
 			char charValue[255] = "Wut";
 			strcpy_s(charValue, 255, stringValue.c_str());
-			ImGui::InputText(iterator.key().c_str(), charValue, 255,ImGuiInputTextFlags_EnterReturnsTrue);
-				serializedComponent[iterator.key()] = charValue;
+			ImGui::InputText(iterator.key().c_str(), charValue, 255, ImGuiInputTextFlags_EnterReturnsTrue);
+			serializedComponent[iterator.key()] = charValue;
 			break;
 		}
 		case nlohmann::detail::value_t::object:
+		{
+			std::string const typeIDName = iterator.value()["typeID"];
+			if (typeIDName == TRISTEON_TYPENAME(Vector3))
+			{
+				float value[3];
+				value[0] = iterator.value()["x"];
+				value[1] = iterator.value()["y"];
+				value[2] = iterator.value()["z"];
+
+				ImGui::DragFloat3(iterator.key().c_str(), value);
+
+				iterator.value()["x"] = value[0];
+				iterator.value()["y"] = value[1];
+				iterator.value()["z"] = value[2];
+				break;
+			}
 			drawSerializedObject(serializedComponent[iterator.key()]);
 			break;
+		}
 		case nlohmann::detail::value_t::array:
 			break;
 		case nlohmann::detail::value_t::number_float:

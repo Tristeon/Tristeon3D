@@ -60,6 +60,12 @@ namespace Tristeon
 				virtual void lateUpdate() {}
 
 				/**
+				 * OnGUI gets called before anything is rendered. Use this to draw debug visuals using debugDrawManager.
+				 * OnGUI gets called both in playmode and in editor mode.
+				 */
+				virtual void onGUI() {}
+
+				/**
 				 * Gets the first component of the given type T. Null if no matching component can be found.
 				 */
 				template <typename T> T* getComponent() { return gameObject.get()->getComponent<T>(); }

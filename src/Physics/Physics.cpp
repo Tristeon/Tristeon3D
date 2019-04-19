@@ -6,18 +6,28 @@
 #include "Collision.h"
 #include "Misc/Hardware/Keyboard.h"
 #include "Core/GameObject.h"
+#include "Core/MessageBus.h"
 
 namespace Tristeon
 {
 	namespace Physics
 	{
-		Physics* Physics::instance;
+		Physics* Physics::instance = nullptr;
 
 		Physics::Physics()
 		{
 			rigidBodies = std::vector<RigidBody*>();
 			colliders = std::vector<BoxCollider*>();
 			instance = this;
+
+			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_FIXEDUPDATE, [&](Core::Message m) { update(); });
+			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_MANAGER_RESET, [&](Core::Message m) { reset(); });
+		}
+
+		Physics::~Physics()
+		{
+			reset();
+			instance = nullptr;
 		}
 
 		void Physics::resetRigidBodies()
@@ -173,6 +183,12 @@ namespace Tristeon
 					return true;
 			}
 			return false;
+		}
+
+		void Physics::reset()
+		{
+			colliders.clear();
+			rigidBodies.clear();
 		}
 
 		bool Physics::compareCollisionsByTimeStep(Collision col1, Collision col2)

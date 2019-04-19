@@ -38,6 +38,7 @@ namespace Tristeon
 			inputSys = std::make_unique<Managers::InputManager>(window->window);
 			componentSys = std::make_unique<Components::ComponentManager>();
 			sceneSys = std::make_unique<Scenes::SceneManager>();
+			physicsSys = std::make_unique<Physics::Physics>();
 
 			MessageBus::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg)
 			{

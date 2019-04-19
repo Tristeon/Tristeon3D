@@ -1,4 +1,5 @@
 #include "Core/MessageBus.h"
+#include "EditorSelection.h"
 #ifdef TRISTEON_EDITOR
 
 #include "TristeonEditor.h"
@@ -119,6 +120,12 @@ namespace Tristeon
 		{
 			inPlayMode = !inPlayMode;
 			Core::MessageBus::sendMessage(inPlayMode ? Core::MT_GAME_LOGIC_START : Core::MT_GAME_LOGIC_STOP);
+
+			if (!inPlayMode)
+			{
+				Scenes::SceneManager::loadScene(Scenes::SceneManager::getActiveScene()->name);
+				EditorSelection::setSelectedItem(nullptr);
+			}
 		}
 
 		//If playing the game it will go in fullscreen, thus the editor no longer needs to be rendered, will be subject to change

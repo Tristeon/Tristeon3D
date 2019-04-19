@@ -15,10 +15,11 @@ namespace Tristeon
 				//Subscribe to message events regarding callbacks and (de)registering of components
 				MessageBus::subscribeToMessage(MT_SCRIPTINGCOMPONENT_REGISTER, [&](Message message) { registerComponent(message); });
 				MessageBus::subscribeToMessage(MT_SCRIPTINGCOMPONENT_DEREGISTER, [&](Message message) { deregisterComponent(message); });
-				MessageBus::subscribeToMessage(MT_START, [&](Message)       { callFunction<&Component::start>(); });
-				MessageBus::subscribeToMessage(MT_UPDATE, [&](Message)      { callFunction<&Component::update>(); });
-				MessageBus::subscribeToMessage(MT_LATEUPDATE, [&](Message)  { callFunction<&Component::lateUpdate>(); });
-				MessageBus::subscribeToMessage(MT_FIXEDUPDATE, [&](Message) { callFunction<&Component::fixedUpdate>(); });
+				MessageBus::subscribeToMessage(MT_START, [&](Message)       { callFunction<&Component::start>();		});
+				MessageBus::subscribeToMessage(MT_UPDATE, [&](Message)      { callFunction<&Component::update>();		});
+				MessageBus::subscribeToMessage(MT_LATEUPDATE, [&](Message)  { callFunction<&Component::lateUpdate>();	});
+				MessageBus::subscribeToMessage(MT_FIXEDUPDATE, [&](Message) { callFunction<&Component::fixedUpdate>();	});
+				MessageBus::subscribeToMessage(MT_PRERENDER, [&](Message)   { callFunction<&Component::onGUI>();		});
 			}
 
 			void ComponentManager::registerComponent(Message msg)

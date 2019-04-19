@@ -101,11 +101,16 @@ namespace Tristeon
 				//Apply
 				for (int i = 0; i < positions.size(); i += 1)
 				{
-					Math::Vector3 start = positions[i];
-					Math::Vector3 end = (i + 1) >= positions.size() ? positions[0] : positions[i + 1];
+					Math::Vector3 const start = positions[i];
+					Math::Vector3 const end = (i + 1) >= positions.size() ? positions[0] : positions[i + 1];
 					Line const l = Line(start, end, lineWidth, color);
 					instance->drawList.push(l);
 				}
+			}
+
+			void DebugDrawManager::clear()
+			{
+				instance->drawList = std::queue<Line>();
 			}
 		}
 	}

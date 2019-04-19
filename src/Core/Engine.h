@@ -6,6 +6,7 @@
 #include <Core/Rendering/RenderManager.h>
 #include <Scenes/SceneManager.h>
 #include <Core/Components/ComponentManager.h>
+#include "Physics/Physics.h"
 
 namespace Tristeon
 {
@@ -34,6 +35,7 @@ namespace Tristeon
 			std::unique_ptr<Rendering::Window> window;
 			std::unique_ptr<Components::ComponentManager> componentSys;
 			std::unique_ptr<Managers::InputManager> inputSys;
+			std::unique_ptr<Physics::Physics> physicsSys;
 
 			bool inPlayMode = false;
 		};

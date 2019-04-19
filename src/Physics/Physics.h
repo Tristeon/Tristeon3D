@@ -18,6 +18,7 @@ namespace Tristeon
 			std::vector<BoxCollider*> colliders;
 
 			Physics();
+			~Physics();
 			/**
 			 * Call update for physics calculations and collision checks
 			 */
@@ -33,6 +34,7 @@ namespace Tristeon
 
 			bool enableTimeStep = false;
 		private:
+			void reset();
 
 			static bool compareCollisionsByTimeStep(Collision col1, Collision col2);
 			void remove(RigidBody* rb);

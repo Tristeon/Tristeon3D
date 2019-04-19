@@ -48,6 +48,8 @@ namespace Tristeon
 				 * \brief The deconstructor of DebugDrawManager, has to be virtual to allow for correct destruction
 				 */
 				virtual ~DebugDrawManager() = default;
+
+				static void clear();
 			protected:
 				/**
 				 * \brief The line struct describes a single renderable line, with its respective properties

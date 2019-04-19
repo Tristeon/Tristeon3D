@@ -36,6 +36,7 @@
 #include "API/WindowContextVulkan.h"
 
 #include <boost/filesystem.hpp>
+#include "Core/Rendering/RenderTechniques/RenderTechnique.h"
 namespace filesystem = boost::filesystem;
 
 using Tristeon::Misc::Console;

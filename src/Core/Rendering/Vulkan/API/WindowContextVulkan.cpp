@@ -53,7 +53,7 @@ namespace Tristeon
 
 					//Swapchain out of dte
 					if (r == vk::Result::eErrorOutOfDateKHR || r == vk::Result::eSuboptimalKHR) //Swapchain out of date
-						Misc::Console::error("Swapchain recreation has yet to be implemented!");
+						swapchain->rebuild(window->width, window->height);
 					else if (r != vk::Result::eSuccess)
 						Misc::Console::error("Failed to acquire swapchain image: " + to_string(r));
 				}

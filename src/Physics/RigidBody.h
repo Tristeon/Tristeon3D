@@ -28,6 +28,9 @@ namespace Tristeon
 			~RigidBody();
 			RigidBody(Vector3 gravity, float drag, std::string collisionDetection, Vector3 velocity);
 
+			nlohmann::json serialize() override;
+			void deserialize(nlohmann::json json) override;
+
 			void start() override;
 			std::vector<Collision> getCollisions(float timeLeft);
 
@@ -80,6 +83,8 @@ namespace Tristeon
 			Vector3 originalVel;
 			BoxCollider* collider;
 			Vector3 force;
+
+			REGISTER_TYPE_H(RigidBody)
 		};
 	}
 }

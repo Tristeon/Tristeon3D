@@ -9,6 +9,8 @@ namespace Tristeon
 {
 	namespace Physics
 	{
+		REGISTER_TYPE_CPP(RigidBody)
+
 		RigidBody::RigidBody()
 		{
 			collisionDetection = "discrete";
@@ -20,7 +22,8 @@ namespace Tristeon
 
 		RigidBody::~RigidBody()
 		{
-			Physics::instance->remove(this);
+			if (Physics::instance != nullptr)
+				Physics::instance->remove(this);
 		}
 
 		RigidBody::RigidBody(Vector3 gravity, float drag, std::string collisionDetection, Vector3 velocity)
@@ -31,6 +34,27 @@ namespace Tristeon
 			this->collisionDetection = collisionDetection;
 			mass = 0;
 			collider = nullptr;
+		}
+
+		nlohmann::json RigidBody::serialize()
+		{
+			nlohmann::json j;
+			j["typeID"] = TRISTEON_TYPENAME(RigidBody);
+			j["name"] = "RigidBody";
+			j["gravity"] = gravity;
+			j["drag"] = drag;
+			j["mass"] = mass;
+			j["collisionDetection"] = collisionDetection;
+			return j;
+		}
+
+		void RigidBody::deserialize(nlohmann::json json)
+		{
+			gravity = json["gravity"];
+			drag = json["drag"];
+			mass = json["mass"];
+			std::string const collisionDetectionString = json["collisionDetection"];
+			collisionDetection = collisionDetectionString;
 		}
 
 		void RigidBody::start()
@@ -56,8 +80,8 @@ namespace Tristeon
 				if (gameObject.get() == collider->gameObject.get() || !collider->gameObject.get()->isActive()) continue;
 				Collision col = Collision(this, collider, velocity*timeLeft);
 				if (col.failed)	continue;
-				if (collisions.size() > 4)
-					Misc::Console::error("Wut");
+				//if (collisions.size() > 4)
+				//	Misc::Console::error("Wut");
 				collisions.push_back(col);
 			}
 			sort(collisions.begin(), collisions.end(), &Physics::compareCollisionsByTimeStep);
@@ -103,7 +127,7 @@ namespace Tristeon
 			if (col.failed) return;
 			transform.get()->position.set(col.point + col.normal*0.0001f);
 
-			velocity = velocity - col.normal * velocity.dot(col.normal);
+			velocity = velocity - col.normal * velocity.dot(col.normal) * (1 + col.staticCollider->bounciness);
 			velocity *= 1 - col.staticCollider->friction;
 			//TODO: This movement does not check for collisions!
 			this->collider->updateAABB();

@@ -30,6 +30,8 @@ namespace Tristeon
 			void start() override;
 			void update() override;
 
+			nlohmann::json serialize() override;
+			void deserialize(nlohmann::json json) override;
 			/**
 			 *  Returns true if the point is inside of the collider
 			 */
@@ -90,7 +92,9 @@ namespace Tristeon
 			* Update AABB positions
 			*/
 			void updateAABB();
-			void onDrawGizmos() const;
+			void onGUI() override;
+
+			REGISTER_TYPE_H(BoxCollider)
 		};
 	}
 }
