@@ -42,6 +42,10 @@ namespace Tristeon
 
 		void SceneManager::loadScene(std::string name)
 		{
+			//TODO: Reload unsafed scene properly
+			if (sceneFilePaths.find(name) == sceneFilePaths.end())
+				return;
+
 			Core::MessageBus::sendMessage(Core::MT_MANAGER_RESET);
 
 			//Attempt to deserialize scene from file

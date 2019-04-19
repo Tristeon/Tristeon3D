@@ -23,19 +23,12 @@ namespace Tristeon
 					render();
 				}
 
-				DebugDrawManager::DebugDrawManager(vk::RenderPass offscreenPass)
+				DebugDrawManager::DebugDrawManager(vk::RenderPass offscreenPass) : offscreenPass(offscreenPass)
 				{
 					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 
 					//ShaderFile
 					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-					pipeline = new Pipeline(file, bindingData->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
-
-					material = new Vulkan::Material();
-					material->pipeline = pipeline;
-					material->shader = std::make_unique<ShaderFile>(file);
-					material->updateProperties(true);
-
 					//Allocate command buffers
 					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(bindingData->commandPool, vk::CommandBufferLevel::eSecondary, 1);
 					bindingData->device.allocateCommandBuffers(&alloc, &cmd);
@@ -78,17 +71,17 @@ namespace Tristeon
 
 				DebugDrawManager::~DebugDrawManager()
 				{
-					delete material;
-					delete pipeline;
 					
 					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
 					bindingData->device.freeCommandBuffers(bindingData->commandPool, cmd);
 					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, set);
 				}
 
-				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass) const
+				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass)
 				{
-					pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
+					this->offscreenPass = offscreenPass;
+					for (const std::unique_ptr<Pipeline>& pipeline : pipelines)
+						pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
 				}
 
 				void DebugDrawManager::createVertexBuffer(Data::SubMesh mesh, int i)
@@ -108,7 +101,6 @@ namespace Tristeon
 				void DebugDrawManager::render()
 				{
 					//Get our material, and render it with the meshrenderer's model matrix
-					Material* m = material;
 					glm::mat4 const model = glm::mat4(1.0f);
 
 					//Start secondary cmd buffer
@@ -122,20 +114,24 @@ namespace Tristeon
 					//Viewport/scissor
 					secondary.setViewport(0, 1, &data->viewport);
 					secondary.setScissor(0, 1, &data->scissor);
-					//Pipeline
-					secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipeline());
-
-					//Descriptor sets
-					vk::DescriptorSet sets[] = { set, m->set };
-					secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 2, sets, 0, nullptr);
-
 					int i = 0;
 					while (!drawList.empty())
 					{
+						if (i >= materials.size())
+							addMaterial();
+						Material* m = materials[i].get();
+
+						//Pipeline
+						secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipeline());
+
+						//Descriptor sets
+						vk::DescriptorSet sets[] = { set, m->set };
+						secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 2, sets, 0, nullptr);
+
 						Line const l = drawList.front();
 
 						//TODO: Fix colors (only the last color is applied coz the same buffer is being used)
-						material->setColor("Color.color", l.color);
+						m->setColor("Color.color", l.color);
 						m->setActiveUniformBufferMemory(uniformBuffer->getDeviceMemory());
 						m->render(model, data->view, data->projection);
 
@@ -169,6 +165,19 @@ namespace Tristeon
 					secondary.end();
 
 					data->lastUsedSecondaryBuffer = cmd;
+				}
+
+				void DebugDrawManager::addMaterial()
+				{
+					Pipeline* pipeline = new Pipeline(file, VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
+
+					Material* material = new Vulkan::Material();
+					material->pipeline = pipeline;
+					material->shader = std::make_unique<ShaderFile>(file);
+					material->updateProperties(true);
+
+					materials.push_back(std::unique_ptr<Material>(material));
+					pipelines.push_back(std::unique_ptr<Pipeline>(pipeline));
 				}
 			}
 		}

@@ -55,7 +55,7 @@ namespace Tristeon
 					* \brief Rebuilds the Renderer. Used when resizing the window
 					* \param offscreenPass The offscreen renderpass that the grid should be rendered to
 					*/
-					void rebuild(vk::RenderPass offscreenPass) const;
+					void rebuild(vk::RenderPass offscreenPass);
 					/**
 					 * \brief Renders the drawables
 					 */
@@ -66,14 +66,11 @@ namespace Tristeon
 					 * \param i The index of the vertex buffer
 					 */
 					void createVertexBuffer(Data::SubMesh mesh, int i);
-					/**
-					* \brief The shader pipeline
-					*/
-					Pipeline* pipeline = nullptr;
-					/**
-					* \brief The material for the ubo data
-					*/
-					Vulkan::Material* material = nullptr;
+					void addMaterial();
+					void createDescriptorSets();
+
+					vk::RenderPass offscreenPass;
+
 					/**
 					* \brief The shader file for line rendering
 					*/
@@ -96,8 +93,9 @@ namespace Tristeon
 					std::unique_ptr<BufferVulkan> uniformBuffer;
 
 					vk::DescriptorSet set;
-
-					void createDescriptorSets();
+					
+					std::vector<std::unique_ptr<Material>> materials;
+					std::vector<std::unique_ptr<Pipeline>> pipelines;
 				};
 			}
 		}

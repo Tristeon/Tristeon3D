@@ -6,7 +6,6 @@
 [Rr]elease[Dd]ebug/
 [Rr]elease[Ww]ith[Dd]ebug[Ii]nfo/
 [Ll]og/
-**/[Bb]in/
 
 bin/[Ee]ditor/
 bin/[Dd]ebug[Ee]ditor/
@@ -16,9 +15,9 @@ bin/[Rr]elease/
 # Build files
 *.exe
 *.exp
+*.ilk
 
 # Build/Temp files
-*.obj
 *.pch
 *.pdb
 *.pgc
