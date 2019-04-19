@@ -88,7 +88,7 @@ namespace Tristeon
 						if (ddmngr != nullptr)
 						{
 							ddmngr->data = &data;
-							ddmngr->draw();
+							ddmngr->render();
 							if ((VkCommandBuffer)data.lastUsedSecondaryBuffer != nullptr)
 								buffers.push_back(data.lastUsedSecondaryBuffer);
 						}

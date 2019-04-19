@@ -495,7 +495,7 @@ namespace Tristeon
 					for (int i = 0; i < pipelines.size(); i++)
 						pipelines[i]->rebuild(vkContext->getExtent(), offscreenPass);
 
-					((DebugDrawManager*)DebugDrawManager::instance)->rebuild(offscreenPass);
+					((DebugDrawManager*)DebugDrawManager::instance)->onResize(offscreenPass);
 
 					//Rebuild framebuffers
 					vkContext->getSwapchain()->createFramebuffers();

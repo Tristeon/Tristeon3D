@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include "Core/Rendering/DebugDrawManager.h"
-#include "RenderManagerVulkan.h"
-#include "Core/Rendering/Components/MeshRenderer.h"
 #include "Core/Rendering/ShaderFile.h"
 #include "MaterialVulkan.h"
 #include "API/BufferVulkan.h"
+#include "RenderManagerVulkan.h"
 
 namespace Tristeon
 {
@@ -12,22 +11,20 @@ namespace Tristeon
 	{
 		namespace Rendering
 		{
-			//Forward decl
 			class RenderManager;
 
 			namespace Vulkan
 			{
-				//Forward decl
 				class Forward;
 				class RenderManager;
 
 				/**
-				* \brief Vulkan specific implementation of the debug draw manager utility class. Used to draw primitive shapes.
+				* Vulkan specific implementation of the debug draw manager utility class. Used to draw primitive shapes.
 				*/
 				class DebugDrawManager : public Rendering::DebugDrawManager
 				{
-					friend Vulkan::RenderManager;
-					friend Vulkan::Forward;
+					friend RenderManager;
+					friend Forward;
 					friend Rendering::RenderManager;
 				public:
 					/**
@@ -36,32 +33,21 @@ namespace Tristeon
 					 */
 					DebugDrawManager(vk::RenderPass offscreenPass);
 				protected:
-					/**
-					 * \brief Renders the queued drawables
-					 */
-					void draw() override;
-					
-					/**
-					 * \brief The renderdata struct, given to us by vkRenderManager
-					 */
-					RenderData* data = nullptr;
-
-					/**
-					 * \brief Destroys the debug draw manager and deallocates all the resources created by it
-					 */
 					virtual ~DebugDrawManager();
 
 					/**
-					* \brief Rebuilds the Renderer. Used when resizing the window
+					 * Renders the queued drawables and clears the list
+					 */
+					void render() override;
+
+					/**
+					* Rebuilds the Renderer when the window is resized (specifically the vulkan pipelines)
 					* \param offscreenPass The offscreen renderpass that the grid should be rendered to
 					*/
-					void rebuild(vk::RenderPass offscreenPass);
+					void onResize(vk::RenderPass offscreenPass);
+
 					/**
-					 * \brief Renders the drawables
-					 */
-					void render();
-					/**
-					 * \brief Creates a new vertex buffer in vertexBuffers[i] with the given mesh.
+					 * Creates a new vertex buffer in vertexBuffers[i] with the given mesh. Removes the old vertexbuffer at vertexBuffers[i].
 					 * \param mesh The mesh data that is to be sent to the GPU
 					 * \param i The index of the vertex buffer
 					 */
@@ -69,31 +55,18 @@ namespace Tristeon
 					void addMaterial();
 					void createDescriptorSets();
 
+					/**
+					 * The renderdata struct. Passed as a reference by RenderManager, used to send data back/forth.
+					 */
+					RenderData* data = nullptr;
 					vk::RenderPass offscreenPass;
-
-					/**
-					* \brief The shader file for line rendering
-					*/
-					ShaderFile file;
-
-					/**
-					 * \brief The secondary command buffer, used to render the drawables
-					 */
-					vk::CommandBuffer cmd;
-					
-					/**
-					 * \brief The vertex buffers, every line gets their own buffer
-					 */
-					std::vector<std::unique_ptr<BufferVulkan>> vertexBuffers;
-					/**
-					 * \brief The memory bound to the vertex buffers
-					 */
-					std::vector<vk::DeviceMemory> vertexBuffersMemory;
 				
+					vk::CommandBuffer cmd;
+					std::vector<std::unique_ptr<BufferVulkan>> vertexBuffers;
 					std::unique_ptr<BufferVulkan> uniformBuffer;
 
+					ShaderFile file;
 					vk::DescriptorSet set;
-					
 					std::vector<std::unique_ptr<Material>> materials;
 					std::vector<std::unique_ptr<Pipeline>> pipelines;
 				};

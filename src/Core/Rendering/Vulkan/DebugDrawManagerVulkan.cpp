@@ -13,27 +13,87 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				void DebugDrawManager::draw()
+				DebugDrawManager::DebugDrawManager(vk::RenderPass offscreenPass) : offscreenPass(offscreenPass)
+				{
+					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
+
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(VulkanBindingData::getInstance()->commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					VulkanBindingData::getInstance()->device.allocateCommandBuffers(&alloc, &cmd);
+					createDescriptorSets();
+				}
+
+				DebugDrawManager::~DebugDrawManager()
+				{
+					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+					bindingData->device.freeCommandBuffers(bindingData->commandPool, cmd);
+					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, set);
+				}
+
+				void DebugDrawManager::render()
 				{
 					if (data == nullptr)
 						return;
 					if (drawList.size() == 0)
 						return;
 
-					render();
-				}
+					//Get our material, and render it with the meshrenderer's model matrix
+					glm::mat4 const model = glm::mat4(1.0f);
 
-				DebugDrawManager::DebugDrawManager(vk::RenderPass offscreenPass) : offscreenPass(offscreenPass)
-				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
+					//Start secondary cmd buffer
+					const vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo(
+						vk::CommandBufferUsageFlagBits::eRenderPassContinue,
+						&data->inheritance);
 
-					//ShaderFile
-					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-					//Allocate command buffers
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(bindingData->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					bindingData->device.allocateCommandBuffers(&alloc, &cmd);
+					vk::CommandBuffer secondary = cmd;
+					secondary.begin(beginInfo);
 
-					createDescriptorSets();
+					//Viewport/scissor
+					secondary.setViewport(0, 1, &data->viewport);
+					secondary.setScissor(0, 1, &data->scissor);
+					int i = 0;
+					while (!drawList.empty())
+					{
+						if (i >= materials.size())
+							addMaterial();
+						Material* m = materials[i].get();
+
+						secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipeline());
+
+						vk::DescriptorSet sets[] = { set, m->set };
+						secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 2, sets, 0, nullptr);
+
+						DebugMesh const drawElement = drawList.front();
+
+						m->setColor("Color.color", drawElement.color);
+						m->setActiveUniformBufferMemory(uniformBuffer->getDeviceMemory());
+						m->render(model, data->view, data->projection);
+
+						Data::SubMesh mesh;
+						mesh.vertices = drawElement.vertices;
+
+						if (i >= vertexBuffers.size())
+							vertexBuffers.push_back(nullptr);
+						createVertexBuffer(mesh, i);
+
+						vk::DeviceSize offsets[1] = { 0 };
+						vk::Buffer vertex = vertexBuffers[i]->getBuffer();
+						secondary.bindVertexBuffers(0, 1, &vertex, offsets);
+
+						//Line width
+						secondary.setLineWidth(drawElement.width);
+
+						//Draw
+						secondary.draw((uint32_t)mesh.vertices.size(), 1, 0, 0);
+
+						drawList.pop();
+
+						i++;
+					}
+
+					//Stop secondary cmd buffer
+					secondary.end();
+
+					data->lastUsedSecondaryBuffer = cmd;
 				}
 
 				void DebugDrawManager::createDescriptorSets()
@@ -69,15 +129,7 @@ namespace Tristeon
 					bindingData->device.destroyDescriptorSetLayout(layout);
 				}
 
-				DebugDrawManager::~DebugDrawManager()
-				{
-					
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-					bindingData->device.freeCommandBuffers(bindingData->commandPool, cmd);
-					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, set);
-				}
-
-				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass)
+				void DebugDrawManager::onResize(vk::RenderPass offscreenPass)
 				{
 					this->offscreenPass = offscreenPass;
 					for (const std::unique_ptr<Pipeline>& pipeline : pipelines)
@@ -96,75 +148,6 @@ namespace Tristeon
 					if (!vertexBuffers[i])
 						vertexBuffers[i] = std::make_unique<BufferVulkan>(size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 					vertexBuffers[i]->copyFromBuffer(staging.getBuffer(), VulkanBindingData::getInstance()->commandPool, VulkanBindingData::getInstance()->graphicsQueue);
-				}
-
-				void DebugDrawManager::render()
-				{
-					//Get our material, and render it with the meshrenderer's model matrix
-					glm::mat4 const model = glm::mat4(1.0f);
-
-					//Start secondary cmd buffer
-					const vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo(
-						vk::CommandBufferUsageFlagBits::eRenderPassContinue, 
-						&data->inheritance);
-
-					vk::CommandBuffer secondary = cmd;
-					secondary.begin(beginInfo);
-
-					//Viewport/scissor
-					secondary.setViewport(0, 1, &data->viewport);
-					secondary.setScissor(0, 1, &data->scissor);
-					int i = 0;
-					while (!drawList.empty())
-					{
-						if (i >= materials.size())
-							addMaterial();
-						Material* m = materials[i].get();
-
-						//Pipeline
-						secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipeline());
-
-						//Descriptor sets
-						vk::DescriptorSet sets[] = { set, m->set };
-						secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 2, sets, 0, nullptr);
-
-						Line const l = drawList.front();
-
-						//TODO: Fix colors (only the last color is applied coz the same buffer is being used)
-						m->setColor("Color.color", l.color);
-						m->setActiveUniformBufferMemory(uniformBuffer->getDeviceMemory());
-						m->render(model, data->view, data->projection);
-
-						Data::SubMesh mesh;
-						mesh.vertices.push_back(l.start);
-						mesh.vertices.push_back(l.end);
-
-						if (i >= vertexBuffers.size())
-						{
-							vertexBuffers.push_back(nullptr);
-							vertexBuffersMemory.push_back(nullptr);
-						}
-						createVertexBuffer(mesh, i);
-
-						vk::DeviceSize offsets[1] = { 0 };
-						vk::Buffer vertex = vertexBuffers[i]->getBuffer();
-						secondary.bindVertexBuffers(0, 1, &vertex, offsets);
-
-						//Line width
-						secondary.setLineWidth(l.width);
-
-						//Draw
-						secondary.draw((uint32_t)mesh.vertices.size(), 1, 0, 0);
-
-						drawList.pop();
-						
-						i++;
-					}
-
-					//Stop secondary cmd buffer
-					secondary.end();
-
-					data->lastUsedSecondaryBuffer = cmd;
 				}
 
 				void DebugDrawManager::addMaterial()
