@@ -66,12 +66,12 @@ namespace Tristeon
 
 		float Vector3::getLength() const
 		{
-			return sqrt(x*x + y*y + z*z);
+			return sqrt(x*x + y * y + z * z);
 		}
 
 		float Vector3::getSqrLength() const
 		{
-			return x*x + y*y + z*z;
+			return x * x + y * y + z * z;
 		}
 
 		float Vector3::dot(Vector3 a, Vector3 b)
@@ -82,19 +82,17 @@ namespace Tristeon
 
 		float Vector3::distance(Vector3 a, Vector3 b)
 		{
-			Vector3 difference = b - a;
-			return difference.getLength();
+			return (b - a).getLength();
 		}
 
 		float Vector3::distance(Vector3 vec) const
 		{
-			Vector3 difference = vec - Vector3(x, y, z);
-			return difference.getLength();
+			return (vec - Vector3(x, y, z)).getLength();
 		}
 
 		float Vector3::dot(Vector3 vec) const
 		{
-			return x*vec.x + y*vec.y + z*vec.z;
+			return x * vec.x + y * vec.y + z * vec.z;
 		}
 
 		Vector3 Vector3::lerp(Vector3 a, Vector3 b, float t)
@@ -118,34 +116,32 @@ namespace Tristeon
 
 		Vector3 Vector3::operator*(const float& multiplier) const
 		{
-			Vector3 result(x * multiplier, y * multiplier, z*multiplier);
-			return result;
+			return { x * multiplier, y * multiplier, z * multiplier };
 		}
 
 		Vector3 Vector3::operator*(const Vector3& vec) const
 		{
-			Vector3 result(x * vec.x, y * vec.y, z*vec.z);
-			return result;
+			return { x * vec.x, y * vec.y, z * vec.z };
 		}
 
 		Vector3 Vector3::operator/(const float& divider) const
 		{
-			return Vector3(x / divider, y / divider, z / divider);
+			return { x / divider, y / divider, z / divider };
 		}
 
 		Vector3 Vector3::operator/(const Vector3& divider) const
 		{
-			return Vector3(x / divider.x, y / divider.y, z / divider.z);
+			return { x / divider.x, y / divider.y, z / divider.z };
 		}
 
 		Vector3 Vector3::operator+(const Vector3& vec) const
 		{
-			return Vector3(x + vec.x, y + vec.y, z + vec.z);
+			return { x + vec.x, y + vec.y, z + vec.z };
 		}
 
 		Vector3 Vector3::operator-(const Vector3& vec) const
 		{
-			return Vector3(x - vec.x, y - vec.y, z - vec.z);
+			return { x - vec.x, y - vec.y, z - vec.z };
 		}
 
 		float& Vector3::operator[](const int& value)
