@@ -66,7 +66,7 @@ namespace Tristeon
 			* 
 			* \exception invalid_argument If the axis is higher than the dimensions supported by Vector3, or if it's below 0.
 			*/
-			float& getAxis(const int& axis);
+			float getAxis(const int& axis) const;
 			/**
 			* Returns a unit (length = 1) vector with the same direction as this vector.
 			*/
@@ -114,7 +114,7 @@ namespace Tristeon
 			/**
 			* Access the x, y, z components using [0], [1], [2] respectively.
 			 */
-			float& operator[](const int& value);
+			float operator[](const int& value) const;
 			bool operator==(const Vector3& vec) const;
 			bool operator!=(const Vector3& vec) const;
 			Vector3 operator*(const float& multiplier) const;
