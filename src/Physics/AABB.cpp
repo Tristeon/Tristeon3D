@@ -21,6 +21,15 @@ namespace Tristeon
 			return true;
 		}
 
+		bool AABB::AABBvsPoint(AABB a, Vector3 point)
+		{
+			if (point.x < a.min.x || point.x > a.max.x) return false;
+			if (point.y < a.min.y || point.y > a.max.y) return false;
+			if (point.z < a.min.z || point.z > a.max.z) return false;
+
+			return true;
+		}
+
 		std::string AABB::toString() const
 		{
 			return "Min: " + min.toString() + "\n\tMax: " + max.toString() + "\n";

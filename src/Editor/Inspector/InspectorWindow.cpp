@@ -1,5 +1,8 @@
 ﻿#include "Physics/BoxCollider.h"
 #include "Physics/RigidBody.h"
+#include "Physics/OctTreeManager.h"
+#include "Standard/FirstPersonCameraController.h"
+#include "Standard/CharacterController.h"
 #ifdef TRISTEON_EDITOR
 
 #include "InspectorWindow.h"
@@ -225,7 +228,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 
-	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody" };
+	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody", "OctTreeManager", "FirstPersonCameraController", "CharacterController" };
 
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -252,7 +255,18 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 				{
 					data["components"].push_back(Physics::RigidBody().serialize());
 				}
-
+				else if (i == 4)
+				{
+					data["components"].push_back(Physics::OctTreeManager().serialize());
+				}
+				else if (i == 5)
+				{
+					data["components"].push_back(Standard::FirstPersonCameraController().serialize());
+				}
+				else if (i == 6)
+				{
+					data["components"].push_back(Standard::CharacterController().serialize());
+				}
 			}
 		}
 		ImGui::EndPopup();

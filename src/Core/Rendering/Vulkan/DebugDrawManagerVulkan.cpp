@@ -51,6 +51,7 @@ namespace Tristeon
 					secondary.setViewport(0, 1, &data->viewport);
 					secondary.setScissor(0, 1, &data->scissor);
 					int i = 0;
+
 					while (!drawList.empty())
 					{
 						if (i >= materials.size())

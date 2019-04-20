@@ -4,6 +4,8 @@
 #include "Physics.h"
 #include "Core/GameObject.h"
 #include "Misc/Hardware/Keyboard.h"
+#include "Core/Rendering/DebugDrawManager.h"
+#include <chrono>
 
 namespace Tristeon
 {
@@ -59,7 +61,6 @@ namespace Tristeon
 
 		void RigidBody::start()
 		{
-			Physics::instance->rigidBodies.push_back(this);
 			collider = getComponent<BoxCollider>();
 
 			if (collider == nullptr)
@@ -72,10 +73,26 @@ namespace Tristeon
 			originalVel = velocity;
 		}
 
+		void RigidBody::init()
+		{
+			Component::init();
+			Physics::instance->addRigidbody(this);
+		}
+
 		std::vector<Collision> RigidBody::getCollisions(float timeLeft)
 		{
+			//static float totalTime = 0;
+			//static int iterations = 0;
+
+			//iterations++;
+			//auto start = std::chrono::system_clock::now();
+
+			std::vector<BoxCollider*> colliders = Physics::instance->getCollidersAlongVelocity(this);
+
+			//Physics::instance->consideredColliders += colliders.size();
+
 			std::vector<Collision> collisions;
-			for (BoxCollider* collider : Physics::instance->colliders)
+			for (BoxCollider* collider : colliders)
 			{
 				if (gameObject.get() == collider->gameObject.get() || !collider->gameObject.get()->isActive()) continue;
 				Collision col = Collision(this, collider, velocity*timeLeft);
@@ -83,8 +100,25 @@ namespace Tristeon
 				//if (collisions.size() > 4)
 				//	Misc::Console::error("Wut");
 				collisions.push_back(col);
+
 			}
 			sort(collisions.begin(), collisions.end(), &Physics::compareCollisionsByTimeStep);
+
+			//auto end = std::chrono::system_clock::now();
+			//std::chrono::duration<double> duration = end - start;
+			//totalTime += duration.count();
+			
+			//std::string debug;
+			//debug += "Collision check: ";
+			//debug += "Total colliders: " + std::to_string(Physics::instance->colliders.size()) + "\n";
+			//debug += "Considered colliders: " + std::to_string(colliders.size()) + "\n";
+			//debug += "Detected collisions: " + std::to_string(collisions.size()) + "\n";
+			//debug += "Time taken: " + std::to_string(duration.count()) + " seconds\n";
+			//debug += "Average time take: " + std::to_string(totalTime / iterations) + " seconds\n";
+
+			//Misc::Console::write(debug);
+			//Misc::Console::t_assert(totalTime < 30, "Time's up! Average time: " + std::to_string(totalTime / iterations));
+
 			return collisions;
 		}
 

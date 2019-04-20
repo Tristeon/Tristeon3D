@@ -42,14 +42,24 @@ namespace Tristeon
 				 * \exception runtime_error If msg.userData is null or if msg.userData can not successfuly cast to Component
 				 */
 				void deregisterComponent(Message msg);
+
+				void addRegisteredComponents();
+
 				vector<Component*> components;
+				vector<Component*> componentsToAdd;
+
+				bool inPlayMode = false;
 			};
 
 			template <void(Component::*func)()>
 			void ComponentManager::callFunction()
 			{
+				addRegisteredComponents(); //Components are sometimes created during "c->*func" so we register before and after the loop is done
+
 				for (Component* c : components)
 					(c->*func)();
+
+				addRegisteredComponents();
 			}
 		}
 	}

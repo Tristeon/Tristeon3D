@@ -51,10 +51,12 @@ namespace Tristeon
 			 */
 			std::vector<Vector3> getExtremes() const;
 
-			/**
-			*  The minimum and maximum of the collider
-			*/
-			AABB aabb;
+			AABB getAABB() const { return aabb; }
+
+			void init() override;
+
+			void updateAABB();
+
 			/**
 			 *  The center of the box, measured in the object's local space.
 			 */
@@ -89,9 +91,12 @@ namespace Tristeon
 			Misc::Delegate<Collision> onCollisionExit;
 		private:
 			/**
+			*  The minimum and maximum of the collider
+			*/
+			AABB aabb;
+			/**
 			* Update AABB positions
 			*/
-			void updateAABB();
 			void onGUI() override;
 
 			REGISTER_TYPE_H(BoxCollider)

@@ -38,9 +38,9 @@ namespace Tristeon
 			if (keepWorldTransform)
 			{
 				//Store old transformation
-				Math::Vector3 const oldGlobalPos = position.get();
-				Math::Vector3 const oldGlobalScale = scale.get();
-				Math::Quaternion const oldGlobalRot = rotation.get();
+				Vector3 const oldGlobalPos = position.get();
+				Vector3 const oldGlobalScale = scale.get();
+				Quaternion const oldGlobalRot = rotation.get();
 
 				this->parent = parent;
 
@@ -75,28 +75,37 @@ namespace Tristeon
 			parentID = parentIDValue;
 			_localPosition.deserialize(json["localPosition"]);
 			_localScale.deserialize(json["localScale"]);
-			Math::Vector3 eulerAngles;
+			Vector3 eulerAngles;
 			eulerAngles.deserialize(json["localRotation"]);
-			_localRotation = Math::Quaternion::euler(eulerAngles);
+			_localRotation = Quaternion::euler(eulerAngles);
 		}
 
-		Math::Vector3 Transform::transformPoint(Math::Vector3 point)
+		Vector3 Transform::transformPoint(Vector3 point)
 		{
-			glm::vec4 const res = glm::vec4(point.x, point.y, point.z, 1.0) * getTransformationMatrix();
-			return{ res.x, res.y, res.z };
+			Transform* par = this;
+			Quaternion res = rotation;
+			while (par->parent != nullptr)
+			{
+				res = par->parent->rotation.get() * res;
+				par = par->parent;
+			}
+
+			glm::mat4 m = glm::mat4(res.getGLMQuat());
+			glm::vec4 p = m * glm::vec4(point.x, point.y, point.z, 1.0);
+			return Vector3(p.x, p.y, p.z);
 		}
 
-		Math::Vector3 Transform::inverseTransformPoint(Math::Vector3 point)
+		Vector3 Transform::inverseTransformPoint(Vector3 point)
 		{
 			glm::vec4 const res = glm::vec4(point.x, point.y, point.z, 1.0) *  inverse(getTransformationMatrix());
 			return{ res.x, res.y, res.z };
 		}
 
-		void Transform::lookAt(Transform* target, Math::Vector3 up)
+		void Transform::lookAt(Transform* target, Vector3 up)
 		{
-			Math::Vector3 const pos = position.get();
-			Math::Vector3 const tar = target->position.get();
-			glm::mat4 const transf = glm::inverse(glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } ));
+			Vector3 const pos = position.get();
+			Vector3 const tar = target->position.get();
+			glm::mat4 const transf = inverse(glm::lookAt(glm::vec3(pos.x, pos.y, pos.z ), { tar.x, tar.y, tar.z }, { up.x, up.y, up.z } ));
 
 			glm::vec3 s, p;
 			glm::quat r;
@@ -104,25 +113,25 @@ namespace Tristeon
 			glm::vec4 persp;
 			decompose(transf, s, r, p, skew, persp);
 
-			rotation = Math::Quaternion(r);
+			rotation = Quaternion(r);
 		}
 
-		Math::Vector3 Transform::up()
+		Vector3 Transform::up()
 		{
-			return transformPoint(Math::Vector3::up);
+			return transformPoint(Vector3::up);
 		}
 
-		Math::Vector3 Transform::right()
+		Vector3 Transform::right()
 		{
-			return transformPoint(Math::Vector3::right);
+			return transformPoint(Vector3::right);
 		}
 
-		Math::Vector3 Transform::forward()
+		Vector3 Transform::forward()
 		{
-			return transformPoint(Math::Vector3::forward);
+			return transformPoint(Vector3::forward);
 		}
 
-		Math::Vector3 Transform::getGlobalPosition()
+		Vector3 Transform::getGlobalPosition()
 		{
 			if (parent == nullptr)
 				return _localPosition;
@@ -130,7 +139,7 @@ namespace Tristeon
 				return Vec_Convert3(getTransformationMatrix()[3]);
 		}
 
-		void Transform::setGlobalPosition(Math::Vector3 pos)
+		void Transform::setGlobalPosition(Vector3 pos)
 		{
 			if (parent == nullptr)
 				_localPosition = pos;
@@ -138,7 +147,7 @@ namespace Tristeon
 				_localPosition = parent->inverseTransformPoint(pos);
 		}
 
-		Math::Vector3 Transform::getGlobalScale()
+		Vector3 Transform::getGlobalScale()
 		{
 			if (parent == nullptr)
 				return _localScale;
@@ -157,7 +166,7 @@ namespace Tristeon
 			return Vec_Convert3(scale);
 		}
 
-		void Transform::setGlobalScale(Math::Vector3 scale)
+		void Transform::setGlobalScale(Vector3 scale)
 		{
 			if (parent == nullptr)
 				_localScale = scale;
@@ -177,11 +186,11 @@ namespace Tristeon
 				//x = goal / parent //Which means that we can define x as this
 				//so
 				//_localScale = scale / parent
-				_localScale = scale / Math::Vector3(s.x, s.y, s.z);
+				_localScale = scale / Vector3(s.x, s.y, s.z);
 			}
 		}
 
-		Math::Quaternion Transform::getGlobalRotation()
+		Quaternion Transform::getGlobalRotation()
 		{
 			if (parent == nullptr)
 				return _localRotation;
@@ -197,10 +206,10 @@ namespace Tristeon
 			glm::vec4 perspective;
 			decompose(trans, scale, rotation, translation, skew, perspective);
 
-			return Math::Quaternion(rotation);
+			return Quaternion(rotation);
 		}
 
-		void Transform::setGlobalRotation(Math::Quaternion rot)
+		void Transform::setGlobalRotation(Quaternion rot)
 		{
 			if (parent == nullptr)
 				_localRotation = rot;
@@ -228,7 +237,7 @@ namespace Tristeon
 
 				//Local rotation
 				glm::quat const local = rotation;
-				_localRotation = Math::Quaternion(local);
+				_localRotation = Quaternion(local);
 			}
 		}
 
@@ -248,19 +257,19 @@ namespace Tristeon
 			return t * r * s * p;
 		}
 
-		void Transform::rotate(Math::Vector3 axis, float rot)
+		void Transform::rotate(Vector3 axis, float rot)
 		{
 			rotation = rotation.get().rotate(axis, rot);
 		}
 
-		void Transform::translate(Math::Vector3 t)
+		void Transform::translate(Vector3 t)
 		{
-			localPosition = localPosition.get() + t;
+			_localPosition += transformPoint(t);
 		}
 
 		void Transform::translate(float x, float y, float z)
 		{
-			translate(Math::Vector3(x, y, z));
+			translate(Vector3(x, y, z));
 		}
 
 		Transform* Transform::getParent() const

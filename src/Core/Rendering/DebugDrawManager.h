@@ -5,6 +5,10 @@
 
 namespace Tristeon
 {
+	namespace Physics {
+		class AABB;
+	}
+
 	namespace Math { struct Vector3; }
 
 	namespace Core
@@ -44,6 +48,14 @@ namespace Tristeon
 				 */
 				static void addSphere(const Math::Vector3& center, float radius, float lineWidth, const Misc::Color& color, int circles = 4, int resolution = 15);
 				
+				/**
+				 *  Adds an AABB to the drawlist
+				 * \param aabb the AABB
+				 * \param lineWidth the width of the lines
+				 * \param color the color of the AABB
+				 */
+				static void addAABB(const Physics::AABB& aabb, float lineWidth, const Misc::Color& color);
+
 				/**
 				 * The deconstructor of DebugDrawManager, has to be virtual to allow for correct destruction
 				 */

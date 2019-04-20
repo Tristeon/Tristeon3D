@@ -38,6 +38,7 @@ namespace Tristeon
 			MT_WINDOW_RESIZE,
 
 			MT_SHARE_DATA,
+			MT_ONGUI,
 		};
 
 		/**

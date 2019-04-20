@@ -31,5 +31,10 @@ namespace Tristeon
 			b = json["b"];
 			a = json["a"];
 		}
+
+		bool Color::operator==(Color other) const
+		{
+			return other.r == r && other.g == g && other.b == b && other.a == a;
+		}
 	}
 }

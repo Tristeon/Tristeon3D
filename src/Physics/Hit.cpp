@@ -12,8 +12,10 @@ namespace Tristeon
 			//by resizing the box b by the size of box a and then putting box a 1 step back and "raycasting"
 			//the velocity to see which side it hits into and what point of the box it hits into
 
-			Vector3 const offset = a->aabb.max - a->aabb.min;
-			AABB const scaledBCollider(b->aabb.min - offset / 2, b->aabb.max + offset / 2);
+			AABB const aabbA = a->getAABB();
+			AABB const aabbB = b->getAABB();
+			Vector3 const offset = aabbA.max - aabbA.min;
+			AABB const scaledBCollider(aabbB.min - offset / 2, aabbB.max + offset / 2);
 
 			Vector3 const previousPosition = a->getPosition() - vel;
 			int collidingSide = -1;
@@ -24,8 +26,8 @@ namespace Tristeon
 			failed = !ray.lineAABBIntersection(scaledBCollider, pointOfImpact, vel.getLength(), f_low);
 			resultantVectorScale = 1 - f_low;
 
-			Vector3 min = b->aabb.min;
-			Vector3 max = b->aabb.max;
+			Vector3 const min = aabbB.min;
+			Vector3 const max = aabbB.max;
 
 			float const approximation = 0.001;
 			//TODO: Apply small tolerance if float points do not round properly to zero

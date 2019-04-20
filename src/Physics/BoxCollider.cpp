@@ -66,7 +66,6 @@ namespace Tristeon
 
 		void BoxCollider::start()
 		{
-			Physics::instance->colliders.push_back(this);
 			updateAABB();
 		}
 
@@ -98,6 +97,15 @@ namespace Tristeon
 			return extremes;
 		}
 
+		void BoxCollider::init()
+		{
+			Component::init();
+
+			updateAABB();
+
+			Physics::instance->addCollider(this);
+		}
+
 		void BoxCollider::updateAABB()
 		{
 			Vector3 const size = this->size * transform.get()->scale;
@@ -107,7 +115,7 @@ namespace Tristeon
 
 		void BoxCollider::onGUI()
 		{
-			Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(0, 1, 0, 1));
+			//Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(0, 1, 0, 1));
 		}
 
 		void BoxCollider::update()

@@ -11,6 +11,15 @@ namespace Tristeon
 		{
 		}
 
+		Collision::Collision(RigidBody* rb, AABB aabb, Vector3 vel)
+		{
+			movingCollider = rb->collider;
+
+			if (vel.getLength() == 0) return;
+
+			calculateCollision(rb->collider->getAABB(), aabb, vel, false);
+		}
+
 		Collision::Collision(RigidBody* rb, BoxCollider* collider, Vector3 vel)
 		{
 			movingCollider = rb->collider;
@@ -18,9 +27,20 @@ namespace Tristeon
 
 			if (vel.getLength() == 0) return;
 
-			AABB a = movingCollider->aabb;
-			AABB b = staticCollider->aabb;
+			AABB a = movingCollider->getAABB();
+			AABB b = staticCollider->getAABB();
 
+			calculateCollision(a, b,vel, true);
+		}
+
+		Collision::~Collision()
+		{
+			movingCollider = nullptr;
+			staticCollider = nullptr;
+		}
+
+		void Collision::calculateCollision(AABB a, AABB b, Vector3 vel, bool failOnZeroNormal)
+		{
 			Vector3 const offset = a.max - a.min;
 			AABB const scaledBCollider(b.min - offset / 2, b.max + offset / 2);
 
@@ -30,7 +50,6 @@ namespace Tristeon
 
 			float f_low = -1;
 			failed = !ray.lineAABBIntersection(scaledBCollider, point, vel.getLength(), f_low);
-			//if (failed && AABB::AABBvsAABB(AABB(ray.origin + vel, ray.origin + vel), scaledBCollider)) Debug::logError("Fck my life");
 			timeStep = f_low;
 			if (failed) return;
 
@@ -38,9 +57,6 @@ namespace Tristeon
 			Vector3 const max = scaledBCollider.max;
 
 			float const approximation = 0.001;
-
-			Vector3 impactNormal = point - rb->transform.get()->position.get();
-			impactNormal.normalize();
 
 			//Apply small tolerance if float points do not round properly to zero
 			if (abs(min.x - point.x) < approximation) collidingSide = ES_Front;
@@ -55,7 +71,8 @@ namespace Tristeon
 			case -1:
 				//if (vel.getLength() != 0 && !collider->isTrigger) Debug::logError("Collided side couldn't be found");
 				normal = Vector3::zero;
-				failed = true;
+				if (failOnZeroNormal)
+					failed = true;
 				break;
 			case ES_Top:
 				normal = Vector3::up;
@@ -78,12 +95,6 @@ namespace Tristeon
 			default:
 				break;
 			}
-		}
-
-		Collision::~Collision()
-		{
-			movingCollider = nullptr;
-			staticCollider = nullptr;
 		}
 	}
 }

@@ -28,6 +28,8 @@ namespace Tristeon
 			nlohmann::json serialize() override; 
 			nlohmann::json serialize_const() const;
 			void deserialize(nlohmann::json json) override;
+
+			bool operator==(Color other) const;
 		};
 
 		//Override functions for json maps/vectors

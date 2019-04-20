@@ -32,6 +32,7 @@ namespace Tristeon
 			void deserialize(nlohmann::json json) override;
 
 			void start() override;
+			void init() override;
 			std::vector<Collision> getCollisions(float timeLeft);
 
 			Hit generateHit(BoxCollider* collider) const;
@@ -75,7 +76,6 @@ namespace Tristeon
 			void move(float timeLeft);
 			void Reset();
 			void update() override;
-
 			std::vector<BoxCollider*> collidingObjects;
 			std::vector<BoxCollider*> previousCollidingObjects;
 

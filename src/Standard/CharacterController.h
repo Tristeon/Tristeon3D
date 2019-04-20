@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Core/Components/Component.h"
+#include <Editor/TypeRegister.h>
 
 namespace Tristeon
 {
@@ -13,6 +14,8 @@ namespace Tristeon
 			void update() override;
 		private:
 			float speed = 10;
+
+			REGISTER_TYPE_H(CharacterController);
 		};
 	}
 }

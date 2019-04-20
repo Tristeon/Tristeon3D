@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include "Collision.h"
+#include "OctTree.h"
 
 namespace Tristeon
 {
@@ -14,11 +15,10 @@ namespace Tristeon
 			friend BoxCollider;
 		public:
 			static Physics* instance;
-			std::vector<RigidBody*> rigidBodies;
-			std::vector<BoxCollider*> colliders;
 
 			Physics();
 			~Physics();
+
 			/**
 			 * Call update for physics calculations and collision checks
 			 */
@@ -32,13 +32,28 @@ namespace Tristeon
 			bool raycast(Ray ray, Vector3& hit, float raylength);
 			bool raycast(Ray ray, Vector3& hit, Core::GameObject*& obj, float raylength);
 
+			void addRigidbody(RigidBody* rb);
+			void addCollider(BoxCollider* collider);
+
+			std::vector<BoxCollider*> getCollidersAlongVelocity(RigidBody* rb);
+
 			bool enableTimeStep = false;
+
+			int consideredColliders = 0; // DEBUG
+			int collisionCount = 0; // DEBUG
+
 		private:
 			void reset();
+
+			std::vector<OctNode*> getCollidingPartitions(RigidBody* rb, OctNode* node);
 
 			static bool compareCollisionsByTimeStep(Collision col1, Collision col2);
 			void remove(RigidBody* rb);
 			void remove(BoxCollider* collider);
+
+			std::unique_ptr<OctTree> octTree;
+			std::vector<RigidBody*> rigidBodies;
+			std::vector<BoxCollider*> colliders;
 		};
 	}
 }

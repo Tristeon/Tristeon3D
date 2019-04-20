@@ -227,13 +227,13 @@ namespace Tristeon
 				void RenderManager::createDescriptorPool()
 				{
 					//UBO Buffer
-					vk::DescriptorPoolSize const poolUniform = vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, materials.size()*10 + 1000);
+					vk::DescriptorPoolSize const poolUniform = vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 100000);
 					//Samplers
-					vk::DescriptorPoolSize const poolSampler = vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, materials.size() + 1000);
+					vk::DescriptorPoolSize const poolSampler = vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 100000);
 
 					//Create pool
 					std::array<vk::DescriptorPoolSize, 2> poolSizes = { poolUniform, poolSampler };
-					vk::DescriptorPoolCreateInfo poolInfo = vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, materials.size() + 1000*11, poolSizes.size(), poolSizes.data());
+					vk::DescriptorPoolCreateInfo poolInfo = vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, 100000, poolSizes.size(), poolSizes.data());
 					vk::Result const r = vkContext->getDevice().createDescriptorPool(&poolInfo, nullptr, &descriptorPool);
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create descriptor pool: " + to_string(r));
 					

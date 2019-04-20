@@ -3,11 +3,14 @@
 #include "Misc/Hardware/Keyboard.h"
 #include "Misc/Hardware/Time.h"
 #include "XPlatform/typename.h"
+#include "Core/Components/Camera.h"
 
 namespace Tristeon
 {
 	namespace Standard
 	{
+		REGISTER_TYPE_CPP(CharacterController)
+
 		nlohmann::json CharacterController::serialize()
 		{
 			nlohmann::json j;

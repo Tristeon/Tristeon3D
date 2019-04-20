@@ -89,6 +89,7 @@ namespace Tristeon
 				if (window->width.get() != 0 && window->height.get() != 0)
 				{
 					MessageBus::sendMessage(MT_PRERENDER);
+					MessageBus::sendMessage(MT_ONGUI);
 					MessageBus::sendMessage(MT_RENDER);
 					MessageBus::sendMessage(MT_POSTRENDER);
 

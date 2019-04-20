@@ -1,6 +1,7 @@
 ﻿#include "DebugDrawManager.h"
 #include <cmath>
 #include <glm/gtc/constants.inl>
+#include "Physics/AABB.h"
 
 namespace Tristeon
 {
@@ -134,6 +135,11 @@ namespace Tristeon
 				}
 
 				instance->drawList.push(mesh);
+			}
+
+			void DebugDrawManager::addAABB(const Physics::AABB& aabb, float lineWidth, const Misc::Color& color)
+			{
+				addCube(aabb.min, aabb.max, lineWidth, color);
 			}
 
 			void DebugDrawManager::clear()

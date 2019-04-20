@@ -61,8 +61,8 @@ namespace Tristeon
 				//which was serialized using its unique ID thus to retrieve the type.
 				auto serializable = TypeRegister::createInstance(serializedComponent["typeID"]);
 				Components::Component* component = (Components::Component*) serializable.get();
-				component->init();
 				component->setup(this);
+				component->init();
 				serializable.release();
 				std::unique_ptr<Components::Component> sharedComponent(component);
 				sharedComponent->deserialize(serializedComponent);
