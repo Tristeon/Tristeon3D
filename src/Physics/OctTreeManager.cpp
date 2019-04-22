@@ -42,6 +42,7 @@ namespace Tristeon
 			randomPos.z -= size / 2.0f;
 			BoxCollider* collider = gameObject->addComponent<BoxCollider>();
 			collider->init();
+			collider->isTrigger = true;
 			collider->size = randomSize;
 			collider->transform.get()->position = randomPos;
 			gameObject->transform.get()->position = randomPos;

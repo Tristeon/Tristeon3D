@@ -28,7 +28,7 @@ namespace Tristeon
 				break;
 			}
 
-			if (foundNode == nullptr) colliders.push_back(collider);
+			if (foundNode == nullptr) appendCollider(collider);
 			else foundNode->addCollider(collider);
 		}
 
@@ -36,7 +36,10 @@ namespace Tristeon
 		{
 			std::vector<BoxCollider*>::iterator const itr = find(colliders.begin(), colliders.end(), collider);
 			if (itr != std::end(colliders))
+			{
 				colliders.erase(itr);
+				colliderCount--;
+			}
 			else
 			{
 				for (int i = 0; i < subNodes.size(); ++i)
@@ -52,10 +55,10 @@ namespace Tristeon
 			return output;
 		}
 
-		void OctNode::subDivide(int depth)
+		void OctNode::subDivide()
 		{
 			subNodes = std::vector<std::unique_ptr<OctNode>>(8);
-			for (int i = 0; i < subNodes.size(); ++i)
+			for (int i = 0; i < 8; ++i)
 			{
 				Vector3 newPos = position;
 
@@ -76,7 +79,6 @@ namespace Tristeon
 
 				subNodes[i] = std::make_unique<OctNode>(newPos, size * 0.5f);
 				subNodes[i]->parent = this;
-				if (depth > 0) subNodes[i]->subDivide(depth - 1);
 			}
 		}
 
@@ -99,6 +101,31 @@ namespace Tristeon
 			index |= position.z > this->position.z ? 1 : 0;
 
 			return index;
+		}
+
+		void OctNode::appendCollider(BoxCollider* collider)
+		{
+			colliders.push_back(collider);
+			colliderCount++;
+
+			//Subdivide if needed
+			if (subNodes.size() == 0)
+			{
+				if (colliders.size() > 2)
+				{
+					//Clear and cache current colliders
+					std::vector<BoxCollider*> colliders = std::vector<BoxCollider*>(this->colliders);
+					this->colliders = {};
+					colliderCount = 0;
+
+					//Subdivide this node
+					subDivide();
+
+					//Add colliders
+					for (BoxCollider* col : colliders)
+						addCollider(col);
+				}
+			}
 		}
 	}
 }

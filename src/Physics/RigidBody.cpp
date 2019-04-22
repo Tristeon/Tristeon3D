@@ -81,11 +81,11 @@ namespace Tristeon
 
 		std::vector<Collision> RigidBody::getCollisions(float timeLeft)
 		{
-			//static float totalTime = 0;
-			//static int iterations = 0;
-
-			//iterations++;
-			//auto start = std::chrono::system_clock::now();
+			static float totalTime = 0;
+			static float totalColliders = 0;
+			static int iterations = 0;
+			iterations++;
+			auto start = std::chrono::system_clock::now();
 
 			std::vector<BoxCollider*> colliders = Physics::instance->getCollidersAlongVelocity(this);
 
@@ -104,20 +104,22 @@ namespace Tristeon
 			}
 			sort(collisions.begin(), collisions.end(), &Physics::compareCollisionsByTimeStep);
 
-			//auto end = std::chrono::system_clock::now();
-			//std::chrono::duration<double> duration = end - start;
-			//totalTime += duration.count();
+			auto end = std::chrono::system_clock::now();
+			std::chrono::duration<double> duration = end - start;
+			totalTime += duration.count();
+			totalColliders += colliders.size();
 			
-			//std::string debug;
-			//debug += "Collision check: ";
-			//debug += "Total colliders: " + std::to_string(Physics::instance->colliders.size()) + "\n";
-			//debug += "Considered colliders: " + std::to_string(colliders.size()) + "\n";
-			//debug += "Detected collisions: " + std::to_string(collisions.size()) + "\n";
-			//debug += "Time taken: " + std::to_string(duration.count()) + " seconds\n";
-			//debug += "Average time take: " + std::to_string(totalTime / iterations) + " seconds\n";
+			std::string debug;
+			debug += "Collision check: ";
+			debug += "Total colliders: " + std::to_string(Physics::instance->colliders.size()) + "\n";
+			debug += "Considered colliders: " + std::to_string(colliders.size()) + "\n";
+			debug += "Detected collisions: " + std::to_string(collisions.size()) + "\n";
+			debug += "Time taken: " + std::to_string(duration.count()) + " seconds\n";
+			debug += "Average time take: " + std::to_string(totalTime / iterations) + " seconds\n";
+			debug += "Average considered colliders: " + std::to_string(totalColliders / iterations) + " colliders\n";
 
-			//Misc::Console::write(debug);
-			//Misc::Console::t_assert(totalTime < 30, "Time's up! Average time: " + std::to_string(totalTime / iterations));
+			Misc::Console::write(debug);
+			Misc::Console::t_assert(totalTime < 30, "Time's up! Average time: " + std::to_string(totalTime / iterations));
 
 			return collisions;
 		}

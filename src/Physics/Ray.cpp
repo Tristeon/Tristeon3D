@@ -80,8 +80,7 @@ namespace Tristeon
 
 		Ray::Ray(Vector3 origin, Vector3 direction) : origin(origin), direction(direction)
 		{
-			//if (direction != Vector3::zero)this->direction.normalize();
-			if (direction.getLength() > 0) this->direction.normalize();
+			this->direction.normalize();
 		}
 	}
 }

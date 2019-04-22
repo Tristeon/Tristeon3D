@@ -31,7 +31,7 @@ namespace Tristeon
 			std::vector<BoxCollider*> colliders;
 
 			AABB getBoundary() const;
-			void subDivide(int depth = 0);
+			void subDivide();
 			bool isLeaf() const;
 			bool isRoot() const;
 			int getIndexOfPosition(Vector3 position) const;
@@ -39,8 +39,10 @@ namespace Tristeon
 			std::vector<std::unique_ptr<OctNode>> subNodes;
 			OctNode* parent = nullptr;
 		private:
+			void appendCollider(BoxCollider* collider);
 			Vector3 position;
 			float size;
+			int colliderCount = 0;
 		};
 	}
 }

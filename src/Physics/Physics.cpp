@@ -21,7 +21,7 @@ namespace Tristeon
 			colliders = std::vector<BoxCollider*>();
 			instance = this;
 
-			octTree = std::make_unique<OctTree>(100, 2);
+			octTree = std::make_unique<OctTree>(100);
 
 			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_FIXEDUPDATE, [&](Core::Message m) { update(); });
 			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_MANAGER_RESET, [&](Core::Message m) { reset(); });
@@ -240,7 +240,7 @@ namespace Tristeon
 		{
 			colliders.clear();
 			rigidBodies.clear();
-			octTree = std::make_unique<OctTree>(100, 2);
+			octTree = std::make_unique<OctTree>(100);
 		}
 
 		std::vector<OctNode*> Physics::getCollidingPartitions(RigidBody* rb, OctNode* node)

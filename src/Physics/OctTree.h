@@ -11,21 +11,19 @@ namespace Tristeon
 		class OctTree
 		{
 		public:
-			OctTree(float size, int depth);
+			OctTree(float size);
 
 			void addCollider(BoxCollider* collider);
 			void removeCollider(BoxCollider* collider);
 			void onGUI();
-			int getDepth() const { return depth; }
 
 			std::unique_ptr<OctNode> rootNode = nullptr;
 
 		private:
-			void drawNode(OctNode* node, int depth);
+			void drawNode(OctNode* node);
 
 			Vector3 position;
 			float size;
-			int depth;
 		};
 	}
 }

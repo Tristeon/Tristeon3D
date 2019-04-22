@@ -114,8 +114,11 @@ namespace Tristeon
 		}
 
 		void BoxCollider::onGUI()
-		{
-			//Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(0, 1, 0, 1));
+		{/*
+			if (isTrigger)
+				Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(1, 0, 0, 1));
+			else 
+				Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(0, 1, 0, 1));*/
 		}
 
 		void BoxCollider::update()
