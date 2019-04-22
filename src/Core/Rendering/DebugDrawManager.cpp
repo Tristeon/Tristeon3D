@@ -9,15 +9,21 @@ namespace Tristeon
 	{
 		namespace Rendering
 		{
-			DebugDrawManager* DebugDrawManager::instance;
+			DebugDrawManager* DebugDrawManager::instance = nullptr;
 
 			void DebugDrawManager::addLine(const Vector3& from, const Vector3& to, float width, const Misc::Color& color)
 			{
-				instance->drawList.push(DebugMesh(std::vector<Data::Vertex>{ Data::Vertex(from), Data::Vertex(to)}, width, color));
+				if (instance == nullptr)
+					return;
+
+				instance->drawList[color][width].push(DebugMesh(std::vector<Data::Vertex>{ Data::Vertex(from), Data::Vertex(to)}, width, color));
 			}
 
 			void DebugDrawManager::addCube(const Vector3& min, const Vector3& max, float lineWidth, const Misc::Color& color)
 			{
+				if (instance == nullptr)
+					return;
+
 				//Rect coords 1
 				Vector3 const bl1 = min;
 				Vector3 const tl1 = Vector3(min.x, max.y, min.z);
@@ -70,11 +76,14 @@ namespace Tristeon
 				mesh.vertices.push_back(Data::Vertex(br1));
 				mesh.vertices.push_back(Data::Vertex(br2));
 
-				instance->drawList.push(mesh);
+				instance->drawList[color][lineWidth].push(mesh);
 			}
 
 			void DebugDrawManager::addSphere(const Vector3& center, float r, float lineWidth, const Misc::Color& color, int circles, int resolution)
 			{
+				if (instance == nullptr)
+					return;
+
 				float const PI = 3.14159265f;
 				std::vector<Vector3> positions;
 
@@ -134,7 +143,7 @@ namespace Tristeon
 					mesh.vertices.push_back(end);
 				}
 
-				instance->drawList.push(mesh);
+				instance->drawList[color][lineWidth].push(mesh);
 			}
 
 			void DebugDrawManager::addAABB(const Physics::AABB& aabb, float lineWidth, const Misc::Color& color)
@@ -142,9 +151,20 @@ namespace Tristeon
 				addCube(aabb.min, aabb.max, lineWidth, color);
 			}
 
+			void DebugDrawManager::addLineMesh(const Data::SubMesh& mesh, float lineWidth, const Misc::Color& color)
+			{
+				if (instance == nullptr)
+					return;
+
+				instance->drawList[color][lineWidth].push(DebugMesh(mesh.vertices, lineWidth, color));
+			}
+
 			void DebugDrawManager::clear()
 			{
-				instance->drawList = std::queue<DebugMesh>();
+				if (instance == nullptr)
+					return;
+
+				instance->drawList = {};
 			}
 		}
 	}

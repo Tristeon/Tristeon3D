@@ -12,7 +12,8 @@ namespace Tristeon
 		{
 			explicit Color(float r = 1, float g = 1, float b = 1, float a = 1);
 			Color(const Color& c);
-
+			Color(const Color&& c) noexcept;
+			void operator=(Color other);
 			/**
 			 * Converts the color data to an array of 4 floats
 			 */
@@ -41,4 +42,25 @@ namespace Tristeon
 			p.deserialize(j);
 		}
 	}
+}
+
+namespace std {
+
+	template <>
+	struct hash<Tristeon::Misc::Color>
+	{
+		std::size_t operator()(const Tristeon::Misc::Color& color) const
+		{
+			using std::size_t;
+			using std::hash;
+
+			size_t res = 17;
+			res = res * 31 + hash<float>()(color.r);
+			res = res * 31 + hash<float>()(color.g);
+			res = res * 31 + hash<float>()(color.b);
+			res = res * 31 + hash<float>()(color.a);
+			return res;
+		}
+	};
+
 }

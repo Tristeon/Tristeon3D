@@ -50,51 +50,69 @@ namespace Tristeon
 					//Viewport/scissor
 					secondary.setViewport(0, 1, &data->viewport);
 					secondary.setScissor(0, 1, &data->scissor);
-					int i = 0;
 
-					while (!drawList.empty())
+					size_t materialIndex = 0;
+					size_t meshIndex = 0;
+					
+					//Separate by color. Each color gets a separate material
+					for (const auto& colorSet : drawList)
 					{
-						if (i >= materials.size())
-							addMaterial();
-						Material* m = materials[i].get();
+						Misc::Color const color = colorSet.first;
 
+						//Get material, add new one if necessary
+						if (materialIndex >= materials.size())
+							addMaterial();
+						Material* m = materials[materialIndex].get();
+						materialIndex++;
+						
+						//Apply material properties
 						secondary.bindPipeline(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipeline());
 
 						vk::DescriptorSet sets[] = { set, m->set };
 						secondary.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m->pipeline->getPipelineLayout(), 0, 2, sets, 0, nullptr);
 
-						DebugMesh const drawElement = drawList.front();
-
-						m->setColor("Color.color", drawElement.color);
+						m->setColor("Color.color", color);
 						m->setActiveUniformBufferMemory(uniformBuffer->getDeviceMemory());
 						m->render(model, data->view, data->projection);
 
-						Data::SubMesh mesh;
-						mesh.vertices = drawElement.vertices;
+						//Separate by width, each width gets a separate vertexbuffer
+						for (const auto& widthSet : colorSet.second)
+						{
+							std::queue<DebugMesh> meshes = widthSet.second;
+							float const width = widthSet.first;
 
-						if (i >= vertexBuffers.size())
-							vertexBuffers.push_back(nullptr);
-						createVertexBuffer(mesh, i);
+							//Combine meshes with the same color and width
+							while (!meshes.empty())
+							{
+								std::vector<Data::Vertex> vertices = meshes.front().vertices;
+								meshes.pop();
 
-						vk::DeviceSize offsets[1] = { 0 };
-						vk::Buffer vertex = vertexBuffers[i]->getBuffer();
-						secondary.bindVertexBuffers(0, 1, &vertex, offsets);
+								//Send vertex data to the GPU
+								if (meshIndex >= vertexBuffers.size())
+									vertexBuffers.push_back(nullptr);
+								BufferVulkan* buffer = createVertexBuffer(vertices, meshIndex);
+								if (buffer == nullptr) continue;
+								meshIndex++;
 
-						//Line width
-						secondary.setLineWidth(drawElement.width);
+								vk::DeviceSize offsets[1] = { 0 };
+								vk::Buffer vertex = buffer->getBuffer();
+								secondary.bindVertexBuffers(0, 1, &vertex, offsets);
 
-						//Draw
-						secondary.draw((uint32_t)mesh.vertices.size(), 1, 0, 0);
+								//Update line width
+								secondary.setLineWidth(width);
 
-						drawList.pop();
-
-						i++;
+								//Draw
+								secondary.draw((uint32_t)vertices.size(), 1, 0, 0);
+							}
+						}
 					}
 
 					//Stop secondary cmd buffer
 					secondary.end();
 
 					data->lastUsedSecondaryBuffer = cmd;
+
+					clear();
 				}
 
 				void DebugDrawManager::createDescriptorSets()
@@ -137,18 +155,17 @@ namespace Tristeon
 						pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
 				}
 
-				void DebugDrawManager::createVertexBuffer(Data::SubMesh mesh, int i)
+				BufferVulkan* DebugDrawManager::createVertexBuffer(std::vector<Data::Vertex> vertices, int i)
 				{
-					vk::DeviceSize const size = sizeof(Data::Vertex) * mesh.vertices.size();
+					vk::DeviceSize const size = sizeof(Data::Vertex) * vertices.size();
 					if (size == 0)
-						return;
-
-					BufferVulkan staging = BufferVulkan(size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-					staging.copyFromData(mesh.vertices.data());
+						return nullptr;
 
 					if (!vertexBuffers[i])
-						vertexBuffers[i] = std::make_unique<BufferVulkan>(size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-					vertexBuffers[i]->copyFromBuffer(staging.getBuffer(), VulkanBindingData::getInstance()->commandPool, VulkanBindingData::getInstance()->graphicsQueue);
+						vertexBuffers[i] = std::make_unique<BufferVulkan>(size, vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					vertexBuffers[i]->copyFromData(vertices.data());
+
+					return vertexBuffers[i].get();
 				}
 
 				void DebugDrawManager::addMaterial()

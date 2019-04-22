@@ -63,3 +63,4 @@ bin/[Rr]elease/
 *.lib
 .vs/
 x64/
+*.lastcodeanalysissucceeded

@@ -48,10 +48,10 @@ namespace Tristeon
 
 					/**
 					 * Creates a new vertex buffer in vertexBuffers[i] with the given mesh. Removes the old vertexbuffer at vertexBuffers[i].
-					 * \param mesh The mesh data that is to be sent to the GPU
+					 * \param vertices The vertex data that is to be sent to the GPU
 					 * \param i The index of the vertex buffer
 					 */
-					void createVertexBuffer(Data::SubMesh mesh, int i);
+					BufferVulkan* createVertexBuffer(std::vector<Data::Vertex> vertices, int i);
 					void addMaterial();
 					void createDescriptorSets();
 
