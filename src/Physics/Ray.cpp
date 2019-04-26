@@ -7,9 +7,6 @@ namespace Tristeon
 	{
 		bool Ray::lineAABBIntersection(AABB aabb, Vector3& intersectionPoint, float rayLength) const
 		{
-			//If the ray is not pointing towards the object return false
-			if (direction.dot(aabb.getPosition() - origin) < 0) return false;
-
 			float f_low = 0;
 			float f_high = 1;
 
@@ -32,9 +29,6 @@ namespace Tristeon
 
 		bool Ray::lineAABBIntersection(AABB aabb, Vector3& intersectionPoint, float rayLength, float& f_low) const
 		{
-			//If the ray is not pointing towards the object return false
-			//if (direction.dot(aabb.getPosition() - origin) < 0) return false;
-
 			f_low = 0;
 			float f_high = 1;
 

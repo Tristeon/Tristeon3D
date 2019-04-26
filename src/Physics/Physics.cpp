@@ -7,7 +7,6 @@
 #include "Misc/Hardware/Keyboard.h"
 #include "Core/GameObject.h"
 #include "Core/MessageBus.h"
-#include <chrono>
 
 namespace Tristeon
 {
@@ -20,6 +19,8 @@ namespace Tristeon
 			rigidBodies = std::vector<RigidBody*>();
 			colliders = std::vector<BoxCollider*>();
 			instance = this;
+
+			workQueue = std::make_unique<Misc::WorkQueue>();
 
 			octTree = std::make_unique<OctTree>(100);
 
@@ -44,14 +45,6 @@ namespace Tristeon
 
 		void Physics::update()
 		{
-			//static float totalTime = 0;
-			//static int iterations = 0;
-
-			//consideredColliders = 0;
-			//collisionCount = 0;
-			//iterations++;
-			//auto start = std::chrono::system_clock::now();
-
 			if (Misc::Keyboard::getKeyDown(Misc::T)) enableTimeStep = !enableTimeStep;
 			if (enableTimeStep && !Misc::Keyboard::getKeyDown(Misc::F)) return;
 
@@ -72,10 +65,9 @@ namespace Tristeon
 				{
 					std::vector<Collision> collisions = rb->getCollisions(timeLeft); //sweep check
 
-					collisionCount += collisions.size();
-
 					bool collision = false;
-					for (Collision col : collisions)
+
+					for (auto col : collisions)
 					{
 						if (col.staticCollider->isTrigger)
 						{
@@ -107,20 +99,6 @@ namespace Tristeon
 					iterations++;
 				}
 			}
-
-			//auto end = std::chrono::system_clock::now();
-			//std::chrono::duration<double> duration = end - start;
-			//totalTime += duration.count();
-
-			//std::string debug;
-			//debug += "Total colliders: " + std::to_string(Physics::instance->colliders.size()) + "\n";
-			//debug += "Considered colliders: " + std::to_string(consideredColliders) + "\n";
-			//debug += "Detected collisions: " + std::to_string(collisionCount) + "\n";
-			//debug += "Time taken: " + std::to_string(duration.count()) + " seconds\n";
-			//debug += "Average time take: " + std::to_string(totalTime / iterations) + " seconds\n";
-
-			//Misc::Console::write(debug);
-			//Misc::Console::t_assert(totalTime < 30, "Time's up! Average time: " + std::to_string(totalTime / iterations));
 		}
 
 		bool Physics::raycast(Ray ray)
@@ -224,14 +202,15 @@ namespace Tristeon
 			octTree->addCollider(collider);
 		}
 
-		std::vector<BoxCollider*> Physics::getCollidersAlongVelocity(RigidBody* rb)
+		std::vector<ColliderData> Physics::getCollidersAlongVelocity(RigidBody* rb)
 		{
 			OctNode* node = octTree->rootNode.get();
 			auto partitions = getCollidingPartitions(rb, node);
-			std::vector<BoxCollider*> output;
+			std::vector<ColliderData> output;
 			for (auto partition : partitions)
 			{
-				output.insert(output.begin(), partition->colliders.begin(), partition->colliders.end());
+				auto partitionColliders = partition->colliders;
+				output.insert(output.end(), partitionColliders.begin(), partitionColliders.end());
 			}
 			return output;
 		}

@@ -4,6 +4,9 @@
 #include <vector>
 #include "Collision.h"
 #include "Core/Components/Component.h"
+#include <mutex>
+#include "Physics.h"
+#include <atomic>
 
 /**
  * Option for how to apply a force using Rigidbody.addForce
@@ -71,6 +74,22 @@ namespace Tristeon
 			Vector3 gravity;
 			float drag;
 		private:
+			struct CollisionThreadData
+			{
+				std::vector<ColliderData>* colliders;
+				int index;
+				int range;
+				Vector3 velLeft;
+				std::vector<Collision>* collisions;
+				std::mutex* collision_lock;
+
+				CollisionThreadData() : colliders(nullptr), index(0), range(0), collisions(nullptr), collision_lock(nullptr) { }
+			};
+
+			void calculateCollisions(std::vector<ColliderData>* colliderData, 
+				int index, int range, Vector3 velLeft, 
+				std::vector<Collision>* collisions, std::mutex* mutex);
+
 			void resolveCollision(Collision col);
 			void clearCollidingObjects();
 			void move(float timeLeft);

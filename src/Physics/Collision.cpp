@@ -56,7 +56,7 @@ namespace Tristeon
 			Vector3 const min = scaledBCollider.min;
 			Vector3 const max = scaledBCollider.max;
 
-			float const approximation = 0.001;
+			float const approximation = 0.001f;
 
 			//Apply small tolerance if float points do not round properly to zero
 			if (abs(min.x - point.x) < approximation) collidingSide = ES_Front;

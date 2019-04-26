@@ -12,6 +12,17 @@ namespace Tristeon
 	{
 		enum EdgeSide { ES_Top, ES_Right, ES_Bottom, ES_Left, ES_Front, ES_Behind };
 
+		struct ColliderData
+		{
+			AABB aabb;
+			BoxCollider* collider;
+			Core::GameObject* gameObject;
+
+			ColliderData() : aabb({}), collider(nullptr), gameObject(nullptr) { }
+			explicit ColliderData(BoxCollider* collider);
+			ColliderData(AABB aabb, BoxCollider* collider);
+		};
+
 		class BoxCollider : public Core::Components::Component
 		{
 			friend class RigidBody;

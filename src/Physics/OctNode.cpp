@@ -14,7 +14,7 @@ namespace Tristeon
 
 		}
 
-		void OctNode::addCollider(BoxCollider* collider)
+		void OctNode::addCollider(ColliderData data)
 		{
 			OctNode* foundNode = nullptr;
 			for (const std::unique_ptr<OctNode>& node : subNodes)
@@ -22,19 +22,21 @@ namespace Tristeon
 				AABB const nodeAABB = node->getBoundary();
 				
 				//Continue if the collider's AABB does not fit within the node
-				if (!AABB::AABBvsPoint(nodeAABB, collider->getAABB().min) || !AABB::AABBvsPoint(nodeAABB, collider->getAABB().max)) 
+				if (!AABB::AABBvsPoint(nodeAABB, data.aabb.min) || !AABB::AABBvsPoint(nodeAABB, data.aabb.max)) 
 					continue; 
 				foundNode = node.get();
 				break;
 			}
 
-			if (foundNode == nullptr) appendCollider(collider);
-			else foundNode->addCollider(collider);
+			if (foundNode == nullptr) appendCollider(data);
+			else foundNode->addCollider(data);
 		}
 
 		void OctNode::removeCollider(BoxCollider* collider)
 		{
-			std::vector<BoxCollider*>::iterator const itr = find(colliders.begin(), colliders.end(), collider);
+			std::vector<ColliderData>::iterator const itr = find_if(colliders.begin(), colliders.end(),
+				[&collider](const ColliderData& entry) { return entry.collider == collider; });
+
 			if (itr != std::end(colliders))
 			{
 				colliders.erase(itr);
@@ -103,18 +105,18 @@ namespace Tristeon
 			return index;
 		}
 
-		void OctNode::appendCollider(BoxCollider* collider)
+		void OctNode::appendCollider(ColliderData data)
 		{
-			colliders.push_back(collider);
+			colliders.push_back(data);
 			colliderCount++;
 
 			//Subdivide if needed
 			if (subNodes.size() == 0)
 			{
-				if (colliders.size() > 2)
+				if (colliders.size() > 25)
 				{
 					//Clear and cache current colliders
-					std::vector<BoxCollider*> colliders = std::vector<BoxCollider*>(this->colliders);
+					std::vector<ColliderData> colliders = std::vector<ColliderData>(this->colliders);
 					this->colliders = {};
 					colliderCount = 0;
 
@@ -122,8 +124,8 @@ namespace Tristeon
 					subDivide();
 
 					//Add colliders
-					for (BoxCollider* col : colliders)
-						addCollider(col);
+					for (ColliderData const& d : colliders)
+						addCollider(d);
 				}
 			}
 		}

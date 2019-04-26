@@ -2,6 +2,7 @@
 #include <vector>
 #include "Collision.h"
 #include "OctTree.h"
+#include "Misc/WorkQueue.h"
 
 namespace Tristeon
 {
@@ -35,13 +36,11 @@ namespace Tristeon
 			void addRigidbody(RigidBody* rb);
 			void addCollider(BoxCollider* collider);
 
-			std::vector<BoxCollider*> getCollidersAlongVelocity(RigidBody* rb);
+			std::vector<ColliderData> getCollidersAlongVelocity(RigidBody* rb);
 
 			bool enableTimeStep = false;
 
-			int consideredColliders = 0; // DEBUG
-			int collisionCount = 0; // DEBUG
-
+			std::unique_ptr<Misc::WorkQueue> workQueue;
 		private:
 			void reset();
 

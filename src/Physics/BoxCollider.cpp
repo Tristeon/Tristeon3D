@@ -8,6 +8,14 @@ namespace Tristeon
 {
 	namespace Physics
 	{
+		ColliderData::ColliderData(BoxCollider* collider) : aabb(collider->getAABB()), collider(collider), gameObject(collider->gameObject.get())
+		{
+		}
+
+		ColliderData::ColliderData(AABB aabb, BoxCollider* collider) : aabb(aabb), collider(collider), gameObject(collider->gameObject.get())
+		{
+		}
+
 		REGISTER_TYPE_CPP(BoxCollider)
 
 		bool BoxCollider::AABBvsAABB(const AABB& a) const
@@ -114,11 +122,11 @@ namespace Tristeon
 		}
 
 		void BoxCollider::onGUI()
-		{/*
-			if (isTrigger)
-				Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(1, 0, 0, 1));
-			else 
-				Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(0, 1, 0, 1));*/
+		{
+			//if (isTrigger)
+			//	Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(1, 0, 0, 1));
+			//else 
+			//	Core::Rendering::DebugDrawManager::addCube(aabb.min, aabb.max, 2, Misc::Color(0, 1, 0, 1));
 		}
 
 		void BoxCollider::update()

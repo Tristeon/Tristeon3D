@@ -12,7 +12,7 @@ namespace Tristeon
 
 		void OctTree::addCollider(BoxCollider* collider)
 		{
-			rootNode->addCollider(collider);
+			rootNode->addCollider(ColliderData(collider));
 		}
 
 		void OctTree::removeCollider(BoxCollider* collider)

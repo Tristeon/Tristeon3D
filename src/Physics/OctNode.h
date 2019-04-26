@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "AABB.h"
+#include "BoxCollider.h"
 
 namespace Tristeon
 {
@@ -25,10 +26,10 @@ namespace Tristeon
 		public:
 			OctNode();
 			OctNode(Vector3 position, float size);
-			void addCollider(BoxCollider* collider);
-			void removeCollider(BoxCollider* collider);
+			void addCollider(ColliderData data);
+			void removeCollider(BoxCollider* data);
 
-			std::vector<BoxCollider*> colliders;
+			std::vector<ColliderData> colliders;
 
 			AABB getBoundary() const;
 			void subDivide();
@@ -39,7 +40,7 @@ namespace Tristeon
 			std::vector<std::unique_ptr<OctNode>> subNodes;
 			OctNode* parent = nullptr;
 		private:
-			void appendCollider(BoxCollider* collider);
+			void appendCollider(ColliderData collider);
 			Vector3 position;
 			float size;
 			int colliderCount = 0;

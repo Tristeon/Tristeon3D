@@ -6,6 +6,9 @@
 #include "Misc/Hardware/Keyboard.h"
 #include "Core/Rendering/DebugDrawManager.h"
 #include <chrono>
+#include <thread>
+
+using namespace std;
 
 namespace Tristeon
 {
@@ -28,7 +31,7 @@ namespace Tristeon
 				Physics::instance->remove(this);
 		}
 
-		RigidBody::RigidBody(Vector3 gravity, float drag, std::string collisionDetection, Vector3 velocity)
+		RigidBody::RigidBody(Vector3 gravity, float drag, string collisionDetection, Vector3 velocity)
 		{
 			this->velocity = velocity;
 			this->gravity = gravity;
@@ -55,7 +58,7 @@ namespace Tristeon
 			gravity = json["gravity"];
 			drag = json["drag"];
 			mass = json["mass"];
-			std::string const collisionDetectionString = json["collisionDetection"];
+			string const collisionDetectionString = json["collisionDetection"];
 			collisionDetection = collisionDetectionString;
 		}
 
@@ -85,43 +88,80 @@ namespace Tristeon
 			static float totalColliders = 0;
 			static int iterations = 0;
 			iterations++;
-			auto start = std::chrono::system_clock::now();
 
-			std::vector<BoxCollider*> colliders = Physics::instance->getCollidersAlongVelocity(this);
+			auto start = chrono::high_resolution_clock::now();
 
-			//Physics::instance->consideredColliders += colliders.size();
+			std::vector<ColliderData> colliders = Physics::instance->getCollidersAlongVelocity(this);
+			int const range = static_cast<int>(colliders.size()) / Physics::instance->workQueue->count_threads();
+			const Vector3 velLeft = velocity * timeLeft;
 
 			std::vector<Collision> collisions;
-			for (BoxCollider* collider : colliders)
-			{
-				if (gameObject.get() == collider->gameObject.get() || !collider->gameObject.get()->isActive()) continue;
-				Collision col = Collision(this, collider, velocity*timeLeft);
-				if (col.failed)	continue;
-				//if (collisions.size() > 4)
-				//	Misc::Console::error("Wut");
-				collisions.push_back(col);
+			std::vector<unique_ptr<CollisionThreadData>> dataList;
+			mutex collision_lock;
 
+			for (int i = 0; i < Physics::instance->workQueue->count_threads(); i++)
+			{
+				unique_ptr<CollisionThreadData> data = std::make_unique<CollisionThreadData>();
+				data->colliders = &colliders;
+				data->index = i;
+				data->range = range;
+				data->velLeft = velLeft;
+				data->collisions = &collisions;
+				data->collision_lock = &collision_lock;
+
+				//Pass job to work queue
+				Physics::instance->workQueue->add_job([&](void* pData)
+				{
+					CollisionThreadData* d = reinterpret_cast<CollisionThreadData*>(pData);
+					calculateCollisions(d->colliders, d->index, d->range, d->velLeft, d->collisions, d->collision_lock);
+				}, data.get());
+
+				dataList.push_back(std::move(data));
 			}
+
+			//Finish threads
+			Physics::instance->workQueue->finish_jobs();
+
+			//Sort by time step; The first collision the rb encounters goes first
 			sort(collisions.begin(), collisions.end(), &Physics::compareCollisionsByTimeStep);
 
-			auto end = std::chrono::system_clock::now();
-			std::chrono::duration<double> duration = end - start;
+			auto end = chrono::high_resolution_clock::now();
+			chrono::duration<double> duration = end - start;
 			totalTime += duration.count();
 			totalColliders += colliders.size();
 			
-			std::string debug;
+			Misc::Console::write("Collisions found: " + to_string(collisions.size()));
+			string debug;
 			debug += "Collision check: ";
-			debug += "Total colliders: " + std::to_string(Physics::instance->colliders.size()) + "\n";
-			debug += "Considered colliders: " + std::to_string(colliders.size()) + "\n";
-			debug += "Detected collisions: " + std::to_string(collisions.size()) + "\n";
-			debug += "Time taken: " + std::to_string(duration.count()) + " seconds\n";
-			debug += "Average time take: " + std::to_string(totalTime / iterations) + " seconds\n";
-			debug += "Average considered colliders: " + std::to_string(totalColliders / iterations) + " colliders\n";
-
+			debug += "Average time take: " + to_string(totalTime / iterations * 1000.0f) + " ms\n";
+			debug += "Average considered colliders: " + to_string(totalColliders / iterations) + " colliders\n";
 			Misc::Console::write(debug);
-			Misc::Console::t_assert(totalTime < 30, "Time's up! Average time: " + std::to_string(totalTime / iterations));
-
+			//Misc::Console::t_assert(totalTime < 30, "Time's up! Average time: " + std::to_string(totalTime / iterations));
 			return collisions;
+		}
+
+		void RigidBody::calculateCollisions(std::vector<ColliderData>* colliderData, int index, int range, Vector3 velLeft, std::vector<Collision>* collisions, mutex* collision_lock)
+		{
+			auto start = colliderData->begin() + range * index;
+			auto end = start + range;
+			if (index == Physics::instance->workQueue->count_threads() - 1)
+				end = colliderData->end();
+
+			std::vector<Collision> cols;
+			for (; start < end; ++start)
+			{
+				ColliderData const data = *start;
+				if (gameObject == data.gameObject) continue;
+				
+				Collision col = Collision(this, data.aabb, velLeft);
+				if (col.failed)	continue;
+				col.staticCollider = data.collider;
+				
+				cols.push_back(col);
+			}
+
+			lock_guard<mutex> col_lock(*collision_lock);
+			collisions->insert(collisions->begin(), cols.begin(), cols.end());
 		}
 
 		Hit RigidBody::generateHit(BoxCollider* collider) const
