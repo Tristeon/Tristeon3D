@@ -202,17 +202,10 @@ namespace Tristeon
 			octTree->addCollider(collider);
 		}
 
-		std::vector<ColliderData> Physics::getCollidersAlongVelocity(RigidBody* rb)
+		std::vector<ColliderData> Physics::getCollidersAlongVelocity(RigidBody* rb) const
 		{
 			OctNode* node = octTree->rootNode.get();
-			auto partitions = getCollidingPartitions(rb, node);
-			std::vector<ColliderData> output;
-			for (auto partition : partitions)
-			{
-				auto partitionColliders = partition->colliders;
-				output.insert(output.end(), partitionColliders.begin(), partitionColliders.end());
-			}
-			return output;
+			return getCollidersInCollidingPartitions(rb, node);
 		}
 
 		void Physics::reset()
@@ -222,16 +215,16 @@ namespace Tristeon
 			octTree = std::make_unique<OctTree>(100);
 		}
 
-		std::vector<OctNode*> Physics::getCollidingPartitions(RigidBody* rb, OctNode* node)
+		std::vector<ColliderData> Physics::getCollidersInCollidingPartitions(RigidBody* rb, OctNode* node)
 		{
-			std::vector<OctNode*> nodes;
-			Collision col(rb, node->getBoundary(), rb->velocity);
+			std::vector<ColliderData> nodes;
+			Collision const col(rb, node->getBoundary(), rb->velocity);
 			if (col.failed)
 				return nodes;
-			nodes.push_back(node);
+			nodes = node->colliders;
 			for (auto& subNode : node->subNodes)
 			{
-				auto partitions = getCollidingPartitions(rb, subNode.get());
+				auto partitions = getCollidersInCollidingPartitions(rb, subNode.get());
 				nodes.insert(nodes.end(), partitions.begin(), partitions.end());
 			}
 			return nodes;

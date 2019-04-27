@@ -36,7 +36,7 @@ namespace Tristeon
 			void addRigidbody(RigidBody* rb);
 			void addCollider(BoxCollider* collider);
 
-			std::vector<ColliderData> getCollidersAlongVelocity(RigidBody* rb);
+			std::vector<ColliderData> getCollidersAlongVelocity(RigidBody* rb) const;
 
 			bool enableTimeStep = false;
 
@@ -44,7 +44,7 @@ namespace Tristeon
 		private:
 			void reset();
 
-			std::vector<OctNode*> getCollidingPartitions(RigidBody* rb, OctNode* node);
+			static std::vector<ColliderData> getCollidersInCollidingPartitions(RigidBody* rb, OctNode* node);
 
 			static bool compareCollisionsByTimeStep(Collision col1, Collision col2);
 			void remove(RigidBody* rb);
