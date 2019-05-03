@@ -39,7 +39,7 @@ namespace Tristeon
 				   Math::Vector2 texCoord = Math::Vector2(0, 0)) : 
 				pos({ pos.x, pos.y, pos.z }), normal({ normal.x, normal.y, normal.z }), texCoord({ texCoord.x, texCoord.y}) { /*Empty*/ }
 
-			Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 texCoord) : pos(pos), normal(normal), texCoord(texCoord) { /*Empty*/ }
+			Vertex(glm::vec3 pos, glm::vec3 normal = glm::vec3(0, 0, 0), glm::vec2 texCoord = glm::vec2(0, 0)) : pos(pos), normal(normal), texCoord(texCoord) { /*Empty*/ }
 		};
 
 		/**

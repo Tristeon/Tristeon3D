@@ -6,9 +6,7 @@
 
 namespace Tristeon
 {
-	namespace Physics {
-		class AABB;
-	}
+	namespace Physics { class AABB; }
 
 	namespace Math { struct Vector3; }
 
@@ -31,13 +29,24 @@ namespace Tristeon
 				 */
 				static void addLine(const Math::Vector3& from, const Math::Vector3& to, float width, const Misc::Color& color);
 				/**
-				 * Adds a cube to the drawlist
+				 * Adds an AABB cube to the drawlist
 				 * \param min The smallest point of the cube
 				 * \param max The biggest point of a cube
 				 * \param lineWidth The width of the lines
 				 * \param color The color of the cube
 				 */
 				static void addCube(const Math::Vector3& min, const Math::Vector3& max, float lineWidth, const Misc::Color& color);
+
+				/**
+				 * Adds a OBB cube to the drawlist
+				 * \param center The center point of the OBB
+				 * \param size The size of the OBB
+				 * \param rotation The rotation of the OBB
+				 * \param lineWidth The width of the lines
+				 * \param color The color of the cube
+				 */
+				static void addCube(const Vector3& center, const Vector3& size, const Vector3& rotation, float lineWidth, const Misc::Color& color);
+				
 				/**
 				 * Adds a sphere to the drawlist
 				 * \param center The center position of the sphere

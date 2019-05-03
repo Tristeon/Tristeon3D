@@ -106,6 +106,8 @@ include_directories(${PROJECT_BINARY_DIR}/external/assimp/include)
 
 #GLM
 add_subdirectory(external/glm)
+include_directories(${PROJECT_SOURCE_DIR}/external/glm/glm)
+include_directories(${PROJECT_BINARY_DIR}/external/glm/glm)
 
 #GLI
 add_subdirectory(external/gli)

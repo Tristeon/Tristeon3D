@@ -1,7 +1,10 @@
 ﻿#include "DebugDrawManager.h"
 #include <cmath>
-#include <glm/gtc/constants.inl>
 #include "Physics/AABB.h"
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Tristeon
 {
@@ -38,43 +41,113 @@ namespace Tristeon
 
 				//Rect 1
 				DebugMesh mesh = DebugMesh({}, lineWidth, color);
-				mesh.vertices.push_back(Data::Vertex(bl1));
-				mesh.vertices.push_back(Data::Vertex(tl1));
+				mesh.vertices.emplace_back(bl1);
+				mesh.vertices.emplace_back(tl1);
 
-				mesh.vertices.push_back(Data::Vertex(tl1));
-				mesh.vertices.push_back(Data::Vertex(tr1));
+				mesh.vertices.emplace_back(tl1);
+				mesh.vertices.emplace_back(tr1);
 
-				mesh.vertices.push_back(Data::Vertex(tr1));
-				mesh.vertices.push_back(Data::Vertex(br1));
+				mesh.vertices.emplace_back(tr1);
+				mesh.vertices.emplace_back(br1);
 
-				mesh.vertices.push_back(Data::Vertex(br1));
-				mesh.vertices.push_back(Data::Vertex(bl1));
+				mesh.vertices.emplace_back(br1);
+				mesh.vertices.emplace_back(bl1);
 
 				//Rect 2
-				mesh.vertices.push_back(Data::Vertex(bl2));
-				mesh.vertices.push_back(Data::Vertex(tl2));
+				mesh.vertices.emplace_back(bl2);
+				mesh.vertices.emplace_back(tl2);
 
-				mesh.vertices.push_back(Data::Vertex(tl2));
-				mesh.vertices.push_back(Data::Vertex(tr2));
+				mesh.vertices.emplace_back(tl2);
+				mesh.vertices.emplace_back(tr2);
 
-				mesh.vertices.push_back(Data::Vertex(tr2));
-				mesh.vertices.push_back(Data::Vertex(br2));
+				mesh.vertices.emplace_back(tr2);
+				mesh.vertices.emplace_back(br2);
 
-				mesh.vertices.push_back(Data::Vertex(br2));
-				mesh.vertices.push_back(Data::Vertex(bl2));
+				mesh.vertices.emplace_back(br2);
+				mesh.vertices.emplace_back(bl2);
 
 				//Connecting corners
-				mesh.vertices.push_back(Data::Vertex(bl1));
-				mesh.vertices.push_back(Data::Vertex(bl2));
+				mesh.vertices.emplace_back(bl1);
+				mesh.vertices.emplace_back(bl2);
 
-				mesh.vertices.push_back(Data::Vertex(tl1));
-				mesh.vertices.push_back(Data::Vertex(tl2));
+				mesh.vertices.emplace_back(tl1);
+				mesh.vertices.emplace_back(tl2);
 
-				mesh.vertices.push_back(Data::Vertex(tr1));
-				mesh.vertices.push_back(Data::Vertex(tr2));
+				mesh.vertices.emplace_back(tr1);
+				mesh.vertices.emplace_back(tr2);
 
-				mesh.vertices.push_back(Data::Vertex(br1));
-				mesh.vertices.push_back(Data::Vertex(br2));
+				mesh.vertices.emplace_back(br1);
+				mesh.vertices.emplace_back(br2);
+
+				instance->drawList[color][lineWidth].push(mesh);
+			}
+
+			void DebugDrawManager::addCube(const Vector3& center, const Vector3& size, const Vector3& rotation,
+				float lineWidth, const Misc::Color& color)
+			{
+				if (instance == nullptr)
+					return;
+
+				glm::mat4x4 rotationMatrix = glm::mat4x4(glm::quat(glm::vec3(rotation.x, rotation.y, rotation.z)));
+
+				//TODO Implement Matrix4x4 and stop using glm types here
+				Vector3 min = center - size / 2;
+				Vector3 max = center + size / 2;
+
+				glm::vec4 glmMin = glm::vec4(min.x, min.y, min.z, 1);
+				glm::vec4 glmMax = glm::vec4(max.x, max.y, max.z, 1);
+
+				//Rect coords 1
+				glm::vec3 const bl1 = rotationMatrix * glmMin;
+				glm::vec3 const tl1 = rotationMatrix * glm::vec4(min.x, max.y, min.z, 1);
+				glm::vec3 const br1 = rotationMatrix * glm::vec4(max.x, min.y, min.z, 1);
+				glm::vec3 const tr1 = rotationMatrix * glm::vec4(max.x, max.y, min.z, 1);
+
+				//Rect coords 2
+				glm::vec3 const bl2 = rotationMatrix * glm::vec4(min.x, min.y, max.z, 1);
+				glm::vec3 const tl2 = rotationMatrix * glm::vec4(min.x, max.y, max.z, 1);
+				glm::vec3 const br2 = rotationMatrix * glm::vec4(max.x, min.y, max.z, 1);
+				glm::vec3 const tr2 = rotationMatrix * glmMax;
+
+				//Rect 1
+				DebugMesh mesh = DebugMesh({}, lineWidth, color);
+				mesh.vertices.emplace_back(bl1);
+				mesh.vertices.emplace_back(tl1);
+
+				mesh.vertices.emplace_back(tl1);
+				mesh.vertices.emplace_back(tr1);
+
+				mesh.vertices.emplace_back(tr1);
+				mesh.vertices.emplace_back(br1);
+
+				mesh.vertices.emplace_back(br1);
+				mesh.vertices.emplace_back(bl1);
+
+				//Rect 2
+				mesh.vertices.emplace_back(bl2);
+				mesh.vertices.emplace_back(tl2);
+
+				mesh.vertices.emplace_back(tl2);
+				mesh.vertices.emplace_back(tr2);
+
+				mesh.vertices.emplace_back(tr2);
+				mesh.vertices.emplace_back(br2);
+
+				mesh.vertices.emplace_back(br2);
+				mesh.vertices.emplace_back(bl2);
+
+				//Connecting corners
+				mesh.vertices.emplace_back(bl1);
+				mesh.vertices.emplace_back(bl2);
+
+				mesh.vertices.emplace_back(tl1);
+				mesh.vertices.emplace_back(tl2);
+
+				mesh.vertices.emplace_back(tr1);
+				mesh.vertices.emplace_back(tr2);
+
+				mesh.vertices.emplace_back(br1);
+				mesh.vertices.emplace_back(br2);
 
 				instance->drawList[color][lineWidth].push(mesh);
 			}
@@ -116,8 +189,8 @@ namespace Tristeon
 					{
 						Vector3 const start = positions[i];
 						Vector3 const end = (i + 1) >= positions.size() ? positions[0] : positions[i + 1];
-						mesh.vertices.push_back(start);
-						mesh.vertices.push_back(end);
+						mesh.vertices.emplace_back(start);
+						mesh.vertices.emplace_back(end);
 					}
 					positions.clear();
 				}
@@ -139,8 +212,8 @@ namespace Tristeon
 				{
 					Vector3 const start = positions[i];
 					Vector3 const end = (i + 1) >= positions.size() ? positions[0] : positions[i + 1];
-					mesh.vertices.push_back(start);
-					mesh.vertices.push_back(end);
+					mesh.vertices.emplace_back(start);
+					mesh.vertices.emplace_back(end);
 				}
 
 				instance->drawList[color][lineWidth].push(mesh);
