@@ -124,11 +124,15 @@ void FolderItem::setup(bool doChildren)
 			string originalFilePath = filePathGenericString.substr(0, filePathGenericString.size() - 5);
 			if (!fs::exists(originalFilePath))
 			{
-				Misc::Console::warning("A meta data file exists but its asset '" + originalFilePath + "' can't be found. When moving or deleting files outside of Tristeon, please ensure that the corresponding .meta file is moved or deleted along with it.");
+				Misc::Console::warning("A meta data file exists but its asset '" + originalFilePath + "' can't be found. When moving or deleting files outside of Tristeon, please ensure that the corresponding .meta file is moved or deleted along with it.\nThe meta file will thus now be removed");
+				fs::remove(filePath);
 			}
-			metaFiles.push_back(filePathGenericString);
-			metadata[originalFilePath] = "Has meta file";
-			Misc::Console::write("Found meta file: " + filePathGenericString);
+			else
+			{
+				metaFiles.push_back(filePathGenericString);
+				metadata[originalFilePath] = "Has meta file";
+				Misc::Console::write("Found meta file: " + filePathGenericString);
+			}
 		}
 		else
 		{
