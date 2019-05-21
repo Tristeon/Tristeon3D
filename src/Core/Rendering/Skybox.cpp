@@ -13,7 +13,7 @@ namespace Tristeon
 
 			Skybox::Skybox()
 			{
-				mesh = Data::MeshBatch::getSubMesh("Files/Models/cube.obj", 0);
+				mesh = Data::MeshBatch::getSubMesh("Files/Models/skybox_cube.obj", 0);
 			}
 
 			nlohmann::json Skybox::serialize()
