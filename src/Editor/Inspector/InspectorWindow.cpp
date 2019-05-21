@@ -9,7 +9,6 @@
 #include "Core/Components/Camera.h"
 #include <Core/Rendering/Components/MeshRenderer.h>
 #include "Misc/StringUtils.h"
-#include "Core/Components/TestScript.h"
 #include <string.h>
 using namespace Tristeon::Editor;
 
@@ -223,7 +222,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 
-	std::vector<char*> components = { "Camera","Test", "MeshRenderer" };
+	std::vector<char*> components = { "Camera", "MeshRenderer" };
 
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -239,10 +238,6 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 					data["components"].push_back(Core::Components::Camera().serialize());
 				}
 				else if (i == 1)
-				{
-					data["components"].push_back(TestScript().serialize());
-				}
-				else if (i == 2)
 				{
 					data["components"].push_back(Core::Rendering::MeshRenderer().serialize());
 				}
