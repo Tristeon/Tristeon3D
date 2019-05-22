@@ -8,7 +8,7 @@
  * Wrapper around typeid(T).name(), to enforce a consistent return style across all (supported) compilers.
  */
 template<typename T>
-std::string getTypename()
+std::string getStringTypename()
 {
     std::vector<std::string> vec = StringUtils::split(typeid(T).name(), ' ');
     if (vec.size() < 2)
@@ -25,7 +25,7 @@ std::string getTypename()
     return result;
 }
 
-#define TRISTEON_TYPENAME(T) getTypename<T>()
+#define TRISTEON_TYPENAME(T) getStringTypename<T>()
 
 #else
 #include <cxxabi.h>
@@ -34,7 +34,7 @@ std::string getTypename()
  * Wrapper around typeid(T).name(), to enforce a consistent return style across all (supported) compilers.
  */
 template<typename T>
-std::string getTypename()
+std::string getStringTypename()
 {
     int status;
     char* realName = abi::__cxa_demangle(typeid(T).name(), 0, 0, &status);
