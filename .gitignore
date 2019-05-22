@@ -12,6 +12,10 @@ bin/[Dd]ebug[Ee]ditor/
 bin/[Dd]ebug/
 bin/[Rr]elease/
 
+# CMake files
+cmake-build-debug/
+.idea/
+
 # Build files
 *.exe
 *.exp
