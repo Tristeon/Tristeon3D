@@ -35,7 +35,13 @@ Tristeon is an open source game engine built from scratch in C++ by two game eng
 * Over 40 mesh file formats including FBX, OBJ, 3DS and blend
 * Supported image formats: JPG, PNG, TGA, BMP, PSD and more
 
-# How to build the project
+# Getting started
+You wish to try out Tristeon? Great! Here's two ways to get started:
+
+## Pre-built
+If you're just looking to test out Tristeon's current features without diving too much into the C++ side, then it'd be a good idea to go to the latest release: https://github.com/Tristeon/Tristeon/releases/tag/v1.0.0-pre-alpha
+
+## CMake project
 Tristeon uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
 Officially confirmed configurations:
 * MSVC Visual Studio 2017 | x64
@@ -43,33 +49,41 @@ Officially confirmed configurations:
 
 If you do not hav the Vulkan SDK installed, make sure to install it to allow for additional debugging. You can get it here: https://vulkan.lunarg.com/
 
-# Why?
-Tristeon is a learning / portfolio project of Tristan Metz and Leon Brands. The project started as a 5 month school project with as focus to extend/improve our engine development skills and knowledge. As of now, it's being maintained and updated on an irregular basis as a portfolio piece.
+To run the project, select your desired build configuration:
+- Debug: Build (no editor) with debug symbols.
+- Release: Build (no editor) without debug symbols, optimized.
+- DebugEditor: Editor application with debug symbols.
+- Editor: Editor application without debug symbols, but with logging.
+
+# Why this project?
+Tristeon is a hobby/learning/portfolio project of Tristan Metz and Leon Brands. The project started as a 5 month school project with as focus to extend/improve our engine development skills and knowledge. As of now, it's being maintained and updated as a pure hobby and portfolio project.
 
 # Roadmap
 Near future:
-* Image based lighting
-* Point/Spot/Directional lights
-* Shadow mapping
-* Optimized component serialization
+* In-engine shader compilation
+* Full shader reflection with complete type support
+* Rendering framework redesign
+* Debug draw manager optimizations + extended features
 * Dragging/dropping (file)items into the inspector
+* In-house physics engine implementation
 
 Planned (editor/serialization):
+* Optimized component serialization
 * Automized serialization
 * In-Editor console logging
 * Scene view object selection
 * Renaming items
 * Serialization wrappers for ease of use
+* Custom type editors
 
 Planned (rendering/engine):
-* Expand support for material property types
-* Optimized DebugDrawManager
-* Redesigned rendering back-end
-* Preview renderer for materials/meshes
+* Rework engine sub-systems into a module based system, allowing the user to add/remove modules at will
+* Image based lighting
+* Controllable point/spot/directional lights
+* Shadow mapping
+* Preview renderer for materials, meshes and images
 * Normal mapping
 * Image effect system
-* Havok physics engine integration
-* FMOD Audio integration
 
 # Known bugs
 * ~~#1 Scene view won't display properly until the engine's game mode has been run at least once.~~
@@ -78,9 +92,12 @@ Planned (rendering/engine):
 * ~~#4 Camera doesn't exist until pressing it (after scene load)~~
 * #5 New folders won't display until you reload the engine
 * #6 Material properties won't get applied properly with vectors
-* #7 The inspector breaks when there's multiple properties with the same name (like having multiple Vector3s, their subcomponents are called the same)
+* #7 The inspector breaks when there's multiple properties with the same name (e.g. having multiple Vector3s, their subcomponents are called the same)
 * #8 DebugDrawManager only ever uses the color from the last add...() call
 * #9 Editor doesn't recognize engine filetypes correctly when they haven't been created in-engine. Will default to AssetItem
+* #10 Deleting a component also deletes each component below said component
+* #11 The editor camera loses control at the minimum zoom distance
+* #12 The editor camera may flip, causing controls to be inverted
 
 # Showcase
 Watch the showcase video here:
@@ -109,7 +126,3 @@ Tristeon uses the following third-party libraries:
 * [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
 * [Boost](https://www.boost.org/doc/libs/1_67_0/libs/filesystem/doc/index.htm)
 * [Boost-cmake](https://github.com/Orphis/boost-cmake)
-
-Other resources:
-* [Vulkan tutorial by Alexander Overvoorde](https://vulkan-tutorial.com/)
-* [Vulkan examples by Sascha Willems](https://github.com/SaschaWillems/Vulkan)

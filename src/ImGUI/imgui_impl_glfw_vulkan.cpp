@@ -235,10 +235,10 @@ void ImGui_ImplGlfwVulkan_RenderDrawLists(ImDrawData* draw_data)
 		VkMappedMemoryRange range[2] = {};
 		range[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 		range[0].memory = g_VertexBufferMemory[g_FrameIndex];
-		range[0].size = vertex_size;
+		range[0].size = VK_WHOLE_SIZE;// vertex_size;
 		range[1].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 		range[1].memory = g_IndexBufferMemory[g_FrameIndex];
-		range[1].size = index_size;
+		range[1].size = VK_WHOLE_SIZE;// index_size;
 		err = vkFlushMappedMemoryRanges(g_Device, 2, range);
 		ImGui_ImplGlfwVulkan_VkResult(err);
 		vkUnmapMemory(g_Device, g_VertexBufferMemory[g_FrameIndex]);
