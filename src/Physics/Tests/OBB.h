@@ -16,8 +16,9 @@ namespace Tristan
 		bool collides(OBB obb);
 		std::vector<Tristeon::Vector3> getAxises();
 	private:
+		Tristeon::Vector3 getPoints();
 		Tristeon::Vector3 size;
-		Tristeon::Core::Transform* trans;
+		Tristeon::Core::Transform* trans = nullptr;
 
 		REGISTER_TYPE_H(OBB)
 	};
