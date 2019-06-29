@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "OctNode.h"
+#include "TreeNode.h"
 #include "BoxCollider.h"
 #include "Hit.h"
 
@@ -8,22 +8,21 @@ namespace Tristeon
 {
 	namespace Physics
 	{
-		class OctTree
+		class PartitionTree
 		{
 		public:
-			OctTree(float size);
+			PartitionTree(float size);
 
 			void addCollider(BoxCollider* collider);
 			void removeCollider(BoxCollider* collider);
 			void onGUI();
 
-			std::unique_ptr<OctNode> rootNode = nullptr;
+			std::unique_ptr<TreeNode> rootNode = nullptr;
 
 		private:
-			void drawNode(OctNode* node);
+			void drawNode(TreeNode* node);
 
 			Vector3 position;
-			float size;
 		};
 	}
 }
