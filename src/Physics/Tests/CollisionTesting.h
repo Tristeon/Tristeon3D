@@ -4,6 +4,8 @@
 
 namespace Tristan
 {
+	class OBB;
+
 	class CollisionTesting : public Tristeon::Core::Components::Component
 	{
 	public:
@@ -13,6 +15,7 @@ namespace Tristan
 		void start() override;
 		void update() override;
 
+		bool checkCollision(OBB a, OBB b);
 	private:
 		REGISTER_TYPE_H(CollisionTesting)
 	};

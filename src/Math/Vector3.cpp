@@ -95,6 +95,13 @@ namespace Tristeon
 			return x * vec.x + y * vec.y + z * vec.z;
 		}
 
+		void Vector3::cross(Vector3 vec)
+		{
+			x = y * vec.z - vec.y * z;
+			y = z * vec.x - vec.z * x;
+			z = x * vec.y - vec.x * y;
+		}
+
 		Vector3 Vector3::lerp(Vector3 a, Vector3 b, float t)
 		{
 			if (b - a == Vector3(0, 0, 0)) return b; //Positions are equal
@@ -114,7 +121,7 @@ namespace Tristeon
 			return x != vec.x || y != vec.y || z != vec.z;
 		}
 
-		Vector3 Vector3::operator*(const float& multiplier) const
+		Vector3 Vector3::operator*(const float multiplier) const
 		{
 			return { x * multiplier, y * multiplier, z * multiplier };
 		}
@@ -144,7 +151,12 @@ namespace Tristeon
 			return { x - vec.x, y - vec.y, z - vec.z };
 		}
 
-		float Vector3::operator[](const int& value) const
+		Vector3 Vector3::operator-() const
+		{
+			return { -x,-y,-z };
+		}
+
+		float Vector3::operator[](int value) const
 		{
 			return getAxis(value);
 		}

@@ -1,6 +1,9 @@
 ﻿#include "CollisionTesting.h"
+#include "OBB.h"
 
 using namespace Tristan;
+using namespace Tristeon;
+
 
 REGISTER_TYPE_CPP(CollisionTesting)
 
