@@ -22,11 +22,11 @@ namespace Tristeon
 
 			workQueue = std::make_unique<Misc::WorkQueue>();
 
-			octTree = std::make_unique<OctTree>(100);
+			partitionTree = std::make_unique<PartitionTree>(100);
 
 			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_FIXEDUPDATE, [&](Core::Message m) { update(); });
 			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_MANAGER_RESET, [&](Core::Message m) { reset(); });
-			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_PRERENDER, [&](Core::Message m) { if (octTree != nullptr) octTree->onGUI(); });
+			Core::MessageBus::subscribeToMessage(Core::MessageType::MT_PRERENDER, [&](Core::Message m) { if (partitionTree != nullptr) partitionTree->onGUI(); });
 		}
 
 		Physics::~Physics()
@@ -47,6 +47,8 @@ namespace Tristeon
 		{
 			if (Misc::Keyboard::getKeyDown(Misc::T)) enableTimeStep = !enableTimeStep;
 			if (enableTimeStep && !Misc::Keyboard::getKeyDown(Misc::F)) return;
+
+			//return; //We don't 
 
 			for (RigidBody* rigidBody : rigidBodies)
 			{
@@ -199,12 +201,12 @@ namespace Tristeon
 		void Physics::addCollider(BoxCollider* collider)
 		{
 			colliders.push_back(collider);
-			octTree->addCollider(collider);
+			partitionTree->addCollider(collider);
 		}
 
 		std::vector<ColliderData> Physics::getCollidersAlongVelocity(RigidBody* rb) const
 		{
-			OctNode* node = octTree->rootNode.get();
+			TreeNode* node = partitionTree->rootNode.get();
 			return getCollidersInCollidingPartitions(rb, node);
 		}
 
@@ -212,10 +214,10 @@ namespace Tristeon
 		{
 			colliders.clear();
 			rigidBodies.clear();
-			octTree = std::make_unique<OctTree>(100);
+			partitionTree = std::make_unique<PartitionTree>(100);
 		}
 
-		std::vector<ColliderData> Physics::getCollidersInCollidingPartitions(RigidBody* rb, OctNode* node)
+		std::vector<ColliderData> Physics::getCollidersInCollidingPartitions(RigidBody* rb, TreeNode* node)
 		{
 			std::vector<ColliderData> nodes;
 			Collision const col(rb, node->getBoundary(), rb->velocity);
@@ -248,7 +250,7 @@ namespace Tristeon
 			if (itr != end(colliders))
 				colliders.erase(itr);
 
-			octTree->removeCollider(collider);
+			partitionTree->removeCollider(collider);
 		}
 	}
 }

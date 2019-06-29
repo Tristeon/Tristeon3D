@@ -13,6 +13,7 @@ namespace Tristeon
 			Vector3 getPosition() const;
 			
 			static bool AABBvsAABB(AABB a, AABB b);
+			bool contains(AABB const& other) const;
 			static bool AABBvsPoint(AABB a, Vector3 point);
 			std::string toString() const;
 

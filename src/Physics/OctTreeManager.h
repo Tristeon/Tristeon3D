@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "OctTree.h"
+#include "PartitionTree.h"
 
 namespace Tristeon
 {

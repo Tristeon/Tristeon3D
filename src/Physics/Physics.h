@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include "Collision.h"
-#include "OctTree.h"
+#include "PartitionTree.h"
 #include "Misc/WorkQueue.h"
 
 namespace Tristeon
@@ -44,13 +44,13 @@ namespace Tristeon
 		private:
 			void reset();
 
-			static std::vector<ColliderData> getCollidersInCollidingPartitions(RigidBody* rb, OctNode* node);
+			static std::vector<ColliderData> getCollidersInCollidingPartitions(RigidBody* rb, TreeNode* node);
 
 			static bool compareCollisionsByTimeStep(Collision col1, Collision col2);
 			void remove(RigidBody* rb);
 			void remove(BoxCollider* collider);
 
-			std::unique_ptr<OctTree> octTree;
+			std::unique_ptr<PartitionTree> partitionTree;
 			std::vector<RigidBody*> rigidBodies;
 			std::vector<BoxCollider*> colliders;
 		};

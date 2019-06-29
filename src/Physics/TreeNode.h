@@ -21,28 +21,39 @@ namespace Tristeon
 
 		class BoxCollider;
 
-		class OctNode
+		class TreeNode
 		{
 		public:
-			OctNode();
-			OctNode(Vector3 position, float size);
-			void addCollider(ColliderData data);
+			TreeNode();
+			TreeNode(AABB const& boundary);
+			void addCollider(ColliderData data, bool subdivideEnabled = true);
 			void removeCollider(BoxCollider* data);
 
 			std::vector<ColliderData> colliders;
 
 			AABB getBoundary() const;
-			void subDivide();
+			void subDivideOctree();
+			void attemptSubdivideKD();
+			struct KDAxis
+			{
+				float rating = 0;
+
+				AABB subA = {};
+				AABB subB = {};
+				KDAxis() = default;
+				KDAxis(float const& rating, AABB const& subA, AABB const& subB) : rating(rating), subA(subA), subB(subB) { }
+			};
+
+			KDAxis getKDAxis(int axis);
 			bool isLeaf() const;
 			bool isRoot() const;
 			int getIndexOfPosition(Vector3 position) const;
 
-			std::vector<std::unique_ptr<OctNode>> subNodes;
-			OctNode* parent = nullptr;
+			std::vector<std::unique_ptr<TreeNode>> subNodes;
+			TreeNode* parent = nullptr;
 		private:
-			void appendCollider(ColliderData collider);
-			Vector3 position;
-			float size;
+			void appendCollider(ColliderData collider, bool subdivideEnabled = true);
+			AABB boundary;
 			int colliderCount = 0;
 		};
 	}

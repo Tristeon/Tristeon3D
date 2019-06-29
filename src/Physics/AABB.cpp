@@ -21,6 +21,11 @@ namespace Tristeon
 			return true;
 		}
 
+		bool AABB::contains(AABB const& other) const
+		{
+			return AABBvsPoint(*this, other.min) && AABBvsPoint(*this, other.max);
+		}
+
 		bool AABB::AABBvsPoint(AABB a, Vector3 point)
 		{
 			if (point.x < a.min.x || point.x > a.max.x) return false;
