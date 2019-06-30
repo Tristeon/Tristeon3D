@@ -4,6 +4,7 @@
 #include "Standard/FirstPersonCameraController.h"
 #include "Standard/CharacterController.h"
 #include "Physics/Tests/CollisionTesting.h"
+#include "Physics/Tests/CollisionTestingLeon.h"
 #ifdef TRISTEON_EDITOR
 
 #include "InspectorWindow.h"
@@ -229,7 +230,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 
-	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody", "OctTreeManager", "FirstPersonCameraController", "CharacterController","Tristan Test","OBB" };
+	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody", "OctTreeManager", "FirstPersonCameraController", "CharacterController","Tristan Test","OBB", "Leon Test" };
 
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -258,6 +259,8 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 					data["components"].push_back(Tristan::CollisionTesting().serialize());
 				else if (i == 8)
 					data["components"].push_back(Tristan::OBB().serialize());
+				else if (i == 9)
+					data["components"].push_back(Leon::CollisionTesting().serialize());
 			}
 		}
 		ImGui::EndPopup();

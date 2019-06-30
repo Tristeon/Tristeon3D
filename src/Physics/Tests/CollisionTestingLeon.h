@@ -1,30 +1,25 @@
-#pragma once
-#include <Core/Components/Component.h>
+﻿#pragma once
+#include "Core/Components/Component.h"
+#include "Editor/TypeRegister.h"
+#include "Misc/vector.h"
 #include "Math/Vector3.h"
-#include "Misc/Color.h"
 
-struct OBB
+namespace Leon
 {
-	Tristeon::Vector3 position;
-	Tristeon::Vector3 rotation;
-	float size = 0;
-};
+	class CollisionTesting : public Tristeon::Core::Components::Component
+	{
+	public:
+		nlohmann::json serialize() override;
+		void onGUI() override;
 
-class CollisionTestingLeon : public Tristeon::Core::Components::Component
-{
-	REGISTER_TYPE_H(CollisionTestingLeon)
-public:
-	CollisionTestingLeon() = default;
-	~CollisionTestingLeon() = default;
-	nlohmann::json serialize() override;
-	void deserialize(nlohmann::json json) override;
-	void start() override;
-	void update() override;
-	void onGUI() override;
-private:
-	bool checkOBBonOBB();
-	OBB colliderA;
-	OBB colliderB;
+	private:
+		bool checkCollision(Tristeon::Core::GameObject* a, Tristeon::Core::GameObject* b);
+		bool hasOverlap(Tristeon::vector<Tristeon::Vector3> axes, Tristeon::vector<Tristeon::Vector3> aVerts, Tristeon::vector<Tristeon::Vector3> bVerts);
 
-	int movingID;
-};
+		Tristeon::vector<Tristeon::Vector3> getPoints(Tristeon::Core::GameObject * obj);
+		Tristeon::vector<Tristeon::Vector3> getAxises(Tristeon::Core::GameObject* obj);
+
+		Tristeon::Vector3 transformPoint(Tristeon::Core::GameObject* obj, Tristeon::Vector3 point);
+		REGISTER_TYPE_H(CollisionTesting)
+	};
+}
