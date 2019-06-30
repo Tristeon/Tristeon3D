@@ -70,5 +70,15 @@ namespace Tristeon
 			std::cout << "Couldn't find gameObject\n";
 			return nullptr;
 		}
+
+		Core::GameObject* Scene::getGameObjectByName(std::string name)
+		{
+			for (int i = 0; i < gameObjects.size(); ++i)
+			{
+				if (gameObjects[i]->name == name) return gameObjects[i].get();
+			}
+			std::cout << "Couldn't find gameObject!\n";
+			return nullptr;
+		}
 	}
 }

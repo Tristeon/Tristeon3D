@@ -11,5 +11,7 @@ namespace Tristan
 		float max;
 
 		bool overlap(Projection projection);
+
+		float getOverlap(Projection proj);
 	};
 }

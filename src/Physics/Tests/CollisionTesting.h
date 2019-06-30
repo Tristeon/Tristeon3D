@@ -1,11 +1,10 @@
 ﻿#pragma once
 #include "Core/Components/Component.h"
 #include "Editor/TypeRegister.h"
+#include "OBB.h"
 
 namespace Tristan
 {
-	class OBB;
-
 	class CollisionTesting : public Tristeon::Core::Components::Component
 	{
 	public:
@@ -14,9 +13,12 @@ namespace Tristan
 		void deserialize(nlohmann::json json) override;
 		void start() override;
 		void update() override;
+		void onGUI() override;
 
-		bool checkCollision(OBB a, OBB b);
 	private:
+		OBB* a;
+		OBB* b;
+
 		REGISTER_TYPE_H(CollisionTesting)
 	};
 }

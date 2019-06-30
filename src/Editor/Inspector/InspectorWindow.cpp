@@ -3,6 +3,7 @@
 #include "Physics/OctTreeManager.h"
 #include "Standard/FirstPersonCameraController.h"
 #include "Standard/CharacterController.h"
+#include "Physics/Tests/CollisionTesting.h"
 #ifdef TRISTEON_EDITOR
 
 #include "InspectorWindow.h"
@@ -195,7 +196,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	}
 
 	//If there are more components than closeableHeaders increment the array.
-	while(data["components"].size() >= closeableHeaders.size())
+	while (data["components"].size() >= closeableHeaders.size())
 		closeableHeaders.push_back(true);
 
 	int indexToErase = -1;
@@ -228,7 +229,7 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 	if (ImGui::Button("Add component"))
 		ImGui::OpenPopup("select component");
 
-	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody", "OctTreeManager", "FirstPersonCameraController", "CharacterController" };
+	std::vector<char*> components = { "Camera", "MeshRenderer", "Boxcollider", "Rigidbody", "OctTreeManager", "FirstPersonCameraController", "CharacterController","Tristan Test","OBB" };
 
 	if (ImGui::BeginPopup("select component"))
 	{
@@ -240,33 +241,23 @@ void InspectorWindow::drawGameObjectContent(nlohmann::json& data)
 				//TODO: remove hard-code
 				//Create selected component
 				if (i == 0)
-				{
 					data["components"].push_back(Core::Components::Camera().serialize());
-				}
 				else if (i == 1)
-				{
 					data["components"].push_back(Core::Rendering::MeshRenderer().serialize());
-				}
 				else if (i == 2)
-				{
 					data["components"].push_back(Physics::BoxCollider().serialize());
-				}
 				else if (i == 3)
-				{
 					data["components"].push_back(Physics::RigidBody().serialize());
-				}
 				else if (i == 4)
-				{
 					data["components"].push_back(Physics::OctTreeManager().serialize());
-				}
 				else if (i == 5)
-				{
 					data["components"].push_back(Standard::FirstPersonCameraController().serialize());
-				}
 				else if (i == 6)
-				{
 					data["components"].push_back(Standard::CharacterController().serialize());
-				}
+				else if (i == 7)
+					data["components"].push_back(Tristan::CollisionTesting().serialize());
+				else if (i == 8)
+					data["components"].push_back(Tristan::OBB().serialize());
 			}
 		}
 		ImGui::EndPopup();

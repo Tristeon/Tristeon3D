@@ -73,7 +73,7 @@ T* JsonSerializer::deserialize(const std::string& path)
 	const auto iterator = input.find("typeID");
 	if (iterator == input.end())
 	{
-		throw std::invalid_argument("The object you are serializing is not serializing its typeID!");
+		throw std::invalid_argument("The object you are serializing does not have a typeID defined!");
 	}
 	else if (input.is_null())
 	{
@@ -84,7 +84,10 @@ T* JsonSerializer::deserialize(const std::string& path)
 	//Create instance of the type that is specified in the json file under the "typeID" member
 	auto instance = TypeRegister::createInstance(input["typeID"]);
 	if (instance == nullptr)
-		return nullptr;
+	{
+		const std::string typeID = input["typeID"];
+		throw std::invalid_argument("Type: "+typeID+ " could not be found in the TypeRegister, did you make sure to register it?");
+	}
 	Serializable* deserializedObject = static_cast<Serializable*>(instance.get());
 	instance.release();
 	//Load json data into the instance

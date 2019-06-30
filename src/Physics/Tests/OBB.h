@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include <vector>
 #include "Core/Components/Component.h"
 #include "Core/Transform.h"
 #include "Projection.h"
+#include "Misc/Color.h"
 
 namespace Tristan
 {
@@ -10,20 +10,21 @@ namespace Tristan
 	{
 	public:
 		void start() override;
+		void onGUI() override;
 
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
 
+		bool collides(OBB* obb);
+		Tristeon::vector<Tristeon::Vector3> getAxises();
 
-		bool collides(OBB obb) const;
-		Tristeon::vector<Tristeon::Vector3> getAxises() const;
+		Tristeon::Misc::Color color;
 	private:
-		Tristeon::Vector3 size;
-		Tristeon::Core::Transform* trans = nullptr;
+		Tristeon::Vector3 size = Tristeon::Vector3::one;
 
-		Tristeon::vector<Tristeon::Vector3> getAllAxises(const OBB& obb) const;
-		Projection project(const Tristeon::Vector3& axis) const;
-		Tristeon::vector<Tristeon::Vector3> getPoints() const;
+		Tristeon::vector<Tristeon::Vector3> getAllAxises(OBB* obb);
+		Projection project(Tristeon::Vector3& axis);
+		Tristeon::vector<Tristeon::Vector3> getPoints();
 
 		REGISTER_TYPE_H(OBB)
 	};

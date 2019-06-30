@@ -19,6 +19,12 @@ namespace Tristeon
 				components[i]->init();
 		}
 
+		GameObject* GameObject::find(const std::string& name)
+		{
+			auto scene = Scenes::SceneManager::getActiveScene();
+			return scene->getGameObjectByName(name);
+		}
+
 		nlohmann::json GameObject::serialize()
 		{
 			nlohmann::json output;

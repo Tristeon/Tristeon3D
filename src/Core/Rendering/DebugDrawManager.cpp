@@ -88,7 +88,13 @@ namespace Tristeon
 				if (instance == nullptr)
 					return;
 
-				glm::mat4x4 rotationMatrix = glm::mat4x4(glm::quat(glm::vec3(rotation.x, rotation.y, rotation.z)));
+				if (size == Vector3::zero)
+				{
+					Misc::Console::warning("Trying to draw debug cube with size 0");
+					return;
+				}
+
+				glm::mat4x4 rotationMatrix = glm::mat4x4(glm::quat(glm::radians(glm::vec3(rotation.x, rotation.y, rotation.z))));
 
 				//TODO Implement Matrix4x4 and stop using glm types here
 				Vector3 min = center - size / 2;
@@ -97,17 +103,19 @@ namespace Tristeon
 				glm::vec4 glmMin = glm::vec4(min.x, min.y, min.z, 1);
 				glm::vec4 glmMax = glm::vec4(max.x, max.y, max.z, 1);
 
-				//Rect coords 1
-				glm::vec3 const bl1 = rotationMatrix * glmMin;
-				glm::vec3 const tl1 = rotationMatrix * glm::vec4(min.x, max.y, min.z, 1);
-				glm::vec3 const br1 = rotationMatrix * glm::vec4(max.x, min.y, min.z, 1);
-				glm::vec3 const tr1 = rotationMatrix * glm::vec4(max.x, max.y, min.z, 1);
+				glm::vec4 point = glm::vec4(size.x/2, size.y/2, size.z/2, 1);
 
+				//Rect coords 1
+				glm::vec3 const bl1 = rotationMatrix * (point * glm::vec4(-1, -1, -1, 1));
+				glm::vec3 const tl1 = rotationMatrix * (point * glm::vec4(-1, 1, -1, 1));
+				glm::vec3 const br1 = rotationMatrix * (point * glm::vec4(1, -1, -1, 1));
+				glm::vec3 const tr1 = rotationMatrix * (point * glm::vec4(1, 1, -1, 1))
+					;
 				//Rect coords 2
-				glm::vec3 const bl2 = rotationMatrix * glm::vec4(min.x, min.y, max.z, 1);
-				glm::vec3 const tl2 = rotationMatrix * glm::vec4(min.x, max.y, max.z, 1);
-				glm::vec3 const br2 = rotationMatrix * glm::vec4(max.x, min.y, max.z, 1);
-				glm::vec3 const tr2 = rotationMatrix * glmMax;
+				glm::vec3 const bl2 = rotationMatrix * (point * glm::vec4(-1, -1, 1, 1));
+				glm::vec3 const tl2 = rotationMatrix * (point * glm::vec4(-1, 1, 1, 1));
+				glm::vec3 const br2 = rotationMatrix * (point * glm::vec4(1, -1, 1, 1));
+				glm::vec3 const tr2 = rotationMatrix * point;
 
 				//Rect 1
 				DebugMesh mesh = DebugMesh({}, lineWidth, color);
@@ -149,6 +157,11 @@ namespace Tristeon
 				mesh.vertices.emplace_back(br1);
 				mesh.vertices.emplace_back(br2);
 
+				for (auto& vertice : mesh.vertices)
+				{
+					vertice.pos += glm::vec3(center.x, center.y, center.z);
+				}
+
 				instance->drawList[color][lineWidth].push(mesh);
 			}
 
@@ -163,14 +176,14 @@ namespace Tristeon
 				DebugMesh mesh = DebugMesh({}, lineWidth, color);
 
 				//Horizontal lines
-				for (float j = 0; j < PI; j += PI / (circles + 1)) 
+				for (float j = 0; j < PI; j += PI / (circles + 1))
 				{
 					//Store first pos to make sure that we'll finish the circle
 					Vector3 firstPos;
 					bool setFirstPos = false;
 
 					float const y = r * cos(j);
-					for (float i = 0; i < 2 * PI; i += PI / resolution) 
+					for (float i = 0; i < 2 * PI; i += PI / resolution)
 					{
 						float const x = r * cos(i) * sin(j);
 						float const z = r * sin(i) * sin(j);
@@ -196,13 +209,13 @@ namespace Tristeon
 				}
 
 				//Vertical lines
-				for (float j = 0; j < PI; j += PI / circles) 
+				for (float j = 0; j < PI; j += PI / circles)
 				{
-					for (float i = 0; i < 2 * PI; i += PI / resolution) 
+					for (float i = 0; i < 2 * PI; i += PI / resolution)
 					{
-						float x = r*sin(i)*cos(j);
-						float y = r*cos(i);
-						float z = r*sin(j)*sin(i);
+						float x = r * sin(i)*cos(j);
+						float y = r * cos(i);
+						float z = r * sin(j)*sin(i);
 						positions.push_back(center + Vector3(x, y, z));
 					}
 				}

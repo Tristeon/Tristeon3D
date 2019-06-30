@@ -36,6 +36,8 @@ namespace Tristeon
 			 */
 			Core::GameObject* getGameObject(std::string instanceID);
 
+			Core::GameObject* getGameObjectByName(std::string name);
+
 			nlohmann::json serialize() override;
 			void deserialize(nlohmann::json json) override;
 		private:

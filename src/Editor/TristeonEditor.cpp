@@ -116,7 +116,7 @@ namespace Tristeon
 
 	void TristeonEditor::onGui()
 	{
-		if (Misc::Keyboard::getKeyDown(Misc::KeyCode::SPACE))
+		if (Misc::Keyboard::getKey(Misc::KeyCode::LEFT_CONTROL) && Misc::Keyboard::getKeyDown(Misc::KeyCode::P))
 		{
 			inPlayMode = !inPlayMode;
 			Core::MessageBus::sendMessage(inPlayMode ? Core::MT_GAME_LOGIC_START : Core::MT_GAME_LOGIC_STOP);

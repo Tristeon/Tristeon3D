@@ -67,7 +67,7 @@ namespace Tristeon
 			 * \brief Parent node
 			 */
 			EditorNode* parent = nullptr;
-			std::vector<EditorNode*> children;
+			vector<EditorNode*> children;
 		protected:
 			/**
 			 * \brief The gameobject the editornode is bound to

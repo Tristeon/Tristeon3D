@@ -4,6 +4,7 @@
 #include "Editor/TypeRegister.h"
 #include "Misc/Console.h"
 #include <memory>
+#include "Physics/Tests/OBB.h"
 
 namespace Tristeon
 {
@@ -54,6 +55,8 @@ namespace Tristeon
 			 * Gets all the components of type T. Will return an empty vector if no components can be found.
 			 */
 			template <typename T> std::vector<T*> getComponents();
+
+			static GameObject* find(const std::string& name);
 
 			nlohmann::json serialize() override;
 			void deserialize(nlohmann::json json) override;

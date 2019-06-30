@@ -20,6 +20,7 @@ EditorNode::EditorNode(Tristeon::Core::GameObject* gameObj, std::string prefabFi
 
 EditorNode::~EditorNode()
 {
+	if (parent != nullptr) parent->children.remove(this);
 }
 
 void EditorNode::load(nlohmann::json json)
