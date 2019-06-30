@@ -95,11 +95,12 @@ namespace Tristeon
 			return x * vec.x + y * vec.y + z * vec.z;
 		}
 
-		void Vector3::cross(Vector3 vec)
+		Vector3& Vector3::cross(Vector3 vec)
 		{
 			x = y * vec.z - vec.y * z;
 			y = z * vec.x - vec.z * x;
 			z = x * vec.y - vec.x * y;
+			return *this;
 		}
 
 		Vector3 Vector3::lerp(Vector3 a, Vector3 b, float t)

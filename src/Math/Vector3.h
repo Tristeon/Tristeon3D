@@ -117,7 +117,7 @@ namespace Tristeon
 			/**
 			 * Cross product between the vector and the given vector
 			 */
-			void cross(Vector3 vec);
+			Vector3& cross(Vector3 vec);
 
 			/**
 			* Linearly interpolates between two vectors.

@@ -71,6 +71,8 @@ namespace Tristeon
 					time--;
 				}
 
+				Misc::Console::write("FPS: " + std::to_string(Misc::Time::fps));
+
 				if (inPlayMode)
 				{
 					//FixedUpdate runs a fixed amount of times per second, the loop makes sure to catch up if we happen to be behind

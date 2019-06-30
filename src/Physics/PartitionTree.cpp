@@ -24,6 +24,7 @@ namespace Tristeon
 
 		void PartitionTree::onGUI()
 		{
+			return;
 			drawNode(rootNode.get());
 		}
 

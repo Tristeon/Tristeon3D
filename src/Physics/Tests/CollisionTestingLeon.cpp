@@ -1,61 +1,136 @@
-#include "CollisionTestingLeon.h"
-#include "Misc/Hardware/Keyboard.h"
+﻿#include "CollisionTestingLeon.h"
+#include "OBB.h"
+#include "Core/GameObject.h"
+#include "Core/Rendering/Components/MeshRenderer.h"
 #include "Core/Rendering/DebugDrawManager.h"
-#include <Misc/Hardware/Time.h>
 
-REGISTER_TYPE_CPP(CollisionTestingLeon)
 using namespace Tristeon;
-using namespace Tristeon::Misc;
+using namespace Tristeon::Core;
 
-nlohmann::json CollisionTestingLeon::serialize()
+namespace Leon
 {
-	nlohmann::json j;
-
-	return j;
-}
-
-void CollisionTestingLeon::deserialize(nlohmann::json json)
-{
-
-}
-
-void CollisionTestingLeon::start()
-{
-
-}
-
-void CollisionTestingLeon::update()
-{
-	float movementX = Keyboard::getKey(D) - Keyboard::getKey(A);
-	float movementZ = Keyboard::getKey(W) - Keyboard::getKey(S);
-	float movementY = Keyboard::getKey(Q) - Keyboard::getKey(E);
-
-	float rotationX = Keyboard::getKey(I) - Keyboard::getKey(K);
-	float rotationZ = Keyboard::getKey(O) - Keyboard::getKey(U);
-	float rotationY = Keyboard::getKey(L) - Keyboard::getKey(J);
-
-	if (Keyboard::getKeyDown(KeyCode::NUM_1))
-		movingID = 1;
-	if (Keyboard::getKeyDown(KeyCode::NUM_2))
-		movingID = 2;
-
-	if (movingID == 1)
+	REGISTER_TYPE_CPP(CollisionTesting)
+		nlohmann::json CollisionTesting::serialize()
 	{
-		colliderA.position += Vector3(movementX, movementY, movementZ) * Time::getDeltaTime();
-		colliderA.rotation += Vector3(rotationX, rotationY, rotationZ) * Time::getDeltaTime();
+		nlohmann::json j = Component::serialize();
+		j["typeID"] = TRISTEON_TYPENAME(CollisionTesting);
+		return j;
 	}
-}
 
-void CollisionTestingLeon::onGUI()
-{
-	Misc::Color const color = checkOBBonOBB() ? Color(1, 0, 0, 1) : Color(0, 1, 0, 0);
+	void CollisionTesting::onGUI()
+	{
+		GameObject* obj1 = GameObject::find("test_1");
+		GameObject* obj2 = GameObject::find("test_2");
+		if (obj1 == nullptr || obj2 == nullptr)
+			return;
 
-	Core::Rendering::DebugDrawManager::addCube(colliderA.position, colliderA.size, colliderA.rotation, 2, color);
-	Core::Rendering::DebugDrawManager::addCube(colliderB.position, colliderB.size, colliderB.rotation, 2, color);
-}
+		bool const colliding = checkCollision(obj1, obj2);
 
-bool CollisionTestingLeon::checkOBBonOBB()
-{
+		Misc::Color color = Misc::Color();
+		if (colliding)
+			color = Misc::Color(1, 0, 0, 1);
 
-	return true;
+		Rendering::DebugDrawManager::addCube(obj1->transform.get()->position.get(), Vector3::one, obj1->transform.get()->rotation.get().eulerAngles(), 4, color);
+		Rendering::DebugDrawManager::addCube(obj2->transform.get()->position.get(), Vector3::one, obj2->transform.get()->rotation.get().eulerAngles(), 4, color);
+	}
+
+	bool CollisionTesting::checkCollision(Tristeon::Core::GameObject* a, Tristeon::Core::GameObject* b)
+	{
+		vector<Vector3> aAxes = getAxises(a);
+		vector<Vector3> bAxes = getAxises(b);
+		vector<Vector3> combinedAxes =
+		{
+			aAxes[0],
+			aAxes[1],
+			aAxes[2],
+			bAxes[0],
+			bAxes[1],
+			bAxes[2],
+			aAxes[0].cross(bAxes[0]),
+			aAxes[0].cross(bAxes[1]),
+			aAxes[0].cross(bAxes[2]),
+			aAxes[1].cross(bAxes[0]),
+			aAxes[1].cross(bAxes[1]),
+			aAxes[1].cross(bAxes[2]),
+			aAxes[2].cross(bAxes[0]),
+			aAxes[2].cross(bAxes[1]),
+			aAxes[2].cross(bAxes[2])
+		};
+
+		return hasOverlap(combinedAxes, getPoints(a), getPoints(b));
+	}
+
+	bool CollisionTesting::hasOverlap(vector<Vector3> axes, vector<Vector3> aVerts, vector<Vector3> bVerts)
+	{
+		constexpr float minimum = -std::numeric_limits<float>::max();
+		constexpr float maximum = std::numeric_limits<float>::max();
+
+		//Iterate over all separating axises
+		for (unsigned int i = 0; i < axes.size(); i++)
+		{
+			//Find minimium and maximum projection of both shapes on current separating axis
+			float aMin = maximum, bMin = maximum;
+			float aMax = minimum, bMax = minimum;
+
+			if (axes[i] == Vector3::zero) //Handles cross products with parallel lines resulting in zero vectors
+				continue;
+
+			//Project all vertices of A onto axis[i]
+			for (unsigned int j = 0; j < bVerts.size(); j++)
+			{
+				float p = Vector3::dot(aVerts[j], axes[i]);
+
+				aMin = std::min(p, aMin);
+				aMax = std::max(p, aMax);
+			}
+
+			//Project all vertices of B onto axis[i]
+			for (unsigned int j = 0; j < bVerts.size(); j++)
+			{
+				float p = Vector3::dot(bVerts[j], axes[i]);
+
+				bMin = std::min(p, bMin);
+				bMax = std::max(p, bMax);
+			}
+
+			//Found separating axis
+			if (aMin > bMax || bMin > aMax)
+				return false;
+		}
+		return true;
+	}
+
+	Tristeon::vector<Tristeon::Vector3> CollisionTesting::getPoints(Tristeon::Core::GameObject* obj)
+	{
+		const auto topRight = Vector3::one / 2;
+
+		vector<Vector3> points = {
+			transformPoint(obj, topRight),							  //Top right forwards
+			transformPoint(obj, topRight * Vector3(-1, 1, 1)),		  //Top left forwards
+			transformPoint(obj, topRight * Vector3(-1, -1, 1)),		  //Bottom left forwards
+			transformPoint(obj, topRight * Vector3(-1, -1, -1)),	  //Bottom left backwards
+			transformPoint(obj, topRight * Vector3(1, -1, 1)),		  //Bottom right forwards
+			transformPoint(obj, topRight * Vector3(1, 1, -1)),		  //Top right backwards
+			transformPoint(obj, topRight * Vector3(1, -1, -1)),		  //Bottom right backwards
+			transformPoint(obj, topRight * Vector3(-1, 1, -1))		  //Bottom left backwards
+		};
+
+		return points;
+	}
+
+	Tristeon::vector<Tristeon::Vector3> CollisionTesting::getAxises(Tristeon::Core::GameObject * obj)
+	{
+		return {
+			obj->transform.get()->right(),
+			obj->transform.get()->up(),
+			obj->transform.get()->forward()
+		};
+	}
+
+	Tristeon::Vector3 CollisionTesting::transformPoint(Tristeon::Core::GameObject* obj, Tristeon::Vector3 point)
+	{
+		//Transform local point into global space
+		const glm::vec4 result = obj->transform.get()->getTransformationMatrix() * glm::vec4(point.x, point.y, point.z, 1);
+		return { result.x, result.y, result.z };
+	}
 }
