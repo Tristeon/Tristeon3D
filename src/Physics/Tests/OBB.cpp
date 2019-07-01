@@ -25,11 +25,12 @@ bool OBB::collides(OBB* obb)
 
 	for (Vector3 axis : allAxises)
 	{
+		if (axis == Vector3::zero) continue;
+
 		Projection p1 = project(axis);
 		Projection p2 = obb->project(axis);
 
-		if (!p1.overlap(p2))
-			return false;
+		if (!p1.overlap(p2)) return false; //Separating axis found
 	}
 	return true;
 }
@@ -108,7 +109,6 @@ Projection OBB::project(Vector3& axis)
 	float min = vertices[0].dot(axis);
 	float max = min;
 	for (int i = 1; i < vertices.size(); i++) {
-		// the axis must be normalized to get accurate projections
 		float p = vertices[i].dot(axis);
 		min = std::min(p, min);
 		max = std::max(p, max);
