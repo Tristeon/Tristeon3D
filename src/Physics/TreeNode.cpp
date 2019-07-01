@@ -210,7 +210,7 @@ namespace Tristeon
 			{
 				if (colliders.size() > 100 && subdivideEnabled)
 				{
-					//subDivide();
+					//subDivideOctree();
 					attemptSubdivideKD();
 
 					//Re-Add colliders
