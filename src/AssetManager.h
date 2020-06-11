@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <map>
+#include <string>
+
 namespace Tristeon
 {
 	class AssetManager

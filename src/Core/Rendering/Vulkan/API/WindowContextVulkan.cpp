@@ -78,17 +78,19 @@ namespace Tristeon
 
 				void WindowContextVulkan::initInstance()
 				{
+					bool useValidationLayers = ValidationLayers::enabled() && ValidationLayers::supported();
 					//Layers
 					if (ValidationLayers::enabled() && !ValidationLayers::supported())
-						Misc::Console::error("Validation layers requested but not available!");
+						Misc::Console::warning("Validation layers requested but not available!");
+
 					std::vector<const char*> extensions = VulkanExtensions::getRequiredExtensions();
 
 					//AppInfo
 					vk::ApplicationInfo appInfo = vk::ApplicationInfo("Tristeon", VK_MAKE_VERSION(2, 0, 0), "Tristeon", VK_MAKE_VERSION(2, 0, 0), VK_API_VERSION_1_0);
 
 					//Instance Create Info
-					const auto layerCount = ValidationLayers::enabled() ? ValidationLayers::validationLayers.size() : 0;
-					const char* const* layerNames = ValidationLayers::enabled() ? ValidationLayers::validationLayers.data() : nullptr;
+					const auto layerCount = useValidationLayers ? ValidationLayers::validationLayers.size() : 0;
+					const char* const* layerNames = useValidationLayers ? ValidationLayers::validationLayers.data() : nullptr;
 					vk::InstanceCreateInfo instanceCI = vk::InstanceCreateInfo({}, &appInfo, layerCount, layerNames, extensions.size(), extensions.data());
 
 					//Create Instance
@@ -99,7 +101,7 @@ namespace Tristeon
 				void WindowContextVulkan::initDebugCallback()
 				{
 					//Only if we are actually using validation layers
-					if (!ValidationLayers::enabled())
+					if (!ValidationLayers::enabled() || !ValidationLayers::supported())
 						return;
 
 					//Setup debug

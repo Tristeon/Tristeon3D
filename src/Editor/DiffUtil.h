@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <map>
+#include <string>
 
 namespace Tristeon {
 	namespace Core {

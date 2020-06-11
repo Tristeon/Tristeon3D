@@ -28,7 +28,7 @@ namespace Tristeon
 						extensions.push_back(glfwExtensions[i]);
 
 					//If validation layers are enabled we should also be supporting DebugReportEXT
-					if (ValidationLayers::enabled())
+					if (ValidationLayers::enabled() && ValidationLayers::supported())
 						extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 
 					return extensions;
