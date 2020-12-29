@@ -1,7 +1,7 @@
 # Tristeon
 Tristeon is an open source game engine built from scratch in C++ by two game engineering students.
 
-This project is now archived as it is no longer in active development in favor of https://github.com/tristeon/tristeon2d.
+This project is now archived as it is no longer in active development in favor of https://github.com/tristeon/tristeon.
 
 ![screenshot of the editor](https://i.imgur.com/T663Nb6.png)
 
