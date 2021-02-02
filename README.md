@@ -1,5 +1,5 @@
-# Tristeon
-Tristeon is an open source game engine built from scratch in C++ by two game engineering students.
+# Tristeon 3D
+Tristeon 3D is an open source game engine built from scratch in C++ by two game engineering students.
 
 This project is now archived as it is no longer in active development in favor of https://github.com/tristeon/tristeon.
 
@@ -38,13 +38,13 @@ This project is now archived as it is no longer in active development in favor o
 * Supported image formats: JPG, PNG, TGA, BMP, PSD and more
 
 # Getting started
-You wish to try out Tristeon? Great! Here's two ways to get started:
+You wish to try out Tristeon 3D? Great! Here's two ways to get started:
 
 ## Pre-built
-If you're just looking to test out Tristeon's current features without diving too much into the C++ side, then it'd be a good idea to go to the latest release: https://github.com/Tristeon/Tristeon/releases/tag/v1.0.0-pre-alpha
+If you're just looking to test out Tristeon's current features without diving too much into the C++ side, then it'd be a good idea to go to the latest release: https://github.com/Tristeon/Tristeon3D/releases/tag/v1.0.0-pre-alpha
 
 ## CMake project
-Tristeon uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
+Tristeon3D uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
 Officially confirmed configurations:
 * MSVC Visual Studio 2017 | x64
 * GCC MingW-w64 | x64
