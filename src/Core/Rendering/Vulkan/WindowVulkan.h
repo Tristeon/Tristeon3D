@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "Core/Rendering/Window.h"
-#include <XPlatform/access.h>
 
-TRISTEON_UNIQUE_ACCESS_DECL()
 namespace Tristeon
 {
 	namespace Core
@@ -16,15 +14,15 @@ namespace Tristeon
 				 */
 				class Window final : public Rendering::Window
 				{
-					TRISTEON_UNIQUE_ACCESS(Window)
+				public:
+					Window() = default;
+					~Window() = default;
+					
 				protected:
 					/**
 					 * \brief Sets up Vulkan specific GLFW parameters
 					 */
 					void onPreWindowCreation() override;
-
-					Window() = default;
-					~Window() = default;
 				};
 			}
 		}

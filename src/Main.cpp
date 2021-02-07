@@ -28,6 +28,7 @@
  POINTERS
  * Raw pointer: Never owns the referenced object. Do NOT attempt to manage/destroy this object if it is given to you.
  * Unique pointer: Owns the referenced object, will destroy the object automatically.
+ * Shared pointer: Never used
  
  NAMING
  * Class/Struct names: UpperCamelCase
@@ -46,7 +47,7 @@
  EDITOR
  * Editor code is allowed to reference engine code
  * The engine should be capable of running without any editor code at all times.
- * Editor code should be encapsulated by #ifdef TRSITEON_EDITOR and #endif
+ * Editor code should be encapsulated by #ifdef TRISTEON_EDITOR and #endif
 */
 
 #ifndef TRISTEON_LOGENABLED

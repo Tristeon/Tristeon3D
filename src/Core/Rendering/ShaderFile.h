@@ -1,12 +1,9 @@
 ﻿#pragma once
 #include <string>
+
+#include "spirv_cross.hpp"
 #include "Editor/Serializable.h"
 #include "Editor/TypeRegister.h"
-#include <spirv_cross/spirv_cross.hpp>
-
-namespace spirv_cross {
-	class Compiler;
-}
 
 #ifdef TRISTEON_EDITOR
 namespace Tristeon {

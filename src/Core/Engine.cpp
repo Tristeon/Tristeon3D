@@ -35,7 +35,7 @@ namespace Tristeon
 			else
 				Misc::Console::error(api + " is not supported as a rendering API!");
 
-			inputSys = std::make_unique<Managers::InputManager>(window->window);
+			inputSys = std::make_unique<Managers::InputManager>();
 			componentSys = std::make_unique<Components::ComponentManager>();
 			sceneSys = std::make_unique<Scenes::SceneManager>();
 

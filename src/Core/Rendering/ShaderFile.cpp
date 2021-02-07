@@ -1,6 +1,6 @@
 ﻿#include "ShaderFile.h"
 #include "Misc/Console.h"
-#include <spirv_cross/spirv_cross.hpp>
+
 #include "Core/UserPrefs.h"
 #include <fstream>
 #include "XPlatform/typename.h"
@@ -180,7 +180,7 @@ namespace Tristeon
 				prop.shaderStage = stage;
 				prop.valueType = DT_Unknown; //Initial value
 				prop.size = 0;
-
+				
 				spirv_cross::SPIRType t = comp.get_type(typeID);
 
 				if (t.vecsize == 3)

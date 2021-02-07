@@ -108,7 +108,7 @@ private:
 #define Property(CLASS, NAME, TYPE)	RWProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME, &CLASS::set_##NAME }; \
     typedef TYPE property__tmp_type_##NAME;
 
-#define PropertyNestedValue(CLASS, NAME, TYPE, VALUE) Property(CLASS, NAME, TYPE); GetProperty(NAME) { return VALUE; } SetProperty(NAME) { ##VALUE = value; } 
+#define PropertyNestedValue(CLASS, NAME, TYPE, VALUE) Property(CLASS, NAME, TYPE); GetProperty(NAME) { return (VALUE); } SetProperty(NAME) { (VALUE) = value; } 
 
 #define ReadOnlyProperty(CLASS, NAME, TYPE) RProperty<CLASS, TYPE> NAME = { this, &CLASS::get_##NAME }; \
     typedef TYPE property__tmp_type_##NAME;

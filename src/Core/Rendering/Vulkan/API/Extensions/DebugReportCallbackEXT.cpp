@@ -14,16 +14,11 @@ namespace Tristeon
 					//Store instance as reference
 					this->instance = instance;
 
-					//Create debug report callback
-					vk::DebugReportCallbackCreateInfoEXT ci = vk::DebugReportCallbackCreateInfoEXT(
-						vk::DebugReportFlagBitsEXT::eError | vk::DebugReportFlagBitsEXT::eWarning,
-						callbackFunction);
-					result = instance.createDebugReportCallbackEXT(&ci, nullptr, &debug);
+					result = vk::Result::eErrorExtensionNotPresent;
 				}
 
 				DebugReportCallbackEXT::~DebugReportCallbackEXT()
 				{
-					instance.destroyDebugReportCallbackEXT(debug);
 				}
 
 				vk::Result DebugReportCallbackEXT::getResult() const

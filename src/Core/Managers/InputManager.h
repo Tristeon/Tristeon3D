@@ -1,9 +1,5 @@
 ﻿#pragma once
-#include <XPlatform/access.h>
-
 struct GLFWwindow;
-
-TRISTEON_UNIQUE_ACCESS_DECL()
 
 namespace Tristeon
 {
@@ -20,11 +16,13 @@ namespace Tristeon
 			 */
 			class InputManager final
 			{
-				TRISTEON_UNIQUE_ACCESS(InputManager)
+			public:
 				/**
 				 * \param window The GLFW window, used to subscribe to callbacks 
 				 */
-				explicit InputManager(GLFWwindow* window);
+				explicit InputManager();
+
+			private:
 				/**
 				 * Resets keydown and keyup, called every frame
 				 */

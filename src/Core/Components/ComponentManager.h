@@ -1,9 +1,7 @@
 ﻿#pragma once
 #include "Component.h"
 #include "Misc/vector.h"
-#include <XPlatform/access.h>
 
-TRISTEON_UNIQUE_ACCESS_DECL()
 namespace Tristeon
 {
 	namespace Core
@@ -23,9 +21,10 @@ namespace Tristeon
 			 */
 			class ComponentManager final
 			{
-				TRISTEON_UNIQUE_ACCESS(ComponentManager)
-
+			public:
 				ComponentManager();
+
+			private:
 				/**
 				 * Calls function f on every registered component
 				 */

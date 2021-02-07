@@ -64,3 +64,9 @@ bin/[Rr]elease/
 *.lib
 .vs/
 x64/
+CMakeFiles
+*.cmake
+*.filters
+*.tlog
+*.lastbuildstate
+*.recipe

@@ -32,12 +32,9 @@
 #include "SkyboxVulkan.h"
 #include "../Skybox.h"
 #include "Misc/ObjectPool.h"
-#include "Core/GameObject.h"
 #include "API/WindowContextVulkan.h"
 
-#include <boost/filesystem.hpp>
-namespace filesystem = boost::filesystem;
-
+#include <filesystem>
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -350,9 +347,9 @@ namespace Tristeon
 				{
 					if (filePath == "")
 						return nullptr;
-					if (!filesystem::exists(filePath))
+					if (!std::filesystem::exists(filePath))
 						return nullptr;
-					if (filesystem::path(filePath).extension() != ".skybox")
+					if (std::filesystem::path(filePath).extension() != ".skybox")
 						return nullptr;
 
 					Skybox* skybox = new Skybox(offscreenPass);
@@ -516,11 +513,11 @@ namespace Tristeon
 						return materials[filePath];
 
 					//Don't even bother doing anything if the material doesn't exist
-					if (!filesystem::exists(filePath))
+					if (!std::filesystem::exists(filePath))
 						return nullptr;
 
 					//Our materials can only be .mat files
-					if (filesystem::path(filePath).extension() != ".mat")
+					if (std::filesystem::path(filePath).extension() != ".mat")
 						return nullptr;
 					
 					Vulkan::Material* m = new Vulkan::Material();

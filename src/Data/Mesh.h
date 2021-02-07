@@ -1,7 +1,7 @@
 ﻿#pragma once
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "Core/TObject.h"
-#include <glm/detail/type_vec3.hpp>
-#include <glm/detail/type_vec2.hpp>
 #include "Math/Vector3.h"
 #include "Math/Vector2.h"
 

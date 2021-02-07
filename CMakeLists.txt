@@ -6,11 +6,13 @@ set (Tristeon_VERSION_MAJOR 1)
 set (Tristeon_VERSION_MINOR 1)	
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(CMAKE_CXX_STANDARD 14)
+#C++
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#Output/compilation
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
 #Add source files
@@ -41,7 +43,6 @@ macro(read_directory curdir)
 endmacro()
 read_directory(${PROJECT_SOURCE_DIR}/src)
 
-
 #Config definitions
 if (MSVC)
 set(EDITOR_DEF -DTRISTEON_EDITOR=1)
@@ -55,10 +56,12 @@ endif(MSVC)
 
 set(CMAKE_CXX_FLAGS_DEBUGEDITOR "${DEBUG_FLAGS} ${EDITOR_DEF} ${LOG_DEF}")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUGEDITOR ${CMAKE_EXE_LINKER_FLAGS_DEBUG})
+set(CMAKE_SHARED_LINKER_FLAGS_DEBUGEDITOR ${CMAKE_SHARED_LINKER_FLAGS_DEBUG})
 set(CMAKE_C_FLAGS_DEBUGEDITOR ${CMAKE_C_FLAGS_DEBUG})
 
 set(CMAKE_CXX_FLAGS_EDITOR "${EDITOR_DEF} ${LOG_DEF}")
 set(CMAKE_EXE_LINKER_FLAGS_EDITOR ${CMAKE_EXE_LINKER_FLAGS_RELEASE})
+set(CMAKE_SHARED_LINKER_FLAGS_EDITOR ${CMAKE_SHARED_LINKER_FLAGS_RELEASE})
 set(CMAKE_C_FLAGS_EDITOR ${CMAKE_C_FLAGS_RELEASE})
 
 set(CMAKE_CXX_FLAGS_DEBUG "${DEBUG_FLAGS} ${LOG_DEF}")
@@ -68,27 +71,8 @@ set(CMAKE_CONFIGURATION_TYPES Debug DebugEditor Release Editor)
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 	
 #Vulkan
-IF(WIN32)
-	IF (NOT Vulkan_FOUND)
-		find_library(Vulkan_LIBRARY NAMES vulkan-1 vulkan PATHS ${CMAKE_SOURCE_DIR}/libs/vulkan)
-		IF (Vulkan_LIBRARY)
-			set(Vulkan_FOUND ON)
-			set(VULKAN_LIBRARY ${Vulkan_LIBRARY})
-		ENDIF()
-	ENDIF()
-ELSE(WIN32)
-	IF (NOT Vulkan_FOUND)
-		find_library(Vulkan_LIBRARY NAMES vulkan HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-		IF (Vulkan_LIBRARY)
-			set(Vulkan_FOUND ON)
-			set(VULKAN_LIBRARY ${Vulkan_LIBRARY})
-		ENDIF()
-	endif()
-endif()
-IF (NOT Vulkan_FOUND)
-	message(FATAL_ERROR "Could not find Vulkan library!")
-ENDIF()
-link_libraries(${Vulkan_LIBRARY})
+find_package(Vulkan REQUIRED FATAL_ERROR)
+include_directories(${Vulkan_INCLUDE_DIRS})
 
 #GLFW
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -108,20 +92,18 @@ include_directories(${PROJECT_BINARY_DIR}/external/assimp/include)
 add_subdirectory(external/glm)
 
 #GLI
+set(GLI_TEST_ENABLE OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/gli)
 include_directories(${PROJECT_SOURCE_DIR}/external/gli)
 include_directories(${PROJECT_BINARY_DIR}/external/gli)
 
 #SPIRV-Cross
 add_subdirectory(external/spirv_cross)
-
 include_directories(${PROJECT_SOURCE_DIR}/external/spirv_cross/include)
 include_directories(${PROJECT_BINARY_DIR}/external/spirv_cross/include)
 
-#Boost
-set(BOOST_URL "")
-set(BOOST_SOURCE ${PROJECT_SOURCE_DIR}/external/boost)
-add_subdirectory(external/boost-cmake)
+include_directories(${PROJECT_SOURCE_DIR}/external/stb)
+include_directories(${PROJECT_SOURCE_DIR}/external/rlutil)
 
 #Libraries
 macro(link_libs targetname)
@@ -129,16 +111,24 @@ macro(link_libs targetname)
 	target_link_libraries(${targetname} assimp)
 	target_link_libraries(${targetname} gli)
 	target_link_libraries(${targetname} glm)
-	target_link_libraries(${targetname} Boost::filesystem)
 	
 	target_link_libraries(${targetname} spirv-cross-core)
 	target_link_libraries(${targetname} spirv-cross-cpp)
 	target_link_libraries(${targetname} spirv-cross-glsl)
 	target_link_libraries(${targetname} spirv-cross-hlsl)
 	target_link_libraries(${targetname} spirv-cross-msl)
+
+	target_link_libraries(${targetname} ${Vulkan_LIBRARIES})
 endmacro()
 
 if (MSVC)
+	target_compile_options(glfw INTERFACE /MP)
+	target_compile_options(assimp INTERFACE /MP)
+	target_compile_options(gli INTERFACE /MP)
+	target_compile_options(glm INTERFACE /MP)
+	
+	add_definitions(/MP)
+
 	add_executable(Tristeon ${tristeonSRC})
 	
 	#Set target output directory

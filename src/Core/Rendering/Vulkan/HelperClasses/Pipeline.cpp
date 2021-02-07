@@ -259,7 +259,8 @@ namespace Tristeon
 						&colorBlendState, &dynamicState,
 						pipelineLayout, renderPass,
 						0, nullptr, -1);
-					pipeline = device.createGraphicsPipeline(nullptr, gci);
+					
+					pipeline = device.createGraphicsPipeline(nullptr, gci).value;
 				}
 
 				void Pipeline::cleanup() const

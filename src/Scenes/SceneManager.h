@@ -6,10 +6,6 @@
 #include "Editor/Asset Browser/SceneFileitem.h"
 #endif
 
-#include <XPlatform/access.h>
-
-TRISTEON_UNIQUE_ACCESS_DECL()
-
 namespace Tristeon
 {
 	namespace Core {
@@ -25,8 +21,10 @@ namespace Tristeon
 #ifdef TRISTEON_EDITOR
 			friend Tristeon::Editor::SceneFileItem;
 #endif
-			TRISTEON_UNIQUE_ACCESS(SceneManager)
 		public:
+			SceneManager();
+			~SceneManager() { activeScene.reset(); }
+			
 			/**
 			 * Loads a scene based on the build ID, and unloads the previously loaded scene.
 			 * The build ID is defined in the build settings for the project, and can be modified through
@@ -49,10 +47,8 @@ namespace Tristeon
 			 * The current active scene. This value will never be null after engine initialization.
 			 */
 			static Scene* getActiveScene() { return activeScene.get(); }
-		private:
-			SceneManager();
-			~SceneManager() { activeScene.reset(); }
 
+		private:
 			static Core::Transform* findTransformByInstanceID(std::string instanceID);
 			static void createParentalBonds(Scene* scene);
 

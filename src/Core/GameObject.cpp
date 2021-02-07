@@ -38,7 +38,7 @@ namespace Tristeon
 		}
 
 		//Temporary till the std::string from nlohmann::json is fixed
-		#define GET_STRING(name, stringName) const std::string value_##name = json[##stringName]; name = value_##name;
+		#define GET_STRING(name, stringName) const std::string value_##name = json[stringName]; name = value_##name;
 
 		void GameObject::deserialize(nlohmann::json json)
 		{

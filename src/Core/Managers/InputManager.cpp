@@ -6,14 +6,18 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Core/BindingData.h"
+
 namespace Tristeon
 {
 	namespace Core
 	{
 		namespace Managers
 		{
-			InputManager::InputManager(GLFWwindow* window)
+			InputManager::InputManager()
 			{
+				GLFWwindow* window = BindingData::getInstance()->window;
+				
 				MessageBus::subscribeToMessage(MT_AFTERFRAME, [&](Message msg) { resetInput(); });
 				Misc::Mouse::window = window;
 				glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) { Misc::Keyboard::keyCallback(key, scancode, action, mods); });
