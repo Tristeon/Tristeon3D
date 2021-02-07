@@ -1,16 +1,10 @@
 ﻿#pragma once
 #ifdef TRISTEON_EDITOR
-
 #include "AssetItem.h"
-
-namespace Tristeon {
-	namespace Scenes {
-		class Scene;
-	}
-}
 
 namespace Tristeon
 {
+	namespace Core { class Scene; }
 	namespace Editor
 	{
 		/**

@@ -443,7 +443,7 @@ namespace Tristeon
 				void RenderManager::createCommandPool()
 				{
 					//Commandpool creation, requires the graphics family we're using
-					const QueueFamilyIndices indices = QueueFamilyIndices::get();
+					const QueueFamilyIndices indices = QueueFamilyIndices::get(binding_data.physical);
 					vk::CommandPoolCreateInfo ci = vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, indices.graphicsFamily);
 					const vk::Result r = vkContext->getDevice().createCommandPool(&ci, nullptr, &commandPool);
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create command pool: " + to_string(r));

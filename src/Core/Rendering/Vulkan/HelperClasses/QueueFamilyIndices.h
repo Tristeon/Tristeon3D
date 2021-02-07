@@ -34,7 +34,7 @@ namespace Tristeon
 					 * \param surface The surface, used to get the available queue families
 					 * \return
 					 */
-					static QueueFamilyIndices get();
+					static QueueFamilyIndices get(vk::PhysicalDevice physical);
 				};
 			}
 		}

@@ -1,19 +1,16 @@
 ﻿#include "Message.h"
 
-namespace Tristeon
+namespace Tristeon::Core
 {
-	namespace Core
+	Message::Message(MessageType type)
 	{
-		Message::Message(MessageType type)
-		{
-			this->type = type;
-			this->userData = nullptr;
-		}
+		this->type = type;
+		this->userData = nullptr;
+	}
 
-		Message::Message(MessageType type, TObject* userData)
-		{
-			this->type = type;
-			this->userData = userData;
-		}
+	Message::Message(MessageType type, TObject* userData)
+	{
+		this->type = type;
+		this->userData = userData;
 	}
 }

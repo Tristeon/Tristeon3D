@@ -1,28 +1,25 @@
 ﻿#include "MessageBus.h"
 #include "Message.h"
 
-namespace Tristeon
+namespace Tristeon::Core
 {
-	namespace Core
+	std::map<MessageType, Misc::Delegate<Message>> MessageBus::messageCallbacks;
+
+	void MessageBus::sendMessage(Message message)
 	{
-		std::map<MessageType, Misc::Delegate<Message>> MessageBus::messageCallbacks;
+		validateMessageType(message.type);
+		messageCallbacks[message.type].invoke(message);
+	}
 
-		void MessageBus::sendMessage(Message message)
-		{
-			validateMessageType(message.type);
-			messageCallbacks[message.type].invoke(message);
-		}
+	void MessageBus::subscribeToMessage(MessageType type, std::function<void(Message)> f)
+	{
+		validateMessageType(type);
+		messageCallbacks[type] += f;
+	}
 
-		void MessageBus::subscribeToMessage(MessageType type, std::function<void(Message)> f)
-		{
-			validateMessageType(type);
-			messageCallbacks[type] += f;
-		}
-
-		void MessageBus::validateMessageType(MessageType type)
-		{
-			if (!messageCallbacks.count(type))
-				messageCallbacks[type] = Misc::Delegate<Message>();
-		}
+	void MessageBus::validateMessageType(MessageType type)
+	{
+		if (!messageCallbacks.count(type))
+			messageCallbacks[type] = Misc::Delegate<Message>();
 	}
 }

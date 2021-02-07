@@ -1,7 +1,7 @@
 ﻿#ifdef TRISTEON_EDITOR
 
 #include "EditorNodeTree.h"
-#include "Scenes/SceneManager.h"
+#include "Core/SceneManager.h"
 
 using namespace Tristeon::Editor;
 
@@ -14,13 +14,13 @@ void EditorNodeTree::load(nlohmann::json nodeTree)
 		{
 			//TODO: implement a faster implementation for loading scenes, this could be very performant intensive in big scenes.
 			// Which is in reference to looking up gameObject by instanceID
-			Scenes::Scene* scene = Scenes::SceneManager::getActiveScene();
+			Core::Scene* scene = Core::SceneManager::current();
 			std::string instanceID = iterator->get<nlohmann::json>()["instanceID"];
-			Core::GameObject* foundGameObject = scene->getGameObject(instanceID);
+			Core::GameObject* foundGameObject = scene->get(instanceID);
 
 			EditorNode* node = new EditorNode(foundGameObject);
 			node->load(iterator->get<nlohmann::json>());
-			if (foundGameObject->prefabFilePath != "")
+			if (!foundGameObject->prefabFilePath.empty())
 			{
 				node->setPrefab(foundGameObject->prefabFilePath);
 			}
@@ -67,7 +67,7 @@ void EditorNodeTree::createParentalBonds()
 void EditorNodeTree::removeNode(EditorNode* node)
 {
 	//Remove gameObject
-	Scenes::SceneManager::getActiveScene()->removeGameObject(node->connectedGameObject);
+	Core::SceneManager::current()->remove(node->connectedGameObject);
 
 	//Remove node from nodetree
 	for (int i = 0; i < nodes.size(); ++i)

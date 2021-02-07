@@ -3,7 +3,7 @@
 
 #include "Editor/EditorNodeTree.h"
 #include "Editor/EditorWindow.h"
-#include "Scenes/Scene.h"
+#include "Core/Scene.h"
 
 namespace Tristeon
 {
@@ -26,7 +26,7 @@ namespace Tristeon
 			/**
 			 * \brief Loads the scene into the editor
 			 */
-			void loadScene(Scenes::Scene& scene);
+			void loadScene(Core::Scene& scene);
 
 			/**
 			* \brief onGUI is called for rendering and handling GUI events.
@@ -50,7 +50,7 @@ namespace Tristeon
 
 			char createdGameObjectName[255] = "";
 			bool sceneChanged = false;
-			Scenes::Scene* currentScene = nullptr;
+			Core::Scene* currentScene = nullptr;
 			EditorNode* selectedNode = nullptr;
 			EditorNode* hoveredNode = nullptr;
 		};

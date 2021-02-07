@@ -1,11 +1,12 @@
-﻿#ifdef TRISTEON_EDITOR
+﻿#include "Core/Rendering/Vulkan/DebugDrawManagerVulkan.h"
+#ifdef TRISTEON_EDITOR
 
 #include "GameObjectHierarchy.h"
 #include "Editor/Asset Browser/AssetBrowser.h"
 #include "Core/GameObject.h"
 #include "Editor/EditorSelection.h"
 #include <GLFW/glfw3.h>
-#include "Scenes/SceneManager.h"
+#include "Core/SceneManager.h"
 #include "Editor/EditorDragging.h"
 #include "Editor/JsonSerializer.h"
 
@@ -82,7 +83,7 @@ void GameObjectHierarchy::drawNode(EditorNode* node)
 	}
 }
 
-void GameObjectHierarchy::loadScene(Tristeon::Scenes::Scene& scene)
+void GameObjectHierarchy::loadScene(Core::Scene& scene)
 {
 	//Load all gameobjects to the gameobject hierarchy
 	editorNodeTree.load(scene.serialize()["gameObjects"]);
@@ -159,11 +160,11 @@ void GameObjectHierarchy::onGui()
 
 void GameObjectHierarchy::checkSceneChanges()
 {
-	if (currentScene == nullptr || currentScene == NULL) currentScene = Scenes::SceneManager::getActiveScene();
-	else if (currentScene != nullptr && currentScene != Scenes::SceneManager::getActiveScene())
+	if (currentScene == nullptr || currentScene == NULL) currentScene = Core::SceneManager::current();
+	else if (currentScene != nullptr && currentScene != Core::SceneManager::current())
 	{
-		loadScene(*Scenes::SceneManager::getActiveScene());
-		currentScene = Scenes::SceneManager::getActiveScene();
+		loadScene(*Core::SceneManager::current());
+		currentScene = Core::SceneManager::current();
 	}
 }
 
@@ -198,7 +199,7 @@ void GameObjectHierarchy::createGameObject(std::string name)
 	createdNode->load(gameObject->serialize());
 
 	//Add the new gameobject to the current scene
-	Scenes::SceneManager::getActiveScene()->addGameObject(std::move(gameObject));
+	Core::SceneManager::current()->add(std::move(gameObject));
 
 	//If a node has been selected use it as the new parent of the created gameobject
 	if (selectedNode != nullptr)
@@ -212,7 +213,7 @@ void GameObjectHierarchy::createGameObject(std::string name)
 
 void GameObjectHierarchy::createGameObject(Tristeon::Core::GameObject* gameObject)
 {
-	Scenes::SceneManager::getActiveScene()->addGameObject(std::move(std::unique_ptr<Core::GameObject>(gameObject)));
+	Core::SceneManager::current()->add(std::move(std::unique_ptr<Core::GameObject>(gameObject)));
 
 	//Load gameobject into an editorNode
 	EditorNode* createdNode = new EditorNode(gameObject);

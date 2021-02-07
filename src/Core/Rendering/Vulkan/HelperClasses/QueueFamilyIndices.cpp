@@ -15,11 +15,11 @@ namespace Tristeon
 					return graphicsFamily >= 0 && presentFamily >= 0;
 				}
 
-				QueueFamilyIndices QueueFamilyIndices::get()
+				QueueFamilyIndices QueueFamilyIndices::get(vk::PhysicalDevice physical)
 				{
 					QueueFamilyIndices result;
 
-					std::vector<vk::QueueFamilyProperties> families = binding_data.physical.getQueueFamilyProperties();
+					std::vector<vk::QueueFamilyProperties> families = physical.getQueueFamilyProperties();
 					int i = 0;
 					for (vk::QueueFamilyProperties f : families) 
 					{
@@ -28,7 +28,7 @@ namespace Tristeon
 							result.graphicsFamily = i;
 
 						//Check if this family supports a 
-						const vk::Bool32 presentSupport = binding_data.physical.getSurfaceSupportKHR(i, binding_data.surface);
+						const vk::Bool32 presentSupport = physical.getSurfaceSupportKHR(i, binding_data.surface);
 						if (f.queueCount > 0 && presentSupport)
 							result.presentFamily = i;
 

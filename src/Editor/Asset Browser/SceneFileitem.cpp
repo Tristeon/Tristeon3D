@@ -1,8 +1,8 @@
 ﻿#ifdef TRISTEON_EDITOR
 
 #include "SceneFileItem.h"
-#include "Scenes/Scene.h"
-#include "Scenes/SceneManager.h"
+#include "Core/Scene.h"
+#include "Core/SceneManager.h"
 
 using namespace Tristeon::Editor;
 using namespace Tristeon;
@@ -16,19 +16,19 @@ SceneFileItem::SceneFileItem()
 void SceneFileItem::createFile(nlohmann::json json)
 {
 	AssetItem::createFile(json);
-	Scenes::SceneManager::addScenePath(name,getFilePath());
+	Core::SceneManager::addScenePath(name,getFilePath());
 }
 
 void SceneFileItem::onDoubleClick()
 {
 	std::cout << "Loading scene: " << name << std::endl;
-	Scenes::SceneManager::loadScene(name);
+	Core::SceneManager::load(name);
 }
 
 void SceneFileItem::removeFile()
 {
 	AssetItem::removeFile();
-	Scenes::SceneManager::removeScenePath(name);
+	Core::SceneManager::removeScenePath(name);
 }
 
 nlohmann::json SceneFileItem::serialize()

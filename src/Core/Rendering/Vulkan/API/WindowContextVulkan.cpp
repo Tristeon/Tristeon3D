@@ -128,7 +128,7 @@ namespace Tristeon
 				void WindowContextVulkan::initLogicalDevice()
 				{
 					//Queue create info
-					const QueueFamilyIndices indices = QueueFamilyIndices::get();
+					const QueueFamilyIndices indices = QueueFamilyIndices::get(binding_data.physical);
 
 					std::vector<vk::DeviceQueueCreateInfo> qcis;
 					std::set<uint32_t> uniqueFamilies = { indices.graphicsFamily, indices.presentFamily };

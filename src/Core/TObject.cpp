@@ -2,23 +2,20 @@
 #include "Misc/Console.h"
 #include "Misc/StringUtils.h"
 
-namespace Tristeon
+namespace Tristeon::Core
 {
-	namespace Core
+	TObject::TObject()
 	{
-		TObject::TObject()
-		{
-			instanceID = StringUtils::generateRandom(12);
-		}
+		instanceID = StringUtils::generateRandom(12);
+	}
 
-		std::string TObject::getInstanceID() const
-		{
-			return instanceID;
-		}
+	std::string TObject::getInstanceID() const
+	{
+		return instanceID;
+	}
 
-		void TObject::print(std::string data)
-		{
-			Misc::Console::write(data);
-		}
+	void TObject::print(std::string data)
+	{
+		Misc::Console::write(data);
 	}
 }

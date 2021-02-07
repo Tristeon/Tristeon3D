@@ -1,12 +1,12 @@
+#include "Core/SceneManager.h"
 #ifdef TRISTEON_EDITOR
 
 #include "AssetBrowser.h"
 #include "FileItemManager.h"
 #include "FolderItem.h"
 #include <GLFW/glfw3.h>
-#include "SceneFileItem.h"
-#include "Scenes/Scene.h"
-#include "Scenes/SceneManager.h"
+#include "SceneFileitem.h"
+#include "Core/Scene.h"
 #include "MaterialFileItem.h"
 #include "Core/Rendering/Material.h"
 #include "Editor/EditorNode.h"
@@ -86,7 +86,7 @@ void AssetBrowser::onGui()
 				//Create a scene file
 				SceneFileItem* sceneFile = new SceneFileItem();
 				sceneFile->init(createdItemName,itemManager->currentFolder,"scene"); //Create meta data
-				Scenes::Scene createdScene = Scenes::Scene(); //Create empty scene
+				Core::Scene createdScene = Core::Scene(); //Create empty scene
 				createdScene.name = createdItemName;
 				sceneFile->createFile(createdScene.serialize()); //Create create the scene file
 				ImGui::CloseCurrentPopup();
@@ -143,8 +143,8 @@ void AssetBrowser::handleDroppedItems()
 
 void AssetBrowser::saveScene()
 {
-	if (Scenes::SceneManager::getActiveScene() != nullptr) {
-		Scenes::Scene* currentScene = Scenes::SceneManager::getActiveScene();
+	if (Core::SceneManager::current() != nullptr) {
+		Core::Scene* currentScene = Core::SceneManager::current();
 		std::cout << "Saving scene: " << currentScene->name << std::endl;
 		if (itemManager->currentlyLoadedSceneFile != nullptr)
 			itemManager->currentlyLoadedSceneFile->createFile(currentScene->serialize());

@@ -2,16 +2,16 @@
 
 #include "FileItemManager.h"
 #include <filesystem>
-#include "FolderItem.h"
+#include <Editor/Asset Browser/SceneFileItem.h>
 #include <GLFW/glfw3.h>
-#include "SceneFileItem.h"
-#include "Scenes/Scene.h"
+#include "FolderItem.h"
+#include "Core/Scene.h"
 #include "Editor/EditorDragging.h"
 #include "Editor/EditorSelection.h"
 
 using namespace std;
 using namespace Tristeon::Editor;
-using Scene = Tristeon::Scenes::Scene;
+using Scene = Tristeon::Core::Scene;
 
 FileItemManager::FileItemManager()
 {

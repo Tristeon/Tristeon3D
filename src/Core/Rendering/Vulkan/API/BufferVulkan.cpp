@@ -19,7 +19,7 @@ namespace Tristeon
 				BufferVulkan::BufferVulkan(size_t size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : size(size)
 				{
 					//Create a vulkan buffer with our given settings
-					QueueFamilyIndices const indices = QueueFamilyIndices::get();
+					QueueFamilyIndices const indices = QueueFamilyIndices::get(binding_data.physical);
 					uint32_t families[] = { indices.graphicsFamily, indices.presentFamily };
 
 					vk::BufferCreateInfo ci = vk::BufferCreateInfo({}, size, usage, sharingMode, 2, families);
