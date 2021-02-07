@@ -9,7 +9,7 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		class BindingData;
+		class RenderData;
 		class Message;
 		namespace Components { class Camera; }
 

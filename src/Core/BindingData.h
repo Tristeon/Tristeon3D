@@ -1,62 +1,55 @@
 #pragma once
-#include "Rendering/Window.h"
-#include <memory>
-
+#include <Core/Rendering/Window.h>
 #include <vulkan/vulkan.hpp>
-#include "Rendering/Vulkan/HelperClasses/Swapchain.h"
+#include <GLFW/glfw3.h>
 
-namespace Tristeon
+namespace Tristeon::Core
 {
-	namespace Core
+	struct BindingData
 	{
-		/**
-		 * BindingData is used to share rendering data between engine subsystems. API specific binding data can inherit from this class.
-		 */
-		class BindingData
-		{
-			friend std::unique_ptr<BindingData>::deleter_type;
-		public:
-			Rendering::Window* tristeonWindow;
-			GLFWwindow* window = nullptr;
+		Rendering::Window* tristeonWindow;
+		
+		GLFWwindow* window = nullptr;
+		unsigned int width = 0;
+		unsigned int height = 0;
 
-			/**
-			 * Default getInstance function for BindingData. Will return the base class, is not guaranteed to return an instance.
-			 */
-			static BindingData* getInstance()
-			{
-				return instance.get();
-			}
-		protected: 
-			BindingData() = default;
-			virtual ~BindingData() = default;
+		vk::Instance instance = nullptr;
+		vk::PhysicalDevice physical = nullptr;
+		vk::Device device = nullptr;
 
-			static std::unique_ptr<BindingData> instance;
-		};
+		uint32_t graphicsFamily = 0;
+		uint32_t presentFamily = 0;
 
-		class VulkanBindingData : public BindingData
-		{
-		public:
-			/**
-			 * Creates a VulkanBindingData instance if there isn't any, otherwise it'll simply just return instance.
-			 * Might return nullptr if the instance is of a different type than VulkanBindingData.
-			 */
-			static VulkanBindingData* getInstance()
-			{
-				if (!instance)
-					instance = std::unique_ptr<BindingData>(new VulkanBindingData());
-				return dynamic_cast<VulkanBindingData*>(instance.get());
-			}
+		vk::Queue graphicsQueue = nullptr;
+		vk::Queue presentQueue = nullptr;
+		vk::SurfaceKHR surface = nullptr;
 
-			vk::PhysicalDevice physicalDevice;
-			vk::Device device;
-			vk::RenderPass renderPass;
-			vk::DescriptorPool descriptorPool;
-			vk::CommandPool commandPool;
-			Rendering::Vulkan::Swapchain* swapchain;
-			vk::Queue graphicsQueue;
-			vk::Queue presentQueue;
-		protected:
-			VulkanBindingData() = default;
-		};
-	}
+		vk::SurfaceFormatKHR surface_format;
+		vk::PresentModeKHR present_mode;
+		vk::Extent2D extent;
+
+		vk::SwapchainKHR swapchain = nullptr;
+		std::vector<vk::Image> swapchain_images{};
+		std::vector<vk::ImageView> swapchain_image_views{};
+		std::vector<vk::Framebuffer> swapchain_framebuffers;
+
+		vk::RenderPass main_pass = nullptr;
+		vk::CommandPool commandPool = nullptr;
+		std::vector<vk::CommandBuffer> command_buffers{};
+
+		vk::DescriptorPool descriptorPool = nullptr;
+
+		const int frames_in_flight = 2;
+		std::vector<vk::Semaphore> image_available;
+		std::vector<vk::Semaphore> render_finished;
+		std::vector<vk::Fence> command_in_flight;
+		std::vector<vk::Fence> images_in_flight;
+
+		bool should_rebuild_swapchain = false;
+
+		bool debug_messenger_enabled = true;
+		vk::DebugUtilsMessengerEXT messenger;
+	};
+
+	inline BindingData binding_data;
 }

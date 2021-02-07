@@ -5,6 +5,7 @@
 #include "../HelperClasses/QueueFamilyIndices.h"
 
 #include <Misc/Console.h>
+
 #include "Core/BindingData.h"
 
 namespace Tristeon
@@ -15,83 +16,67 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				BufferVulkan::BufferVulkan(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, size_t size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : size(size), device(device)
+				BufferVulkan::BufferVulkan(size_t size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : size(size)
 				{
 					//Create a vulkan buffer with our given settings
-					QueueFamilyIndices const indices = QueueFamilyIndices::get(gpu, surface);
+					QueueFamilyIndices const indices = QueueFamilyIndices::get();
 					uint32_t families[] = { indices.graphicsFamily, indices.presentFamily };
 
 					vk::BufferCreateInfo ci = vk::BufferCreateInfo({}, size, usage, sharingMode, 2, families);
-					vk::Result r = device.createBuffer(&ci, nullptr, &buffer);
+					vk::Result r = binding_data.device.createBuffer(&ci, nullptr, &buffer);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to create buffer: " + to_string(r));
 
 					//Allocate VRAM accordingly
-					vk::MemoryRequirements const memReq = device.getBufferMemoryRequirements(buffer);
-					uint32_t const memType = findMemoryType(gpu, memReq.memoryTypeBits, properties);
+					vk::MemoryRequirements const memReq = binding_data.device.getBufferMemoryRequirements(buffer);
+					uint32_t const memType = findMemoryType(memReq.memoryTypeBits, properties);
 					vk::MemoryAllocateInfo mallocInfo = vk::MemoryAllocateInfo(memReq.size, memType);
 						
-					r = device.allocateMemory(&mallocInfo, nullptr, &memory);
+					r = binding_data.device.allocateMemory(&mallocInfo, nullptr, &memory);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate buffer memory: " + to_string(r));
 
 					//Bind memory to buffer
-					device.bindBufferMemory(buffer, memory, 0);
-				}
-
-				BufferVulkan::BufferVulkan(size_t size, vk::BufferUsageFlags usage,
-					vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode) : BufferVulkan(VulkanBindingData::getInstance()->device, VulkanBindingData::getInstance()->physicalDevice, VulkanBindingData::getInstance()->swapchain->getSurface(), size, usage, properties, sharingMode)
-				{
-					//Empty
+					binding_data.device.bindBufferMemory(buffer, memory, 0);
 				}
 
 				BufferVulkan::~BufferVulkan()
 				{
-					device.destroyBuffer(buffer);
-					device.freeMemory(memory);
+					binding_data.device.destroyBuffer(buffer);
+					binding_data.device.freeMemory(memory);
 				}
 
 				void BufferVulkan::copyFromData(void* pData)
 				{
 					void* ptr;
-					device.mapMemory(memory, 0, size, {}, &ptr);
+					binding_data.device.mapMemory(memory, 0, size, {}, &ptr);
 					memcpy(ptr, pData, size);
-					device.unmapMemory(memory);
+					binding_data.device.unmapMemory(memory);
 				}
 
-				void BufferVulkan::copyFromBuffer(vk::Buffer srcBuffer, vk::CommandPool cmdPool, vk::Queue graphicsQueue)
+				void BufferVulkan::copyFromBuffer(vk::Buffer srcBuffer)
 				{
-					vk::CommandBuffer cmd = CommandBuffer::begin(cmdPool, device);
+					vk::CommandBuffer cmd = CommandBuffer::begin();
 
 					vk::BufferCopy copy = vk::BufferCopy(0, 0, size);
 					cmd.copyBuffer(srcBuffer, buffer, 1, &copy);
 					
-					CommandBuffer::end(cmd, graphicsQueue, device, cmdPool);
+					CommandBuffer::end(cmd);
 				}
 
-				std::unique_ptr<BufferVulkan> BufferVulkan::createOptimized(vk::Device device, vk::PhysicalDevice gpu, vk::SurfaceKHR surface, vk::CommandPool cmdPool,
-					vk::Queue graphicsQueue, size_t size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode)
+				std::unique_ptr<BufferVulkan> BufferVulkan::createOptimized(size_t size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode)
 				{
 					//Vulkan's buffers will be able to enable high performance memory when we're using a staging buffer instead of directly copying data to the gpu
-					BufferVulkan staging = BufferVulkan(device, gpu, surface, size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					BufferVulkan staging = BufferVulkan(size, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 					staging.copyFromData(data);
 
-					std::unique_ptr<BufferVulkan> buffer = std::make_unique<BufferVulkan>(device, gpu, surface, size, usage | vk::BufferUsageFlagBits::eTransferDst, properties, sharingMode);
-					buffer->copyFromBuffer(staging.getBuffer(), cmdPool, graphicsQueue);
+					std::unique_ptr<BufferVulkan> buffer = std::make_unique<BufferVulkan>(size, usage | vk::BufferUsageFlagBits::eTransferDst, properties, sharingMode);
+					buffer->copyFromBuffer(staging.getBuffer());
 
 					return move(buffer);
 				}
 
-				std::unique_ptr<BufferVulkan> BufferVulkan::createOptimized(size_t size, void* data,
-					vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::SharingMode sharingMode)
+				uint32_t BufferVulkan::findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties)
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-					return move(createOptimized(bindingData->device, bindingData->physicalDevice, bindingData->swapchain->getSurface(), 
-						bindingData->commandPool, bindingData->graphicsQueue, 
-						size, data, usage, properties, sharingMode));
-				}
-
-				uint32_t BufferVulkan::findMemoryType(vk::PhysicalDevice gpu, uint32_t typeFilter, vk::MemoryPropertyFlags properties)
-				{
-					vk::PhysicalDeviceMemoryProperties const memProps = gpu.getMemoryProperties();
+					vk::PhysicalDeviceMemoryProperties const memProps = Core::binding_data.physical.getMemoryProperties();
 					for (uint32_t i = 0; i < memProps.memoryTypeCount; i++)
 					{
 						//Select a memory type that fits both our typefilter and requested property flags

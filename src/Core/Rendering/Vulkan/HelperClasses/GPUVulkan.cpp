@@ -40,7 +40,7 @@ namespace Tristeon
 				bool GPUVulkan::isSuitable(vk::PhysicalDevice device, vk::SurfaceKHR surface)
 				{
 					//We need to have both queue families available
-					if (!QueueFamilyIndices::get(device, surface).isComplete())
+					if (!QueueFamilyIndices::get().isComplete())
 						return false;
 
 					//Check if the swapchain supports all the extensions we need (SurfaceKHR in this case)

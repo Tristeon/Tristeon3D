@@ -2,8 +2,6 @@
 #include "MaterialVulkan.h"
 
 #include "Core/Transform.h"
-#include "Core/BindingData.h"
-
 #include "Misc/Console.h"
 #include "Core/Rendering/Components/Renderer.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
@@ -11,6 +9,7 @@
 #include "HelperClasses/Pipeline.h"
 #include "Core/GameObject.h"
 #include "API/BufferVulkan.h"
+#include "Core/BindingData.h"
 
 namespace Tristeon
 {
@@ -36,9 +35,8 @@ namespace Tristeon
 				InternalMeshRenderer::~InternalMeshRenderer()
 				{
 					//Cleanup
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-					bindingData->device.waitIdle();
-					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, 1, &set);
+					binding_data.device.waitIdle();
+					binding_data.device.freeDescriptorSets(binding_data.descriptorPool, 1, &set);
 				}
 
 				void InternalMeshRenderer::render()
@@ -108,8 +106,8 @@ namespace Tristeon
 
 				void InternalMeshRenderer::createCommandBuffers()
 				{
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(VulkanBindingData::getInstance()->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					vk::Result const r = VulkanBindingData::getInstance()->device.allocateCommandBuffers(&alloc, &cmd);
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding_data.commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					vk::Result const r = binding_data.device.allocateCommandBuffers(&alloc, &cmd);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate command buffers: " + to_string(r));
 				}
 
@@ -138,8 +136,6 @@ namespace Tristeon
 
 				void InternalMeshRenderer::createDescriptorSets()
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					//Create a temporary layout describing the uniform buffer input
 					vk::DescriptorSetLayout layout;
 					vk::DescriptorSetLayoutBinding const ubo = vk::DescriptorSetLayoutBinding(
@@ -147,11 +143,11 @@ namespace Tristeon
 						1, vk::ShaderStageFlagBits::eVertex,
 						nullptr);
 					vk::DescriptorSetLayoutCreateInfo ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &ubo);
-					bindingData->device.createDescriptorSetLayout(&ci, nullptr, &layout);
+					binding_data.device.createDescriptorSetLayout(&ci, nullptr, &layout);
 
 					//Allocate
-					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
-					vk::Result const r = bindingData->device.allocateDescriptorSets(&alloc, &set);
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding_data.descriptorPool, 1, &layout);
+					vk::Result const r = binding_data.device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					//Write info
@@ -160,9 +156,9 @@ namespace Tristeon
 
 					//Update descriptor with our new write info
 					std::array<vk::WriteDescriptorSet, 1> write = { uboWrite };
-					bindingData->device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
+					binding_data.device.updateDescriptorSets(write.size(), write.data(), 0, nullptr);
 
-					bindingData->device.destroyDescriptorSetLayout(layout);
+					binding_data.device.destroyDescriptorSetLayout(layout);
 				}
 			}
 		}

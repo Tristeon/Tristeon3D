@@ -25,11 +25,9 @@ namespace Tristeon
 
 				DebugDrawManager::DebugDrawManager(vk::RenderPass offscreenPass)
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					//ShaderFile
 					file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-					pipeline = new Pipeline(file, bindingData->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
+					pipeline = new Pipeline(file, binding_data.extent, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
 					material = new Vulkan::Material();
 					material->pipeline = pipeline;
@@ -37,16 +35,14 @@ namespace Tristeon
 					material->updateProperties(true);
 
 					//Allocate command buffers
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(bindingData->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					bindingData->device.allocateCommandBuffers(&alloc, &cmd);
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding_data.commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					binding_data.device.allocateCommandBuffers(&alloc, &cmd);
 
 					createDescriptorSets();
 				}
 
 				void DebugDrawManager::createDescriptorSets()
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					//Create a uniform buffer of the size of UniformBufferObject
 					uniformBuffer = std::make_unique<BufferVulkan>(sizeof(UniformBufferObject), vk::BufferUsageFlagBits::eUniformBuffer,
 						vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
@@ -58,11 +54,11 @@ namespace Tristeon
 						1, vk::ShaderStageFlagBits::eVertex,
 						nullptr);
 					vk::DescriptorSetLayoutCreateInfo ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &ubo);
-					bindingData->device.createDescriptorSetLayout(&ci, nullptr, &layout);
+					binding_data.device.createDescriptorSetLayout(&ci, nullptr, &layout);
 
 					//Allocate
-					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
-					vk::Result const r = bindingData->device.allocateDescriptorSets(&alloc, &set);
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding_data.descriptorPool, 1, &layout);
+					vk::Result const r = binding_data.device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					//Write info
@@ -71,24 +67,23 @@ namespace Tristeon
 
 					//Update descriptor with our new write info
 					std::array<vk::WriteDescriptorSet, 1> write = { uboWrite };
-					bindingData->device.updateDescriptorSets((uint32_t)write.size(), write.data(), 0, nullptr);
+					binding_data.device.updateDescriptorSets((uint32_t)write.size(), write.data(), 0, nullptr);
 
-					bindingData->device.destroyDescriptorSetLayout(layout);
+					binding_data.device.destroyDescriptorSetLayout(layout);
 				}
 
 				DebugDrawManager::~DebugDrawManager()
 				{
 					delete material;
 					delete pipeline;
-					
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-					bindingData->device.freeCommandBuffers(bindingData->commandPool, cmd);
-					bindingData->device.freeDescriptorSets(bindingData->descriptorPool, set);
+
+					binding_data.device.freeCommandBuffers(binding_data.commandPool, cmd);
+					binding_data.device.freeDescriptorSets(binding_data.descriptorPool, set);
 				}
 
 				void DebugDrawManager::rebuild(vk::RenderPass offscreenPass) const
 				{
-					pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
+					pipeline->rebuild(binding_data.extent, offscreenPass);
 				}
 
 				void DebugDrawManager::createVertexBuffer(Data::SubMesh mesh, int i)
@@ -102,7 +97,7 @@ namespace Tristeon
 
 					if (!vertexBuffers[i])
 						vertexBuffers[i] = std::make_unique<BufferVulkan>(size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
-					vertexBuffers[i]->copyFromBuffer(staging.getBuffer(), VulkanBindingData::getInstance()->commandPool, VulkanBindingData::getInstance()->graphicsQueue);
+					vertexBuffers[i]->copyFromBuffer(staging.getBuffer());
 				}
 
 				void DebugDrawManager::render()

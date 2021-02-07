@@ -1,7 +1,6 @@
 ﻿#include "ShaderFile.h"
 #include "Misc/Console.h"
 
-#include "Core/UserPrefs.h"
 #include <fstream>
 
 namespace Tristeon
@@ -12,7 +11,7 @@ namespace Tristeon
 		{
 			REGISTER_TYPE_CPP(ShaderFile)
 
-			ShaderFile::ShaderFile()
+				ShaderFile::ShaderFile()
 			{
 				//Empty
 			}
@@ -23,17 +22,10 @@ namespace Tristeon
 				//Empty
 			}
 
-			std::string ShaderFile::getPath(std::string api, ShaderType type) const
+			std::string ShaderFile::getPath(ShaderType type) const
 			{
-				//Get the name and the shader file extension of the api
-				std::string apiName, apiExtension;
-				if (api == "VULKAN")
-				{
-					apiName = "Vulkan";
-					apiExtension = ".spv";
-				}
-				else
-					Misc::Console::error("Trying to create vertex shader with unsupported Graphics API!");
+				const std::string apiName = "Vulkan";
+				const std::string apiExtension = ".spv";
 
 				//Get the name of the file based on the shader type
 				std::string fileName;
@@ -86,11 +78,9 @@ namespace Tristeon
 
 				properties.clear();
 
-				const std::string api = UserPrefs::getStringValue("RENDERAPI");
-
 				//Vertex
-				std::ifstream in_vert(getPath(api, ST_Vertex), std::ifstream::binary);
-				std::ifstream in_frag(getPath(api, ST_Fragment), std::ifstream::binary);
+				std::ifstream in_vert(getPath(ST_Vertex), std::ifstream::binary);
+				std::ifstream in_frag(getPath(ST_Fragment), std::ifstream::binary);
 
 				if (!in_vert || !in_vert.good() || !in_frag || !in_frag.good())
 				{
@@ -126,11 +116,11 @@ namespace Tristeon
 
 			bool ShaderFile::hasVariable(int set, int binding, DataType data, ShaderType stage)
 			{
-				spirv_cross::Compiler compiler = getCompiler(UserPrefs::getStringValue("RENDERAPI"), stage);
+				spirv_cross::Compiler compiler = getCompiler(stage);
 
 				spirv_cross::ShaderResources res = compiler.get_shader_resources();
 
-				switch(data)
+				switch (data)
 				{
 				case DT_Image:
 					for (const auto s : res.sampled_images)
@@ -159,9 +149,9 @@ namespace Tristeon
 				return false;
 			}
 
-			spirv_cross::Compiler ShaderFile::getCompiler(std::string rapi, ShaderType stage) const
+			spirv_cross::Compiler ShaderFile::getCompiler(ShaderType stage) const
 			{
-				std::ifstream in(getPath(rapi, stage), std::ifstream::binary);
+				std::ifstream in(getPath(stage), std::ifstream::binary);
 				in.seekg(0, in.end);
 				auto const n = in.tellg();
 				in.seekg(0, in.beg);
@@ -179,7 +169,7 @@ namespace Tristeon
 				prop.shaderStage = stage;
 				prop.valueType = DT_Unknown; //Initial value
 				prop.size = 0;
-				
+
 				spirv_cross::SPIRType t = comp.get_type(typeID);
 
 				if (t.vecsize == 3)

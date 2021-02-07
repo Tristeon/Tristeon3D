@@ -15,6 +15,8 @@
 #include "Core/Rendering/Vulkan/HelperClasses/GPUVulkan.h"
 #include <iostream>
 
+#include "Core/BindingData.h"
+
 namespace Tristeon
 {
 	namespace Core
@@ -23,7 +25,7 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				WindowContextVulkan::WindowContextVulkan(Vulkan::Window* window) : WindowContext(window)
+				WindowContextVulkan::WindowContextVulkan()
 				{
 					initInstance();
 					initDebugCallback();
@@ -113,7 +115,7 @@ namespace Tristeon
 				{
 					//Create window khr surface using GLFW's helper function
 					VkSurfaceKHR psurf = VK_NULL_HANDLE;
-					const VkResult r = glfwCreateWindowSurface(VkInstance(instance), window->window.get(), nullptr, &psurf);
+					const VkResult r = glfwCreateWindowSurface(VkInstance(instance), binding_data.window, nullptr, &psurf);
 					surface = vk::SurfaceKHR(psurf);
 					Misc::Console::t_assert(r == VK_SUCCESS, "Failed to create window surface!");
 				}
@@ -126,7 +128,7 @@ namespace Tristeon
 				void WindowContextVulkan::initLogicalDevice()
 				{
 					//Queue create info
-					const QueueFamilyIndices indices = QueueFamilyIndices::get(gpu, surface);
+					const QueueFamilyIndices indices = QueueFamilyIndices::get();
 
 					std::vector<vk::DeviceQueueCreateInfo> qcis;
 					std::set<uint32_t> uniqueFamilies = { indices.graphicsFamily, indices.presentFamily };
@@ -164,7 +166,7 @@ namespace Tristeon
 
 				void WindowContextVulkan::initSwapchain()
 				{
-					swapchain = std::make_unique<Swapchain>(device, gpu, surface, window->width, window->height);
+					swapchain = std::make_unique<Swapchain>(device, gpu, surface, binding_data.width, binding_data.height);
 				}
 
 				void WindowContextVulkan::initSemaphores()

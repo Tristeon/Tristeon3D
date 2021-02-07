@@ -17,7 +17,7 @@ namespace Tristeon
 				class WindowContextVulkan : public WindowContext
 				{
 				public:
-					explicit WindowContextVulkan(Vulkan::Window* window);
+					explicit WindowContextVulkan();
 					~WindowContextVulkan();
 					void prepareFrame() override;
 					void finishFrame() override;

@@ -19,7 +19,7 @@ namespace Tristeon
 		class FileItemManager
 		{
 		public:
-			FileItemManager(Core::BindingData* bindingData);
+			FileItemManager();
 			~FileItemManager();
 
 			/**

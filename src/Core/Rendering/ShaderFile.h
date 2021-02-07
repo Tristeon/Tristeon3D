@@ -91,12 +91,11 @@ namespace Tristeon
 				ShaderFile(std::string name, std::string directory, std::string vertexName, std::string fragmentName);
 
 				/**
-				 * \brief Gets the path to this shaderfile based on the given api and shader type
-				 * \param api The active rendering API
+				 * \brief Gets the path to this shaderfile based the shader type
 				 * \param type The type of shader (vertex/fragment)
 				 * \return Returns a string describing the exact filepath
 				 */
-				std::string getPath(std::string api, ShaderType type) const;
+				std::string getPath(ShaderType type) const;
 				
 				/**
 				 * \return Gets the name id of the shaderfile 
@@ -118,7 +117,7 @@ namespace Tristeon
 
 				bool hasVariable(int set, int binding, DataType data, ShaderType stage);
 			private:
-				spirv_cross::Compiler getCompiler(std::string rapi, ShaderType stage) const;
+				spirv_cross::Compiler getCompiler(ShaderType stage) const;
 
 				/**
 				 * \brief ShaderFiles can be identified by their nameID

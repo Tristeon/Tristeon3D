@@ -8,9 +8,9 @@
 #include "HelperClasses/CommandBuffer.h"
 #include "HelperClasses/VulkanImage.h"
 #include "HelperClasses/Pipeline.h"
-#include "Core/BindingData.h"
 #include "Misc/Hardware/Keyboard.h"
 #include "RenderManagerVulkan.h"
+#include "Core/BindingData.h"
 #include "Data/ImageBatch.h"
 
 namespace Tristeon
@@ -243,7 +243,7 @@ namespace Tristeon
 
 						textures[name] = tex;
 
-						pipeline->device.freeDescriptorSets(VulkanBindingData::getInstance()->descriptorPool, set);
+						pipeline->device.freeDescriptorSets(binding_data.descriptorPool, set);
 						createDescriptorSets();
 					}
 				}
@@ -267,7 +267,7 @@ namespace Tristeon
 					textures.clear();
 
 					//Free descriptor set
-					pipeline->device.freeDescriptorSets(VulkanBindingData::getInstance()->descriptorPool, set);
+					pipeline->device.freeDescriptorSets(binding_data.descriptorPool, set);
 				}
 
 				void Material::createTextureImage(Data::Image img, Texture& texture) const
@@ -320,12 +320,11 @@ namespace Tristeon
 					//Don't bother if we don't even have a shader pipeline
 					if (shader == nullptr || pipeline == nullptr)
 						return;
-					VulkanBindingData* binding = VulkanBindingData::getInstance();
 
 					//Allocate the descriptor set we're using to pass material properties to the shader
 					vk::DescriptorSetLayout layout = pipeline->getSamplerLayout();
-					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding->descriptorPool, 1, &layout);
-					vk::Result const r = binding->device.allocateDescriptorSets(&alloc, &set);
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding_data.descriptorPool, 1, &layout);
+					vk::Result const r = binding_data.device.allocateDescriptorSets(&alloc, &set);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate descriptor set!");
 
 					std::map<std::string, vk::DescriptorImageInfo> descImgInfos;
@@ -362,7 +361,7 @@ namespace Tristeon
 					}
 
 					//Update descriptor with our new write info
-					binding->device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
+					binding_data.device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
 				}
 
 				BufferVulkan* Material::createUniformBuffer(std::string name, vk::DeviceSize size)
@@ -371,8 +370,7 @@ namespace Tristeon
 					if (uniformBuffers.find(name) != uniformBuffers.end())
 						return uniformBuffers[name].get();
 
-					VulkanBindingData* bind = VulkanBindingData::getInstance();
-					uniformBuffers[name] = std::make_unique<BufferVulkan>(bind->device, bind->physicalDevice, bind->swapchain->getSurface(), size, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+					uniformBuffers[name] = std::make_unique<BufferVulkan>(size, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 					return uniformBuffers[name].get();
 				}
 			}

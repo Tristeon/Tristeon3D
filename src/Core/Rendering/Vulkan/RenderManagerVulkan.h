@@ -12,8 +12,7 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		class BindingData;
-		class VulkanBindingData;
+		class RenderData;
 		class Transform;
 
 		namespace Rendering
@@ -53,7 +52,7 @@ namespace Tristeon
 				};
 
 				/**
-				 * \brief RenderData is a small struct for sharing rendering information with rendererss
+				 * \brief RenderData is a small struct for sharing rendering information with renderers
 				 */
 				struct RenderData : TObject
 				{

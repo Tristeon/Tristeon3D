@@ -1,5 +1,6 @@
 ﻿#include "QueueFamilyIndices.h"
 #include "Swapchain.h"
+#include "Core/BindingData.h"
 
 namespace Tristeon
 {
@@ -14,11 +15,11 @@ namespace Tristeon
 					return graphicsFamily >= 0 && presentFamily >= 0;
 				}
 
-				QueueFamilyIndices QueueFamilyIndices::get(vk::PhysicalDevice device, vk::SurfaceKHR surface)
+				QueueFamilyIndices QueueFamilyIndices::get()
 				{
 					QueueFamilyIndices result;
 
-					std::vector<vk::QueueFamilyProperties> families = device.getQueueFamilyProperties();
+					std::vector<vk::QueueFamilyProperties> families = binding_data.physical.getQueueFamilyProperties();
 					int i = 0;
 					for (vk::QueueFamilyProperties f : families) 
 					{
@@ -27,7 +28,7 @@ namespace Tristeon
 							result.graphicsFamily = i;
 
 						//Check if this family supports a 
-						const vk::Bool32 presentSupport = device.getSurfaceSupportKHR(i, surface);
+						const vk::Bool32 presentSupport = binding_data.physical.getSurfaceSupportKHR(i, binding_data.surface);
 						if (f.queueCount > 0 && presentSupport)
 							result.presentFamily = i;
 

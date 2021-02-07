@@ -5,9 +5,10 @@
 #include "Core/Rendering/Vulkan/InternalMeshRendererVulkan.h"
 #include "Core/Rendering/Vulkan/MaterialVulkan.h"
 #include "Data/Mesh.h"
-#include "Core/BindingData.h"
 
 #include <spirv_cross/spirv_cross.hpp>
+
+#include "Core/BindingData.h"
 
 namespace Tristeon
 {
@@ -30,7 +31,7 @@ namespace Tristeon
 				Pipeline::Pipeline(ShaderFile file, vk::Extent2D extent, vk::RenderPass renderPass, bool enableBuffers, vk::PrimitiveTopology topology, bool onlyUniformSet, vk::CullModeFlags cullMode, bool enableLighting)
 				{
 					//Store vars
-					this->device = VulkanBindingData::getInstance()->device;
+					this->device = binding_data.device;
 					this->file = file;
 					this->topology = topology;
 					this->enableBuffers = enableBuffers;
@@ -51,7 +52,7 @@ namespace Tristeon
 					this->topology = topologyMode;
 					this->enableBuffers = true;
 					this->onlyUniformSet = true;
-					this->device = VulkanBindingData::getInstance()->device;
+					this->device = binding_data.device;
 					this->compare_op = compare_op;
 					this->cullMode = cullMode;
 					this->enableLighting = enableLighting;
@@ -173,8 +174,8 @@ namespace Tristeon
 					this->renderpass = renderPass;
 
 					//Load shaders and create modules
-					Data::TextFile vertex = Data::TextFile(file.getPath("VULKAN", ST_Vertex), Data::FileMode::FM_Binary);
-					Data::TextFile fragment = Data::TextFile(file.getPath("VULKAN", ST_Fragment), Data::FileMode::FM_Binary);
+					Data::TextFile vertex = Data::TextFile(file.getPath(ST_Vertex), Data::FileMode::FM_Binary);
+					Data::TextFile fragment = Data::TextFile(file.getPath(ST_Fragment), Data::FileMode::FM_Binary);
 					vertexShader = createShaderModule(vertex.readAllVector(), device);
 					fragmentShader = createShaderModule(fragment.readAllVector(), device);
 

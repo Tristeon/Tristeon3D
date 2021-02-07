@@ -1,9 +1,7 @@
 ﻿#include "RenderManagerVulkan.h"
 
 //Engine 
-#include <Core/BindingData.h>
 #include "Core/Message.h"
-#include "Core/UserPrefs.h"
 #include "Misc/Console.h"
 #include "Math/Vector2.h"
 #include "Core/Transform.h"
@@ -35,6 +33,8 @@
 #include "API/WindowContextVulkan.h"
 
 #include <filesystem>
+
+#include "Core/BindingData.h"
 using Tristeon::Misc::Console;
 
 namespace Tristeon
@@ -45,7 +45,7 @@ namespace Tristeon
 		{
 			namespace Vulkan
 			{
-				RenderManager::RenderManager() : window(BindingData::getInstance()->window)
+				RenderManager::RenderManager() : window(binding_data.window)
 				{
 					MessageBus::subscribeToMessage(MT_WINDOW_RESIZE, [&](Message msg)
 					{
@@ -58,11 +58,7 @@ namespace Tristeon
 #endif
 
 					//Create render technique
-					const std::string tech = UserPrefs::getStringValue("RENDERTECHNIQUE");
-					if (tech == "FORWARD")
-						technique = new Forward(this);
-					else
-						Console::error("Trying to use an unsupported Render technique: " + tech);
+					technique = new Forward(this);
 
 					//Setup vulkan
 					setupVulkan();
@@ -189,17 +185,17 @@ namespace Tristeon
 				void RenderManager::setupVulkan()
 				{
 					//Core vulkan
-					vkContext = new WindowContextVulkan(reinterpret_cast<Window*>(BindingData::getInstance()->tristeonWindow));
+					vkContext = new WindowContextVulkan();
 					windowContext = std::unique_ptr<WindowContextVulkan>(vkContext);
 					
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-					bindingData->physicalDevice = vkContext->getGPU();
-					bindingData->device = vkContext->getDevice();
-					bindingData->graphicsQueue = vkContext->getGraphicsQueue();
-					bindingData->presentQueue = vkContext->getPresentQueue();
+					binding_data.physical = vkContext->getGPU();
+					binding_data.device = vkContext->getDevice();
+					binding_data.graphicsQueue = vkContext->getGraphicsQueue();
+					binding_data.presentQueue = vkContext->getPresentQueue();
 
-					bindingData->swapchain = vkContext->getSwapchain();
-					bindingData->renderPass = vkContext->getSwapchain()->renderpass;
+					binding_data.swapchain = vkContext->getSwapchain()->swapChain;
+					binding_data.extent = vkContext->getExtent();
+					binding_data.main_pass = vkContext->getSwapchain()->renderpass;
 
 					//Pools
 					createDescriptorPool();
@@ -234,7 +230,7 @@ namespace Tristeon
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create descriptor pool: " + to_string(r));
 					
 					//Store data
-					VulkanBindingData::getInstance()->descriptorPool = descriptorPool;
+					binding_data.descriptorPool = descriptorPool;
 				}
 
 				void RenderManager::submitCameras()
@@ -447,13 +443,13 @@ namespace Tristeon
 				void RenderManager::createCommandPool()
 				{
 					//Commandpool creation, requires the graphics family we're using
-					const QueueFamilyIndices indices = QueueFamilyIndices::get(vkContext->getGPU(), vkContext->getSurfaceKHR());
+					const QueueFamilyIndices indices = QueueFamilyIndices::get();
 					vk::CommandPoolCreateInfo ci = vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, indices.graphicsFamily);
 					const vk::Result r = vkContext->getDevice().createCommandPool(&ci, nullptr, &commandPool);
 					Console::t_assert(r == vk::Result::eSuccess, "Failed to create command pool: " + to_string(r));
 
 					//Store data
-					VulkanBindingData::getInstance()->commandPool = commandPool;
+					binding_data.commandPool = commandPool;
 				}
 
 				void RenderManager::createCommandBuffer()
@@ -471,7 +467,7 @@ namespace Tristeon
 						return;
 
 					windowContext->resize(newWidth, newHeight);
-					VulkanBindingData::getInstance()->renderPass = vkContext->getRenderpass();
+					binding_data.main_pass = vkContext->getRenderpass();
 
 					//Rebuild offscreen renderpass
 					vkContext->getDevice().destroyRenderPass(offscreenPass);

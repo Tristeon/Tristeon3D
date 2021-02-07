@@ -1,5 +1,4 @@
 ﻿#include "MeshRenderer.h"
-#include <Core/UserPrefs.h>
 #include "Misc/Console.h"
 #include <Core/Rendering/Vulkan/InternalMeshRendererVulkan.h>
 #include "Data/MeshBatch.h"
@@ -11,15 +10,12 @@ namespace Tristeon
 	{
 		namespace Rendering
 		{
-			REGISTER_TYPE_CPP(MeshRenderer)
+			REGISTER_TYPE_CPP(MeshRenderer);
 
 			void MeshRenderer::initInternalRenderer()
 			{
 				//Select based on rendering api
-				if (UserPrefs::getStringValue("RENDERAPI") == "VULKAN")
-					renderer = new Vulkan::InternalMeshRenderer(this);
-				else
-					Misc::Console::error("Trying to create a MeshRenderer with unsupported rendering API");
+				renderer = new Vulkan::InternalMeshRenderer(this);
 			}
 
 			nlohmann::json MeshRenderer::serialize()

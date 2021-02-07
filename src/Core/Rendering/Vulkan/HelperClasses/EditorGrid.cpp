@@ -15,7 +15,7 @@ Tristeon::Core::Rendering::Vulkan::EditorGrid::EditorGrid(vk::RenderPass offscre
 
 	//Set up our pipeline
 	file = ShaderFile("Line", "Files/Shaders/", "LineV", "LineF");
-	pipeline = new Pipeline(file, VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass, true, vk::PrimitiveTopology::eLineList);
+	pipeline = new Pipeline(file, binding_data.extent, offscreenPass, true, vk::PrimitiveTopology::eLineList);
 
 	//Set up our material with our shader pipeline
 	material = new Material();
@@ -84,5 +84,5 @@ void Tristeon::Core::Rendering::Vulkan::EditorGrid::rebuild(vk::RenderPass offsc
 {
 	//The pipeline has to be rebuilt the moment the swapchain changes,
 	//to fit the new swapchain/window size
-	pipeline->rebuild(VulkanBindingData::getInstance()->swapchain->extent2D, offscreenPass);
+	pipeline->rebuild(binding_data.extent, offscreenPass);
 }

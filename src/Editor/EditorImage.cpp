@@ -11,7 +11,7 @@ namespace Tristeon
 {
 	namespace Editor
 	{
-		EditorImage::EditorImage(Data::Image image, Core::BindingData* data) : image(image)
+		EditorImage::EditorImage(Data::Image image) : image(image)
 		{
 			//Init all resources
 			createTextureImage();
@@ -20,7 +20,7 @@ namespace Tristeon
 			createDescriptorSets();
 		}
 
-		EditorImage::EditorImage(std::string filePath, Core::BindingData* data) : EditorImage(Data::Image(filePath), data)
+		EditorImage::EditorImage(std::string filePath) : EditorImage(Data::Image(filePath))
 		{
 			//Empty
 		}
@@ -28,11 +28,10 @@ namespace Tristeon
 		EditorImage::~EditorImage()
 		{
 			//Cleanup
-			Core::VulkanBindingData* bindingData = Core::VulkanBindingData::getInstance();
-			bindingData->device.destroySampler(sampler);
-			bindingData->device.destroyImageView(view);
-			bindingData->device.destroyImage(img);
-			bindingData->device.freeMemory(mem);
+			Core::binding_data.device.destroySampler(sampler);
+			Core::binding_data.device.destroyImageView(view);
+			Core::binding_data.device.destroyImage(img);
+			Core::binding_data.device.freeMemory(mem);
 		}
 
 		ImTextureID EditorImage::getTextureID() const
@@ -71,7 +70,7 @@ namespace Tristeon
 		void EditorImage::createTextureImageView()
 		{
 			//Create image view for diffuse texture
-			view = Core::Rendering::Vulkan::VulkanImage::createImageView(Core::VulkanBindingData::getInstance()->device, img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
+			view = Core::Rendering::Vulkan::VulkanImage::createImageView(Core::binding_data.device, img, vk::Format::eR8G8B8A8Unorm, vk::ImageAspectFlagBits::eColor);
 		}
 
 		void EditorImage::createTextureSampler()
@@ -86,32 +85,30 @@ namespace Tristeon
 				vk::BorderColor::eIntOpaqueBlack,
 				VK_FALSE);
 
-			vk::Result const r = Core::VulkanBindingData::getInstance()->device.createSampler(&ci, nullptr, &sampler);
+			vk::Result const r = Core::binding_data.device.createSampler(&ci, nullptr, &sampler);
 			Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to create image sampler: " + to_string(r));
 		}
 
 		void EditorImage::createDescriptorSets()
 		{
-			Core::VulkanBindingData* bindingData = Core::VulkanBindingData::getInstance();
-
 			//Create descriptor set layout (temporary)
 			vk::DescriptorSetLayoutBinding b = vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
 			vk::DescriptorSetLayoutCreateInfo const ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &b);
-			vk::DescriptorSetLayout layout = bindingData->device.createDescriptorSetLayout(ci);
+			vk::DescriptorSetLayout layout = Core::binding_data.device.createDescriptorSetLayout(ci);
 
 			//Allocate the descriptor set
 			vk::DescriptorSetAllocateInfo alloc_info = vk::DescriptorSetAllocateInfo(
-				bindingData->descriptorPool,
+				Core::binding_data.descriptorPool,
 				1,
 				&layout);
-			bindingData->device.allocateDescriptorSets(&alloc_info, &set);
+			Core::binding_data.device.allocateDescriptorSets(&alloc_info, &set);
 
 			//Update the Descriptor Set
 			vk::DescriptorImageInfo image = vk::DescriptorImageInfo(sampler, view, vk::ImageLayout::eShaderReadOnlyOptimal);
 			vk::WriteDescriptorSet samplerWrite = vk::WriteDescriptorSet(set, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &image, nullptr, nullptr);
 
-			bindingData->device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
-			bindingData->device.destroyDescriptorSetLayout(layout);
+			Core::binding_data.device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
+			Core::binding_data.device.destroyDescriptorSetLayout(layout);
 		}
 	}
 }

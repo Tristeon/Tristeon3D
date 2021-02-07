@@ -3,12 +3,13 @@
 #include <gli/texture_cube.hpp>
 #include <gli/core/load.inl>
 
-#include "Core/BindingData.h"
 #include "HelperClasses/CommandBuffer.h"
 #include "HelperClasses/Pipeline.h"
 #include "Data/Mesh.h"
 #include <gli/core/convert_func.hpp>
 #include <gli/core/flip.hpp>
+
+#include "Core/BindingData.h"
 #include "HelperClasses/VulkanImage.h"
 
 namespace Tristeon
@@ -21,19 +22,17 @@ namespace Tristeon
 			{
 				Skybox::~Skybox()
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
-					vk::Device device = bindingData->device;
+					vk::Device device = binding_data.device;
 
 					device.destroyImage(image.img);
 					device.freeMemory(image.mem);
 					device.destroyImageView(image.view);
 					device.destroySampler(image.sampler);
-					device.freeDescriptorSets(bindingData->descriptorPool, image.set);
+					device.freeDescriptorSets(binding_data.descriptorPool, image.set);
 
-					device.freeCommandBuffers(bindingData->commandPool, secondary);
+					device.freeCommandBuffers(binding_data.commandPool, secondary);
 
-					device.freeDescriptorSets(bindingData->descriptorPool, lightingSet);
+					device.freeDescriptorSets(binding_data.descriptorPool, lightingSet);
 					delete pipeline;
 				}
 
@@ -106,10 +105,6 @@ namespace Tristeon
 
 				void Skybox::setupCubemap()
 				{
-					//Vulkan
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-					vk::Device device = bindingData->device;
-
 					//Image data
 					gli::texture t = gli::load(texturePath);
 					if (t.empty())
@@ -162,12 +157,12 @@ namespace Tristeon
 					}
 
 					//Copy buffer to image
-					vk::CommandBuffer onetime = CommandBuffer::begin(bindingData->commandPool, bindingData->device);
+					vk::CommandBuffer onetime = CommandBuffer::begin();
 					vk::ImageSubresourceRange const subresource_range = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 6);
 
 					VulkanImage::transitionImageLayout(image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, subresource_range);
 					onetime.copyBufferToImage(staging.getBuffer(), image.img, vk::ImageLayout::eTransferDstOptimal, bufCopyRegions.size(), bufCopyRegions.data());
-					CommandBuffer::end(onetime, bindingData->graphicsQueue, bindingData->device, bindingData->commandPool);
+					CommandBuffer::end(onetime);
 					VulkanImage::transitionImageLayout(image.img, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, subresource_range);
 
 					//Create sampler
@@ -180,7 +175,7 @@ namespace Tristeon
 						0, mipLevels,
 						vk::BorderColor::eIntOpaqueWhite,
 						VK_FALSE);
-					device.createSampler(&samp, nullptr, &image.sampler);
+					binding_data.device.createSampler(&samp, nullptr, &image.sampler);
 
 					//View
 					vk::ImageViewCreateInfo const view = vk::ImageViewCreateInfo({},
@@ -189,7 +184,7 @@ namespace Tristeon
 						{ vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA },
 						vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, mipLevels, 0, 6)
 					);
-					image.view = device.createImageView(view);
+					image.view = binding_data.device.createImageView(view);
 				}
 
 				void Skybox::setupPipeline()
@@ -200,11 +195,11 @@ namespace Tristeon
 					std::array<vk::DescriptorSetLayoutBinding, 2> bindings = { ubo, cubesampler };
 
 					vk::DescriptorSetLayoutCreateInfo const ci = vk::DescriptorSetLayoutCreateInfo({}, bindings.size(), bindings.data());
-					vk::DescriptorSetLayout const descriptorSetLayout = VulkanBindingData::getInstance()->device.createDescriptorSetLayout(ci);
+					vk::DescriptorSetLayout const descriptorSetLayout = binding_data.device.createDescriptorSetLayout(ci);
 
 					pipeline = new Pipeline(
 						ShaderFile("Skybox", "Files/Shaders/", "SkyboxV", "SkyboxF"), 
-						VulkanBindingData::getInstance()->swapchain->extent2D,
+						binding_data.extent,
 						renderPass, 
 						descriptorSetLayout,
 						vk::PrimitiveTopology::eTriangleList,
@@ -221,17 +216,15 @@ namespace Tristeon
 				void Skybox::createCommandBuffers()
 				{
 					//Allocate command buffers
-					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(VulkanBindingData::getInstance()->commandPool, vk::CommandBufferLevel::eSecondary, 1);
-					VulkanBindingData::getInstance()->device.allocateCommandBuffers(&alloc, &secondary);
+					vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(binding_data.commandPool, vk::CommandBufferLevel::eSecondary, 1);
+					binding_data.device.allocateCommandBuffers(&alloc, &secondary);
 				}
 
 				void Skybox::createDescriptorSet()
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					vk::DescriptorSetLayout layout = pipeline->getUniformLayout();
-					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
-					bindingData->device.allocateDescriptorSets(&alloc, &image.set);
+					vk::DescriptorSetAllocateInfo alloc = vk::DescriptorSetAllocateInfo(binding_data.descriptorPool, 1, &layout);
+					binding_data.device.allocateDescriptorSets(&alloc, &image.set);
 
 					//Ubo
 					vk::DescriptorBufferInfo uboInfo = vk::DescriptorBufferInfo(uniformBuffer->getBuffer(), 0, sizeof(ubo));
@@ -243,30 +236,28 @@ namespace Tristeon
 
 					//Update descriptor with our new write info
 					std::array<vk::WriteDescriptorSet, 2> writes = { uboWrite, samplerWrite };
-					bindingData->device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
+					binding_data.device.updateDescriptorSets(writes.size(), writes.data(), 0, nullptr);
 				}
 
 				void Skybox::createOffscreenDescriptorSet()
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					vk::DescriptorSetLayoutBinding const s = vk::DescriptorSetLayoutBinding(
 						0, vk::DescriptorType::eCombinedImageSampler,
 						1, vk::ShaderStageFlagBits::eFragment,
 						nullptr);
 					vk::DescriptorSetLayout layout;
 					vk::DescriptorSetLayoutCreateInfo cil = vk::DescriptorSetLayoutCreateInfo({}, 1, &s);
-					bindingData->device.createDescriptorSetLayout(&cil, nullptr, &layout);
+					binding_data.device.createDescriptorSetLayout(&cil, nullptr, &layout);
 
-					vk::DescriptorSetAllocateInfo const alloc = vk::DescriptorSetAllocateInfo(bindingData->descriptorPool, 1, &layout);
-					lightingSet = bindingData->device.allocateDescriptorSets(alloc)[0];
+					vk::DescriptorSetAllocateInfo const alloc = vk::DescriptorSetAllocateInfo(binding_data.descriptorPool, 1, &layout);
+					lightingSet = binding_data.device.allocateDescriptorSets(alloc)[0];
 
 					vk::DescriptorImageInfo img = vk::DescriptorImageInfo(image.sampler, image.view, vk::ImageLayout::eShaderReadOnlyOptimal);
 					vk::WriteDescriptorSet write = vk::WriteDescriptorSet(lightingSet, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &img, nullptr, nullptr);
 
-					bindingData->device.updateDescriptorSets(1, &write, 0, nullptr);
+					binding_data.device.updateDescriptorSets(1, &write, 0, nullptr);
 
-					bindingData->device.destroyDescriptorSetLayout(layout);
+					binding_data.device.destroyDescriptorSetLayout(layout);
 				}
 
 				void Skybox::createVertexBuffer()

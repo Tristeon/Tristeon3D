@@ -8,9 +8,6 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		//Forward decl
-		class VulkanBindingData;
-
 		namespace Rendering
 		{
 			//Forward decl

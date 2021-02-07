@@ -9,7 +9,7 @@ namespace Tristeon
 	namespace Core
 	{
 		//Forward decl
-		class BindingData;
+		class RenderData;
 		class MessageBus;
 
 		namespace Rendering

@@ -21,7 +21,7 @@ namespace Tristeon
 					 * \param device The vulkan device to allocate a commandbuffer
 					 * \return Returns a vk::Commandbuffer that can be passed to CommandBuffer::end() once you're done using this commandbuffer.
 					 */
-					static vk::CommandBuffer begin(vk::CommandPool commandPool, vk::Device device);
+					static vk::CommandBuffer begin();
 					/**
 					 * \brief Ends, submits and destroys the one time command buffer
 					 * \param buffer The command buffer that was obtained before by using CommandBuffer::begin()
@@ -29,7 +29,7 @@ namespace Tristeon
 					 * \param device The vulkan device to free the commandbuffer
 					 * \param cmdPool The command pool to free the commandbuffer from
 					 */
-					static void end(vk::CommandBuffer buffer, vk::Queue graphicsQueue, vk::Device device, vk::CommandPool cmdPool);
+					static void end(vk::CommandBuffer buffer);
 				};
 			}
 		}

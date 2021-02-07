@@ -8,7 +8,7 @@ namespace Tristeon
 	{
 		namespace Rendering
 		{
-			WindowContext::WindowContext(Window* pWindow) : window(pWindow)
+			WindowContext::WindowContext()
 			{
 				//MessageBus::subscribeToMessage(MT_WINDOW_RESIZE, [&](Message msg)
 				//{

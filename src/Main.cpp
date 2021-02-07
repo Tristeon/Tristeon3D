@@ -36,7 +36,7 @@
  * Member/Local variables: lowerCamelCase
  * Properties: UpperCamelCase
  * Enum: UpperCamelCase
- * Enum values: EnumName + Underscore upper case: EN_FOO
+ * Enum values: UpperCamelCase: MyEnum::Foo
  * Macro definition: Underscore upper case: UPPER_CASE_MACRO
  * Parameters: UpperCamelCase preceding with p: pUserName
 
@@ -50,23 +50,25 @@
  * Editor code should be encapsulated by #ifdef TRISTEON_EDITOR and #endif
 */
 
-#ifndef TRISTEON_LOGENABLED
+#include <Environment/Platform.h>
+#if !defined(TRISTEON_LOGENABLED) && defined(TRISTEON_PLATFORM_WINDOWS)
 #include <windows.h>
 #endif
 
 #include "Core/Engine.h"
-#include "Core/Message.h"
-#include "Core/MessageBus.h"
 
 #ifdef TRISTEON_EDITOR
 #include "Editor/TristeonEditor.h"
+#else
+#include "Core/Message.h"
+#include "Core/MessageBus.h"
 #endif
 
 using namespace Tristeon;
 
 int main(int argc, char** argv)
 {
-#ifndef TRISTEON_LOGENABLED //TODO: Implement in-editor debugging tool, disable console alltogether
+#if !defined(TRISTEON_LOGENABLED) && defined(TRISTEON_PLATFORM_WINDOWS)
 	FreeConsole();
 #endif
 

@@ -86,7 +86,7 @@ namespace Tristeon
 				void Swapchain::createSwapchain(int width, int height)
 				{
 					//Info
-					const QueueFamilyIndices indices = QueueFamilyIndices::get(physicalDevice, surface);
+					const QueueFamilyIndices indices = QueueFamilyIndices::get();
 					SwapChainSupportDetails support = SwapChainSupportDetails(physicalDevice, surface);
 
 					//Choose format, presentMode and extent

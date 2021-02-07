@@ -1,8 +1,8 @@
 ﻿#include "VulkanImage.h"
 #include "Misc/Console.h"
 #include "CommandBuffer.h"
-#include "Core/BindingData.h"
 #include "VulkanFormat.h"
+#include "Core/BindingData.h"
 #include "Core/Rendering/Vulkan/API/BufferVulkan.h"
 
 namespace Tristeon
@@ -16,8 +16,6 @@ namespace Tristeon
 				void VulkanImage::createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, 
 					vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& imageMemory, int arrayLayers, vk::ImageCreateFlags flags)
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					//Create the image with the given parameters
 					vk::ImageCreateInfo imgInfo = vk::ImageCreateInfo(flags,
 						vk::ImageType::e2D, format,
@@ -28,19 +26,19 @@ namespace Tristeon
 						0, nullptr,
 						vk::ImageLayout::eUndefined); //Initial layout
 
-					vk::Result r = bindingData->device.createImage(&imgInfo, nullptr, &image);
+					vk::Result r = binding_data.device.createImage(&imgInfo, nullptr, &image);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to create vulkan image: " + to_string(r));
 
 					//Get memory requirements and memory type
-					vk::MemoryRequirements const memReqs = bindingData->device.getImageMemoryRequirements(image);
-					vk::MemoryAllocateInfo alloc = vk::MemoryAllocateInfo(memReqs.size, BufferVulkan::findMemoryType(bindingData->physicalDevice, memReqs.memoryTypeBits, properties));
+					vk::MemoryRequirements const memReqs = binding_data.device.getImageMemoryRequirements(image);
+					vk::MemoryAllocateInfo alloc = vk::MemoryAllocateInfo(memReqs.size, BufferVulkan::findMemoryType(memReqs.memoryTypeBits, properties));
 
 					//Allocate memory
-					r = bindingData->device.allocateMemory(&alloc, nullptr, &imageMemory);
+					r = binding_data.device.allocateMemory(&alloc, nullptr, &imageMemory);
 					Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate image memory!");
 
 					//Bind image and memory together
-					bindingData->device.bindImageMemory(image, imageMemory, 0);
+					binding_data.device.bindImageMemory(image, imageMemory, 0);
 				}
 
 				vk::ImageView VulkanImage::createImageView(vk::Device device, vk::Image img, vk::Format format, vk::ImageAspectFlags aspectFlags, vk::ImageViewType viewType, vk::ImageSubresourceRange subresource_range)
@@ -58,8 +56,6 @@ namespace Tristeon
 
 				void VulkanImage::transitionImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subresource_range)
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					vk::ImageAspectFlags aspectMask;
 					
 					//set aspect mask to depth/stencil if the new layout is depthstencil
@@ -132,15 +128,13 @@ namespace Tristeon
 					}
 
 					//Transfer
-					vk::CommandBuffer const cmd = CommandBuffer::begin(bindingData->commandPool, bindingData->device);
+					vk::CommandBuffer const cmd = CommandBuffer::begin();
 					cmd.pipelineBarrier(src, dst, {}, 0, nullptr, 0, nullptr, 1, &barrier);
-					CommandBuffer::end(cmd, bindingData->graphicsQueue, bindingData->device, bindingData->commandPool);
+					CommandBuffer::end(cmd);
 				}
 
 				void VulkanImage::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height)
 				{
-					VulkanBindingData* bindingData = VulkanBindingData::getInstance();
-
 					//Define what data we need to copy
 					vk::ImageSubresourceLayers const layers = vk::ImageSubresourceLayers(vk::ImageAspectFlagBits::eColor, 0, 0, 1);
 
@@ -148,9 +142,9 @@ namespace Tristeon
 					vk::BufferImageCopy region = vk::BufferImageCopy(0, 0, 0, layers, vk::Offset3D(0, 0, 0), vk::Extent3D(width, height, 1));
 
 					//Copy
-					vk::CommandBuffer cmd = CommandBuffer::begin(bindingData->commandPool, bindingData->device);
+					vk::CommandBuffer cmd = CommandBuffer::begin();
 					cmd.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
-					CommandBuffer::end(cmd, bindingData->graphicsQueue, bindingData->device, bindingData->commandPool);
+					CommandBuffer::end(cmd);
 				}
 			}
 		}

@@ -3,14 +3,10 @@
 
 #include <vulkan/vulkan.hpp>
 #include "Data/Image.h"
-#include "Core/BindingData.h"
 #include "EditorWindow.h"
 
 namespace Tristeon
 {
-	//Forward decl
-	namespace Core { class BindingData; }
-
 	namespace Editor
 	{
 		//TODO: Make editor image generic and allow for API overrides
@@ -23,14 +19,14 @@ namespace Tristeon
 			 * \param image The image attached
 			 * \param data The rendering binding data
 			 */
-			EditorImage(Data::Image image, Core::BindingData* data);
+			EditorImage(Data::Image image);
 			/**
 			* \brief EditorImage creates a vulkan image and its descriptor sets.
 			* EditorImage MUST be destroyed when the editor is destroyed, the application WILL crash if you don't.
 			* \param filePath The image path
 			* \param data The rendering binding data
 			*/
-			EditorImage(std::string filePath, Core::BindingData* data);
+			EditorImage(std::string filePath);
 
 			/**
 			 * \brief Cleans up all resources allocated by EditorImage

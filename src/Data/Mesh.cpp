@@ -9,7 +9,6 @@
 #include <assimp/postprocess.h>
 
 #include "Misc/Console.h"
-#include "Core/UserPrefs.h"
 
 namespace Tristeon
 {
@@ -35,9 +34,7 @@ namespace Tristeon
 				aiProcess_GenUVCoords |
 				aiProcess_GenSmoothNormals;
 
-			const std::string api = Core::UserPrefs::getStringValue("RENDERAPI");
-			if (api == "VULKAN") //Vulkan uses flipped UVs
-				postProcess |= aiProcess_FlipUVs;
+			postProcess |= aiProcess_FlipUVs; //Vulkan needs flipped UVs
 
 			const auto scene = imp.ReadFile(filePath, postProcess);
 			if (!scene)
