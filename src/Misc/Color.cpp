@@ -1,5 +1,4 @@
 ﻿#include "Color.h"
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -16,7 +15,7 @@ namespace Tristeon
 		nlohmann::json Color::serialize_const() const
 		{
 			nlohmann::json j;
-			j["typeID"] = TRISTEON_TYPENAME(Color);
+			j["typeID"] = Core::Type<Color>::fullName();
 			j["r"] = r;
 			j["g"] = g;
 			j["b"] = b;

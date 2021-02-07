@@ -1,6 +1,4 @@
 ﻿#include "Vector2.h"
-#include "Misc/Console.h"
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -167,7 +165,7 @@ namespace Tristeon
 		nlohmann::json Vector2::serialize()
 		{
 			nlohmann::json j;
-			j["typeID"] = TRISTEON_TYPENAME(Vector2);
+			j["typeID"] = Tristeon::Core::Type<Vector2>::fullName();
 			j["x"] = x;
 			j["y"] = y;
 			return j;

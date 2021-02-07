@@ -8,7 +8,6 @@
 #include "Scenes/SceneManager.h"
 #include "Editor/EditorDragging.h"
 #include "Editor/JsonSerializer.h"
-#include "XPlatform/typename.h"
 
 using namespace Tristeon::Editor;
 
@@ -26,7 +25,7 @@ void GameObjectHierarchy::drawNode(EditorNode* node)
 	nlohmann::json nodeData = *node->getData();
 
 	//Type check
-	if (nodeData["typeID"] != TRISTEON_TYPENAME(Core::GameObject))
+	if (nodeData["typeID"] != Tristeon::Core::Type<Core::GameObject>::fullName())
 	{
 		std::cout << "Editor node for the GameObject hierarchy is not a GameObject, b-b-baka~!\n";
 		return;

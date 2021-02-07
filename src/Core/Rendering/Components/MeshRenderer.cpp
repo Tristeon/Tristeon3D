@@ -3,7 +3,6 @@
 #include "Misc/Console.h"
 #include <Core/Rendering/Vulkan/InternalMeshRendererVulkan.h>
 #include "Data/MeshBatch.h"
-#include "XPlatform/typename.h"
 #include <filesystem>
 
 namespace Tristeon
@@ -26,7 +25,7 @@ namespace Tristeon
 			nlohmann::json MeshRenderer::serialize()
 			{
 				nlohmann::json j;
-				j["typeID"] = TRISTEON_TYPENAME(MeshRenderer);
+				j["typeID"] = Type<MeshRenderer>::fullName();
 				j["name"] = "MeshRenderer";
 				j["meshPath"] = meshFilePath;
 				j["subMeshID"] = subMeshID;

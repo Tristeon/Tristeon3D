@@ -1,6 +1,5 @@
 #include "Material.h"
 #include "Editor/JsonSerializer.h"
-#include "XPlatform/typename.h"
 #include <filesystem>
 
 namespace Tristeon::Core::Rendering
@@ -10,7 +9,7 @@ namespace Tristeon::Core::Rendering
 	nlohmann::json Material::serialize()
 	{
 		nlohmann::json j;
-		j["typeID"] = TRISTEON_TYPENAME(Material);
+		j["typeID"] = Type<Material>::fullName();
 		j["texturePaths"] = texturePaths;
 		j["vectors"] = vectors;
 		j["colors"] = colors;

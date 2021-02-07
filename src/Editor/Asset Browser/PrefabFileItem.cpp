@@ -2,7 +2,6 @@
 
 #include "PrefabFileItem.h"
 #include "Editor/JsonSerializer.h"
-#include "XPlatform/typename.h"
 
 DerivedRegister<PrefabFileItem> PrefabFileItem::reg;
 
@@ -19,7 +18,7 @@ nlohmann::json PrefabFileItem::GetPrefabData() const
 nlohmann::json PrefabFileItem::serialize()
 {
 	nlohmann::json output = AssetItem::serialize();
-	output["typeID"] = TRISTEON_TYPENAME(PrefabFileItem);
+	output["typeID"] = Tristeon::Core::Type<PrefabFileItem>::fullName();
 	return output;
 }
 

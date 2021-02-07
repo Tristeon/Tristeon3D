@@ -1,7 +1,6 @@
 ﻿#include "Skybox.h"
 #include "Data/Mesh.h"
 #include "Data/MeshBatch.h"
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -19,7 +18,7 @@ namespace Tristeon
 			nlohmann::json Skybox::serialize()
 			{
 				nlohmann::json j;
-				j["typeID"] = TRISTEON_TYPENAME(Skybox);
+				j["typeID"] = Type<Skybox>::fullName();
 				j["texture"] = texturePath;
 				return j;
 			}

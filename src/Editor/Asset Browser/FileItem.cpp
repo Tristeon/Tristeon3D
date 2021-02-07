@@ -1,12 +1,11 @@
 ﻿#ifdef TRISTEON_EDITOR
 
 #include "FileItem.h"
-#include "XPlatform/typename.h"
 
 nlohmann::json Tristeon::Editor::FileItem::serialize()
 {
 	nlohmann::json output;
-	output["typeID"] = TRISTEON_TYPENAME(FileItem);
+	output["typeID"] = Tristeon::Core::Type<FileItem>::fullName();
 	output["isFolder"] = isFolder;
 	output["filepath"] = filepath;
 	output["name"] = name;

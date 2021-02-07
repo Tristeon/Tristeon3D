@@ -3,7 +3,6 @@
 
 #include "Core/UserPrefs.h"
 #include <fstream>
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -57,7 +56,7 @@ namespace Tristeon
 			nlohmann::json ShaderFile::serialize()
 			{
 				nlohmann::json j;
-				j["typeID"] = TRISTEON_TYPENAME(ShaderFile);
+				j["typeID"] = Type<ShaderFile>::fullName();
 				j["nameID"] = nameID;
 				j["directory"] = directory;
 				j["vertexName"] = vertexName;

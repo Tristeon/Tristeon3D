@@ -10,7 +10,6 @@
 #include "Editor/EditorDragging.h"
 #include "MeshFileItem.h"
 #include <assimp/Importer.hpp>
-#include "XPlatform/typename.h"
 
 using namespace std;
 using namespace Tristeon::Editor;
@@ -216,7 +215,7 @@ void FolderItem::drawHierarchy(FileItemManager* itemManager)
 nlohmann::json FolderItem::serialize()
 {
 	nlohmann::json output = FileItem::serialize();
-	output["typeID"] = TRISTEON_TYPENAME(FolderItem);
+	output["typeID"] = Tristeon::Core::Type<FolderItem>::fullName();
 	return output;
 }
 

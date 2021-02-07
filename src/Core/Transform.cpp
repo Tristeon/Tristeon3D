@@ -1,7 +1,6 @@
 ﻿#include "Transform.h"
 
 #include <glm/gtx/matrix_decompose.hpp>
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -58,7 +57,7 @@ namespace Tristeon
 		nlohmann::json Transform::serialize()
 		{
 			nlohmann::json output;
-			output["typeID"] = TRISTEON_TYPENAME(Transform);
+			output["typeID"] = Type<Transform>::fullName();
 			output["instanceID"] = getInstanceID();
 			output["parentID"] = parent == nullptr ? "null" : parent->getInstanceID();
 			output["localPosition"] = _localPosition.serialize();

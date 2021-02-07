@@ -2,7 +2,6 @@
 #include "Core/Transform.h"
 #include "Misc/Hardware/Mouse.h"
 #include "Misc/Hardware/Time.h"
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -13,7 +12,7 @@ namespace Tristeon
 		nlohmann::json FirstPersonCameraController::serialize()
 		{
 			nlohmann::json j;
-			j["typeID"] = TRISTEON_TYPENAME(FirstPersonCameraController);
+			j["typeID"] = Tristeon::Core::Type<FirstPersonCameraController>::fullName();
 			j["sensitivity"] = sensitivity;
 			return j;
 		}

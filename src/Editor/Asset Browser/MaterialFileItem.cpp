@@ -6,7 +6,6 @@
 #include "Core/Rendering/RenderManager.h"
 #include "Core/Rendering/Vulkan/MaterialVulkan.h"
 #include <string.h>
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -40,7 +39,7 @@ namespace Tristeon
 		nlohmann::json MaterialFileItem::serialize()
 		{
 			nlohmann::json output = AssetItem::serialize();
-			output["typeID"] = TRISTEON_TYPENAME(MaterialFileItem);
+			output["typeID"] = Tristeon::Core::Type<MaterialFileItem>::fullName();
 			return output;
 		}
 

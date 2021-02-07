@@ -4,8 +4,6 @@
 #include "AssetItem.h"
 #include "FolderItem.h"
 #include "Editor/JsonSerializer.h"
-#include "Scenes/Scene.h"
-#include "XPlatform/typename.h"
 
 namespace filesystem = std::filesystem;
 using namespace Tristeon::Editor;
@@ -23,7 +21,7 @@ AssetItem::~AssetItem()
 nlohmann::json AssetItem::serialize()
 {
 	nlohmann::json output = FileItem::serialize();
-	output["typeID"] = TRISTEON_TYPENAME(AssetItem);
+	output["typeID"] = Core::Type<AssetItem>::fullName();
 	output["extension"] = extension;
 	return output;
 }

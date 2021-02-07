@@ -2,7 +2,6 @@
 #include "IntrospectionInterface.h"
 #include "Serializable.h"
 #include "Misc/Console.h"
-#include "XPlatform/typename.h"
 
 template <typename T> std::unique_ptr<IntrospectionInterface> CreateInstance() { return std::make_unique<T>(); }
 
@@ -46,7 +45,7 @@ struct DerivedRegister : TypeRegister
 {
 	DerivedRegister()
 	{
-		getMap()->emplace(TRISTEON_TYPENAME(T), &CreateInstance<T>);
+		getMap()->emplace(Tristeon::Core::Type<T>::fullName(), &CreateInstance<T>);
 	}
 };
 

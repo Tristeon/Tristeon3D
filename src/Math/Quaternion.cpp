@@ -2,7 +2,6 @@
 #include "Vector3.h"
 #include "Misc/Console.h"
 #include <glm/gtc/matrix_transform.inl>
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -123,7 +122,7 @@ namespace Tristeon
 		nlohmann::json Quaternion::serialize()
 		{
 			nlohmann::json j;
-			j["typeID"] = TRISTEON_TYPENAME(Quaternion);
+			j["typeID"] = Tristeon::Core::Type<Quaternion>::fullName();
 			j["x"] = x.get();
 			j["y"] = y.get();
 			j["z"] = z.get();

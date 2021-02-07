@@ -1,7 +1,6 @@
 ﻿#ifdef TRISTEON_EDITOR
 
 #include "Prefab.h"
-#include "XPlatform/typename.h"
 
 nlohmann::json Tristeon::Prefab::getPrefabData()
 {
@@ -11,7 +10,7 @@ nlohmann::json Tristeon::Prefab::getPrefabData()
 nlohmann::json Tristeon::Prefab::serialize()
 {
 	nlohmann::json output;
-	output["typeID"] = TRISTEON_TYPENAME(Prefab);
+	output["typeID"] = Core::Type<Prefab>::fullName();
 	output["prefabFilePath"] = prefabFilePath;
 	return output;
 }

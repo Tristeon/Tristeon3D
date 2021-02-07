@@ -2,7 +2,6 @@
 #include "Core/Transform.h"
 #include "Misc/Hardware/Keyboard.h"
 #include "Misc/Hardware/Time.h"
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -11,7 +10,7 @@ namespace Tristeon
 		nlohmann::json CharacterController::serialize()
 		{
 			nlohmann::json j;
-			j["typeID"] = TRISTEON_TYPENAME(CharacterController);
+			j["typeID"] = Tristeon::Core::Type<CharacterController>::fullName();
 			j["speed"] = speed;
 			return j;
 		}

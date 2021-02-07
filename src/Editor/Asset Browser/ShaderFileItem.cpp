@@ -5,7 +5,6 @@
 #include "Core/Rendering/ShaderFile.h"
 #include "Editor/JsonSerializer.h"
 #include <ImGUI/imgui.h>
-#include "XPlatform/typename.h"
 
 using namespace Tristeon::Editor;
 
@@ -39,7 +38,7 @@ void ShaderFileItem::drawOnInspector()
 nlohmann::json ShaderFileItem::serialize()
 {
 	nlohmann::json output = AssetItem::serialize();
-	output["typeID"] = TRISTEON_TYPENAME(ShaderFileItem);
+	output["typeID"] = Tristeon::Core::Type<ShaderFileItem>::fullName();
 	return output;
 }
 

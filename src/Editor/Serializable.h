@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "json.hpp"
 #include "IntrospectionInterface.h"
-#include "XPlatform/typename.h"
+#include <Core/Type.h>
 
 class Serializable : public IntrospectionInterface
 {
@@ -26,5 +26,5 @@ public:
 template<typename T>
 inline bool Serializable::isType()
 {
-	return serialize()["typeID"] == TRISTEON_TYPENAME(T);
+	return serialize()["typeID"] == Tristeon::Core::Type<T>::fullName();
 }

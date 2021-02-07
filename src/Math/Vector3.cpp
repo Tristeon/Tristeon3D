@@ -1,7 +1,6 @@
 #include "Vector3.h"
 #include "cmath"
 #include <string>
-#include "XPlatform/typename.h"
 
 namespace Tristeon
 {
@@ -192,7 +191,7 @@ namespace Tristeon
 		nlohmann::json Vector3::serialize_const() const
 		{
 			nlohmann::json output;
-			output["typeID"] = TRISTEON_TYPENAME(Vector3);
+			output["typeID"] = Tristeon::Core::Type<Vector3>::fullName();
 			output["x"] = x;
 			output["y"] = y;
 			output["z"] = z;
