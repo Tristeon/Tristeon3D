@@ -1,5 +1,6 @@
 ﻿#ifdef TRISTEON_EDITOR
 
+#include <filesystem>
 #include "FolderItem.h"
 #include "FileItemManager.h"
 #include "AssetItem.h"
@@ -10,9 +11,6 @@
 #include "MeshFileItem.h"
 #include <assimp/Importer.hpp>
 #include "XPlatform/typename.h"
-
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
 
 using namespace std;
 using namespace Tristeon::Editor;
@@ -51,11 +49,11 @@ void FolderItem::init(string name, FolderItem* folder, string extension)
 	if (name == "" || name == " ") name = "New folder";
 
 	//Check if file already exists
-	if (fs::exists(filePath + name + ".meta"))
+	if (std::filesystem::exists(filePath + name + ".meta"))
 	{
 		//Explicitly add a number to the new folder (eg. if Prefab.meta exists create Prefab 2.meta)
 		int index = 1;
-		while (fs::exists(filePath + name + " " + to_string(index) + ".meta"))
+		while (filesystem::exists(filePath + name + " " + to_string(index) + ".meta"))
 		{
 			index++;
 		}
@@ -66,7 +64,7 @@ void FolderItem::init(string name, FolderItem* folder, string extension)
 	this->name = name;
 	this->filepath = filePath;
 	JsonSerializer::serialize(filepath + name + ".meta", *this);
-	fs::create_directory(string(filepath + name).c_str());
+	filesystem::create_directory(string(filepath + name).c_str());
 }
 
 /**
@@ -77,8 +75,8 @@ void FolderItem::createMetaData(const string& filepath)
 	//TODO: implement identification of the file where metadata is created for, so instead of assuming that
 	//if it's not a folder that it's simply an assetitem, further define what that assetitem could be.
 	FileItem* itemMetaData;
-	fs::path path(filepath);
-	if (fs::is_directory(filepath))
+	filesystem::path path(filepath);
+	if (filesystem::is_directory(filepath))
 		itemMetaData = new FolderItem();
 	else
 	{
@@ -115,14 +113,14 @@ void FolderItem::setup(bool doChildren)
 
 	//Find all files inside of this folder and store their filepath inside of `filesInFolder` if they're a file
 	//and if they're a meta file add it to metadata
-	for (auto& file : fs::directory_iterator(filepath+name+"/"))
+	for (auto& file : filesystem::directory_iterator(filepath+name+"/"))
 	{
-		fs::path filePath = file.path();
+		filesystem::path filePath = file.path();
 		string filePathGenericString = filePath.generic_string();
 		//If it found a meta file
 		if (filePath.extension() == ".meta") {
 			string originalFilePath = filePathGenericString.substr(0, filePathGenericString.size() - 5);
-			if (!fs::exists(originalFilePath))
+			if (!filesystem::exists(originalFilePath))
 			{
 				Misc::Console::warning("A meta data file exists but its asset '" + originalFilePath + "' can't be found. When moving or deleting files outside of Tristeon, please ensure that the corresponding .meta file is moved or deleted along with it.");
 			}
@@ -229,8 +227,8 @@ void FolderItem::deserialize(nlohmann::json json)
 
 void FolderItem::removeFile()
 {
-	fs::remove(filepath + name);
-	fs::remove(filepath + name + ".meta");
+	filesystem::remove(filepath + name);
+	filesystem::remove(filepath + name + ".meta");
 }
 
 bool FolderItem::hasChild(FolderItem* destination)
@@ -283,8 +281,8 @@ void FolderItem::move(FolderItem* destination)
 		}
 
 		//Delete old folder & meta data
-		fs::remove_all(oldFilepath +name);
-		fs::remove(oldFilepath + name + ".meta");
+		filesystem::remove_all(oldFilepath +name);
+		filesystem::remove(oldFilepath + name + ".meta");
 	}
 	else
 	{

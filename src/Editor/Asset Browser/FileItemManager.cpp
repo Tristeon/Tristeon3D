@@ -1,10 +1,7 @@
 ﻿#ifdef TRISTEON_EDITOR
 
 #include "FileItemManager.h"
-
-#include <boost/filesystem.hpp>
-namespace filesystem = boost::filesystem;
-
+#include <filesystem>
 #include "FolderItem.h"
 #include <GLFW/glfw3.h>
 #include "SceneFileItem.h"

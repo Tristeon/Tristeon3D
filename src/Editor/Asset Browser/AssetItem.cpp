@@ -1,14 +1,13 @@
 #ifdef TRISTEON_EDITOR
 
+#include <filesystem>
 #include "AssetItem.h"
 #include "FolderItem.h"
 #include "Editor/JsonSerializer.h"
 #include "Scenes/Scene.h"
 #include "XPlatform/typename.h"
 
-#include <boost/filesystem.hpp>
-namespace filesystem = boost::filesystem;
-
+namespace filesystem = std::filesystem;
 using namespace Tristeon::Editor;
 DerivedRegister<Tristeon::Editor::AssetItem> AssetItem::reg{};
 
@@ -103,7 +102,7 @@ void AssetItem::move(FolderItem* destination)
 	std::string p2 = destinationFilepath;
 
 	//Copy file
-	filesystem::copy_file(p1,p2, filesystem::copy_option::overwrite_if_exists);
+	copy_file(p1,p2, filesystem::copy_options::overwrite_existing);
 	//Remove old file and meta file
 	filesystem::remove(p1);
 	filesystem::remove(p1 + ".meta");
