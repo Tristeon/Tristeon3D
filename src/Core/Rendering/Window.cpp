@@ -5,43 +5,52 @@
 #include <GLFW/glfw3.h>
 #include <Math/Vector2.h>
 #include <Misc/Console.h>
+#include <Core/BindingData.h>
 
 namespace Tristeon::Core::Rendering
 {
 	Window::~Window()
 	{
 		MessageBus::sendMessage(MT_QUIT);
-		glfwDestroyWindow(window);
+		glfwDestroyWindow(binding_data.window);
 		glfwTerminate();
 	}
 
-	void Window::init()
+	Window::Window()
 	{
 		//Error callback has to be set before anything else, to not miss out on potential early errors
-		glfwSetErrorCallback([](int error, const char* description) { Misc::Console::error("GLFW Error. Error code: " + std::to_string(error) + ". Description: " + description); });
+		glfwSetErrorCallback([](int error, const char* description) { Misc::Console::error("[GLFW] [ERROR] [CODE: " + std::to_string(error) + "] Description: " + description); });
 
-		glfwInit();
+		if (!glfwInit())
+		{
+			Misc::Console::error("[WINDOW] [ERROR] Failed to initialize GLFW");
+			return;
+		}
+		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_RESIZABLE, true);
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 		glfwGetMonitorPhysicalSize(monitor, &width.value, &height.value);
 
 		//Create and call callbacks
-		onPreWindowCreation();
-		window.value = glfwCreateWindow(width, height, "Tristeon", nullptr, nullptr);
-		if (window.get() == nullptr)
+		Misc::Console::write("[WINDOW] [INIT] Creating GLFW window");
+		binding_data.window = glfwCreateWindow(width, height, "Tristeon", nullptr, nullptr);
+		if (binding_data.window == nullptr)
 			Misc::Console::error("Failed to open GLFW window!");
-		glfwMaximizeWindow(window);
-		glfwSetWindowUserPointer(window.get(), this);
+		glfwMaximizeWindow(binding_data.window);
+		glfwSetWindowUserPointer(binding_data.window, this);
 
-		glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h) { static_cast<Window*>(glfwGetWindowUserPointer(window))->onResize(w, h); });
-		onPostWindowCreation();
+		Misc::Console::write("[WINDOW] [INIT] Binding GLFW callbacks");
+		glfwSetWindowSizeCallback(binding_data.window, [](GLFWwindow* window, int w, int h) { static_cast<Window*>(glfwGetWindowUserPointer(window))->onResize(w, h); });
 	}
 
 	void Window::onResize(int width, int height)
 	{
+		Misc::Console::write("[WINDOW] [EVENT] Resizing window to " + std::to_string(width) + "x" + std::to_string(height));
+		
 		this->width.value = width;
 		this->height.value = height;
 		Math::Vector2 size = Math::Vector2((float)width, (float)height);

@@ -104,6 +104,7 @@ include_directories(${PROJECT_BINARY_DIR}/external/spirv_cross/include)
 
 include_directories(${PROJECT_SOURCE_DIR}/external/stb)
 include_directories(${PROJECT_SOURCE_DIR}/external/rlutil)
+include_directories(${PROJECT_SOURCE_DIR}/external/json)
 
 #Libraries
 macro(link_libs targetname)

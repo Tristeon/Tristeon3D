@@ -98,7 +98,6 @@ namespace Tristeon
 				{
 					//Friends
 					friend CameraRenderData;
-					friend RenderTechnique;
 					friend Forward;
 
 				public:
@@ -112,8 +111,7 @@ namespace Tristeon
 					 * \brief Renders the current scene to the screen
 					 */
 					void render() override;
-					
-					static Pipeline* getPipeline(ShaderFile file);
+
 				protected:
 					/**
 					 * \brief Returns a material serialized from the given filepath

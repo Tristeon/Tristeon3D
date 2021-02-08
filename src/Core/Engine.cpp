@@ -1,22 +1,17 @@
 ﻿#include "Engine.h"
-#include <Core/BindingData.h>
 
-#include "Rendering/Vulkan/WindowVulkan.h"
-#include "Rendering/Vulkan/RenderManagerVulkan.h"
-#include "MessageBus.h"
-#include "Misc/Hardware/Time.h"
+#include <Core/BindingData.h>
+#include <Core/MessageBus.h>
+#include <Misc/Hardware/Time.h>
 
 namespace Tristeon::Core
 {
 	Engine::Engine()
 	{
-		//Init window + store window info in bindingdata
-		window = std::make_unique<Rendering::Vulkan::Window>();
-		window->init();
-		binding_data.tristeonWindow = window.get();
-		binding_data.window = window->window;
-
-		renderSys = std::make_unique<Rendering::Vulkan::RenderManager>();
+		Misc::Console::write("[ENGINE] [INIT] Initializing engine variables");
+		
+		window = std::make_unique<Rendering::Window>();
+		renderSys = std::make_unique<Rendering::RenderManager>();
 
 		inputSys = std::make_unique<Managers::InputManager>();
 		componentSys = std::make_unique<Components::ComponentManager>();
@@ -33,11 +28,11 @@ namespace Tristeon::Core
 	void Engine::run() const
 	{
 		double lastTime = glfwGetTime();
-		float fixedUpdateTime = 0;
+		double fixedUpdateTime = 0;
 		int frames = 0;
-		float time = 0;
+		double time = 0;
 
-		while (!glfwWindowShouldClose(window->window))
+		while (!glfwWindowShouldClose(binding_data.window))
 		{
 			glfwPollEvents();
 
