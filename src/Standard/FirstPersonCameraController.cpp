@@ -7,7 +7,7 @@ namespace Tristeon
 {
 	namespace Standard
 	{
-		DerivedRegister<FirstPersonCameraController> FirstPersonCameraController::reg;
+		REGISTER_TYPE_CPP(FirstPersonCameraController)
 
 		nlohmann::json FirstPersonCameraController::serialize()
 		{

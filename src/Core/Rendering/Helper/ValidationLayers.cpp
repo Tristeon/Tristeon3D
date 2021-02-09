@@ -2,6 +2,8 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 
+#include "Misc/Console.h"
+
 namespace Tristeon::Core::Rendering
 {
 	//Did we check for support?
@@ -43,5 +45,62 @@ namespace Tristeon::Core::Rendering
 		_checked = true;
 		_supported = true;
 		return _supported;
+	}
+
+	VkBool32 ValidationLayers::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
+	{
+		if (severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT || severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+			return VK_FALSE;
+
+		std::string output = "[RENDERER] [VULKAN] ";
+
+		switch (severity)
+		{
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+			output += "[VERBOSE] ";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+			output += "[INFO] ";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			output += "[WARNING] ";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			output += "[ERROR] ";
+			break;
+		default:;
+		}
+
+		switch (type)
+		{
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+			output += "[GENERAL] ";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+			output += "[VALIDATION] ";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+			output += "[PERFORMANCE] ";
+			break;
+		}
+
+		output += callback_data->pMessage;
+		Misc::Console::write(output);
+		return VK_FALSE;
+	}
+
+	vk::Result ValidationLayers::createDebugUtilsMessenger(vk::Instance instance, const vk::DebugUtilsMessengerCreateInfoEXT* pCreateInfo, vk::DebugUtilsMessengerEXT* pDebugMessenger)
+	{
+		const auto func = (PFN_vkCreateDebugUtilsMessengerEXT)instance.getProcAddr("vkCreateDebugUtilsMessengerEXT");
+		if (func != nullptr)
+			return (vk::Result)func(instance, (VkDebugUtilsMessengerCreateInfoEXT*)pCreateInfo, nullptr, (VkDebugUtilsMessengerEXT*)pDebugMessenger);
+		return vk::Result::eErrorExtensionNotPresent;
+	}
+
+	void ValidationLayers::destroyDebugUtilsMessenger(vk::Instance instance, vk::DebugUtilsMessengerEXT debugMessenger)
+	{
+		const auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT");
+		if (func != nullptr)
+			func((VkInstance)instance, (VkDebugUtilsMessengerEXT)debugMessenger, nullptr);
 	}
 }

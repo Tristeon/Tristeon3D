@@ -1,37 +1,37 @@
 ﻿#include "Renderer.h"
-#include "Core/Message.h"
-#include "Core/MessageBus.h"
+#include "Core/Collector.h"
+#include "Data/Resources.h"
 
-namespace Tristeon
+namespace Tristeon::Core::Rendering
 {
-	namespace Core
+	void Renderer::render()
 	{
-		namespace Rendering
-		{
-			void Renderer::render()
-			{
-				//Call rendering API specific render call
-				if (renderer != nullptr)
-					renderer->render();
-			}
+	}
 
-			Renderer::~Renderer()
-			{
-				//Deregister ourselves
-				if (registered)
-					MessageBus::sendMessage({ MT_RENDERINGCOMPONENT_DEREGISTER, dynamic_cast<TObject*>(this) });
+	nlohmann::json Renderer::serialize()
+	{
+		nlohmann::json j = Component::serialize();
+		j["material"] = materialPath;
+		return j;
+	}
 
-				//Cleanup renderer
-				if (renderer != nullptr)
-					delete renderer;
-			}
+	void Renderer::deserialize(nlohmann::json json)
+	{
+		Component::deserialize(json);
+		
+		const auto pathValue = json.value("material", std::string());
+		if (pathValue != materialPath)
+			material = Resources::jsonLoad<Material>(materialPath);
+		materialPath = pathValue;
+	}
 
-			void Renderer::init()
-			{
-				if (!registered)
-					MessageBus::sendMessage({MT_RENDERINGCOMPONENT_REGISTER, dynamic_cast<TObject*>(this) });
-				registered = true;
-			}
-		}
+	Renderer::Renderer()
+	{
+		Collector<Renderer>::add(this);
+	}
+
+	Renderer::~Renderer()
+	{
+		Collector<Renderer>::remove(this);
 	}
 }

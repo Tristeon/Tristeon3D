@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include <vector>
+#include <array>
+#include <vulkan/vulkan.hpp>
+#include <vulkan/vk_platform.h>
 
 namespace Tristeon::Core::Rendering
 {
@@ -25,9 +27,12 @@ namespace Tristeon::Core::Rendering
 		 * \return Returns true if the validation layers are supported
 		 */
 		static bool supported();
-		/**
-		 * \brief The required validation layers
-		 */
+
+		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
+
+		static vk::Result createDebugUtilsMessenger(vk::Instance instance, const vk::DebugUtilsMessengerCreateInfoEXT* pCreateInfo, vk::DebugUtilsMessengerEXT* pDebugMessenger);
+
+		static void destroyDebugUtilsMessenger(vk::Instance instance, vk::DebugUtilsMessengerEXT debugMessenger);
 	private:
 		/**
 		 * \brief Checks if we've checked for support before, if so we can return _supported immediately

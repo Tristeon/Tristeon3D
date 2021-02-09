@@ -3,7 +3,7 @@
 #ifdef TRISTEON_EDITOR
 
 #include <string>
-#include "Editor/Serializable.h"
+#include "Core/Serializable.h"
 #include "Editor/Draggable.h"
 
 namespace Tristeon
@@ -15,7 +15,7 @@ namespace Tristeon
 		/**
 		 FileItem is the abstract interface for editor ui that is displayed in the asset browser view
 		 */
-		class FileItem : public Serializable, public Draggable
+		class FileItem : public Core::Serializable, public Draggable
 		{
 		public:
 			

@@ -10,26 +10,26 @@ namespace Tristeon::Core::Rendering
 {
 	vk::SwapchainKHR DeviceSelector::swapchain()
 	{
-		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating swapchain\n");
+		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating swapchain");
 
 		const auto formats = binding_data.physical.getSurfaceFormatsKHR(binding_data.surface);
-		binding_data.surface_format = formats[0];
+		binding_data.format = formats[0];
 		for (const auto& format : formats)
 		{
 			if (format.format == vk::Format::eB8G8R8A8Srgb && //SRGB results in more accurate colors
 				format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-				binding_data.surface_format = format;
+				binding_data.format = format;
 		}
-		Misc::Console::write("\t\t\t\tImage format: " + vk::to_string(binding_data.surface_format.format) + " with color space: " + vk::to_string(binding_data.surface_format.colorSpace));
+		Misc::Console::write("\tImage format: " + vk::to_string(binding_data.format.format) + " with color space: " + vk::to_string(binding_data.format.colorSpace));
 
 		const auto modes = binding_data.physical.getSurfacePresentModesKHR(binding_data.surface);
-		binding_data.present_mode = vk::PresentModeKHR::eFifo;
+		binding_data.presentMode = vk::PresentModeKHR::eFifo;
 		for (const auto mode : modes)
 		{
 			if (mode == vk::PresentModeKHR::eMailbox)
-				binding_data.present_mode = mode;
+				binding_data.presentMode = mode;
 		}
-		Misc::Console::write("\t\t\t\tPresent mode: " + vk::to_string(binding_data.present_mode));
+		Misc::Console::write("\tPresent mode: " + vk::to_string(binding_data.presentMode));
 
 		const auto capabilities = binding_data.physical.getSurfaceCapabilitiesKHR(binding_data.surface);
 		if (capabilities.currentExtent.width != UINT32_MAX)
@@ -45,22 +45,22 @@ namespace Tristeon::Core::Rendering
 				std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, (unsigned int)h))
 			};
 		}
-		Misc::Console::write("\t\t\t\tSwap extent: " + std::to_string(binding_data.extent.width) + "x" + std::to_string(binding_data.extent.height));
+		Misc::Console::write("\tSwap extent: " + std::to_string(binding_data.extent.width) + "x" + std::to_string(binding_data.extent.height));
 
 		uint32_t image_count = capabilities.minImageCount + 1;
 		if (capabilities.maxImageCount > 0 && image_count > capabilities.maxImageCount)
 			image_count = capabilities.maxImageCount;
-		Misc::Console::write("\t\t\t\tImage count: " + std::to_string(image_count));
+		Misc::Console::write("\tImage count: " + std::to_string(image_count));
 
 		std::array<uint32_t, 2> families{ binding_data.graphicsFamily, binding_data.presentFamily };
-		Misc::Console::write("\t\t\t\tSwapchain operating in " + (std::string)((binding_data.graphicsFamily == binding_data.presentFamily) ? "exclusive" : "concurrent"));
+		Misc::Console::write("\tSwapchain operating in " + (std::string)((binding_data.graphicsFamily == binding_data.presentFamily) ? "exclusive" : "concurrent") + " mode");
 
 		const vk::SwapchainCreateInfoKHR swapchain_ci(
 			{},
 			binding_data.surface,
 			image_count,
-			binding_data.surface_format.format,
-			binding_data.surface_format.colorSpace,
+			binding_data.format.format,
+			binding_data.format.colorSpace,
 			binding_data.extent,
 			1, //Image array layers, always 1 unless for stereoscopic 3D apps 
 			vk::ImageUsageFlagBits::eColorAttachment,
@@ -70,7 +70,7 @@ namespace Tristeon::Core::Rendering
 			binding_data.graphicsFamily != binding_data.presentFamily ? families.data() : nullptr,
 			capabilities.currentTransform, //Should images be transformed? (e.g. flipped or rotated) - current does nothing
 			vk::CompositeAlphaFlagBitsKHR::eOpaque,
-			binding_data.present_mode,
+			binding_data.presentMode,
 			VK_TRUE, nullptr);
 
 		return binding_data.device.createSwapchainKHR(swapchain_ci);
@@ -98,11 +98,11 @@ namespace Tristeon::Core::Rendering
 		{
 			auto properties = physical.getProperties();
 
-			Misc::Console::write("\t\t\t" + (std::string)properties.deviceName);
+			Misc::Console::write("\t" + (std::string)properties.deviceName.data());
 			if (suitable(physical))
 			{
 				const int rating = rate(physical);
-				Misc::Console::write("\t\t\t\tDevice is suitable. Rating: " + std::to_string(rating));
+				Misc::Console::write("\t\tDevice is suitable. Rating: " + std::to_string(rating));
 
 				if (rating > 0 && rating > lowest)
 				{
@@ -112,7 +112,7 @@ namespace Tristeon::Core::Rendering
 			}
 			else
 			{
-				Misc::Console::write("\t\t\t\tDevice is not suitable.");
+				Misc::Console::write("\t\tDevice is not suitable.");
 			}
 		}
 
@@ -123,7 +123,7 @@ namespace Tristeon::Core::Rendering
 		}
 
 		const auto properties = selected.getProperties();
-		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Selected GPU: " + (std::string)properties.deviceName);
+		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Selected GPU: " + (std::string)properties.deviceName.data());
 		return selected;
 	}
 
@@ -213,11 +213,11 @@ namespace Tristeon::Core::Rendering
 		auto available = physical.enumerateDeviceExtensionProperties();
 
 		//Iterate over the available set of extensions and see if every required extension is in there
-		Misc::Console::write("\t\t\t\tAvailable extensions:");
+		Misc::Console::write("\t\tAvailable extensions:");
 		std::set<std::string> requiredExtensions(gpuExtensions.begin(), gpuExtensions.end());
 		for (const auto& extension : available) {
-			Misc::Console::write("\t\t\t\t\t" + (std::string)extension.extensionName);
-			requiredExtensions.erase(extension.extensionName);
+			Misc::Console::write("\t\t\t" + (std::string)extension.extensionName.data());
+			requiredExtensions.erase(extension.extensionName.data());
 			
 			if (requiredExtensions.empty())
 				break;

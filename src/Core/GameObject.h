@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Transform.h"
 #include "Components/Component.h"
-#include "Editor/TypeRegister.h"
+#include "Core/TypeRegister.h"
 #include "Misc/Console.h"
 #include <memory>
 
@@ -53,12 +53,6 @@ namespace Tristeon::Core
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
 	private:
-		/**
-		 * Initializes all the gameobjects' components.
-		 * This function gets called after the scene has been fully loaded. The game does not have to be running.
-		 */
-		void init();
-
 		std::unique_ptr<Transform> _transform;
 		std::vector<std::unique_ptr<Components::Component>> components;
 

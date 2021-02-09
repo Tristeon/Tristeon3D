@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <string>
-#include "Editor/Serializable.h"
+#include <Core/Serializable.h>
 
 namespace Tristeon::Core
 {
@@ -14,14 +14,18 @@ namespace Tristeon::Core
 		friend class GameObject;
 	public:
 		TObject();
-
+		virtual ~TObject() override = default;
+		
 		std::string name;
-		std::string getInstanceID() const;
+		[[nodiscard]] std::string getInstanceID() const;
 
 		/**
 		 * Prints the given data to the console. Only in Debug/ReleaseDebug/Editor.
 		 */
 		static void print(std::string data);
+
+		nlohmann::json serialize() override;
+		void deserialize(nlohmann::json json) override;
 	private:
 		std::string instanceID;
 	};

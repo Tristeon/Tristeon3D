@@ -72,13 +72,13 @@ int main(int argc, char** argv)
 	FreeConsole();
 #endif
 
-	Core::Engine engine{};
+	const Core::Engine engine{};
 
 #ifdef TRISTEON_EDITOR
-	Editor::TristeonEditor editor(&engine);
+	const Editor::TristeonEditor editor{};
 #else
 	//Auto start game with the starting scene loaded in in game/release mode
-	Scenes::SceneManager::loadScene(0);
+	Core::SceneManager::load(0);
 	Core::MessageBus::sendMessage(Core::MessageType::MT_GAME_LOGIC_START);
 #endif
 

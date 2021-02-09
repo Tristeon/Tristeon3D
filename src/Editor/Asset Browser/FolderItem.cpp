@@ -4,7 +4,7 @@
 #include "FolderItem.h"
 #include "FileItemManager.h"
 #include "AssetItem.h"
-#include "Editor/JsonSerializer.h"
+#include "Core/JsonSerializer.h"
 #include "Misc/StringUtils.h"
 #include "Misc/Console.h"
 #include "Editor/EditorDragging.h"
@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Tristeon::Editor;
 
-DerivedRegister<FolderItem> FolderItem::reg;
+REGISTER_TYPE_CPP(FolderItem)
 
 FolderItem::FolderItem()
 {
@@ -62,7 +62,7 @@ void FolderItem::init(string name, FolderItem* folder, string extension)
 
 	this->name = name;
 	this->filepath = filePath;
-	JsonSerializer::serialize(filepath + name + ".meta", *this);
+	Core::JsonSerializer::serialize(filepath + name + ".meta", *this);
 	filesystem::create_directory(string(filepath + name).c_str());
 }
 
@@ -156,7 +156,7 @@ void FolderItem::setup(bool doChildren)
 
 		nlohmann::json input;
 		stream >> input;
-		auto deserializedObject = TypeRegister::createInstance(input["typeID"]);
+		auto deserializedObject = Core::TypeRegister::createInstance(input["typeID"]);
 
 		fileItemToAdd = (FileItem*) deserializedObject.get();
 		deserializedObject.release();

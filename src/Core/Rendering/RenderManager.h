@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <Core/Rendering/Material.h>
+
 namespace Tristeon
 {
 	namespace Core
@@ -26,11 +28,12 @@ namespace Tristeon
 				void cleanSwapchain();
 				
 				bool inPlayMode = false;
-
+				bool resized = false;
 				/**
 				 * \brief The only instance of RenderManager ever. Used so that getMaterial() can access local variables
 				 */
 				static RenderManager* instance;
+				std::unique_ptr<Material> screenMat;
 			};
 		}
 	}

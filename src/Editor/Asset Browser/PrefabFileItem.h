@@ -14,7 +14,7 @@ public:
 
 	nlohmann::json serialize() override;
 private:
-	static DerivedRegister<PrefabFileItem> reg;
+	REGISTER_TYPE_H(PrefabFileItem)
 };
 
 #endif

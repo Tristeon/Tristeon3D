@@ -1,9 +1,8 @@
 #pragma once
-
 #ifdef TRISTEON_EDITOR
 
 #include "FileItem.h"
-#include "Editor/TypeRegister.h"
+#include "Core/TypeRegister.h"
 #include "Editor/Selectable.h"
 
 namespace Tristeon

@@ -38,8 +38,6 @@ namespace Tristeon::Core
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
 	private:
-		void init();
-
 		std::vector<std::unique_ptr<GameObject>> gameObjects;
 		REGISTER_TYPE_H(Scene)
 	};

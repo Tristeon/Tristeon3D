@@ -6,10 +6,6 @@ namespace Tristeon
 {
 	namespace Core
 	{
-		class GameObject;
-		class MessageBus;
-		class Transform;
-
 		namespace Components
 		{
 			/**
@@ -20,10 +16,8 @@ namespace Tristeon
 				friend GameObject;
 
 			public:
-				/**
-				 * Deregisters itself from engine callbacks
-				 */
-				~Component();
+				Component();
+				virtual ~Component() override;
 
 				/**
 				* The gameobject that this component is attached to
@@ -36,11 +30,6 @@ namespace Tristeon
 				*/
 				ReadOnlyProperty(Component, transform, Core::Transform*);
 				GetProperty(transform);
-
-				/**
-				 * Initializes the component and registers itself to engine callbacks. Can be overriden
-				 */
-				virtual void init();
 
 				/**
 				 * Start gets called when the scene is first run
@@ -61,15 +50,13 @@ namespace Tristeon
 			private:
 				/**
 				 * Stores the gameobject it's attached to. Only GameObject can call this function
-				 * \param go
+				 * \param go The gameobject
 				 */
 				void setup(GameObject* go);
 				/**
 				 * The gameobject this component is attached to
 				 */
 				GameObject* _gameObject = nullptr;
-			protected:
-				bool registered = false;
 			};
 		}
 	}

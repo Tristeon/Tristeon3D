@@ -27,28 +27,25 @@ namespace Tristeon::Core
 		
 		vk::SurfaceKHR surface = nullptr;
 
-		vk::SurfaceFormatKHR surface_format;
-		vk::PresentModeKHR present_mode;
+		vk::SurfaceFormatKHR format;
+		vk::PresentModeKHR presentMode;
 		vk::Extent2D extent;
 
 		vk::SwapchainKHR swapchain = nullptr;
-		std::vector<vk::Image> swapchain_images{};
-		std::vector<vk::ImageView> swapchain_image_views{};
-		std::vector<vk::Framebuffer> swapchain_framebuffers;
+		std::vector<vk::Image> swapchainImages{};
+		std::vector<vk::ImageView> swapchainImageViews{};
+		std::vector<vk::Framebuffer> swapchainFramebuffers;
 
-		vk::RenderPass output_pass = nullptr;
-		std::vector<vk::CommandBuffer> command_buffers{};
+		vk::RenderPass outputPass = nullptr;
+		std::vector<vk::CommandBuffer> outputCommandBuffers{};
 
 		vk::DescriptorPool descriptorPool = nullptr;
 
-		const int frames_in_flight = 2;
-		std::vector<vk::Semaphore> image_available;
-		std::vector<vk::Semaphore> render_finished;
-		std::vector<vk::Fence> command_in_flight;
-		std::vector<vk::Fence> images_in_flight;
-
+		vk::Semaphore semaImageAvailable = nullptr;
+		vk::Semaphore semaRenderFinished = nullptr;
+		
 		bool debug_messenger_enabled = true;
-		vk::DebugUtilsMessengerEXT messenger;
+		vk::DebugUtilsMessengerEXT debugMessenger;
 	};
 
 	inline BindingData binding_data;

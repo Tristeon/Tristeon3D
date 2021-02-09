@@ -2,7 +2,7 @@
 #include "TObject.h"
 #include "Math/Vector3.h"
 #include "Misc/Property.h"
-#include "Editor/TypeRegister.h"
+#include "Core/TypeRegister.h"
 #include "Misc/vector.h"
 #include <glm/mat4x4.hpp>
 #include "Math/Quaternion.h"

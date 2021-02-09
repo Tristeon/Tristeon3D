@@ -1,10 +1,10 @@
-﻿#ifdef TRISTEON_EDITOR
+﻿#include "Data/Resources.h"
+#ifdef TRISTEON_EDITOR
 
 #include "MaterialFileItem.h"
 #include "Editor/EditorImage.h"
-#include "Editor/JsonSerializer.h"
-#include "Core/Rendering/RenderManager.h"
-#include "Core/Rendering/Vulkan/MaterialVulkan.h"
+#include "Core/JsonSerializer.h"
+#include <Core/Rendering/Material.h>
 #include <string.h>
 
 namespace Tristeon
@@ -15,7 +15,7 @@ namespace Tristeon
 
 		void MaterialFileItem::drawOnInspector()
 		{
-			Core::Rendering::Material* material = Core::Rendering::RenderManager::getMaterial(getFilePath());
+			auto* material = Resources::jsonLoad<Core::Rendering::Material>(filepath);
 			if (material == nullptr)
 				return;
 
@@ -33,7 +33,7 @@ namespace Tristeon
 			for (auto pair : shader->getProps())
 				drawProperty(material, pair.second, "");
 
-			JsonSerializer::serialize<Core::Rendering::Material>(getFilePath(), *material);
+			Core::JsonSerializer::serialize<Core::Rendering::Material>(getFilePath(), *material);
 		}
 
 		nlohmann::json MaterialFileItem::serialize()

@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Core/TObject.h"
-#include <Editor/TypeRegister.h>
+#include <Core/TypeRegister.h>
 #include <glm/mat4x4.hpp>
 #include "Data/Mesh.h"
 
@@ -12,36 +12,29 @@ namespace Tristeon {
 }
 #endif
 
-
-namespace Tristeon
+namespace Tristeon::Core::Rendering
 {
-	namespace Core
+	class Skybox : public TObject
 	{
-		namespace Rendering
-		{
-			class Skybox : public TObject
-			{
 #ifdef TRISTEON_EDITOR
-				friend Editor::SkyboxFileItem;
+		friend Editor::SkyboxFileItem;
 #endif
-			public:
-				Skybox();
-				virtual ~Skybox() = default;
-				nlohmann::json serialize() override;
-				void deserialize(nlohmann::json json) override;
+	public:
+		Skybox();
+		virtual ~Skybox() = default;
+		nlohmann::json serialize() override;
+		void deserialize(nlohmann::json json) override;
 
-			protected:
-				virtual void init() { };
-				virtual void draw(glm::mat4 view, glm::mat4 proj) { };
+	protected:
+		virtual void init() { };
+		virtual void draw(glm::mat4 view, glm::mat4 proj) { };
 
-				std::string texturePath;
-				bool isDirty = true;
+		std::string texturePath;
+		bool isDirty = true;
 
-				Data::SubMesh mesh;
-				bool cubemapLoaded = false;
-			private:
-				REGISTER_TYPE_H(Skybox)
-			};
-		}
-	}
+		Data::SubMesh mesh;
+		bool cubemapLoaded = false;
+	private:
+		REGISTER_TYPE_H(Skybox)
+	};
 }

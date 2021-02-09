@@ -3,7 +3,7 @@
 #include "Core/Message.h"
 #include "Core/MessageBus.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
-#include "Editor/JsonSerializer.h"
+#include "Core/JsonSerializer.h"
 
 namespace Tristeon::Core
 {
@@ -40,7 +40,7 @@ namespace Tristeon::Core
 
 	void SceneManager::load(std::string name)
 	{
-		Core::MessageBus::sendMessage(Core::MT_MANAGER_RESET);
+		MessageBus::sendMessage(MT_MANAGER_RESET);
 
 		//Attempt to deserialize scene from file
 		auto const scene = JsonSerializer::deserialize<Scene>(_paths[name]);
@@ -55,13 +55,12 @@ namespace Tristeon::Core
 
 	void SceneManager::load(Scene* scene)
 	{
-		Core::MessageBus::sendMessage(Core::MT_MANAGER_RESET);
-		scene->init();
+		MessageBus::sendMessage(MT_MANAGER_RESET);
 		_current = std::unique_ptr<Scene>(scene);
 		createParentalBonds(_current.get());
 	}
 
-	Core::Transform* SceneManager::findTransformByInstanceID(std::string instanceID)
+	Transform* SceneManager::findTransformByInstanceID(std::string instanceID)
 	{
 		for (int i = 0; i < _current->gameObjects.size(); ++i)
 		{
@@ -73,7 +72,7 @@ namespace Tristeon::Core
 
 	void SceneManager::createParentalBonds(Scene* scene)
 	{
-		std::vector<std::unique_ptr<Core::GameObject>>& gameObjects = scene->gameObjects;
+		std::vector<std::unique_ptr<GameObject>>& gameObjects = scene->gameObjects;
 		for (int i = 0; i < gameObjects.size(); ++i)
 		{
 			auto parent = gameObjects[i]->transform.get()->parentID;

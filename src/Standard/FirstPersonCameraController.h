@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Core/Components/Component.h"
-#include "Editor/TypeRegister.h"
+#include "Core/TypeRegister.h"
 
 namespace Tristeon
 {

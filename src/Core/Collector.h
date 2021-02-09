@@ -1,5 +1,5 @@
 #pragma once
-#include <Standard/List.h>
+#include <vector>
 
 namespace Tristeon
 {
@@ -26,29 +26,29 @@ namespace Tristeon
 		/**
 		 * Returns a list with all the collected objects.
 		 */
-		static List<T*> all();
+		static std::vector<T*> all();
 
 	private:
-		static List<T*> _collection;
+		static std::vector<T*> _collection;
 	};
 
 	template<typename T>
-	List<T*> Collector<T>::_collection;
+	std::vector<T*> Collector<T>::_collection;
 
 	template <typename T>
 	void Collector<T>::add(T* t)
 	{
-		_collection.add(t);
+		_collection.push_back(t);
 	}
 
 	template <typename T>
 	void Collector<T>::remove(T* t)
 	{
-		_collection.remove(t);
+		_collection.erase(std::remove(_collection.begin(), _collection.end(), t));
 	}
 
 	template <typename T>
-	List<T*> Collector<T>::all()
+	std::vector<T*> Collector<T>::all()
 	{
 		return _collection;
 	}

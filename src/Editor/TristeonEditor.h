@@ -1,9 +1,8 @@
 #pragma once
 #ifdef TRISTEON_EDITOR
+#include <vulkan/vulkan.hpp>
 #include <vector>
-#include "EditorWindow.h"
-#include "Core/Rendering/RenderManager.h"
-#include "Core/Rendering/Vulkan/RenderManagerVulkan.h"
+#include <Editor/EditorWindow.h>
 
 namespace Tristeon::Editor
 {
@@ -11,8 +10,9 @@ namespace Tristeon::Editor
 	{
 		friend class SceneWindow;
 	public:
-		TristeonEditor(Core::Engine* engine);
+		TristeonEditor();
 		~TristeonEditor();
+		
 		/**
 		 * \brief Sets the style of the editor. colors, spacing, etc.
 		 */
@@ -49,17 +49,6 @@ namespace Tristeon::Editor
 		 * \brief The windows the editor displays using the ongui calls
 		 */
 		std::vector<std::unique_ptr<EditorWindow>> windows;
-
-		//Rendering
-		Core::Rendering::UIRenderable* renderable = nullptr;
-		vk::CommandBuffer cmd;
-		vk::Device vkDevice;
-
-		//Ref
-		Core::Engine* engine;
-
-		Core::Rendering::Vulkan::EditorData* editorCamera;
-
 		bool inPlayMode = false;
 	};
 }

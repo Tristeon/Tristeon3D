@@ -3,7 +3,7 @@
 
 #include "FileItem.h"
 #include <vector>
-#include "Editor/TypeRegister.h"
+#include "Core/TypeRegister.h"
 
 namespace Tristeon
 {
@@ -73,7 +73,7 @@ namespace Tristeon
 			 */
 			void removeFile() override;
 		private:
-			static DerivedRegister<FolderItem> reg;
+			REGISTER_TYPE_H(FolderItem)
 			int selectionMask;
 		};
 	}

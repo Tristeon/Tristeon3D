@@ -1,6 +1,6 @@
-#include "Core/SceneManager.h"
 #ifdef TRISTEON_EDITOR
-
+#include "Core/SceneManager.h"
+#include "Core/Rendering/Skybox.h"
 #include "AssetBrowser.h"
 #include "FileItemManager.h"
 #include "FolderItem.h"

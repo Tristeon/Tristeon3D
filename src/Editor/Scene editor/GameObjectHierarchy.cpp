@@ -1,5 +1,4 @@
-﻿#include "Core/Rendering/Vulkan/DebugDrawManagerVulkan.h"
-#ifdef TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
 
 #include "GameObjectHierarchy.h"
 #include "Editor/Asset Browser/AssetBrowser.h"
@@ -8,7 +7,7 @@
 #include <GLFW/glfw3.h>
 #include "Core/SceneManager.h"
 #include "Editor/EditorDragging.h"
-#include "Editor/JsonSerializer.h"
+#include "Core/JsonSerializer.h"
 
 using namespace Tristeon::Editor;
 
@@ -110,14 +109,14 @@ void GameObjectHierarchy::onGui()
 		if (ImGui::Button("Cube"))
 		{
 			//Create Cube
-			Core::GameObject* gameObj = JsonSerializer::deserialize<Core::GameObject>("Files/Primitives/Cube.prefab");
+			Core::GameObject* gameObj = Core::JsonSerializer::deserialize<Core::GameObject>("Files/Primitives/Cube.prefab");
 			createGameObject(gameObj);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Sphere"))
 		{
 			//Create Sphere
-			Core::GameObject* gameObj = JsonSerializer::deserialize<Core::GameObject>("Files/Primitives/Sphere.prefab");
+			Core::GameObject* gameObj = Core::JsonSerializer::deserialize<Core::GameObject>("Files/Primitives/Sphere.prefab");
 			createGameObject(gameObj);
 		}
 		ImGui::SameLine();

@@ -1,7 +1,7 @@
 #ifdef TRISTEON_EDITOR
 
 #include "EditorNode.h"
-#include "JsonSerializer.h"
+#include "Core/JsonSerializer.h"
 
 using namespace Tristeon::Editor;
 
@@ -78,7 +78,7 @@ bool EditorNode::hasChild(EditorNode* node)
 
 nlohmann::json EditorNode::getPrefabData()
 {
-	return JsonSerializer::load(connectedGameObject->prefabFilePath);
+	return Core::JsonSerializer::load(connectedGameObject->prefabFilePath);
 }
 
 void EditorNode::applyPrefab()
@@ -109,7 +109,7 @@ void EditorNode::setPrefab(std::string filepath)
 
 void EditorNode::setPrefabData(nlohmann::json prefabData)
 {
-	JsonSerializer::serialize(connectedGameObject->prefabFilePath,prefabData);
+	Core::JsonSerializer::serialize(connectedGameObject->prefabFilePath,prefabData);
 }
 
 #endif

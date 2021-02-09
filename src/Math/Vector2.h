@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include "Core/TObject.h"
-#include "Editor/TypeRegister.h"
+#include "Core/TypeRegister.h"
 
 namespace Tristeon
 {

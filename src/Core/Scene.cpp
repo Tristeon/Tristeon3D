@@ -5,16 +5,10 @@ namespace Tristeon::Core
 {
 	REGISTER_TYPE_CPP(Scene)
 
-	void Scene::init()
-	{
-		for (int i = 0; i < gameObjects.size(); i++)
-			gameObjects[i]->init();
-	}
-
 	nlohmann::json Scene::serialize()
 	{
 		nlohmann::json output;
-		output["typeID"] = Tristeon::Core::Type<Scene>::fullName();
+		output["typeID"] = Type<Scene>::fullName();
 		output["name"] = name;
 		nlohmann::json jsonArray = nlohmann::json::array();
 		for (int i = 0; i < gameObjects.size(); i++)

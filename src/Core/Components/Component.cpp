@@ -1,35 +1,26 @@
 ﻿#include "Component.h"
-#include "Core/MessageBus.h"
+#include "Core/Collector.h"
 #include "Core/GameObject.h"
 
-namespace Tristeon
+namespace Tristeon::Core::Components
 {
-	namespace Core
+	Component::Component()
 	{
-		namespace Components
-		{
-			Component::~Component()
-			{
-				if (registered)
-					MessageBus::sendMessage({ MT_SCRIPTINGCOMPONENT_DEREGISTER, this });
-			}
+		Collector<Component>::add(this);
+	}
 
-			Component::property__tmp_type_transform Component::get_transform()
-			{
-				return _gameObject->transform.get();
-			}
+	Component::~Component()
+	{
+		Collector<Component>::remove(this);
+	}
 
-			void Component::init()
-			{
-				if (!registered)
-					MessageBus::sendMessage({ MT_SCRIPTINGCOMPONENT_REGISTER, this });
-				registered = true;
-			}
+	Component::property__tmp_type_transform Component::get_transform()
+	{
+		return _gameObject->transform.get();
+	}
 
-			void Component::setup(GameObject* go)
-			{
-				_gameObject = go;
-			}
-		}
+	void Component::setup(GameObject* go)
+	{
+		_gameObject = go;
 	}
 }

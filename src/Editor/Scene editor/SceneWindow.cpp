@@ -1,14 +1,13 @@
 ﻿#ifdef TRISTEON_EDITOR
 
+#include "GLFW/glfw3.h"
 #include "SceneWindow.h"
 #include "Editor/Asset Browser/AssetBrowser.h"
-#include <Core/Rendering/Vulkan/HelperClasses/CameraRenderData.h>
 
 //Gizmos
 #include <ImGUI/Plugins/ImGuizmo.h>
 #include "Core/Transform.h"
 #include <glm/gtc/matrix_transform.inl>
-#include "Misc/Hardware/Mouse.h"
 #include "Editor/EditorSelection.h"
 #include "Core/GameObject.h"
 #include "Core/Components/Camera.h"
@@ -77,7 +76,9 @@ void Tristeon::Editor::SceneWindow::moveCamera()
 	if (ImGuizmo::IsOver())
 		return;
 
-	cameraController.update(editor->editorCamera->trans);
+	//TODO: Uncomment this editor camera bit
+	//cameraController.update(editor->editorCamera->trans);
+
 	//bool dragging = Misc::Mouse::getButton(Misc::MouseButton::BUTTON_LEFT);
 	//bool draggingRight = Misc::Mouse::getButton(Misc::MouseButton::BUTTON_RIGHT);
 
@@ -113,29 +114,33 @@ void Tristeon::Editor::SceneWindow::setInputMode()
 
 void Tristeon::Editor::SceneWindow::drawScene() const
 {
-	Core::Rendering::Vulkan::CameraRenderData* data = editor->editorCamera->cam;
+	//TODO: Re-enable drawscene
+	
+	//Core::Rendering::Vulkan::CameraRenderData* data = editor->editorCamera->cam;
 	ImVec2 size = ImGui::GetWindowSize();
 	size.y -= yOffset;
-	editor->editorCamera->size = Math::Vector2(size.x, size.y);
-	if (data != nullptr)
-		ImGui::Image((ImTextureID)(VkDescriptorSet)data->onscreen.sets[0], size);
+	//editor->editorCamera->size = Math::Vector2(size.x, size.y);
+	//if (data != nullptr)
+		//ImGui::Image((ImTextureID)(VkDescriptorSet)data->onscreen.sets[0], size);
 }
 
 void Tristeon::Editor::SceneWindow::drawGizmos(glm::mat4& model) const
 {
-	ImVec2 size = ImGui::GetWindowSize();
-	size.y -= yOffset;
+	//TODO: Re-enable drawgizmos
+	
+	//ImVec2 size = ImGui::GetWindowSize();
+	//size.y -= yOffset;
 
-	glm::mat4 view = Core::Components::Camera::getViewMatrix(editor->editorCamera->trans);
-	glm::mat4 proj = Core::Components::Camera::getProjectionMatrix(size.x / size.y, 60, 0.1f, 1000.0f);
+	//glm::mat4 view = Core::Components::Camera::getViewMatrix(editor->editorCamera->trans);
+	//glm::mat4 proj = Core::Components::Camera::getProjectionMatrix(size.x / size.y, 60, 0.1f, 1000.0f);
 
-	ImVec2 const rectSize = ImGui::GetItemRectSize();
-	ImVec2 const rectMin = ImGui::GetItemRectMin();
+	//ImVec2 const rectSize = ImGui::GetItemRectSize();
+	//ImVec2 const rectMin = ImGui::GetItemRectMin();
 
-	ImGuizmo::SetRect(rectMin.x, rectMin.y, rectSize.x, rectSize.y);
+	//ImGuizmo::SetRect(rectMin.x, rectMin.y, rectSize.x, rectSize.y);
 
-	ImGuizmo::SetDrawlist();
-	ImGuizmo::Manipulate(&view[0][0], &proj[0][0], inputOperation, transformationMode, &model[0][0], NULL, NULL);
+	//ImGuizmo::SetDrawlist();
+	//ImGuizmo::Manipulate(&view[0][0], &proj[0][0], inputOperation, transformationMode, &model[0][0], NULL, NULL);
 }
 
 #endif

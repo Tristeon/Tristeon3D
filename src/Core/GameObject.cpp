@@ -10,12 +10,6 @@ namespace Tristeon::Core
 		_transform = std::make_unique<Transform>();
 	}
 
-	void GameObject::init()
-	{
-		for (unsigned int i = 0; i < components.size(); i++)
-			components[i]->init();
-	}
-
 	nlohmann::json GameObject::serialize()
 	{
 		nlohmann::json output;
@@ -58,7 +52,6 @@ namespace Tristeon::Core
 			//which was serialized using its unique ID thus to retrieve the type.
 			auto serializable = TypeRegister::createInstance(serializedComponent["typeID"]);
 			Components::Component* component = (Components::Component*) serializable.get();
-			component->init();
 			component->setup(this);
 			serializable.release();
 			std::unique_ptr<Components::Component> sharedComponent(component);

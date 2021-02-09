@@ -4,7 +4,7 @@
 
 #include <misc/Property.h>
 #include "Core/TObject.h"
-#include <Editor/TypeRegister.h>
+#include <Core/TypeRegister.h>
 #include "Vector3.h"
 
 namespace Tristeon

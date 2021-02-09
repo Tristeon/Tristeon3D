@@ -4,13 +4,7 @@
 #include "Core/TObject.h"
 #include "Math/Vector3.h"
 #include "Math/Vector2.h"
-
-namespace Tristeon {
-	namespace Math {
-		struct Vector3;
-		struct Vector2;
-	}
-}
+#include <vulkan/vulkan.hpp>
 
 namespace Tristeon
 {
@@ -21,17 +15,8 @@ namespace Tristeon
 		 */
 		struct Vertex
 		{
-			/**
-			 * The position of the vertex
-			 */
 			glm::vec3 pos;
-			/**
-			 * The vertex normal
-			 */
 			glm::vec3 normal;
-			/**
-			 * The vertex uv
-			 */
 			glm::vec2 texCoord;
 
 			Vertex(Math::Vector3 pos = Math::Vector3(0, 0, 0), 
@@ -40,6 +25,23 @@ namespace Tristeon
 				pos({ pos.x, pos.y, pos.z }), normal({ normal.x, normal.y, normal.z }), texCoord({ texCoord.x, texCoord.y}) { /*Empty*/ }
 
 			Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 texCoord) : pos(pos), normal(normal), texCoord(texCoord) { /*Empty*/ }
+
+
+			static std::array<vk::VertexInputAttributeDescription, 3> attributes()
+			{
+				std::array<vk::VertexInputAttributeDescription, 3> result;
+
+				result[0] = vk::VertexInputAttributeDescription{ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos) };
+				result[1] = vk::VertexInputAttributeDescription{ 1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal) };
+				result[2] = vk::VertexInputAttributeDescription{ 2, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord) };
+
+				return result;
+			}
+
+			static vk::VertexInputBindingDescription binding()
+			{
+				return vk::VertexInputBindingDescription{ 0, sizeof(Vertex), vk::VertexInputRate::eVertex };
+			}
 		};
 
 		/**

@@ -1,18 +1,18 @@
 ﻿#ifdef TRISTEON_EDITOR
 
 #include "PrefabFileItem.h"
-#include "Editor/JsonSerializer.h"
+#include "Core/JsonSerializer.h"
 
-DerivedRegister<PrefabFileItem> PrefabFileItem::reg;
+REGISTER_TYPE_CPP(PrefabFileItem)
 
 void PrefabFileItem::SetPrefabData(nlohmann::json prefabData) const
 {
-	JsonSerializer::serialize(getFilePath(), prefabData);
+	Tristeon::Core::JsonSerializer::serialize(getFilePath(), prefabData);
 }
 
 nlohmann::json PrefabFileItem::GetPrefabData() const
 {
-	return JsonSerializer::load(getFilePath());
+	return Tristeon::Core::JsonSerializer::load(getFilePath());
 }
 
 nlohmann::json PrefabFileItem::serialize()

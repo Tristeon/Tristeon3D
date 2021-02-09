@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include "Component.h"
+
 #include <glm/mat4x3.hpp>
-#include "Editor/TypeRegister.h"
-#include "Core/Rendering/Skybox.h"
+
+#include <Core/TypeRegister.h>
+#include <Core/Rendering/Skybox.h>
 
 namespace Tristeon
 {
@@ -16,13 +18,7 @@ namespace Tristeon
 			class Camera : public Component
 			{
 			public:
-				/**
-				 * Initializes the camera and registers the camera to the rendering system
-				 */
-				void init() override;
-				/**
-				 * Deregisters the camera
-				 */
+				Camera();
 				~Camera() override;
 				
 				float fov = 60;

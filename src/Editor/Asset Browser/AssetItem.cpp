@@ -3,11 +3,12 @@
 #include <filesystem>
 #include "AssetItem.h"
 #include "FolderItem.h"
-#include "Editor/JsonSerializer.h"
+#include "Core/JsonSerializer.h"
 
 namespace filesystem = std::filesystem;
 using namespace Tristeon::Editor;
-DerivedRegister<Tristeon::Editor::AssetItem> AssetItem::reg{};
+
+REGISTER_TYPE_CPP(AssetItem)
 
 AssetItem::AssetItem()
 {
@@ -72,12 +73,12 @@ void AssetItem::init(std::string name, FolderItem* folder, std::string extension
 	//Set parenting and child relations
 	parent = folder;
 	parent->fileItems.push_back(this);
-	JsonSerializer::serialize(filepath + name + "." + extension + ".meta", *this);
+	Core::JsonSerializer::serialize(filepath + name + "." + extension + ".meta", *this);
 }
 
 void AssetItem::createFile(nlohmann::json json)
 {
-	JsonSerializer::serialize(filepath + name + "." + extension, json);
+	Core::JsonSerializer::serialize(filepath + name + "." + extension, json);
 }
 
 void AssetItem::move(FolderItem* destination)

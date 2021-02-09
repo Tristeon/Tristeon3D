@@ -21,8 +21,8 @@ namespace Tristeon
 			if (_loadedResources.find(path) != _loadedResources.end())
 				return (T*)_loadedResources[path].get();
 
-			auto resource = JsonSerializer::deserialize<T>(path);
-			_loadedResources[path] = std::move(resource);
+			auto resource = Core::JsonSerializer::deserialize<T>(path);
+			_loadedResources[path] = std::unique_ptr<T>(resource);
 			return (T*)_loadedResources[path].get();
 		}
 
