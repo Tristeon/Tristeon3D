@@ -8,6 +8,8 @@
 
 namespace Tristeon::Core::Rendering
 {
+	vk::PhysicalDeviceMemoryProperties DeviceSelector::memoryProperties;
+	
 	vk::SwapchainKHR DeviceSelector::swapchain()
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating swapchain");
@@ -123,6 +125,7 @@ namespace Tristeon::Core::Rendering
 		}
 
 		const auto properties = selected.getProperties();
+		memoryProperties = selected.getMemoryProperties();
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Selected GPU: " + (std::string)properties.deviceName.data());
 		return selected;
 	}
@@ -177,6 +180,23 @@ namespace Tristeon::Core::Rendering
 		}
 
 		return -1;
+	}
+
+	uint32_t DeviceSelector::getMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties)
+	{
+		for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+		{
+			if ((typeBits & 1) == 1)
+			{
+				if ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+				{
+					return i;
+				}
+			}
+			typeBits >>= 1;
+		}
+
+		throw std::runtime_error("Could not find a matching memory type");
 	}
 
 	int DeviceSelector::rate(vk::PhysicalDevice physical)

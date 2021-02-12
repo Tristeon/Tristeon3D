@@ -1,11 +1,17 @@
 ﻿#include "Scene.h"
 #include <iostream>
+#include <vulkan/vulkan.hpp>
+#include <Core/BindingData.h>
+#include <Core/Rendering/RenderManager.h>
+
+#include "Collector.h"
+#include "Rendering/Components/Renderer.h"
 
 namespace Tristeon::Core
 {
 	REGISTER_TYPE_CPP(Scene)
 
-	nlohmann::json Scene::serialize()
+		nlohmann::json Scene::serialize()
 	{
 		nlohmann::json output;
 		output["typeID"] = Type<Scene>::fullName();
@@ -26,11 +32,12 @@ namespace Tristeon::Core
 		{
 			for (auto iterator = gameObjectData.begin(); iterator != gameObjectData.end(); ++iterator)
 			{
-				std::unique_ptr<Core::GameObject> gameObject = std::make_unique<Core::GameObject>();
+				std::unique_ptr<GameObject> gameObject = std::make_unique<GameObject>();
 				gameObject->deserialize(iterator->get<nlohmann::json>());
 				gameObjects.push_back(std::move(gameObject));
 			}
-		} else
+		}
+		else
 		{
 			std::cout << "Deserialization of the scene is going goofy, ur probably deserializing the scene with a wrong json format";
 		}
@@ -38,13 +45,43 @@ namespace Tristeon::Core
 		name = nameValue;
 	}
 
-	void Scene::add(std::unique_ptr<Core::GameObject> gameObj)
+	void Scene::recordSceneCmd()
+	{
+		vk::CommandBufferBeginInfo begin{ {}, nullptr };
+		VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
+		{
+			std::array<vk::ClearValue, 2> clear{
+				vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} },
+				vk::ClearDepthStencilValue{ 0, 0 }
+			};
+
+			const vk::RenderPassBeginInfo pass_begin{
+				binding_data.offscreenPass,
+				binding_data.offscreenFramebuffer,
+				vk::Rect2D { vk::Offset2D { 0, 0 }, binding_data.extent },
+				(uint32_t)clear.size(), clear.data()
+			};
+
+			binding_data.offscreenBuffer.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
+			{
+				auto renderers = Collector<Rendering::Renderer>::all();
+				for (auto* renderer : renderers)
+				{
+					renderer->render();
+				}
+			}
+			binding_data.offscreenBuffer.endRenderPass();
+		}
+		binding_data.offscreenBuffer.end();
+	}
+
+	void Scene::add(std::unique_ptr<GameObject> gameObj)
 	{
 		gameObj->deserialize(gameObj->serialize());
 		gameObjects.push_back(std::move(gameObj));
 	}
 
-	void Scene::remove(Core::GameObject* gameObj)
+	void Scene::remove(GameObject* gameObj)
 	{
 		for (int i = 0; i < gameObjects.size(); ++i)
 		{
@@ -52,7 +89,7 @@ namespace Tristeon::Core
 		}
 	}
 
-	Core::GameObject* Scene::get(std::string instanceID)
+	GameObject* Scene::get(std::string instanceID)
 	{
 		for (int i = 0; i < gameObjects.size(); ++i)
 		{

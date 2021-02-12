@@ -14,9 +14,9 @@ namespace Tristeon::Core::Rendering
 		/**
 		 * \brief Is true if the validation layers are enabled
 		 */
-#ifdef TRISTEON_EDITOR 
+#ifdef TRISTEON_LOGENABLED
 		constexpr static bool enabled = true;
-		constexpr static std::array<char*, 1> layers{ "VK_LAYER_LUNARG_standard_validation" };
+		constexpr static std::array<const char*, 1> layers{ "VK_LAYER_LUNARG_standard_validation" };
 #else
 		constexpr static bool enabled = false;
 		constexpr static std::array<char*, 0> layers { };

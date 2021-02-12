@@ -7,12 +7,15 @@
 
 namespace Tristeon::Core
 {
+	namespace Rendering { class RenderManager; }
+
 	/**
 	 * Scenes contain everything inside of your level/game. From environments to characters, physics bodies etc.
 	 * A scene object can exist without it being loaded in. If you wish to manually create a scene and load it in after, use SceneManager::loadScene(scene);
 	 */
 	class Scene final : public TObject
 	{
+		friend Rendering::RenderManager;
 		friend class SceneManager;
 	public:
 		/**
@@ -38,6 +41,8 @@ namespace Tristeon::Core
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
 	private:
+		void recordSceneCmd();
+		
 		std::vector<std::unique_ptr<GameObject>> gameObjects;
 		REGISTER_TYPE_H(Scene)
 	};

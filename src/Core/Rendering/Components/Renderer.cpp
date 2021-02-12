@@ -4,14 +4,11 @@
 
 namespace Tristeon::Core::Rendering
 {
-	void Renderer::render()
-	{
-	}
-
 	nlohmann::json Renderer::serialize()
 	{
 		nlohmann::json j = Component::serialize();
-		j["material"] = materialPath;
+		j["typeID"] = Type<Renderer>::fullName();
+		j["materialPath"] = materialPath;
 		return j;
 	}
 
@@ -19,9 +16,9 @@ namespace Tristeon::Core::Rendering
 	{
 		Component::deserialize(json);
 		
-		const auto pathValue = json.value("material", std::string());
-		if (pathValue != materialPath)
-			material = Resources::jsonLoad<Material>(materialPath);
+		const auto pathValue = json.value("materialPath", std::string());
+		if (pathValue != materialPath || !material)
+			material = Resources::jsonLoad<Material>(pathValue);
 		materialPath = pathValue;
 	}
 

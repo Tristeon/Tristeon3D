@@ -49,9 +49,6 @@ namespace Tristeon::Core::Rendering
 
 	VkBool32 ValidationLayers::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
 	{
-		if (severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT || severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-			return VK_FALSE;
-
 		std::string output = "[RENDERER] [VULKAN] ";
 
 		switch (severity)
@@ -68,6 +65,7 @@ namespace Tristeon::Core::Rendering
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 			output += "[ERROR] ";
 			break;
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT: break;
 		default:;
 		}
 
@@ -82,10 +80,14 @@ namespace Tristeon::Core::Rendering
 		case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
 			output += "[PERFORMANCE] ";
 			break;
+		default: ;
 		}
 
 		output += callback_data->pMessage;
-		Misc::Console::write(output);
+		if (severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+			Misc::Console::warning(output);
+		else
+			Misc::Console::write(output);
 		return VK_FALSE;
 	}
 

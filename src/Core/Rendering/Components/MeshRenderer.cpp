@@ -2,6 +2,8 @@
 #include <Data/MeshBatch.h>
 #include <filesystem>
 
+#include "Core/BindingData.h"
+
 namespace Tristeon::Core::Rendering
 {
 	REGISTER_TYPE_CPP(MeshRenderer);
@@ -38,6 +40,10 @@ namespace Tristeon::Core::Rendering
 
 	void MeshRenderer::render()
 	{
-		//TODO: Render
+		if (!material.get())
+			return;
+		
+		binding_data.offscreenBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, material.get()->pipeline());
+		binding_data.offscreenBuffer.draw(3, 1, 0, 0);
 	}
 }

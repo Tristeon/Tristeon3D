@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <Core/Rendering/Material.h>
+#include "Core/BindingData.h"
 
 namespace Tristeon
 {
@@ -34,6 +35,8 @@ namespace Tristeon
 				 */
 				static RenderManager* instance;
 				std::unique_ptr<Material> screenMat;
+				
+				static FrameBufferAttachment createAttachment(vk::Format format, vk::ImageAspectFlags aspect, vk::ImageLayout layout);
 			};
 		}
 	}

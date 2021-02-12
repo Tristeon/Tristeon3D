@@ -1,1 +1,0 @@
-{"directory":"Files/Shaders/","fragmentName":"StandardF","nameID":"Standard","typeID":"Tristeon::Core::Rendering::ShaderFile","vertexName":"StandardV"}

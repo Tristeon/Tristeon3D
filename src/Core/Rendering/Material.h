@@ -5,6 +5,8 @@
 #include <vulkan/vulkan.hpp>
 #include <glm/mat4x4.hpp>
 
+#include <Core/TypeRegister.h>
+
 #ifdef TRISTEON_EDITOR
 namespace Tristeon {
 	namespace Editor {
@@ -45,50 +47,41 @@ namespace Tristeon::Core::Rendering
 	 */
 	class Material : public TObject
 	{
+		REGISTER_TYPE_H(Material);
+		
 		friend class RenderManager;
 #ifdef TRISTEON_EDITOR
 		friend Editor::MaterialFileItem;
 #endif
 	public:
-		explicit Material(ShaderFile shader, PipelineProperties properties);
+		Material();
+		explicit Material(PipelineProperties properties);
 		~Material();
 
-		/**
-		 * \brief Serializes the material into a json file
-		 * \return Returns the json object describing the material's information
-		 */
-		nlohmann::json serialize() override;
-		/**
-		 * \brief Deserializes the material from a json file
-		 * \param json Returns the json object describing the material's information
-		 */
-		void deserialize(nlohmann::json json) override;
-
-		[[nodiscard]] vk::Pipeline pipeline() const { return _pipeline; }
+		[[nodiscard]] vk::Pipeline pipeline()
+		{
+			if (!_pipeline)
+				buildPipeline();
+			return _pipeline;
+		}
 		virtual void buildPipeline();
+		virtual ShaderFile* shader();
 	protected:
 		/**
-		 * \brief Prepare function, override this function to send data to the shader
+		 * \brief Prepare function, override this function to send data to the gpu
 		 * \param model The transformation matrix of the object
 		 * \param view The current camera view matrix
 		 * \param proj The current camera projection matrix
 		 */
 		virtual void prepare(glm::mat4 model, glm::mat4 view, glm::mat4 proj) { }
-		
-		virtual void updateShader();
-
-		/**
-		* \brief The shaderfile, loaded using shaderFilePath
-		*/
-		std::unique_ptr<ShaderFile> shader;
 	private:
 		/**
 		 * \brief The filepath to the shader file
 		 */
 		std::string shaderFilePath;
 
-		PipelineProperties _properties;
-		vk::PipelineLayout _layout;
-		vk::Pipeline _pipeline;
+		PipelineProperties _properties{};
+		vk::PipelineLayout _layout = nullptr;
+		vk::Pipeline _pipeline = nullptr;
 	};
 }

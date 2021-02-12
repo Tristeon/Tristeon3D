@@ -4,12 +4,20 @@
 
 namespace Tristeon::Core
 {
+	struct FrameBufferAttachment
+	{
+		vk::Image image = nullptr;
+		vk::DeviceMemory memory = nullptr;
+		vk::ImageView view = nullptr;
+	};
+	
 	struct BindingData
 	{
 		GLFWwindow* window = nullptr;
 		unsigned int width = 0;
 		unsigned int height = 0;
 
+		//Core
 		vk::Instance instance = nullptr;
 		vk::PhysicalDevice physical = nullptr;
 		vk::Device device = nullptr;
@@ -35,17 +43,24 @@ namespace Tristeon::Core
 		std::vector<vk::Image> swapchainImages{};
 		std::vector<vk::ImageView> swapchainImageViews{};
 		std::vector<vk::Framebuffer> swapchainFramebuffers;
-
-		vk::RenderPass outputPass = nullptr;
-		std::vector<vk::CommandBuffer> outputCommandBuffers{};
-
-		vk::DescriptorPool descriptorPool = nullptr;
-
-		vk::Semaphore semaImageAvailable = nullptr;
-		vk::Semaphore semaRenderFinished = nullptr;
 		
 		bool debug_messenger_enabled = true;
 		vk::DebugUtilsMessengerEXT debugMessenger;
+
+		vk::DescriptorPool descriptorPool = nullptr;
+
+		//Deferred first pass
+		vk::RenderPass offscreenPass = nullptr;
+		vk::CommandBuffer offscreenBuffer = nullptr;
+		vk::Semaphore semaOffscreenFinished;
+		vk::Framebuffer offscreenFramebuffer;
+		FrameBufferAttachment offscreenColor, offscreenNormal, offscreenDepth;
+		
+		//Deferred output pass
+		vk::RenderPass outputPass = nullptr;
+		std::vector<vk::CommandBuffer> outputCommandBuffers{};
+		vk::Semaphore semaImageAvailable = nullptr;
+		vk::Semaphore semaOutputFinished = nullptr;
 	};
 
 	inline BindingData binding_data;

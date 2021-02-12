@@ -1,12 +1,14 @@
 #include "Material.h"
-#include "Core/JsonSerializer.h"
 #include <filesystem>
 
 #include "Core/BindingData.h"
+#include "Core/Engine.h"
 #include "Data/Mesh.h"
 
 namespace Tristeon::Core::Rendering
 {
+	REGISTER_TYPE_CPP(Material);
+	
 	PipelineProperties::PipelineProperties()
 	{
 		topology = vk::PrimitiveTopology::eTriangleList;
@@ -47,39 +49,24 @@ namespace Tristeon::Core::Rendering
 		}
 	}
 
-	Material::Material(ShaderFile shader, PipelineProperties properties)
+	Material::Material()
 	{
-		this->shader = std::make_unique<ShaderFile>(shader);
+		Collector<Material>::add(this);
+	}
+
+	Material::Material(PipelineProperties properties) : _properties(properties)
+	{
+		Collector<Material>::add(this);
 	}
 
 	Material::~Material()
 	{
+		Collector<Material>::remove(this);
+		
 		if ((VkPipeline)_pipeline != VK_NULL_HANDLE)
 			binding_data.device.destroyPipeline(_pipeline);
 		if ((VkPipelineLayout)_layout != VK_NULL_HANDLE)
 			binding_data.device.destroyPipelineLayout(_layout);
-	}
-
-	nlohmann::json Material::serialize()
-	{
-		nlohmann::json j = TObject::serialize();
-		j["typeID"] = Type<Material>::fullName();
-		j["shaderFilePath"] = shaderFilePath;
-		return j;
-	}
-
-	void Material::deserialize(nlohmann::json json)
-	{
-		TObject::deserialize(json);
-		
-		//Get the shader file
-		const std::string shaderFilePathValue = json["shaderFilePath"];
-		//Only update our shader if our path has changed
-		if (shaderFilePath != shaderFilePathValue)
-		{
-			shaderFilePath = shaderFilePathValue;
-			updateShader();
-		}
 	}
 
 	void Material::buildPipeline()
@@ -118,10 +105,10 @@ namespace Tristeon::Core::Rendering
 		vk::PipelineLayoutCreateInfo layout_ci{};
 		_layout = binding_data.device.createPipelineLayout(layout_ci);
 
-		if (shader->stages().empty())
+		if (shader()->stages().empty())
 			throw std::runtime_error("Can't use a shader with 0 shaders");
 
-		auto stages = shader->stages();
+		auto stages = shader()->stages();
 		
 		vk::GraphicsPipelineCreateInfo pipeline_ci{ {},
 			(uint32_t)stages.size(),
@@ -142,18 +129,15 @@ namespace Tristeon::Core::Rendering
 			0
 		};
 
-		_pipeline = binding_data.device.createGraphicsPipeline(nullptr, pipeline_ci).value;
+		auto r = binding_data.device.createGraphicsPipeline(nullptr, pipeline_ci);
+		VULKAN_DEBUG(r.result, ":(");
+		_pipeline = r.value;
 	}
 
-	void Material::updateShader()
+	ShaderFile* Material::shader()
 	{
-		//Try to set it if possible
-		if (std::filesystem::exists(shaderFilePath) && std::filesystem::path(shaderFilePath).extension() == ".shader")
-			shader = std::unique_ptr<ShaderFile>(JsonSerializer::deserialize<ShaderFile>(shaderFilePath));
-		//Remove old shader
-		else
-			shader.reset();
-
-		buildPipeline();
+		//TODO: Remove this
+		static ShaderFile file("Files/Shaders/Triangle.vert.spv", "Files/Shaders/Triangle.frag.spv");
+		return &file;
 	}
 }

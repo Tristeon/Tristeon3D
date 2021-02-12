@@ -97,11 +97,7 @@ add_subdirectory(external/gli)
 include_directories(${PROJECT_SOURCE_DIR}/external/gli)
 include_directories(${PROJECT_BINARY_DIR}/external/gli)
 
-#SPIRV-Cross
-add_subdirectory(external/spirv_cross)
-include_directories(${PROJECT_SOURCE_DIR}/external/spirv_cross/include)
-include_directories(${PROJECT_BINARY_DIR}/external/spirv_cross/include)
-
+#header only 
 include_directories(${PROJECT_SOURCE_DIR}/external/stb)
 include_directories(${PROJECT_SOURCE_DIR}/external/rlutil)
 include_directories(${PROJECT_SOURCE_DIR}/external/json)
@@ -113,14 +109,39 @@ macro(link_libs targetname)
 	target_link_libraries(${targetname} gli)
 	target_link_libraries(${targetname} glm)
 	
-	target_link_libraries(${targetname} spirv-cross-core)
-	target_link_libraries(${targetname} spirv-cross-cpp)
-	target_link_libraries(${targetname} spirv-cross-glsl)
-	target_link_libraries(${targetname} spirv-cross-hlsl)
-	target_link_libraries(${targetname} spirv-cross-msl)
-
 	target_link_libraries(${targetname} ${Vulkan_LIBRARIES})
 endmacro()
+
+#Compile shader function
+function(add_shader TARGET SHADER)
+    find_program(GLSLC glslc)
+
+    set(current-shader-path ${CMAKE_CURRENT_SOURCE_DIR}/bin/Files/Shaders/${SHADER})
+    set(current-output-path ${CMAKE_CURRENT_SOURCE_DIR}/bin/Files/Shaders/${SHADER}.spv)
+
+    # Add a custom command to compile GLSL to SPIR-V.
+    get_filename_component(current-output-dir ${current-output-path} DIRECTORY)
+    file(MAKE_DIRECTORY ${current-output-dir})
+
+    add_custom_command(
+           OUTPUT ${current-output-path}
+           COMMAND ${GLSLC} -o ${current-output-path} ${current-shader-path}
+           DEPENDS ${current-shader-path}
+           IMPLICIT_DEPENDS CXX ${current-shader-path}
+           VERBATIM)
+
+    # Make sure our build depends on this output.
+    set_source_files_properties(${current-output-path} PROPERTIES GENERATED TRUE)
+
+	set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${current-output-path})
+endfunction(add_shader)
+
+#Add shaders as a custom target
+add_custom_target(Shaders)
+file(GLOB_RECURSE shader_files RELATIVE ${PROJECT_SOURCE_DIR}/bin/Files/Shaders/ ${PROJECT_SOURCE_DIR}/bin/*.vert ${PROJECT_SOURCE_DIR}/bin/*.frag)
+foreach(child ${shader_files})
+	add_shader(Shaders ${child})
+endforeach()
 
 if (MSVC)
 	target_compile_options(glfw INTERFACE /MP)
@@ -129,7 +150,7 @@ if (MSVC)
 	target_compile_options(glm INTERFACE /MP)
 	
 	add_definitions(/MP)
-
+	
 	add_executable(Tristeon ${tristeonSRC})
 	
 	#Set target output directory

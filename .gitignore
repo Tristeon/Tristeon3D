@@ -71,3 +71,4 @@ CMakeFiles
 *.lastbuildstate
 *.recipe
 DebugEditor/
+CMakeCache.txt

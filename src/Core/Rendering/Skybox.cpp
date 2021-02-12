@@ -2,36 +2,30 @@
 #include "Data/Mesh.h"
 #include "Data/MeshBatch.h"
 
-namespace Tristeon
+namespace Tristeon::Core::Rendering
 {
-	namespace Core
+	REGISTER_TYPE_CPP(Skybox)
+
+	Skybox::Skybox()
 	{
-		namespace Rendering
+		mesh = Data::MeshBatch::getSubMesh("Files/Models/skybox_cube.obj", 0);
+	}
+
+	nlohmann::json Skybox::serialize()
+	{
+		nlohmann::json j;
+		j["typeID"] = Type<Skybox>::fullName();
+		j["texture"] = texturePath;
+		return j;
+	}
+
+	void Skybox::deserialize(nlohmann::json json)
+	{
+		std::string const val = json["texture"];
+		if (val != texturePath)
 		{
-			REGISTER_TYPE_CPP(Skybox)
-
-			Skybox::Skybox()
-			{
-				mesh = Data::MeshBatch::getSubMesh("Files/Models/skybox_cube.obj", 0);
-			}
-
-			nlohmann::json Skybox::serialize()
-			{
-				nlohmann::json j;
-				j["typeID"] = Type<Skybox>::fullName();
-				j["texture"] = texturePath;
-				return j;
-			}
-
-			void Skybox::deserialize(nlohmann::json json)
-			{
-				std::string const val = json["texture"];
-				if (val != texturePath)
-				{
-					isDirty = true;
-					texturePath = val;
-				}
-			}
+			isDirty = true;
+			texturePath = val;
 		}
 	}
 }

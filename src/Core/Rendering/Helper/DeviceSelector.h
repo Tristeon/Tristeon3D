@@ -14,10 +14,13 @@ namespace Tristeon::Core::Rendering
 		static uint32_t findTransferFamily();
 
 		constexpr static std::array<char*, 1> gpuExtensions{ "VK_KHR_swapchain" };
-	
+
+		static uint32_t getMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties);
 	private:
 		static int rate(vk::PhysicalDevice physical);
 		static bool suitable(vk::PhysicalDevice physical);
 		static bool supports_extensions(vk::PhysicalDevice physical);
+
+		static vk::PhysicalDeviceMemoryProperties memoryProperties;
 	};
 }
