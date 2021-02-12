@@ -50,9 +50,10 @@ namespace Tristeon::Core
 		vk::CommandBufferBeginInfo begin{ {}, nullptr };
 		VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
 		{
-			std::array<vk::ClearValue, 2> clear{
+			std::array<vk::ClearValue, 3> clear{
 				vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} },
-				vk::ClearDepthStencilValue{ 0, 0 }
+				vk::ClearDepthStencilValue{ 0, 0 },
+				vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} }
 			};
 
 			const vk::RenderPassBeginInfo pass_begin{

@@ -36,7 +36,7 @@ namespace Tristeon
 				static RenderManager* instance;
 				std::unique_ptr<Material> screenMat;
 				
-				static FrameBufferAttachment createAttachment(vk::Format format, vk::ImageAspectFlags aspect, vk::ImageLayout layout);
+				static FrameBufferAttachment createAttachment(vk::Format format, vk::ImageAspectFlags aspect, vk::ImageUsageFlags usage);
 			};
 		}
 	}

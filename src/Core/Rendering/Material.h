@@ -74,7 +74,7 @@ namespace Tristeon::Core::Rendering
 		 * \param proj The current camera projection matrix
 		 */
 		virtual void prepare(glm::mat4 model, glm::mat4 view, glm::mat4 proj) { }
-	private:
+
 		/**
 		 * \brief The filepath to the shader file
 		 */

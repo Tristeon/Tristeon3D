@@ -9,8 +9,6 @@
 #include <Core/Rendering/Helper/ValidationLayers.h>
 #include <Misc/Console.h>
 
-
-
 #include "Core/Collector.h"
 #include "Core/SceneManager.h"
 #include "Helper/Extensions.h"
@@ -126,7 +124,7 @@ namespace Tristeon::Core::Rendering
 		binding_data.transferQueue = binding_data.device.getQueue(binding_data.transferFamily, families.size() - 1);
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating command pool for graphics");
-		vk::CommandPoolCreateInfo graphics_pool_ci{ {}, binding_data.graphicsFamily };
+		vk::CommandPoolCreateInfo graphics_pool_ci{ vk::CommandPoolCreateFlagBits::eResetCommandBuffer, binding_data.graphicsFamily }; 
 		binding_data.graphicsPool = binding_data.device.createCommandPool(graphics_pool_ci);
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating command pool for transfer operations");
@@ -161,15 +159,15 @@ namespace Tristeon::Core::Rendering
 			}
 
 			//Render deferred pass
-			//SceneManager::current()->recordSceneCmd();
-			//vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
-			//vk::SubmitInfo deferred_submit{
-			//	1, &binding_data.semaImageAvailable,
-			//	&deferred_stage,
-			//	1, &binding_data.offscreenBuffer,
-			//	1, &binding_data.semaOffscreenFinished
-			//};
-			//binding_data.graphicsQueue.submit(deferred_submit);
+			SceneManager::current()->recordSceneCmd();
+			vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
+			vk::SubmitInfo deferred_submit{
+				1, &binding_data.semaImageAvailable,
+				&deferred_stage,
+				1, &binding_data.offscreenBuffer,
+				1, &binding_data.semaOffscreenFinished
+			};
+			binding_data.graphicsQueue.submit(deferred_submit);
 
 			//Submit output cmd buffer
 			std::array<vk::Semaphore, 1> output_wait_semaphores{ binding_data.semaOffscreenFinished };
@@ -192,6 +190,8 @@ namespace Tristeon::Core::Rendering
 				else if (result != vk::Result::eSuccess)
 					Misc::Console::write("[RENDERER] [ERROR] [VULKAN] [CODE: " + vk::to_string(result) + "] " + "data.presentQueue.presentKHR(present)");
 			}
+
+			binding_data.device.waitIdle();
 		}
 
 		binding_data.device.waitIdle();
@@ -310,11 +310,11 @@ namespace Tristeon::Core::Rendering
 			}
 		};
 
-		std::array<vk::AttachmentReference, 3> deferred_color_refs = {
+		std::array<vk::AttachmentReference, 2> deferred_color_refs = {
 			vk::AttachmentReference { 0, vk::ImageLayout::eColorAttachmentOptimal },
 			vk::AttachmentReference { 2, vk::ImageLayout::eColorAttachmentOptimal}
 		};
-		vk::AttachmentReference deferred_depth_ref = vk::AttachmentReference{ 1, vk::ImageLayout::eDepthAttachmentOptimal };
+		vk::AttachmentReference deferred_depth_ref = vk::AttachmentReference{ 1, vk::ImageLayout::eDepthStencilAttachmentOptimal };
 
 		vk::SubpassDescription deferred_subpass{ {}, vk::PipelineBindPoint::eGraphics,
 			0, nullptr,
@@ -328,9 +328,9 @@ namespace Tristeon::Core::Rendering
 		binding_data.offscreenPass = binding_data.device.createRenderPass(deferred_rp_ci);
 
 		//Deferred frame buffer
-		binding_data.offscreenColor = createAttachment(binding_data.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eColorAttachmentOptimal);
-		binding_data.offscreenDepth = createAttachment(vk::Format::eD32Sfloat, vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil, vk::ImageLayout::eDepthAttachmentOptimal);
-		binding_data.offscreenNormal = createAttachment(binding_data.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageLayout::eColorAttachmentOptimal);
+		binding_data.offscreenColor = createAttachment(binding_data.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
+		binding_data.offscreenDepth = createAttachment(vk::Format::eD32Sfloat, vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+		binding_data.offscreenNormal = createAttachment(binding_data.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
 
 		std::array<vk::ImageView, 3> deferredViews{ binding_data.offscreenColor.view, binding_data.offscreenDepth.view, binding_data.offscreenNormal.view };
 
@@ -378,17 +378,15 @@ namespace Tristeon::Core::Rendering
 		binding_data.device.destroySwapchainKHR(binding_data.swapchain);
 	}
 
-	FrameBufferAttachment RenderManager::createAttachment(vk::Format format, vk::ImageAspectFlags aspect, vk::ImageLayout layout)
+	FrameBufferAttachment RenderManager::createAttachment(vk::Format format, vk::ImageAspectFlags aspect, vk::ImageUsageFlags usage)
 	{
 		FrameBufferAttachment result;
-
-		std::array<uint32_t, 3> families{ binding_data.transferFamily, binding_data.graphicsFamily, binding_data.presentFamily };
 
 		const vk::ImageCreateInfo image_ci{ {}, vk::ImageType::e2D, format,
 			vk::Extent3D{ binding_data.extent, 1 }, 1, 1,
 			vk::SampleCountFlagBits::e1,
-			vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eSampled, vk::SharingMode::eConcurrent,
-			families.size(), families.data() , layout
+			vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eSampled | usage, vk::SharingMode::eExclusive,
+			0, nullptr , vk::ImageLayout::eUndefined
 		};
 		result.image = binding_data.device.createImage(image_ci);
 
@@ -397,7 +395,7 @@ namespace Tristeon::Core::Rendering
 		result.memory = binding_data.device.allocateMemory(memory_info);
 		binding_data.device.bindImageMemory(result.image, result.memory, 0);
 
-		const vk::ImageViewCreateInfo view_ci{ {}, result.image, vk::ImageViewType::e2D, format, vk::ComponentMapping{}, vk::ImageSubresourceRange { aspect, 1, 1, 0, 1 } };
+		const vk::ImageViewCreateInfo view_ci{ {}, result.image, vk::ImageViewType::e2D, format, vk::ComponentMapping{}, vk::ImageSubresourceRange { aspect, 0, 1, 0, 1 } };
 		result.view = binding_data.device.createImageView(view_ci);
 		return result;
 	}

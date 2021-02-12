@@ -134,6 +134,7 @@ function(add_shader TARGET SHADER)
     set_source_files_properties(${current-output-path} PROPERTIES GENERATED TRUE)
 
 	set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${current-output-path})
+	set_property(TARGET ${TARGET} APPEND PROPERTY SOURCES ${current-shader-path})
 endfunction(add_shader)
 
 #Add shaders as a custom target

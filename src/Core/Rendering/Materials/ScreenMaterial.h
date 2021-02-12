@@ -12,5 +12,6 @@ namespace Tristeon::Core::Rendering
 		ScreenMaterial(PipelineProperties properties) : Material(properties) {}
 
 		ShaderFile* shader() override;
+		void buildPipeline() override;
 	};
 }

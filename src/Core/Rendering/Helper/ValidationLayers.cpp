@@ -49,6 +49,9 @@ namespace Tristeon::Core::Rendering
 
 	VkBool32 ValidationLayers::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
 	{
+		if (severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT || severity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+			return VK_FALSE;
+		
 		std::string output = "[RENDERER] [VULKAN] ";
 
 		switch (severity)

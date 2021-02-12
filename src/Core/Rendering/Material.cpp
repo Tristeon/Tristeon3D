@@ -8,7 +8,7 @@
 namespace Tristeon::Core::Rendering
 {
 	REGISTER_TYPE_CPP(Material);
-	
+
 	PipelineProperties::PipelineProperties()
 	{
 		topology = vk::PrimitiveTopology::eTriangleList;
@@ -62,7 +62,7 @@ namespace Tristeon::Core::Rendering
 	Material::~Material()
 	{
 		Collector<Material>::remove(this);
-		
+
 		if ((VkPipeline)_pipeline != VK_NULL_HANDLE)
 			binding_data.device.destroyPipeline(_pipeline);
 		if ((VkPipelineLayout)_layout != VK_NULL_HANDLE)
@@ -76,9 +76,9 @@ namespace Tristeon::Core::Rendering
 		if ((VkPipelineLayout)_layout != VK_NULL_HANDLE)
 			binding_data.device.destroyPipelineLayout(_layout);
 
-		auto bindings = Data::Vertex::binding();
-		auto attributes = Data::Vertex::attributes();
-		vk::PipelineVertexInputStateCreateInfo stage_vertex{ {}, 1, &bindings, attributes.size(), attributes.data() };
+		auto bindings = std::array<vk::VertexInputBindingDescription, 0>{};// Data::Vertex::binding();
+		auto attributes = std::array<vk::VertexInputAttributeDescription, 0>{};// Data::Vertex::attributes();
+		vk::PipelineVertexInputStateCreateInfo stage_vertex{ {}, bindings.size(), bindings.data(), attributes.size(), attributes.data() };
 
 		vk::PipelineInputAssemblyStateCreateInfo stage_assembly{ {}, _properties.topology, VK_FALSE };
 
@@ -94,14 +94,24 @@ namespace Tristeon::Core::Rendering
 
 		vk::PipelineMultisampleStateCreateInfo state_multisample{ {}, _properties.sample_count, VK_FALSE, 1.0, nullptr, VK_FALSE, VK_FALSE };
 
-		vk::PipelineColorBlendAttachmentState state_blend_attachment{ _properties.blend_enable,
-			_properties.blend_col_src, _properties.blend_col_dst, _properties.blend_col_op,
-			_properties.blend_alpha_src, _properties.blend_alpha_dst, _properties.blend_alpha_op,
-			vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
-		vk::PipelineColorBlendStateCreateInfo state_blend{ {}, VK_FALSE, vk::LogicOp::eCopy, 1, &state_blend_attachment, { 0, 0, 0, 0 } };
+		std::array<vk::PipelineColorBlendAttachmentState, 2> state_blend_attachments{
+			vk::PipelineColorBlendAttachmentState { _properties.blend_enable,
+				_properties.blend_col_src, _properties.blend_col_dst, _properties.blend_col_op,
+				_properties.blend_alpha_src, _properties.blend_alpha_dst, _properties.blend_alpha_op,
+				vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+			},
+			vk::PipelineColorBlendAttachmentState { _properties.blend_enable,
+				_properties.blend_col_src, _properties.blend_col_dst, _properties.blend_col_op,
+				_properties.blend_alpha_src, _properties.blend_alpha_dst, _properties.blend_alpha_op,
+				vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
+			}
+		};
+		vk::PipelineColorBlendStateCreateInfo state_blend{ {}, VK_FALSE, vk::LogicOp::eCopy, state_blend_attachments.size(), state_blend_attachments.data(), { 0, 0, 0, 0 } };
 
 		vk::PipelineDynamicStateCreateInfo state_dynamic{ {}, 0, nullptr };
 
+		vk::PipelineDepthStencilStateCreateInfo state_depth{ {}, true, true, vk::CompareOp::eLessOrEqual };
+		
 		vk::PipelineLayoutCreateInfo layout_ci{};
 		_layout = binding_data.device.createPipelineLayout(layout_ci);
 
@@ -109,7 +119,7 @@ namespace Tristeon::Core::Rendering
 			throw std::runtime_error("Can't use a shader with 0 shaders");
 
 		auto stages = shader()->stages();
-		
+
 		vk::GraphicsPipelineCreateInfo pipeline_ci{ {},
 			(uint32_t)stages.size(),
 			stages.data(),
@@ -119,11 +129,11 @@ namespace Tristeon::Core::Rendering
 			&state_viewport,
 			&state_rasterization,
 			&state_multisample,
-			nullptr,
+			&state_depth,
 			&state_blend,
 			&state_dynamic,
 			_layout,
-			binding_data.outputPass, //TODO: Replace with appropriate render pass
+			binding_data.offscreenPass,
 			0,
 			nullptr,
 			0
