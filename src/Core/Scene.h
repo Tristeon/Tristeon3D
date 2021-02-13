@@ -18,6 +18,7 @@ namespace Tristeon::Core
 		friend Rendering::RenderManager;
 		friend class SceneManager;
 	public:
+		~Scene();
 		/**
 		 * Adds the GameObject to the scene and reserializes it to set its values back to their defaults.
 		 * Required to pass a unique_ptr as Scene takes over ownership of the given GameObject.

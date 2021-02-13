@@ -13,7 +13,7 @@ namespace Tristeon::Core::Managers
 	{
 		GLFWwindow* window = binding_data.window;
 				
-		MessageBus::subscribeToMessage(MT_AFTERFRAME, [&](Message msg) { resetInput(); });
+		MessageBus::subscribe(Message::Type::AfterFrame, [&](Message msg) { resetInput(); });
 		Misc::Mouse::window = window;
 		glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) { Misc::Keyboard::keyCallback(key, scancode, action, mods); });
 		glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) { Misc::Mouse::buttonCallback(button, action, mods); });

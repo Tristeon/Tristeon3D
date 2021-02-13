@@ -4,6 +4,8 @@
 #include <Core/MessageBus.h>
 #include <Misc/Hardware/Time.h>
 
+#include "Data/Resources.h"
+
 namespace Tristeon::Core
 {
 	Engine::Engine()
@@ -17,12 +19,13 @@ namespace Tristeon::Core
 		componentSys = std::make_unique<Components::ComponentManager>();
 		sceneSys = std::make_unique<SceneManager>();
 
-		MessageBus::subscribeToMessage(MT_GAME_LOGIC_START, [&](Message msg)
+		MessageBus::subscribe(Message::Type::GameLogicStart, [&](Message msg)
 			{
-				MessageBus::sendMessage(MT_START);
+				MessageBus::send(Message::Type::Start);
 				inPlayMode = true;
 			});
-		MessageBus::subscribeToMessage(MT_GAME_LOGIC_STOP, [&](Message msg) { inPlayMode = false; });
+		MessageBus::subscribe(Message::Type::GameLogicStop, [&](Message msg) { inPlayMode = false; });
+		MessageBus::subscribe(Message::Type::Quitting, [](Message msg) { Resources::clearCache(); });
 	}
 
 	void Engine::run() const
@@ -54,23 +57,25 @@ namespace Tristeon::Core
 				fixedUpdateTime += Misc::Time::deltaTime;
 				while (fixedUpdateTime > 1.0f / 50.0f) //TODO: Make fixed delta time variable
 				{
-					MessageBus::sendMessage(MT_FIXEDUPDATE);
+					MessageBus::send(Message::Type::FixedUpdate);
 					fixedUpdateTime -= 1.0f / 50.0f;
 				}
 
-				MessageBus::sendMessage(MT_UPDATE);
-				MessageBus::sendMessage(MT_LATEUPDATE);
+				MessageBus::send(Message::Type::EarlyUpdate);
+				MessageBus::send(Message::Type::Update);
+				MessageBus::send(Message::Type::LateUpdate);
 			}
 
 			//Only attempt to render if the window is a valid size
 			if (window->width.get() != 0 && window->height.get() != 0)
 			{
-				MessageBus::sendMessage(MT_PRERENDER);
-				MessageBus::sendMessage(MT_RENDER);
-				MessageBus::sendMessage(MT_POSTRENDER);
+				MessageBus::send(Message::Type::PreRender);
+				MessageBus::send(Message::Type::Render);
+				MessageBus::send(Message::Type::PostRender);
 
-				MessageBus::sendMessage(MT_AFTERFRAME);
+				MessageBus::send(Message::Type::AfterFrame);
 			}
 		}
+		MessageBus::send(Message::Type::Quitting);
 	}
 }

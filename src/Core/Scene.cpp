@@ -6,6 +6,13 @@
 
 #include "Collector.h"
 #include "Rendering/Components/Renderer.h"
+#include <Core/Rendering/Material.h>
+
+
+
+#include "Data/ImageBatch.h"
+#include "Data/MeshBatch.h"
+#include "Data/Resources.h"
 
 namespace Tristeon::Core
 {
@@ -68,12 +75,22 @@ namespace Tristeon::Core
 				auto renderers = Collector<Rendering::Renderer>::all();
 				for (auto* renderer : renderers)
 				{
+					if (renderer->material.get() == nullptr)
+						continue;
+
+					Rendering::Material* material = renderer->material.get();
+					material->render(binding_data.offscreenBuffer);
 					renderer->render();
 				}
 			}
 			binding_data.offscreenBuffer.endRenderPass();
 		}
 		binding_data.offscreenBuffer.end();
+	}
+
+	Scene::~Scene()
+	{
+		Resources::clearSceneCache();
 	}
 
 	void Scene::add(std::unique_ptr<GameObject> gameObj)

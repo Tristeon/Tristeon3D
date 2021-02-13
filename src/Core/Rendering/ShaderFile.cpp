@@ -59,4 +59,13 @@ namespace Tristeon::Core::Rendering
 		const vk::ShaderModuleCreateInfo module_ci{ {}, code.size(), reinterpret_cast<const uint32_t*>(code.data()) };
 		return binding_data.device.createShaderModule(module_ci);
 	}
+
+	void ShaderFile::clean()
+	{
+		_compiled = false;
+		_failed = false;
+
+		for (auto [stage, m] : _modules)
+			binding_data.device.destroyShaderModule(m);
+	}
 }

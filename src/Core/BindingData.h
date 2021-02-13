@@ -9,6 +9,7 @@ namespace Tristeon::Core
 		vk::Image image = nullptr;
 		vk::DeviceMemory memory = nullptr;
 		vk::ImageView view = nullptr;
+		vk::Sampler sampler = nullptr;
 	};
 	
 	struct BindingData

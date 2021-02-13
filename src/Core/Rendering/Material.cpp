@@ -63,13 +63,16 @@ namespace Tristeon::Core::Rendering
 	{
 		Collector<Material>::remove(this);
 
-		if ((VkPipeline)_pipeline != VK_NULL_HANDLE)
-			binding_data.device.destroyPipeline(_pipeline);
 		if ((VkPipelineLayout)_layout != VK_NULL_HANDLE)
 			binding_data.device.destroyPipelineLayout(_layout);
+		if ((VkPipeline)_pipeline != VK_NULL_HANDLE)
+			binding_data.device.destroyPipeline(_pipeline);
+
+		_layout = nullptr;
+		_pipeline = nullptr;
 	}
 
-	void Material::buildPipeline()
+	void Material::createPipeline()
 	{
 		if ((VkPipeline)_pipeline != VK_NULL_HANDLE)
 			binding_data.device.destroyPipeline(_pipeline);
@@ -144,10 +147,20 @@ namespace Tristeon::Core::Rendering
 		_pipeline = r.value;
 	}
 
+	void Material::createDescriptorSets()
+	{
+		//Empty
+	}
+
 	ShaderFile* Material::shader()
 	{
 		//TODO: Remove this
 		static ShaderFile file("Files/Shaders/Triangle.vert.spv", "Files/Shaders/Triangle.frag.spv");
 		return &file;
+	}
+
+	void Material::render(vk::CommandBuffer cmd)
+	{
+		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline());
 	}
 }

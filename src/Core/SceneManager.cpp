@@ -4,6 +4,9 @@
 #include "Core/MessageBus.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
 #include "Core/JsonSerializer.h"
+#include "Data/ImageBatch.h"
+#include "Data/MeshBatch.h"
+#include "Data/Resources.h"
 
 namespace Tristeon::Core
 {
@@ -40,24 +43,21 @@ namespace Tristeon::Core
 
 	void SceneManager::load(std::string name)
 	{
-		MessageBus::sendMessage(MT_MANAGER_RESET);
-
+		_current.reset();
+		MessageBus::send(Message::Type::SceneUnloaded);
+		
 		//Attempt to deserialize scene from file
-		auto const scene = JsonSerializer::deserialize<Scene>(_paths[name]);
+		auto* const scene = JsonSerializer::deserialize<Scene>(_paths[name]);
 		if (!scene)
 		{
 			Misc::Console::warning("Couldn't load scene " + std::string(_paths[name]));
 			_current = std::unique_ptr<Scene>();
 			return;
 		}
-		load(scene);
-	}
-
-	void SceneManager::load(Scene* scene)
-	{
-		MessageBus::sendMessage(MT_MANAGER_RESET);
 		_current = std::unique_ptr<Scene>(scene);
 		createParentalBonds(_current.get());
+		
+		MessageBus::send(Message::Type::SceneLoaded);
 	}
 
 	Transform* SceneManager::findTransformByInstanceID(std::string instanceID)

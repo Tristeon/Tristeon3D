@@ -11,7 +11,6 @@ namespace Tristeon::Core::Rendering
 {
 	Window::~Window()
 	{
-		MessageBus::sendMessage(MT_QUIT);
 		glfwDestroyWindow(binding_data.window);
 		glfwTerminate();
 	}
@@ -54,6 +53,6 @@ namespace Tristeon::Core::Rendering
 		this->width.value = width;
 		this->height.value = height;
 		Math::Vector2 size = Math::Vector2((float)width, (float)height);
-		MessageBus::sendMessage(Message(MT_WINDOW_RESIZE, &size));
+		MessageBus::send(Message(Message::Type::WindowResize, &size));
 	}
 }

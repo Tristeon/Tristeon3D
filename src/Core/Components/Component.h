@@ -36,6 +36,10 @@ namespace Tristeon
 				 */
 				virtual void start() {}
 				/**
+				 * Update gets called every frame before the other update calls
+				 */
+				virtual void earlyUpdate() {}
+				/**
 				 * Update gets called every frame when the game is running
 				 */
 				virtual void update() {}

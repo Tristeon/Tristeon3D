@@ -5,9 +5,10 @@ namespace Tristeon::Core::Components
 {
 	ComponentManager::ComponentManager()
 	{
-		MessageBus::subscribeToMessage(MT_START, [&](Message) { callFunction<&Component::start>(); });
-		MessageBus::subscribeToMessage(MT_UPDATE, [&](Message) { callFunction<&Component::update>(); });
-		MessageBus::subscribeToMessage(MT_LATEUPDATE, [&](Message) { callFunction<&Component::lateUpdate>(); });
-		MessageBus::subscribeToMessage(MT_FIXEDUPDATE, [&](Message) { callFunction<&Component::fixedUpdate>(); });
+		MessageBus::subscribe(Message::Type::Start, [&](Message) { callFunction<&Component::start>(); });
+		MessageBus::subscribe(Message::Type::EarlyUpdate, [&](Message) { callFunction<&Component::earlyUpdate>(); });
+		MessageBus::subscribe(Message::Type::Update, [&](Message) { callFunction<&Component::update>(); });
+		MessageBus::subscribe(Message::Type::LateUpdate, [&](Message) { callFunction<&Component::lateUpdate>(); });
+		MessageBus::subscribe(Message::Type::FixedUpdate, [&](Message) { callFunction<&Component::fixedUpdate>(); });
 	}
 }

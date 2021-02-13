@@ -15,20 +15,20 @@ namespace Tristeon::Core
 		/**
 		 * Sends a message to all listeners subscribed to message.type
 		 */
-		static void sendMessage(Message message);
+		static void send(Message message);
 
 		/**
 		 * Adds a function to the message callbacks based on the given message type
 		 * \param type The type of message the given function should listen to
 		 */
-		static void subscribeToMessage(MessageType type, std::function<void(Message)> f);
+		static void subscribe(Message::Type type, std::function<void(Message)> f);
 
 	private:
 		/**
 		 * Validates if the given messagetype has already been added to the callback system. If not, the type will be added.
 		 */
-		static void validateMessageType(MessageType type);
+		static void validate(Message::Type type);
 
-		static std::map<MessageType, Misc::Delegate<Message>> messageCallbacks;
+		static std::map<Message::Type, Misc::Delegate<Message>> messageCallbacks;
 	};
 }

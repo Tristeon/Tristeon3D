@@ -43,7 +43,6 @@ namespace Tristeon::Core::Rendering
 		if (!material.get())
 			return;
 		
-		binding_data.offscreenBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, material.get()->pipeline());
 		binding_data.offscreenBuffer.draw(3, 1, 0, 0);
 	}
 }

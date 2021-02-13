@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 #else
 	//Auto start game with the starting scene loaded in in game/release mode
 	Core::SceneManager::load(0);
-	Core::MessageBus::sendMessage(Core::MessageType::MT_GAME_LOGIC_START);
+	Core::MessageBus::send(Core::Message::Type::GameLogicStart);
 #endif
 
 	engine.run();

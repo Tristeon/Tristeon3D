@@ -48,7 +48,7 @@ namespace Tristeon::Core::Rendering
 	class Material : public TObject
 	{
 		REGISTER_TYPE_H(Material);
-		
+
 		friend class RenderManager;
 #ifdef TRISTEON_EDITOR
 		friend Editor::MaterialFileItem;
@@ -56,17 +56,19 @@ namespace Tristeon::Core::Rendering
 	public:
 		Material();
 		explicit Material(PipelineProperties properties);
-		~Material();
+		virtual ~Material() override;
 
 		[[nodiscard]] vk::Pipeline pipeline()
 		{
 			if (!_pipeline)
-				buildPipeline();
+				createPipeline();
 			return _pipeline;
 		}
-		virtual void buildPipeline();
+
+		virtual void createPipeline();
+		virtual void createDescriptorSets();
 		virtual ShaderFile* shader();
-	protected:
+
 		/**
 		 * \brief Prepare function, override this function to send data to the gpu
 		 * \param model The transformation matrix of the object
@@ -76,10 +78,11 @@ namespace Tristeon::Core::Rendering
 		virtual void prepare(glm::mat4 model, glm::mat4 view, glm::mat4 proj) { }
 
 		/**
-		 * \brief The filepath to the shader file
-		 */
-		std::string shaderFilePath;
+		 * \brief Call the necessary functions to render things with this material appropriately
+		*/
+		virtual void render(vk::CommandBuffer cmd);
 
+	protected:
 		PipelineProperties _properties{};
 		vk::PipelineLayout _layout = nullptr;
 		vk::Pipeline _pipeline = nullptr;

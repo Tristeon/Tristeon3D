@@ -32,12 +32,12 @@ namespace Tristeon
 			 */
 			static void unload(std::string path);
 
-		private:
-			static std::map<std::string, Image> cachedImages;
 			/**
 			 * Unloads and frees all the images from the cache.
 			 */
 			static void unloadAll();
+		private:
+			static std::map<std::string, Image> cachedImages;
 		};
 	}
 }

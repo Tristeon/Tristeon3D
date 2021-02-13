@@ -2,13 +2,13 @@
 
 namespace Tristeon::Core
 {
-	Message::Message(MessageType type)
+	Message::Message(Type type)
 	{
 		this->type = type;
 		this->userData = nullptr;
 	}
 
-	Message::Message(MessageType type, TObject* userData)
+	Message::Message(Type type, TObject* userData)
 	{
 		this->type = type;
 		this->userData = userData;

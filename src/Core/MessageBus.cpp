@@ -3,21 +3,21 @@
 
 namespace Tristeon::Core
 {
-	std::map<MessageType, Misc::Delegate<Message>> MessageBus::messageCallbacks;
+	std::map<Message::Type, Misc::Delegate<Message>> MessageBus::messageCallbacks;
 
-	void MessageBus::sendMessage(Message message)
+	void MessageBus::send(Message message)
 	{
-		validateMessageType(message.type);
+		validate(message.type);
 		messageCallbacks[message.type].invoke(message);
 	}
 
-	void MessageBus::subscribeToMessage(MessageType type, std::function<void(Message)> f)
+	void MessageBus::subscribe(Message::Type type, std::function<void(Message)> f)
 	{
-		validateMessageType(type);
+		validate(type);
 		messageCallbacks[type] += f;
 	}
 
-	void MessageBus::validateMessageType(MessageType type)
+	void MessageBus::validate(Message::Type type)
 	{
 		if (!messageCallbacks.count(type))
 			messageCallbacks[type] = Misc::Delegate<Message>();
