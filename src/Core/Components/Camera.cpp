@@ -28,7 +28,7 @@ namespace Tristeon::Core::Components
 	void Camera::setSkybox(std::string path)
 	{
 		skyboxPath = path;
-		skybox = Resources::jsonLoad<Rendering::Skybox>(path);
+		skybox = Data::Resources::jsonLoad<Rendering::Skybox>(path);
 	}
 
 	Rendering::Skybox* Camera::getSkybox() const
@@ -86,7 +86,7 @@ namespace Tristeon::Core::Components
 
 		const std::string skyVal = json["skybox"];
 		if (skyVal != skyboxPath)
-			skybox = Resources::jsonLoad<Rendering::Skybox>(skyVal);
+			skybox = Data::Resources::jsonLoad<Rendering::Skybox>(skyVal);
 		skyboxPath = skyVal;
 	}
 }

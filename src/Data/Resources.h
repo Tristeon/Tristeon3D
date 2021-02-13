@@ -4,7 +4,7 @@
 #include <Core/JsonSerializer.h>
 #include <filesystem>
 
-namespace Tristeon
+namespace Tristeon::Data
 {
 	class Resources
 	{
@@ -58,13 +58,11 @@ namespace Tristeon
 
 			if (behaviour == CacheBehaviour::Persistent)
 			{
-				auto resource = Core::JsonSerializer::deserialize<T>(path);
 				_persistentResources[path] = std::make_unique<T>(path);
 				return (T*)_persistentResources[path].get();
 			}
 			else
 			{
-				auto resource = Core::JsonSerializer::deserialize<T>(path);
 				_persistentResources[path] = std::make_unique<T>(path);
 				return (T*)_sceneResources[path].get();
 			}

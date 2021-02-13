@@ -18,7 +18,7 @@ namespace Tristeon::Core::Rendering
 		
 		const auto pathValue = json.value("materialPath", std::string());
 		if (pathValue != materialPath || !material)
-			material = Resources::jsonLoad<Material>(pathValue, Resources::CacheBehaviour::SceneBased);
+			material = Data::Resources::jsonLoad<Material>(pathValue, Data::Resources::CacheBehaviour::SceneBased);
 		materialPath = pathValue;
 	}
 

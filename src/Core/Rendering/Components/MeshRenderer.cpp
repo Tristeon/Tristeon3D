@@ -1,8 +1,8 @@
 ﻿#include "MeshRenderer.h"
-#include <Data/MeshBatch.h>
 #include <filesystem>
 
 #include "Core/BindingData.h"
+#include "Data/Resources.h"
 
 namespace Tristeon::Core::Rendering
 {
@@ -29,7 +29,11 @@ namespace Tristeon::Core::Rendering
 		if (meshFilePath != meshFilePathValue || subMeshID != submeshIDValue)
 		{
 			if (std::filesystem::exists(meshFilePathValue))
-				mesh = Data::MeshBatch::getSubMesh(meshFilePathValue, submeshIDValue);
+			{
+				auto* baseMesh = Data::Resources::assetLoad<Data::Mesh>(meshFilePathValue);
+				if (submeshIDValue > 0 && submeshIDValue < baseMesh->submeshes.size())
+					mesh = baseMesh->submeshes[submeshIDValue];
+			}
 			else
 				mesh = Data::SubMesh();
 		}

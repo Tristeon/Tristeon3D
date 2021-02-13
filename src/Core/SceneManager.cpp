@@ -4,8 +4,6 @@
 #include "Core/MessageBus.h"
 #include "Core/Rendering/Components/MeshRenderer.h"
 #include "Core/JsonSerializer.h"
-#include "Data/ImageBatch.h"
-#include "Data/MeshBatch.h"
 #include "Data/Resources.h"
 
 namespace Tristeon::Core

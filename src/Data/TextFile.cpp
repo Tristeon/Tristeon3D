@@ -2,50 +2,47 @@
 #include <vector>
 #include "Misc/Console.h"
 
-namespace Tristeon
+namespace Tristeon::Data
 {
-	namespace Data
+	TextFile::TextFile()
 	{
-		TextFile::TextFile()
-		{
-			//Standard is text
-			filemode = FM_Text;
-			filePath = "";
-		}
+		//Standard is text
+		filemode = FileMode::Text;
+		filePath = "";
+	}
 
-		TextFile::TextFile(std::string filename, FileMode mode)
-		{
-			this->filemode = mode;
-			this->filePath = filename;
-		}
+	TextFile::TextFile(const std::string& filename, const FileMode& mode)
+	{
+		this->filemode = mode;
+		this->filePath = filename;
+	}
 
-		std::string TextFile::readAllString() const
-		{
-			return readAllVector().data();
-		}
+	std::string TextFile::readAllString() const
+	{
+		return readAllVector().data();
+	}
 
-		std::vector<char> TextFile::readAllVector() const
-		{
-			//Open file
-			std::ifstream file = std::ifstream(filePath, std::ios::ate | (std::ios::openmode)filemode);
+	std::vector<char> TextFile::readAllVector() const
+	{
+		//Open file
+		auto file = std::ifstream(filePath, std::ios::ate | (std::ios::openmode)filemode);
 
-			//Failure
-			if (!file.is_open())
-				Misc::Console::error("Failed to open file " + filePath);
+		//Failure
+		if (!file.is_open())
+			Misc::Console::error("Failed to open file " + filePath);
 
-			//Get filesize and create a vector with that given size
-			const size_t fileSize = static_cast<size_t>(file.tellg());
-			std::vector<char> data = std::vector<char>(fileSize);
+		//Get filesize and create a vector with that given size
+		const auto fileSize = static_cast<size_t>(file.tellg());
+		auto data = std::vector<char>(fileSize);
 
-			//move to the end, read backwards
-			file.seekg(0);
-			file.read(data.data(), fileSize);
+		//move to the end, read backwards
+		file.seekg(0);
+		file.read(data.data(), fileSize);
 
-			//Close file
-			file.close();
+		//Close file
+		file.close();
 
-			//Return
-			return data;
-		}
+		//Return
+		return data;
 	}
 }

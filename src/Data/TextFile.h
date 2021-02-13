@@ -2,54 +2,51 @@
 #include <vector>
 #include <fstream>
 
-namespace Tristeon
+namespace Tristeon::Data
 {
-	namespace Data
+	/**
+	 * File reading mode used for text files
+	 */
+	enum class FileMode
 	{
+		Text = 0,
+		Binary = std::ios::binary
+	};
+
+	/**
+	 * Utility class for loading text files.
+	 */
+	class TextFile final
+	{
+	public:
 		/**
-		 * File reading mode used for text files
+		 * Creates a default instance of TextFile with an empty filepath.
 		 */
-		enum FileMode
-		{
-			FM_Text = 0,
-			FM_Binary = std::ios::binary
-		};
+		explicit TextFile();
+		
+		/**
+		 * Creates a new instance of TextFile with the given filename and mode
+		 */
+		TextFile(const std::string& filename, const FileMode& mode);
 
 		/**
-		 * Utility class for loading text files.
+		 * Reads the file and returns it as a string.
+		 * \exception std::runtime_error Failed to open file at filepath <path>
 		 */
-		class TextFile final
-		{
-		public:
-			/**
-			 * Creates a default instance of TextFile with an empty filepath.
-			 */
-			explicit TextFile();
-			
-			/**
-			 * Creates a new instance of TextFile with the given filename and mode
-			 */
-			TextFile(std::string filename, FileMode mode);
+		[[nodiscard]] std::string readAllString() const;
+		/**
+		 * Reads the file and returns it as a char vector
+		 * \exception std::runtime_error Failed to open file at filepath <path>
+		 */
+		[[nodiscard]] std::vector<char> readAllVector() const;
 
-			/**
-			 * Reads the file and returns it as a string.
-			 * \exception std::runtime_error Failed to open file at filepath <path>
-			 */
-			std::string readAllString() const;
-			/**
-			 * Reads the file and returns it as a char vector
-			 * \exception std::runtime_error Failed to open file at filepath <path>
-			 */
-			std::vector<char> readAllVector() const;
-
-			/**
-			 * The path of the text file
-			 */
-			std::string filePath;
-			/**
-			 * The mode of the file (binary/text)
-			 */
-			FileMode filemode;
-		};
-	}
+		/**
+		 * The path of the text file
+		 */
+		std::string filePath;
+		/**
+		 * The mode of the file (binary/text)
+		 */
+		FileMode filemode;
+	};
 }

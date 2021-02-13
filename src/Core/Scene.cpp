@@ -7,18 +7,13 @@
 #include "Collector.h"
 #include "Rendering/Components/Renderer.h"
 #include <Core/Rendering/Material.h>
-
-
-
-#include "Data/ImageBatch.h"
-#include "Data/MeshBatch.h"
 #include "Data/Resources.h"
 
 namespace Tristeon::Core
 {
 	REGISTER_TYPE_CPP(Scene)
 
-		nlohmann::json Scene::serialize()
+	nlohmann::json Scene::serialize()
 	{
 		nlohmann::json output;
 		output["typeID"] = Type<Scene>::fullName();
@@ -90,7 +85,7 @@ namespace Tristeon::Core
 
 	Scene::~Scene()
 	{
-		Resources::clearSceneCache();
+		Data::Resources::clearSceneCache();
 	}
 
 	void Scene::add(std::unique_ptr<GameObject> gameObj)

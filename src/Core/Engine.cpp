@@ -25,7 +25,7 @@ namespace Tristeon::Core
 				inPlayMode = true;
 			});
 		MessageBus::subscribe(Message::Type::GameLogicStop, [&](Message msg) { inPlayMode = false; });
-		MessageBus::subscribe(Message::Type::Quitting, [](Message msg) { Resources::clearCache(); });
+		MessageBus::subscribe(Message::Type::Quitting, [](Message msg) { Data::Resources::clearCache(); });
 	}
 
 	void Engine::run() const

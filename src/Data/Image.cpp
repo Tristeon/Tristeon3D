@@ -1,57 +1,35 @@
 ﻿#include "Image.h"
-#include "ImageBatch.h"
+#include <stb_image.h>
 
-namespace Tristeon
+namespace Tristeon::Data
 {
-	namespace Data
+	Image::Image(const std::string& filePath)
 	{
-		Image::Image()
-		{
-		}
+		_pixels = stbi_load(filePath.c_str(), &_width, &_height, &_channels, STBI_rgb_alpha);
+	}
 
-		Image::Image(std::string filePath)
-		{
-			Image const img = ImageBatch::getImage(filePath);
-			pixels = img.pixels;
-			height = img.height;
-			width = img.width;
-			channels = img.channels;
-			filePath = img.filePath;
-		}
+	unsigned char* Image::pixels() const
+	{
+		return _pixels;
+	}
 
-		void Image::setFilePath(std::string name)
-		{
-			filePath = name;
-		}
+	int Image::width() const
+	{
+		return _width;
+	}
 
-		unsigned char* Image::getPixels() const
-		{
-			return pixels;
-		}
+	int Image::height() const
+	{
+		return _height;
+	}
 
-		int Image::getWidth() const
-		{
-			return width;
-		}
+	int Image::channels() const
+	{
+		return _channels;
+	}
 
-		int Image::getHeight() const
-		{
-			return height;
-		}
-
-		int Image::getChannels() const
-		{
-			return channels;
-		}
-
-		int Image::getSize() const
-		{
-			return width * height * channels;
-		}
-
-		std::string Image::getFilePath() const
-		{
-			return filePath;
-		}
+	int Image::size() const
+	{
+		return _width * _height * _channels;
 	}
 }

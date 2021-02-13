@@ -1,6 +1,6 @@
 ﻿#include "Skybox.h"
 #include "Data/Mesh.h"
-#include "Data/MeshBatch.h"
+#include "Data/Resources.h"
 
 namespace Tristeon::Core::Rendering
 {
@@ -8,7 +8,7 @@ namespace Tristeon::Core::Rendering
 
 	Skybox::Skybox()
 	{
-		mesh = Data::MeshBatch::getSubMesh("Files/Models/skybox_cube.obj", 0);
+		mesh = Data::Resources::assetLoad<Data::Mesh>("Files/Models/skybox_cube.obj")->submeshes[0];
 	}
 
 	nlohmann::json Skybox::serialize()
