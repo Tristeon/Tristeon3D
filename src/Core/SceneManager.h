@@ -33,10 +33,6 @@ namespace Tristeon::Core
 		 * If it fails to load a scene, it will still unload the old scene and leave an empty scene behind.
 		 */
 		static void load(std::string name);
-		/**
-		 * Loads the given scene.
-		 */
-		static void load(Scene* scene);
 
 		/**
 		 * The current active scene. This value will never be null after engine initialization.
