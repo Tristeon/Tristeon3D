@@ -2,7 +2,9 @@
 #include "Renderer.h"
 #include <Data/Mesh.h>
 #include <Misc/Property.h>
+
 #include <Core/TypeRegister.h>
+#include <Core/Rendering/Helper/Buffer.h>
 
 namespace Tristeon::Core::Rendering
 {
@@ -19,7 +21,7 @@ namespace Tristeon::Core::Rendering
 		SetProperty(mesh)
 		{
 			_mesh = value;
-			//TODO: Update mesh
+			createBuffers();
 		}
 		GetProperty(mesh) { return _mesh; }
 
@@ -28,9 +30,14 @@ namespace Tristeon::Core::Rendering
 
 		void render() override;
 	private:
+		void createBuffers();
+		
 		Data::SubMesh _mesh;
 		std::string meshFilePath;
 		uint32_t subMeshID = 0;
+
+		std::unique_ptr<Buffer> vertices;
+		std::unique_ptr<Buffer> indices;
 
 		REGISTER_TYPE_H(MeshRenderer)
 	};

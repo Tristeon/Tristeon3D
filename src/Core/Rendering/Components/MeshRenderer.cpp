@@ -44,9 +44,17 @@ namespace Tristeon::Core::Rendering
 
 	void MeshRenderer::render()
 	{
-		if (!material.get())
+		if (!material.get() || !vertices || !indices)
 			return;
-		
-		binding_data.offscreenBuffer.draw(3, 1, 0, 0);
+
+		binding_data.offscreenBuffer.bindVertexBuffers(0, vertices->buffer, { 0 });
+		binding_data.offscreenBuffer.bindIndexBuffer(indices->buffer, 0, vk::IndexType::eUint16);
+		binding_data.offscreenBuffer.drawIndexed((uint32_t)_mesh.indices.size(), 1, 0, 0, 0);
+	}
+
+	void MeshRenderer::createBuffers()
+	{
+		vertices = Buffer::createOptimized(_mesh.vertices.data(), _mesh.vertices.size() * sizeof(Data::Vertex), vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+		indices = Buffer::createOptimized(_mesh.indices.data(), _mesh.indices.size() * sizeof(uint16_t), vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 	}
 }

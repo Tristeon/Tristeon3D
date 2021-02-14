@@ -79,9 +79,9 @@ namespace Tristeon::Core::Rendering
 		if ((VkPipelineLayout)_layout != VK_NULL_HANDLE)
 			binding_data.device.destroyPipelineLayout(_layout);
 
-		auto bindings = std::array<vk::VertexInputBindingDescription, 0>{};// Data::Vertex::binding();
-		auto attributes = std::array<vk::VertexInputAttributeDescription, 0>{};// Data::Vertex::attributes();
-		vk::PipelineVertexInputStateCreateInfo stage_vertex{ {}, bindings.size(), bindings.data(), attributes.size(), attributes.data() };
+		auto bindings = Data::Vertex::binding();
+		auto attributes = Data::Vertex::attributes();
+		vk::PipelineVertexInputStateCreateInfo stage_vertex{ {}, 1, &bindings, attributes.size(), attributes.data() };
 
 		vk::PipelineInputAssemblyStateCreateInfo stage_assembly{ {}, _properties.topology, VK_FALSE };
 

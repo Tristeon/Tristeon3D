@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <set>
 #include <Core/Rendering/Material.h>
 #include "Core/BindingData.h"
 
@@ -25,8 +26,36 @@ namespace Tristeon
 				void setup();
 				void render();
 
-				void buildSwapchain();
-				void cleanSwapchain();
+				static std::vector<const char*> getInstanceExtensions();
+				static void createInstance(const std::vector<const char*>& extensions);
+				static void createDebugMessenger();
+
+				static void createSurface();
+				static void selectPhysicalDevice();
+				static std::set<uint32_t> selectQueueFamilies();
+				static void createVirtualDevice(const std::set<uint32_t>& families);
+
+				static void createDescriptorPool();
+				static void createCommandPools();
+
+				void createOnscreenMaterial();
+				static void createOnscreenSemaphores();
+
+				static void createOffscreenSemaphores();
+				static void allocateOffscreenCommandBuffer();
+
+				void buildSwapchain() const;
+				static void cleanSwapchain();
+
+				static void createOnscreenImageViews();
+				static void createOnscreenRenderpass();
+				static void createOnscreenFramebuffers();
+
+				static void createOffscreenRenderPass();
+				static void createOffscreenFramebuffer();
+
+				static void prepareMaterials();
+				void recordOnscreenCommandBuffers() const;
 				
 				bool inPlayMode = false;
 				bool resized = false;
