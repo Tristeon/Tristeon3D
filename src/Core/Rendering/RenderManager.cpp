@@ -41,6 +41,8 @@ namespace Tristeon::Core::Rendering
 		d.destroySemaphore(binding_data.semaOutputFinished);
 		d.destroySemaphore(binding_data.semaOffscreenFinished);
 
+		d.destroyDescriptorSetLayout(binding_data.transformLayout);
+		
 		cleanSwapchain();
 
 		screenMat.reset();
@@ -81,6 +83,7 @@ namespace Tristeon::Core::Rendering
 		createOnscreenSemaphores();
 
 		createOffscreenSemaphores();
+		createOffscreenTransformLayout();
 		allocateOffscreenCommandBuffer();
 
 		buildSwapchain();
@@ -207,6 +210,10 @@ namespace Tristeon::Core::Rendering
 		binding_data.presentFamily = DeviceSelector::findPresentFamily(binding_data.graphicsFamily);
 		binding_data.transferFamily = DeviceSelector::findTransferFamily();
 
+		Misc::Console::write("\tGraphics Family: " + std::to_string(binding_data.graphicsFamily));
+		Misc::Console::write("\tPresent Family: " + std::to_string(binding_data.presentFamily));
+		Misc::Console::write("\tTransfer Family: " + std::to_string(binding_data.transferFamily));
+		
 		std::set<uint32_t> families;
 		families.insert(binding_data.graphicsFamily);
 		families.insert(binding_data.presentFamily);
@@ -228,8 +235,8 @@ namespace Tristeon::Core::Rendering
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Getting device queues");
 		binding_data.graphicsQueue = binding_data.device.getQueue(binding_data.graphicsFamily, 0);
-		binding_data.presentQueue = binding_data.device.getQueue(binding_data.presentFamily, binding_data.graphicsFamily == binding_data.presentFamily ? 0 : 1);
-		binding_data.transferQueue = binding_data.device.getQueue(binding_data.transferFamily, families.size() - 1);
+		binding_data.presentQueue = binding_data.device.getQueue(binding_data.presentFamily, 0);
+		binding_data.transferQueue = binding_data.device.getQueue(binding_data.transferFamily, 0);
 	}
 
 	void RenderManager::createDescriptorPool()
@@ -270,6 +277,12 @@ namespace Tristeon::Core::Rendering
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating offscreen semaphore");
 		binding_data.semaOffscreenFinished = binding_data.device.createSemaphore({});
+	}
+
+	void RenderManager::createOffscreenTransformLayout()
+	{
+		vk::DescriptorSetLayoutBinding ubo{ 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr };
+		binding_data.transformLayout = binding_data.device.createDescriptorSetLayout({ {}, ubo });
 	}
 
 	void RenderManager::allocateOffscreenCommandBuffer()

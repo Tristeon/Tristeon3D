@@ -65,6 +65,13 @@ namespace Tristeon::Core::Rendering
 			return _pipeline;
 		}
 
+		[[nodiscard]] vk::PipelineLayout layout()
+		{
+			if (!_layout)
+				createPipeline();
+			return _layout;
+		}
+
 		virtual void createPipeline();
 		virtual void createDescriptorSets();
 		virtual ShaderFile* shader();

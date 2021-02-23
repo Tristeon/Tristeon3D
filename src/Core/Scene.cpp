@@ -7,7 +7,11 @@
 #include "Collector.h"
 #include "Rendering/Components/Renderer.h"
 #include <Core/Rendering/Material.h>
+
+#include "Components/Camera.h"
 #include "Data/Resources.h"
+#include "Misc/Hardware/Mouse.h"
+#include "Misc/Hardware/Time.h"
 
 namespace Tristeon::Core
 {
@@ -49,6 +53,11 @@ namespace Tristeon::Core
 
 	void Scene::recordSceneCmd()
 	{
+		Components::Camera* cam = Collector<Components::Camera>::all()[0];
+		glm::mat4 projection = cam->getProjectionMatrix((float)binding_data.extent.width / (float)binding_data.extent.height);
+		projection[1][1] *= -1;
+		glm::mat4 view = cam->getViewMatrix();
+		
 		vk::CommandBufferBeginInfo begin{ {}, nullptr };
 		VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
 		{
@@ -73,9 +82,9 @@ namespace Tristeon::Core
 					if (renderer->material.get() == nullptr)
 						continue;
 
-					Rendering::Material* material = renderer->material.get();
+					auto* material = renderer->material.get();
 					material->render(binding_data.offscreenBuffer);
-					renderer->render();
+					renderer->render(projection, view);
 				}
 			}
 			binding_data.offscreenBuffer.endRenderPass();

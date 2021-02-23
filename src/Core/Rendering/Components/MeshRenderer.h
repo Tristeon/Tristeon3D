@@ -28,7 +28,7 @@ namespace Tristeon::Core::Rendering
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
 
-		void render() override;
+		void render(glm::mat4 proj, glm::mat4 view) override;
 	private:
 		void createBuffers();
 		

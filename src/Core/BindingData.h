@@ -15,8 +15,6 @@ namespace Tristeon::Core
 	struct BindingData
 	{
 		GLFWwindow* window = nullptr;
-		unsigned int width = 0;
-		unsigned int height = 0;
 
 		//Core
 		vk::Instance instance = nullptr;
@@ -50,14 +48,15 @@ namespace Tristeon::Core
 
 		vk::DescriptorPool descriptorPool = nullptr;
 
-		//Deferred first pass
+		//Offscreen pass
 		vk::RenderPass offscreenPass = nullptr;
 		vk::CommandBuffer offscreenBuffer = nullptr;
-		vk::Semaphore semaOffscreenFinished;
-		vk::Framebuffer offscreenFramebuffer;
+		vk::Semaphore semaOffscreenFinished = nullptr;
+		vk::Framebuffer offscreenFramebuffer = nullptr;
 		FrameBufferAttachment offscreenColor, offscreenNormal, offscreenDepth;
+		vk::DescriptorSetLayout transformLayout = nullptr;
 		
-		//Deferred output pass
+		//Onscreen pass
 		vk::RenderPass outputPass = nullptr;
 		std::vector<vk::CommandBuffer> outputCommandBuffers{};
 		vk::Semaphore semaImageAvailable = nullptr;

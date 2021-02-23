@@ -168,7 +168,8 @@ namespace Tristeon::Core::Rendering
 		//Ideally we find an exclusive transfer queue
 		for (int i = 0; i < families.size(); ++i)
 		{
-			if (families[i].queueFlags == vk::QueueFlagBits::eTransfer)
+			if ((families[i].queueFlags & vk::QueueFlagBits::eGraphics) == vk::QueueFlags{} &&
+				(families[i].queueFlags & vk::QueueFlagBits::eCompute) == vk::QueueFlags{})
 				return i;
 		}
 

@@ -2,6 +2,8 @@
 #include <filesystem>
 
 #include "Core/BindingData.h"
+#include "Core/Engine.h"
+#include "Core/Transform.h"
 #include "Data/Resources.h"
 
 namespace Tristeon::Core::Rendering
@@ -42,10 +44,20 @@ namespace Tristeon::Core::Rendering
 		subMeshID = submeshIDValue;
 	}
 
-	void MeshRenderer::render()
+	void MeshRenderer::render(glm::mat4 proj, glm::mat4 view)
 	{
 		if (!material.get() || !vertices || !indices)
 			return;
+
+		Transform::UniformBuffer ubo{ transform.get()->getTransformationMatrix(), view, proj };
+
+		//Send data
+		void* data;
+		VULKAN_DEBUG(binding_data.device.mapMemory(transformBuffer->memory, 0, sizeof(ubo), {}, &data));
+		memcpy(data, &ubo, sizeof ubo);
+		binding_data.device.unmapMemory(transformBuffer->memory);
+
+		binding_data.offscreenBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _material->layout(), 0, transformSet, {});
 
 		binding_data.offscreenBuffer.bindVertexBuffers(0, vertices->buffer, { 0 });
 		binding_data.offscreenBuffer.bindIndexBuffer(indices->buffer, 0, vk::IndexType::eUint16);
@@ -54,7 +66,7 @@ namespace Tristeon::Core::Rendering
 
 	void MeshRenderer::createBuffers()
 	{
-		vertices = Buffer::createOptimized(_mesh.vertices.data(), _mesh.vertices.size() * sizeof(Data::Vertex), vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-		indices = Buffer::createOptimized(_mesh.indices.data(), _mesh.indices.size() * sizeof(uint16_t), vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+		vertices = Buffer::createOptimized(_mesh.vertices.data(), (uint32_t)_mesh.vertices.size() * sizeof(Data::Vertex), vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+		indices = Buffer::createOptimized(_mesh.indices.data(), (uint32_t)_mesh.indices.size() * sizeof(uint16_t), vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 	}
 }

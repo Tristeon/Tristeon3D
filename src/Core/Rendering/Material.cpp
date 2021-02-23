@@ -115,7 +115,7 @@ namespace Tristeon::Core::Rendering
 
 		vk::PipelineDepthStencilStateCreateInfo state_depth{ {}, true, true, vk::CompareOp::eLessOrEqual };
 		
-		vk::PipelineLayoutCreateInfo layout_ci{};
+		vk::PipelineLayoutCreateInfo layout_ci{ {}, binding_data.transformLayout };
 		_layout = binding_data.device.createPipelineLayout(layout_ci);
 
 		if (shader()->stages().empty())

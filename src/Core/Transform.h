@@ -18,6 +18,22 @@ namespace Tristeon::Core
 	{
 		friend class SceneManager;
 	public:
+		struct UniformBuffer
+		{
+			/**
+			 * \brief The transformation of the object
+			 */
+			glm::mat4 model;
+			/**
+			 * \brief The view matrix of the camera
+			 */
+			glm::mat4 view;
+			/**
+			 * \brief The projection matrix of the camera
+			 */
+			glm::mat4 proj;
+		};
+		
 		~Transform();
 
 		/**

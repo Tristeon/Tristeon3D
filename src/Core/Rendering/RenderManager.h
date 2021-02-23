@@ -42,6 +42,7 @@ namespace Tristeon
 				static void createOnscreenSemaphores();
 
 				static void createOffscreenSemaphores();
+				static void createOffscreenTransformLayout();
 				static void allocateOffscreenCommandBuffer();
 
 				void buildSwapchain() const;

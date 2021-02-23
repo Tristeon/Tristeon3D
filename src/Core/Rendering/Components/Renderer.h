@@ -2,6 +2,8 @@
 #include <Core/Components/Component.h>
 #include <Core/Rendering/Material.h>
 
+#include "Core/Rendering/Helper/Buffer.h"
+
 namespace Tristeon::Core
 {
 	class SceneManager;
@@ -24,7 +26,7 @@ namespace Tristeon::Core
 			/**
 			 * \brief Render is the main rendering function of the renderer and must be overridden by subtypes.
 			 */
-			virtual void render() = 0;
+			virtual void render(glm::mat4 proj, glm::mat4 view) = 0;
 
 			/**
 			* \brief The (shared) material of the renderer
@@ -36,6 +38,11 @@ namespace Tristeon::Core
 			nlohmann::json serialize() override;
 			void deserialize(nlohmann::json json) override;
 		protected:
+			void createDescriptorSet();
+
+			std::unique_ptr<Buffer> transformBuffer;
+			vk::DescriptorSet transformSet;
+			
 			/**
 			 * \brief The Filepath of the material
 			 */
