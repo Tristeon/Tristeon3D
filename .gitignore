@@ -12,6 +12,9 @@ bin/[Ee]ditor/
 bin/[Dd]ebug[Ee]ditor/
 bin/[Dd]ebug/
 bin/[Rr]elease/
+!bin/
+*.spv
+*.ilk
 
 # Build files
 *.exe
