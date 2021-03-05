@@ -73,7 +73,7 @@ namespace Tristeon
 }
 
 #if !defined(TRISTEON_LOGENABLED)
-#define VULKAN_DEBUG function;
+#define VULKAN_DEBUG(function) function;
 #else
 #define VULKAN_DEBUG(function) { \
 		const vk::Result result = function; \

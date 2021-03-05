@@ -78,7 +78,7 @@ namespace Tristeon::Core::Rendering
 		};
 
 		auto r = binding_data.device.createGraphicsPipeline(nullptr, pipeline_ci);
-		VULKAN_DEBUG(r.result, ":(");
+		VULKAN_DEBUG(r.result);
 		_pipeline = r.value;
 	}
 

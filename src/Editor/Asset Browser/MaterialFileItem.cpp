@@ -1,5 +1,5 @@
-﻿#include "Data/Resources.h"
-#ifdef TRISTEON_EDITOR
+﻿#ifdef TRISTEON_EDITOR
+#include "Data/Resources.h"
 
 #include "MaterialFileItem.h"
 #include "Editor/EditorImage.h"
