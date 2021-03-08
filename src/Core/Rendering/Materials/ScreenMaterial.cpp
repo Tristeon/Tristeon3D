@@ -13,7 +13,7 @@ namespace Tristeon::Core::Rendering
 
 	ShaderFile* ScreenMaterial::shader()
 	{
-		static ShaderFile shader("Files/Shaders/Color.vert.spv", "Files/Shaders/Color.frag.spv");
+		static ShaderFile shader("Files/Shaders/Screen.vert.spv", "Files/Shaders/Screen.frag.spv");
 		return &shader;
 	}
 
@@ -26,32 +26,32 @@ namespace Tristeon::Core::Rendering
 
 		auto bindings = std::array<vk::VertexInputBindingDescription, 0>{};// Data::Vertex::binding();
 		auto attributes = std::array<vk::VertexInputAttributeDescription, 0>{};// Data::Vertex::attributes();
-		vk::PipelineVertexInputStateCreateInfo stage_vertex{ {}, bindings.size(), bindings.data(), attributes.size(), attributes.data() };
+		vk::PipelineVertexInputStateCreateInfo stageVertex{ {}, bindings.size(), bindings.data(), attributes.size(), attributes.data() };
 
-		vk::PipelineInputAssemblyStateCreateInfo stage_assembly{ {}, _properties.topology, VK_FALSE };
+		vk::PipelineInputAssemblyStateCreateInfo stageAssembly{ {}, _properties.topology, VK_FALSE };
 
 		vk::Viewport viewport{ 0, 0, (float)binding_data.extent.width, (float)binding_data.extent.height, 0, 1.0f };
 		vk::Rect2D scissor{ vk::Offset2D { 0, 0 }, binding_data.extent };
-		vk::PipelineViewportStateCreateInfo state_viewport{ {}, 1, &viewport, 1, &scissor };
+		vk::PipelineViewportStateCreateInfo stateViewport{ {}, 1, &viewport, 1, &scissor };
 
-		vk::PipelineRasterizationStateCreateInfo state_rasterization{ {},
-			_properties.depth_clamp, //Depth clamp
+		vk::PipelineRasterizationStateCreateInfo stateRasterization{ {},
+			_properties.depth_clamp,
 			VK_FALSE, //Rasterizer discard (skips rasterizer stage entirely when VK_TRUE)
 			_properties.polygon_mode,
 			_properties.cull_mode, _properties.front_face };
 
-		vk::PipelineMultisampleStateCreateInfo state_multisample{ {}, _properties.sample_count, VK_FALSE, 1.0, nullptr, VK_FALSE, VK_FALSE };
+		vk::PipelineMultisampleStateCreateInfo stateMultisample{ {}, _properties.sample_count, VK_FALSE, 1.0, nullptr, VK_FALSE, VK_FALSE };
 
-		vk::PipelineColorBlendAttachmentState state_blend_attachment{ _properties.blend_enable,
+		vk::PipelineColorBlendAttachmentState stateBlendAttachment{ _properties.blend_enable,
 			_properties.blend_col_src, _properties.blend_col_dst, _properties.blend_col_op,
 			_properties.blend_alpha_src, _properties.blend_alpha_dst, _properties.blend_alpha_op,
 			vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
-		vk::PipelineColorBlendStateCreateInfo state_blend{ {}, VK_FALSE, vk::LogicOp::eCopy, 1, &state_blend_attachment, { 0, 0, 0, 0 } };
+		vk::PipelineColorBlendStateCreateInfo stateBlend{ {}, VK_FALSE, vk::LogicOp::eCopy, 1, &stateBlendAttachment, { 0, 0, 0, 0 } };
 
-		vk::PipelineDynamicStateCreateInfo state_dynamic{ {}, 0, nullptr };
+		vk::PipelineDynamicStateCreateInfo stateDynamic{ {}, 0, nullptr };
 
-		vk::PipelineLayoutCreateInfo layout_ci{ {}, 1, &_setLayout};
-		_layout = binding_data.device.createPipelineLayout(layout_ci);
+		vk::PipelineLayoutCreateInfo layoutCi{ {}, 1, &_setLayout};
+		_layout = binding_data.device.createPipelineLayout(layoutCi);
 
 		if (shader()->stages().empty())
 			throw std::runtime_error("Can't use a shader with 0 shaders");
@@ -61,15 +61,15 @@ namespace Tristeon::Core::Rendering
 		vk::GraphicsPipelineCreateInfo pipeline_ci{ {},
 			(uint32_t)stages.size(),
 			stages.data(),
-			&stage_vertex,
-			&stage_assembly,
+			&stageVertex,
+			&stageAssembly,
 			nullptr,
-			&state_viewport,
-			&state_rasterization,
-			&state_multisample,
+			&stateViewport,
+			&stateRasterization,
+			&stateMultisample,
 			nullptr,
-			&state_blend,
-			&state_dynamic,
+			&stateBlend,
+			&stateDynamic,
 			_layout,
 			binding_data.outputPass,
 			0,
@@ -111,11 +111,5 @@ namespace Tristeon::Core::Rendering
 			vk::WriteDescriptorSet{ _set, 2, 0, 1, vk::DescriptorType::eCombinedImageSampler, &normal_info },
 		};
 		binding_data.device.updateDescriptorSets(writes, nullptr);
-	}
-
-	void ScreenMaterial::render(vk::CommandBuffer cmd)
-	{
-		cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline());
-		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _layout, 0, 1, &_set, 0, nullptr);
 	}
 }

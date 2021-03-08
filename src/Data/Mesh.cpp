@@ -35,7 +35,7 @@ namespace Tristeon::Data
 		{
 			for (size_t i = 0; i < scene->mNumMeshes; i++)
 			{
-				const auto currentMesh = scene->mMeshes[i];
+				auto* const currentMesh = scene->mMeshes[i];
 
 				SubMesh submesh;
 				for (size_t j = 0; j < currentMesh->mNumVertices; j++)
@@ -48,7 +48,7 @@ namespace Tristeon::Data
 					Vertex vertex;
 					vertex.pos = glm::vec3(position.x, position.y, position.z);
 					vertex.normal = glm::vec3(normal.x, normal.y, normal.z);
-					vertex.texCoord = glm::vec2(float(texCoord.x), float(texCoord.y));
+					vertex.texCoord = glm::vec2(static_cast<float>(texCoord.x), static_cast<float>(texCoord.y));
 					submesh.vertices.push_back(vertex);
 				}
 
@@ -62,7 +62,7 @@ namespace Tristeon::Data
 				}
 
 				//Set material (temporary)
-				submesh.materialID = currentMesh->mMaterialIndex;
+				submesh.materialID = (unsigned int)currentMesh->mMaterialIndex;
 				submeshes.push_back(submesh);
 			}
 		}

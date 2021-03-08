@@ -1,12 +1,15 @@
 ﻿#pragma once
 #include <string>
+#include <vulkan/vulkan.hpp>
+
+#include "Core/TObject.h"
 
 namespace Tristeon::Data
 {
 	/**
 	 * Class for image loading
 	 */
-	class Image
+	class Image : public Core::TObject
 	{
 	public:
 		/**
@@ -14,7 +17,8 @@ namespace Tristeon::Data
 		 * \param filePath The filepath of the image
 		 */
 		explicit Image(const std::string& filePath);
-
+		~Image();
+		
 		/**
 		 * Gets the pixels of the image
 		 */
@@ -33,10 +37,22 @@ namespace Tristeon::Data
 		[[nodiscard]] int channels() const;
 
 		[[nodiscard]] int size() const;
+
+		[[nodiscard]] vk::Image image() const;
+		[[nodiscard]] vk::ImageView view() const;
+		[[nodiscard]] vk::DeviceMemory memory() const;
+		[[nodiscard]] vk::Sampler sampler() const;
 	private:
 		int _width = 0;
 		int _height = 0;
 		int _channels = 0;
 		unsigned char* _pixels = nullptr;
+
+		vk::Image _image = nullptr;
+		vk::ImageView _view = nullptr;
+		vk::DeviceMemory _memory = nullptr;
+		vk::Sampler _sampler = nullptr;
+
+		void createImage();
 	};
 }

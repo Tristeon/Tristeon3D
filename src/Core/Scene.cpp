@@ -53,10 +53,10 @@ namespace Tristeon::Core
 
 	void Scene::recordSceneCmd()
 	{
-		Components::Camera* cam = Collector<Components::Camera>::all()[0];
-		glm::mat4 projection = cam->getProjectionMatrix((float)binding_data.extent.width / (float)binding_data.extent.height);
+		auto* cam = Collector<Components::Camera>::all()[0];
+		auto projection = cam->getProjectionMatrix((float)binding_data.extent.width / (float)binding_data.extent.height);
 		projection[1][1] *= -1;
-		glm::mat4 view = cam->getViewMatrix();
+		const auto view = cam->getViewMatrix();
 		
 		vk::CommandBufferBeginInfo begin{ {}, nullptr };
 		VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
@@ -83,7 +83,7 @@ namespace Tristeon::Core
 						continue;
 
 					auto* material = renderer->material.get();
-					material->render(binding_data.offscreenBuffer);
+					binding_data.offscreenBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, material->pipeline());
 					renderer->render(projection, view);
 				}
 			}

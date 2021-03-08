@@ -3,6 +3,7 @@
 #include "Core/BindingData.h"
 #include "Core/Collector.h"
 #include "Core/Transform.h"
+#include "Core/Rendering/Materials/PBRMaterial.h"
 #include "Data/Resources.h"
 
 namespace Tristeon::Core::Rendering
@@ -21,7 +22,7 @@ namespace Tristeon::Core::Rendering
 		
 		const auto pathValue = json.value("materialPath", std::string());
 		if (pathValue != materialPath || !material)
-			material = Data::Resources::jsonLoad<Material>(pathValue, Data::Resources::CacheBehaviour::SceneBased);
+			material = Data::Resources::jsonLoad<PBRMaterial>(pathValue, Data::Resources::CacheBehaviour::SceneBased);
 		materialPath = pathValue;
 	}
 
@@ -47,7 +48,6 @@ namespace Tristeon::Core::Rendering
 	Renderer::~Renderer()
 	{
 		Collector<Renderer>::remove(this);
-
 		binding_data.device.freeDescriptorSets(binding_data.descriptorPool, transformSet);
 	}
 }

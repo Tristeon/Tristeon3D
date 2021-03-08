@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <Core/Components/Component.h>
 #include <Core/Rendering/Material.h>
-
 #include "Core/Rendering/Helper/Buffer.h"
+#include <glm/mat4x4.hpp>
 
 namespace Tristeon::Core
 {

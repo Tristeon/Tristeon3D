@@ -3,8 +3,6 @@
 #include "ShaderFile.h"
 
 #include <vulkan/vulkan.hpp>
-#include <glm/mat4x4.hpp>
-
 #include <Core/TypeRegister.h>
 
 #ifdef TRISTEON_EDITOR
@@ -47,8 +45,6 @@ namespace Tristeon::Core::Rendering
 	 */
 	class Material : public TObject
 	{
-		REGISTER_TYPE_H(Material);
-
 		friend class RenderManager;
 #ifdef TRISTEON_EDITOR
 		friend Editor::MaterialFileItem;
@@ -72,26 +68,21 @@ namespace Tristeon::Core::Rendering
 			return _layout;
 		}
 
-		virtual void createPipeline();
-		virtual void createDescriptorSets();
-		virtual ShaderFile* shader();
+		[[nodiscard]] vk::DescriptorSet set()
+		{
+			if (!_set)
+				createDescriptorSets();
+			return _set;
+		}
 
-		/**
-		 * \brief Prepare function, override this function to send data to the gpu
-		 * \param model The transformation matrix of the object
-		 * \param view The current camera view matrix
-		 * \param proj The current camera projection matrix
-		 */
-		virtual void prepare(glm::mat4 model, glm::mat4 view, glm::mat4 proj) { }
-
-		/**
-		 * \brief Call the necessary functions to render things with this material appropriately
-		*/
-		virtual void render(vk::CommandBuffer cmd);
-
+		virtual void createPipeline() = 0;
+		virtual void createDescriptorSets() = 0;
+		virtual ShaderFile* shader() = 0;
 	protected:
 		PipelineProperties _properties{};
 		vk::PipelineLayout _layout = nullptr;
 		vk::Pipeline _pipeline = nullptr;
+		vk::DescriptorSet _set = nullptr;
+		vk::DescriptorSetLayout _setLayout;
 	};
 }

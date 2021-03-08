@@ -1,11 +1,14 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
-layout(set = 1,binding = 0) uniform sampler2D _screenTexture;
 
-layout(location = 0) in vec2 fragTexCoord;
-layout(location = 0) out vec4 frag_color;
+layout(binding = 0) uniform sampler2D color;
+layout(binding = 1) uniform sampler2D depth;
+layout(binding = 2) uniform sampler2D normal;
+
+layout(location = 0) in vec2 texCoord;
+layout(location = 0) out vec4 fragColor;
 
 void main()
 {
-    frag_color = texture(_screenTexture, fragTexCoord);
+    fragColor = texture(color, texCoord);
 }

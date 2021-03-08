@@ -1,1 +1,9 @@
-{"colors":{"Material.color":{"a":1.0,"b":0.999989986419678,"g":0.999989986419678,"r":1.0,"typeID":"Tristeon::Misc::Color"}},"floats":{"Material.metallic":1.0,"Material.roughness":1.0},"shaderFilePath":"Assets/StandardShader.shader","texturePaths":{"albedoMap":"Assets/PBR/concrete/albedo.png","aoMap":"Assets/PBR/concrete/ao.png","metallicMap":"Assets/PBR/concrete/metallic.png","normalMap":"Assets/PBR/concrete/normal.png","roughnessMap":"Assets/PBR/concrete/roughness.png"},"typeID":"Tristeon::Core::Rendering::Material","vectors":{}}
+{
+   "shaderFilePath":"Assets/StandardShader.shader",
+   "albedo":"Assets/PBR/concrete/albedo.png",
+   "ao":"Assets/PBR/concrete/ao.png",
+   "metallic":"Assets/PBR/concrete/metallic.png",
+   "normal":"Assets/PBR/concrete/normal.png",
+   "roughness":"Assets/PBR/concrete/roughness.png",
+   "typeID":"Tristeon::Core::Rendering::PBRMaterial"
+}

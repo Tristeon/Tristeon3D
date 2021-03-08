@@ -57,7 +57,8 @@ namespace Tristeon::Core::Rendering
 		memcpy(data, &ubo, sizeof ubo);
 		binding_data.device.unmapMemory(transformBuffer->memory);
 
-		binding_data.offscreenBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _material->layout(), 0, transformSet, {});
+		std::array<vk::DescriptorSet, 2> sets{ transformSet, _material->set() };
+		binding_data.offscreenBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _material->layout(), 0, sets, {});
 
 		binding_data.offscreenBuffer.bindVertexBuffers(0, vertices->buffer, { 0 });
 		binding_data.offscreenBuffer.bindIndexBuffer(indices->buffer, 0, vk::IndexType::eUint16);
@@ -66,6 +67,13 @@ namespace Tristeon::Core::Rendering
 
 	void MeshRenderer::createBuffers()
 	{
+		if (_mesh.vertices.empty() || _mesh.indices.empty())
+		{
+			vertices.reset();
+			indices.reset();
+			return;
+		}
+		
 		vertices = Buffer::createOptimized(_mesh.vertices.data(), (uint32_t)_mesh.vertices.size() * sizeof(Data::Vertex), vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 		indices = Buffer::createOptimized(_mesh.indices.data(), (uint32_t)_mesh.indices.size() * sizeof(uint16_t), vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 	}

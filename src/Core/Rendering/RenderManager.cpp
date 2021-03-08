@@ -492,7 +492,8 @@ namespace Tristeon::Core::Rendering
 
 				cmd.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
 				{
-					screenMat->render(cmd);
+					cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, screenMat->pipeline());
+					cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, screenMat->layout(), 0, screenMat->set(), {});
 					cmd.draw(3, 1, 0, 0);
 				}
 				cmd.endRenderPass();

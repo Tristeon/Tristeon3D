@@ -1,1 +1,9 @@
-{"colors":{"Material.color":{"a":1.0,"b":0.999989986419678,"g":0.999989986419678,"r":1.0,"typeID":"Tristeon::Misc::Color"}},"floats":{"Material.metallic":1.0,"Material.roughness":1.0},"shaderFilePath":"Assets/StandardShader.shader","texturePaths":{"albedoMap":"Assets/PBR/wood_floor/albedo.png","aoMap":"Assets/PBR/wood_floor/ao.png","metallicMap":"Assets/PBR/wood_floor/metallic.png","normalMap":"Assets/PBR/wood_floor/normal.png","roughnessMap":"Assets/PBR/wood_floor/roughness.png"},"typeID":"Tristeon::Core::Rendering::Material","vectors":{}}
+{
+   "shaderFilePath":"Assets/StandardShader.shader",
+   "albedo":"Assets/PBR/wood_floor/albedo.png",
+   "ao":"Assets/PBR/wood_floor/ao.png",
+   "metallic":"Assets/PBR/wood_floor/metallic.png",
+   "normal":"Assets/PBR/wood_floor/normal.png",
+   "roughness":"Assets/PBR/wood_floor/roughness.png",
+   "typeID":"Tristeon::Core::Rendering::PBRMaterial"
+}

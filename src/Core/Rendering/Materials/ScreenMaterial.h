@@ -10,16 +10,10 @@ namespace Tristeon::Core::Rendering
 	public:
 		ScreenMaterial() = default;
 		virtual ~ScreenMaterial() override;
-		ScreenMaterial(PipelineProperties properties) : Material(properties) {}
+		explicit ScreenMaterial(PipelineProperties pProperties) : Material(pProperties) {}
 
 		ShaderFile* shader() override;
 		void createPipeline() override;
 		void createDescriptorSets() override;
-
-	protected:
-		void render(vk::CommandBuffer cmd) override;
-	private:
-		vk::DescriptorSetLayout _setLayout;
-		vk::DescriptorSet _set;
 	};
 }

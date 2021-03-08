@@ -1,1 +1,9 @@
-{"colors":{"Material.color":{"a":1.0,"b":0.999989986419678,"g":0.999989986419678,"r":1.0,"typeID":"Tristeon::Misc::Color"}},"floats":{"Material.metallic":1.0,"Material.roughness":1.0},"shaderFilePath":"Assets/StandardShader.shader","texturePaths":{"albedoMap":"Assets/PBR/iron/albedo.png","aoMap":"Assets/PBR/iron/ao.png","metallicMap":"Assets/PBR/iron/metallic.png","normalMap":"Assets/PBR/iron/normal.png","roughnessMap":"Assets/PBR/iron/roughness.png"},"typeID":"Tristeon::Core::Rendering::Material","vectors":{}}
+{
+   "shaderFilePath":"Assets/StandardShader.shader",
+   "albedo":"Assets/PBR/iron/albedo.png",
+   "ao":"Assets/PBR/iron/ao.png",
+   "metallic":"Assets/PBR/iron/metallic.png",
+   "normal":"Assets/PBR/iron/normal.png",
+   "roughness":"Assets/PBR/iron/roughness.png",
+   "typeID":"Tristeon::Core::Rendering::PBRMaterial"
+}

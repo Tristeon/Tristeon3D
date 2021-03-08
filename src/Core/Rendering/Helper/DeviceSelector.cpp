@@ -200,6 +200,11 @@ namespace Tristeon::Core::Rendering
 		throw std::runtime_error("Could not find a matching memory type");
 	}
 
+	bool DeviceSelector::hasStencilComponent(vk::Format format)
+	{
+		return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+	}
+
 	int DeviceSelector::rate(vk::PhysicalDevice physical)
 	{
 		const vk::PhysicalDeviceFeatures features = physical.getFeatures();

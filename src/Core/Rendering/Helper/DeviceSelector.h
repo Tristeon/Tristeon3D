@@ -16,6 +16,7 @@ namespace Tristeon::Core::Rendering
 		constexpr static std::array<char*, 1> gpuExtensions{ "VK_KHR_swapchain" };
 
 		static uint32_t getMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties);
+		static bool hasStencilComponent(vk::Format format);
 	private:
 		static int rate(vk::PhysicalDevice physical);
 		static bool suitable(vk::PhysicalDevice physical);

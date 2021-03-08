@@ -6,7 +6,8 @@ layout(set = 1, binding = 1) uniform sampler2D normalMap;
 layout(set = 1, binding = 2) uniform sampler2D metallicMap;
 layout(set = 1, binding = 3) uniform sampler2D roughnessMap;
 layout(set = 1, binding = 4) uniform sampler2D aoMap;
-layout(set = 1, binding = 5) uniform Material
+
+struct Material
 {
     vec4 color;
     float roughness;
@@ -14,7 +15,7 @@ layout(set = 1, binding = 5) uniform Material
 } material;
 
 //Lighting
-layout(set = 2, binding = 0) uniform samplerCube skybox;
+//layout(set = 2, binding = 0) uniform samplerCube skybox;
 //TODO: Pass lights properly
 vec3 lights[5] = {
   vec3(-30, 5, 10),
@@ -33,6 +34,7 @@ layout(location = 4) in float inDepth;
 
 //Output
 layout(location = 0) out vec4 frag_color;
+layout(location = 1) out vec4 frag_normal;
 
 //Function prototypes
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
@@ -49,6 +51,13 @@ vec3 _pow(vec3 vec, float p)
 }
 void main()
 {
+    material.color = vec4(1, 1, 1, 1);
+    material.roughness = 1;
+    material.metallic = 1;
+
+    frag_color = texture(albedoMap, inUV);
+    return;
+
     //Textures
     vec3 albedo = _pow(texture(albedoMap, inUV).rgb, 2.2) * vec3(material.color); //Convert from srgb to linear
     float metallic = texture(metallicMap, inUV).r * material.metallic;
@@ -113,6 +122,7 @@ void main()
 	color = mix(color, vec3(inDepth), inDepth);
 	
     frag_color = vec4(color, 1);
+    frag_normal = vec4(normal, 1);
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
