@@ -53,6 +53,33 @@ namespace Tristeon::Core
 
 	void Scene::recordSceneCmd()
 	{
+		if (Collector<Components::Camera>::all().empty())
+		{
+			vk::CommandBufferBeginInfo begin{ {}, nullptr };
+			VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
+			{
+				std::array<vk::ClearValue, 3> clear{
+					vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} },
+					vk::ClearDepthStencilValue{ 0, 0 },
+					vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} }
+				};
+
+				const vk::RenderPassBeginInfo pass_begin{
+					binding_data.offscreenPass,
+					binding_data.offscreenFramebuffer,
+					vk::Rect2D { vk::Offset2D { 0, 0 }, binding_data.extent },
+					(uint32_t)clear.size(), clear.data()
+				};
+
+				binding_data.offscreenBuffer.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
+				binding_data.offscreenBuffer.endRenderPass();
+
+			}
+			binding_data.offscreenBuffer.end();
+			return;
+		}
+
+		
 		auto* cam = Collector<Components::Camera>::all()[0];
 		auto projection = cam->getProjectionMatrix((float)binding_data.extent.width / (float)binding_data.extent.height);
 		projection[1][1] *= -1;

@@ -1,4 +1,5 @@
 #ifdef TRISTEON_EDITOR
+#include "Core/Rendering/Helper/OneTimeCmd.h"
 #include "Core/BindingData.h"
 #include "Core/MessageBus.h"
 #include "TristeonEditor.h"
@@ -21,7 +22,6 @@ namespace Tristeon
 		bindImGui();
 		initFontsImGui();
 		setupCallbacks();
-		createCommandBuffers();
 
 		//Set style
 		setStyle();
@@ -41,7 +41,7 @@ namespace Tristeon
 
 	void TristeonEditor::setStyle()
 	{
-		ImGuiStyle * style = &ImGui::GetStyle();
+		auto* style = &ImGui::GetStyle();
 
 		style->WindowPadding = ImVec2(15, 15);
 		style->WindowRounding = 5.0f;
@@ -106,7 +106,7 @@ namespace Tristeon
 		if (Misc::Keyboard::getKeyDown(Misc::KeyCode::SPACE))
 		{
 			inPlayMode = !inPlayMode;
-			Core::MessageBus::sendMessage(inPlayMode ? Core::MT_GAME_LOGIC_START : Core::MT_GAME_LOGIC_STOP);
+			Core::MessageBus::send(inPlayMode ? Core::Message::Type::GameLogicStart : Core::Message::Type::GameLogicStart);
 		}
 
 		//If playing the game it will go in fullscreen, thus the editor no longer needs to be rendered, will be subject to change
@@ -114,13 +114,11 @@ namespace Tristeon
 			return;
 
 		ImGui_ImplGlfwVulkan_NewFrame();
-		//ImGuizmo::BeginFrame();
+		ImGuizmo::BeginFrame();
 
 		//Calling ongui functions of editorwindows
-		for (int i = 0; i < windows.size(); ++i)
-		{
-			windows[i]->onGui();
-		}
+		for (auto& window : windows)
+			window->onGui();
 
 		//Update dragging
 		if (ImGui::IsMouseReleased(0))
@@ -129,70 +127,38 @@ namespace Tristeon
 		}
 	}
 
-	void TristeonEditor::render()
+	void TristeonEditor::render(vk::CommandBuffer cmd)
 	{
 		if (inPlayMode)
 			return;
-
-		//TODO: Re-enable TristeonEditor::render
-		//Core::Rendering::Vulkan::RenderData* d = dynamic_cast<Core::Rendering::Vulkan::RenderData*>(renderable->data);
-
-		//vk::CommandBufferBeginInfo const begin = vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eRenderPassContinue, &d->inheritance);
-		//cmd.begin(begin);
-		//ImGui_ImplGlfwVulkan_Render(static_cast<VkCommandBuffer>(cmd));
-		//cmd.end();
-
-		//d->lastUsedSecondaryBuffer = cmd;
+		ImGui_ImplGlfwVulkan_Render(static_cast<VkCommandBuffer>(cmd));
 	}
 
 	void TristeonEditor::bindImGui()
 	{
-		ImGui_ImplGlfwVulkan_Init_Data init_data;
-		init_data.allocator = nullptr;
-		init_data.gpu = static_cast<VkPhysicalDevice>(Core::binding_data.physical);
-		init_data.device = static_cast<VkDevice>(Core::binding_data.device);
-		init_data.render_pass = static_cast<VkRenderPass>(Core::binding_data.outputPass);
-		init_data.pipeline_cache = NULL;
-		init_data.descriptor_pool = static_cast<VkDescriptorPool>(Core::binding_data.descriptorPool);
-		init_data.check_vk_result = [](VkResult err) { Misc::Console::t_assert(err == VK_SUCCESS, "Editor vulkan error: " + err); };
-		ImGui_ImplGlfwVulkan_Init(Core::binding_data.window, true, &init_data);
+		ImGui_ImplGlfwVulkan_Init_Data initData{};
+		initData.allocator = nullptr;
+		initData.gpu = static_cast<VkPhysicalDevice>(Core::binding_data.physical);
+		initData.device = static_cast<VkDevice>(Core::binding_data.device);
+		initData.render_pass = static_cast<VkRenderPass>(Core::binding_data.outputPass);
+		initData.pipeline_cache = NULL;
+		initData.descriptor_pool = static_cast<VkDescriptorPool>(Core::binding_data.descriptorPool);
+		initData.check_vk_result = [](VkResult err) { Misc::Console::t_assert(err == VK_SUCCESS, "Editor vulkan error: " + err); };
+		ImGui_ImplGlfwVulkan_Init(Core::binding_data.window, true, &initData);
 	}
 
 	void TristeonEditor::initFontsImGui()
 	{
-		//TODO: Re-enable imgui fonts
-		//VkResult err = vkResetCommandPool(
-		//	static_cast<VkDevice>(Core::binding_data.device),
-		//	static_cast<VkCommandPool>(Core::binding_data.graphicsPool),
-		//	0);
-		
-		//Misc::Console::t_assert(err == VK_SUCCESS, "Failed to reset command pool: " + to_string(static_cast<vk::Result>(err)));
-		//VkCommandBuffer const cmd = static_cast<VkCommandBuffer>(Core::Rendering::Vulkan::CommandBuffer::begin());
-
-		//ImGui_ImplGlfwVulkan_CreateFontsTexture(cmd);
-		//Core::Rendering::Vulkan::CommandBuffer::end(static_cast<vk::CommandBuffer>(cmd));
-
-		//Core::binding_data.device.waitIdle();
-		//ImGui_ImplGlfwVulkan_InvalidateFontUploadObjects();
+		auto const cmd = Core::Rendering::OneTimeCmd::begin(Core::binding_data.graphicsPool);
+		ImGui_ImplGlfwVulkan_CreateFontsTexture(cmd);
+		Core::Rendering::OneTimeCmd::end(cmd, Core::binding_data.graphicsQueue, Core::binding_data.graphicsPool);
+		Core::binding_data.graphicsQueue.waitIdle();
+		ImGui_ImplGlfwVulkan_InvalidateFontUploadObjects();
 	}
 
 	void TristeonEditor::setupCallbacks()
 	{
-		//Subscribe to render callback
-		Core::MessageBus::subscribeToMessage(Core::MT_PRERENDER, std::bind(&TristeonEditor::onGui, this));
-		//Core::MessageBus::subscribeToMessage(Core::MT_SHARE_DATA, [&](Core::Message msg)
-		//{
-		//	Core::Rendering::Vulkan::EditorData* data = dynamic_cast<Core::Rendering::Vulkan::EditorData*>(msg.userData);
-		//	if (data != nullptr)
-		//		this->editorCamera = data;
-		//});
-	}
-
-	void TristeonEditor::createCommandBuffers()
-	{
-		//vk::CommandBufferAllocateInfo alloc = vk::CommandBufferAllocateInfo(Core::binding_data.graphicsPool, vk::CommandBufferLevel::eSecondary, 1);
-		//vk::Result const r = Core::binding_data.device.allocateCommandBuffers(&alloc, &cmd);
-		//Misc::Console::t_assert(r == vk::Result::eSuccess, "Failed to allocate command buffers: " + to_string(r));
+		Core::MessageBus::subscribe(Core::Message::Type::PreRender, [=](Core::Message) { onGui(); });
 	}
 }
 

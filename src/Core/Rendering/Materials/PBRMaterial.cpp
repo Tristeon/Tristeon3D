@@ -2,7 +2,6 @@
 #include <Core/BindingData.h>
 #include <Core/Engine.h>
 
-
 #include "Data/Mesh.h"
 #include "Data/Resources.h"
 
@@ -124,11 +123,11 @@ namespace Tristeon::Core::Rendering
 		const vk::DescriptorSetAllocateInfo alloc{ binding_data.descriptorPool, 1, &_setLayout };
 		_set = binding_data.device.allocateDescriptorSets(alloc)[0];
 
-		auto albedo_info = vk::DescriptorImageInfo(albedo->sampler(), albedo->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto normal_info = vk::DescriptorImageInfo(normal->sampler(), normal->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto metallic_info = vk::DescriptorImageInfo(metallic->sampler(), metallic->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto roughness_info = vk::DescriptorImageInfo(roughness->sampler(), roughness->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto ao_info = vk::DescriptorImageInfo(ao->sampler(), ao->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+		auto albedo_info = vk::DescriptorImageInfo(_albedo->sampler(), _albedo->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+		auto normal_info = vk::DescriptorImageInfo(_normal->sampler(), _normal->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+		auto metallic_info = vk::DescriptorImageInfo(_metallic->sampler(), _metallic->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+		auto roughness_info = vk::DescriptorImageInfo(_roughness->sampler(), _roughness->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+		auto ao_info = vk::DescriptorImageInfo(_ao->sampler(), _ao->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
 
 		std::array<vk::WriteDescriptorSet, 5> writes{
 			vk::WriteDescriptorSet{ _set, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &albedo_info },
@@ -140,15 +139,35 @@ namespace Tristeon::Core::Rendering
 		binding_data.device.updateDescriptorSets(writes, {});
 	}
 
+	Data::Image* PBRMaterial::texture(TextureType type) const
+	{
+		switch(type)
+		{
+		case TextureType::Albedo: 
+			return _albedo;
+		case TextureType::Normal: 
+			return _normal;
+		case TextureType::Metallic: 
+			return _metallic;
+		case TextureType::Roughness: 
+			return _roughness;
+		case TextureType::Ao:
+			return _ao;
+		case TextureType::EndOfEnum:
+			return nullptr;
+		}
+		return nullptr;
+	}
+
 	nlohmann::json PBRMaterial::serialize()
 	{
 		nlohmann::json j = Material::serialize();
 		j["typeID"] = Type<PBRMaterial>::fullName();
-		j["albedo"] = albedoPath;	
-		j["normal"] = normalPath;
-		j["metallic"] = metallicPath;
-		j["roughness"] = roughnessPath;
-		j["ao"] = aoPath;
+		j["albedo"] = _albedoPath;	
+		j["normal"] = _normalPath;
+		j["metallic"] = _metallicPath;
+		j["roughness"] = _roughnessPath;
+		j["ao"] = _aoPath;
 		return j;
 	}
 
@@ -156,24 +175,24 @@ namespace Tristeon::Core::Rendering
 	{
 		Material::deserialize(json);
 
-		albedoPath = json.value("albedo", std::string());
-		albedo = Data::Resources::assetLoad<Data::Image>(albedoPath);
-		if (!albedo) albedo = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
+		_albedoPath = json.value("albedo", std::string());
+		_albedo = Data::Resources::assetLoad<Data::Image>(_albedoPath);
+		if (!_albedo) _albedo = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
 
-		normalPath = json.value("normal", std::string());
-		normal = Data::Resources::assetLoad<Data::Image>(normalPath);
-		if (!normal) normal = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
+		_normalPath = json.value("normal", std::string());
+		_normal = Data::Resources::assetLoad<Data::Image>(_normalPath);
+		if (!_normal) _normal = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
 
-		metallicPath = json.value("metallic", std::string());
-		metallic = Data::Resources::assetLoad<Data::Image>(metallicPath);
-		if (!metallic) metallic = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
+		_metallicPath = json.value("metallic", std::string());
+		_metallic = Data::Resources::assetLoad<Data::Image>(_metallicPath);
+		if (!_metallic) _metallic = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
 		
-		roughnessPath = json.value("roughness", std::string());
-		roughness = Data::Resources::assetLoad<Data::Image>(roughnessPath);
-		if (!roughness) roughness = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
+		_roughnessPath = json.value("roughness", std::string());
+		_roughness = Data::Resources::assetLoad<Data::Image>(_roughnessPath);
+		if (!_roughness) _roughness = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
 		
-		aoPath = json.value("ao", std::string());
-		ao = Data::Resources::assetLoad<Data::Image>(aoPath);
-		if (!ao) ao = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
+		_aoPath = json.value("ao", std::string());
+		_ao = Data::Resources::assetLoad<Data::Image>(_aoPath);
+		if (!_ao) _ao = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
 	}
 }

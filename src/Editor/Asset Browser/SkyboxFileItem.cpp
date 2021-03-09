@@ -19,7 +19,7 @@ namespace Tristeon::Editor
 
 	void SkyboxFileItem::drawOnInspector()
 	{
-		auto* skybox = Resources::jsonLoad<Core::Rendering::Skybox>(filepath);
+		auto* skybox = Data::Resources::jsonLoad<Core::Rendering::Skybox>(filepath);
 		if (!skybox)
 			return;
 

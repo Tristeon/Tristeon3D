@@ -11,6 +11,7 @@
 
 #include "Core/Collector.h"
 #include "Core/SceneManager.h"
+#include "Core/Components/Camera.h"
 #include "Data/Resources.h"
 #include "Helper/Extensions.h"
 #include "Materials/ScreenMaterial.h"
@@ -108,21 +109,28 @@ namespace Tristeon::Core::Rendering
 		}
 
 		//Render deferred pass
-		SceneManager::current()->recordSceneCmd();
-		vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
-		vk::SubmitInfo deferred_submit{
-			1, &binding_data.semaImageAvailable,
-			&deferred_stage,
-			1, &binding_data.offscreenBuffer,
-			1, &binding_data.semaOffscreenFinished
-		};
-		binding_data.graphicsQueue.submit(deferred_submit);
+		std::vector<vk::Semaphore> offscreenWaitSemaphores;
+		
+		//if (!Collector<Components::Camera>::all().empty())
+		{
+			SceneManager::current()->recordSceneCmd();
+			vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
+			vk::SubmitInfo deferred_submit{
+				1, &binding_data.semaImageAvailable,
+				&deferred_stage,
+				1, &binding_data.offscreenBuffer,
+				1, &binding_data.semaOffscreenFinished
+			};
+			binding_data.graphicsQueue.submit(deferred_submit);
+			offscreenWaitSemaphores.push_back(binding_data.semaOffscreenFinished);
+		}
+		//else
+			//offscreenWaitSemaphores.push_back(binding_data.semaImageAvailable);
 
 		//Submit output cmd buffer
-		std::array<vk::Semaphore, 1> output_wait_semaphores{ binding_data.semaOffscreenFinished };
 		vk::PipelineStageFlags output_stage = vk::PipelineStageFlagBits::eTopOfPipe;
 		vk::SubmitInfo output_submit{
-			(uint32_t)output_wait_semaphores.size(), output_wait_semaphores.data(),
+			(uint32_t)offscreenWaitSemaphores.size(), offscreenWaitSemaphores.data(),
 			&output_stage,
 			1, &binding_data.outputCommandBuffers[index],
 			1, &binding_data.semaOutputFinished

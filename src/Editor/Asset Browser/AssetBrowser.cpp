@@ -1,4 +1,5 @@
 #ifdef TRISTEON_EDITOR
+#include <Editor/Asset Browser/PBRMaterialFileItem.h>
 #include "Core/SceneManager.h"
 #include "Core/Rendering/Skybox.h"
 #include "AssetBrowser.h"
@@ -7,12 +8,9 @@
 #include <GLFW/glfw3.h>
 #include "SceneFileitem.h"
 #include "Core/Scene.h"
-#include "MaterialFileItem.h"
-#include "Core/Rendering/Material.h"
 #include "Editor/EditorNode.h"
 #include "Editor/EditorDragging.h"
 #include "PrefabFileItem.h"
-#include "ShaderFileItem.h"
 #include "Editor/TristeonEditor.h"
 #include "SkyboxFileItem.h"
 
@@ -91,19 +89,11 @@ void AssetBrowser::onGui()
 				sceneFile->createFile(createdScene.serialize()); //Create create the scene file
 				ImGui::CloseCurrentPopup();
 			}
-			if (ImGui::Button("Create material"))
+			if (ImGui::Button("Create PBR material"))
 			{
-				MaterialFileItem* materialFile = new MaterialFileItem();
+				PBRMaterialFileItem* materialFile = new PBRMaterialFileItem();
 				materialFile->init(createdItemName, itemManager->currentFolder, "mat");
-				Core::Rendering::Material material;
-				materialFile->createFile(material.serialize());
-			}
-			if (ImGui::Button("Create shader"))
-			{
-				ShaderFileItem* shaderItem = new ShaderFileItem();
-				shaderItem->init(createdItemName, itemManager->currentFolder, "shader");
-				Core::Rendering::ShaderFile file;
-				shaderItem->createFile(file.serialize());
+				materialFile->createFile(PBRMaterialFileItem().serialize());
 			}
 			if (ImGui::Button("Create skybox"))
 			{

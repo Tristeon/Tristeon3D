@@ -1,6 +1,5 @@
 ﻿#pragma once
 #ifdef TRISTEON_EDITOR
-
 #include <vulkan/vulkan.hpp>
 #include "Data/Image.h"
 #include "EditorWindow.h"
@@ -9,24 +8,24 @@ namespace Tristeon
 {
 	namespace Editor
 	{
-		//TODO: Make editor image generic and allow for API overrides
 		class EditorImage
 		{
 		public:
 			/**
+			 * Default constructor, invalid for usage
+			 */
+			EditorImage();
+			/**
 			 * \brief Creates a vulkan image and its descriptor sets. 
-			 * EditorImage MUST be destroyed when the editor is destroyed, the application WILL crash if you don't.
-			 * \param image The image attached
+			 * \param pImage The image attached
 			 * \param data The rendering binding data
 			 */
-			EditorImage(Data::Image image);
+			EditorImage(Data::Image* pImage);
 			/**
 			* \brief EditorImage creates a vulkan image and its descriptor sets.
-			* EditorImage MUST be destroyed when the editor is destroyed, the application WILL crash if you don't.
-			* \param filePath The image path
-			* \param data The rendering binding data
+			* \param pFilePath The image path
 			*/
-			EditorImage(std::string filePath);
+			EditorImage(const std::string& pFilePath);
 
 			/**
 			 * \brief Cleans up all resources allocated by EditorImage
@@ -38,44 +37,16 @@ namespace Tristeon
 			 */
 			ImTextureID getTextureID() const;
 		private:
-			Data::Image image;
-			/**
-			* \brief The vulkan image
-			*/
-			vk::Image img;
-			/**
-			* \brief The memory
-			*/
-			vk::DeviceMemory mem;
-			/**
-			* \brief The image view
-			*/
-			vk::ImageView view;
-			/**
-			* \brief The image sampler
-			*/
-			vk::Sampler sampler;
+			Data::Image* image = nullptr;
 			/**
 			* \brief The descriptorset describing the binding for the material's textures
 			*/
-			vk::DescriptorSet set;
+			vk::DescriptorSet set = nullptr;
 
 			/**
 			* \brief Creates the descriptor sets for the textures
 			*/
 			void createDescriptorSets();
-			/**
-			* \brief Creates the vulkan image for the textures
-			*/
-			void createTextureImage();
-			/**
-			* \brief Creates the vulkan image view for the textures
-			*/
-			void createTextureImageView();
-			/**
-			* \brief Creates the vulkan sampler for the textures
-			*/
-			void createTextureSampler();
 		};
 	}
 }

@@ -24,7 +24,7 @@ namespace Tristeon::Editor
 		/**
 		 * \brief Calls all the internal render calls necessary to run the editor
 		 */
-		void render();
+		void render(vk::CommandBuffer cmd);
 
 	private:
 		/**
@@ -39,10 +39,6 @@ namespace Tristeon::Editor
 		 * \brief Subscribes the editor to callbacks
 		 */
 		void setupCallbacks();
-		/**
-		 * \brief Creates vulkan command buffers
-		 */
-		void createCommandBuffers();
 
 		//Editor
 		/**

@@ -1,17 +1,7 @@
 ﻿#pragma once
 #include "Core/TObject.h"
 #include "ShaderFile.h"
-
 #include <vulkan/vulkan.hpp>
-#include <Core/TypeRegister.h>
-
-#ifdef TRISTEON_EDITOR
-namespace Tristeon {
-	namespace Editor {
-		class MaterialFileItem;
-	}
-}
-#endif
 
 namespace Tristeon::Core::Rendering
 {
@@ -46,9 +36,6 @@ namespace Tristeon::Core::Rendering
 	class Material : public TObject
 	{
 		friend class RenderManager;
-#ifdef TRISTEON_EDITOR
-		friend Editor::MaterialFileItem;
-#endif
 	public:
 		Material();
 		explicit Material(PipelineProperties properties);
