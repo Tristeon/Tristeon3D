@@ -238,3 +238,5 @@ else(MSVC)
 	link_libs(DebugEditor)
 	
 endif(MSVC)
+
+add_dependencies(Tristeon Shaders)
