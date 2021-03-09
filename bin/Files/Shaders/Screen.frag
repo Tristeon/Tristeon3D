@@ -10,5 +10,14 @@ layout(location = 0) out vec4 fragColor;
 
 void main()
 {
-    fragColor = texture(color, texCoord);
+    vec4 colorVal = texture(color, texCoord);
+    float depthVal = texture(depth, texCoord).r;
+    vec4 normalVal = texture(normal, texCoord);
+
+    vec3 albedo = colorVal.rgb;
+    vec3 normal = normalVal.rgb;
+    float metalic = colorVal.a;
+    float roughness = normalVal.a;
+
+    fragColor = vec4(albedo, 1);
 }

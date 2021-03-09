@@ -11,6 +11,7 @@
 
 #include "Core/Collector.h"
 #include "Core/SceneManager.h"
+#include "Data/Resources.h"
 #include "Helper/Extensions.h"
 #include "Materials/ScreenMaterial.h"
 
@@ -46,8 +47,8 @@ namespace Tristeon::Core::Rendering
 		cleanSwapchain();
 
 		screenMat.reset();
-
-		for (auto shader : Collector<ShaderFile>::all())
+		
+		for (auto* shader : Collector<ShaderFile>::all())
 			shader->clean();
 
 		d.destroyDescriptorPool(binding_data.descriptorPool);

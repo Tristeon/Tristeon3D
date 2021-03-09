@@ -60,5 +60,8 @@ namespace Tristeon::Core::Rendering
 	Material::~Material()
 	{
 		Collector<Material>::remove(this);
+
+		binding_data.device.destroyPipeline(_pipeline);
+		binding_data.device.destroyPipelineLayout(_layout);
 	}
 }
