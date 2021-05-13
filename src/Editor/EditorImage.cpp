@@ -2,7 +2,7 @@
 #include "EditorImage.h"
 #include <Data/Resources.h>
 #include <Core/Rendering/Helper/Buffer.h>
-#include <Core/BindingData.h>
+#include <Core/RenderData.h>
 
 namespace Tristeon::Editor
 {
@@ -36,18 +36,18 @@ namespace Tristeon::Editor
 		//Create descriptor set layout (temporary)
 		auto b = vk::DescriptorSetLayoutBinding(0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr);
 		auto const ci = vk::DescriptorSetLayoutCreateInfo({}, 1, &b);
-		auto layout = Core::binding_data.device.createDescriptorSetLayout(ci);
+		auto layout = Core::renderData.device.createDescriptorSetLayout(ci);
 
 		//Allocate the descriptor set
-		const auto allocInfo = vk::DescriptorSetAllocateInfo(Core::binding_data.descriptorPool, layout);
-		set = Core::binding_data.device.allocateDescriptorSets(allocInfo)[0];
+		const auto allocInfo = vk::DescriptorSetAllocateInfo(Core::renderData.descriptorPool, layout);
+		set = Core::renderData.device.allocateDescriptorSets(allocInfo)[0];
 
 		//Update the Descriptor Set
 		auto imageInfo = vk::DescriptorImageInfo(image->sampler(), image->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
 		auto samplerWrite = vk::WriteDescriptorSet(set, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo, nullptr, nullptr);
 
-		Core::binding_data.device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
-		Core::binding_data.device.destroyDescriptorSetLayout(layout);
+		Core::renderData.device.updateDescriptorSets(1, &samplerWrite, 0, nullptr);
+		Core::renderData.device.destroyDescriptorSetLayout(layout);
 	}
 }
 

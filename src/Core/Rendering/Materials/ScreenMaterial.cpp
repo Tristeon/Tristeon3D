@@ -81,7 +81,7 @@ namespace Tristeon::Core::Rendering
 		if ((VkDescriptorSetLayout)_setLayout != VK_NULL_HANDLE)
 			renderData.device.destroyDescriptorSetLayout(_setLayout);
 
-		for (uint8_t i = 0; i < RenderData::IMAGES_IN_FLIGHT; i++)
+		for (uint8_t i = 0; i < RenderData::FRAMES_IN_FLIGHT; i++)
 		{
 			if ((VkDescriptorSet)_sets[i] != VK_NULL_HANDLE)
 				renderData.device.freeDescriptorSets(renderData.descriptorPool, _sets[i]);

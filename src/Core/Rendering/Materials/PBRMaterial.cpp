@@ -112,7 +112,7 @@ namespace Tristeon::Core::Rendering
 		const vk::DescriptorSetLayoutCreateInfo layout_ci{ {}, bindings };
 		_setLayout = renderData.device.createDescriptorSetLayout(layout_ci);
 		
-		for (uint8_t i = 0; i < RenderData::IMAGES_IN_FLIGHT; i++)
+		for (uint8_t i = 0; i < RenderData::FRAMES_IN_FLIGHT; i++)
 		{
 			if ((VkDescriptorSet)_sets[i] != VK_NULL_HANDLE)
 				renderData.device.freeDescriptorSets(renderData.descriptorPool, _sets[i]);

@@ -1,6 +1,6 @@
 #ifdef TRISTEON_EDITOR
 #include "Core/Rendering/Helper/OneTimeCmd.h"
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Core/MessageBus.h"
 #include "TristeonEditor.h"
 #include <ImGUI/imgui_impl_glfw_vulkan.h>
@@ -138,21 +138,21 @@ namespace Tristeon
 	{
 		ImGui_ImplGlfwVulkan_Init_Data initData{};
 		initData.allocator = nullptr;
-		initData.gpu = static_cast<VkPhysicalDevice>(Core::binding_data.physical);
-		initData.device = static_cast<VkDevice>(Core::binding_data.device);
-		initData.render_pass = static_cast<VkRenderPass>(Core::binding_data.outputPass);
+		initData.gpu = static_cast<VkPhysicalDevice>(Core::renderData.physical);
+		initData.device = static_cast<VkDevice>(Core::renderData.device);
+		initData.render_pass = static_cast<VkRenderPass>(Core::renderData.outputPass);
 		initData.pipeline_cache = NULL;
-		initData.descriptor_pool = static_cast<VkDescriptorPool>(Core::binding_data.descriptorPool);
+		initData.descriptor_pool = static_cast<VkDescriptorPool>(Core::renderData.descriptorPool);
 		initData.check_vk_result = [](VkResult err) { Misc::Console::t_assert(err == VK_SUCCESS, "Editor vulkan error: " + err); };
-		ImGui_ImplGlfwVulkan_Init(Core::binding_data.window, true, &initData);
+		ImGui_ImplGlfwVulkan_Init(Core::renderData.window, true, &initData);
 	}
 
 	void TristeonEditor::initFontsImGui()
 	{
-		auto const cmd = Core::Rendering::OneTimeCmd::begin(Core::binding_data.graphicsPool);
+		auto const cmd = Core::Rendering::OneTimeCmd::begin(Core::renderData.graphics.pool);
 		ImGui_ImplGlfwVulkan_CreateFontsTexture(cmd);
-		Core::Rendering::OneTimeCmd::end(cmd, Core::binding_data.graphicsQueue, Core::binding_data.graphicsPool);
-		Core::binding_data.graphicsQueue.waitIdle();
+		Core::Rendering::OneTimeCmd::end(cmd, Core::renderData.graphics.queue, Core::renderData.graphics.pool);
+		Core::renderData.graphics.queue.waitIdle();
 		ImGui_ImplGlfwVulkan_InvalidateFontUploadObjects();
 	}
 

@@ -117,7 +117,7 @@ namespace Tristeon::Core::Rendering
 		const auto wait = drawOffscreen();
 		drawOnscreen(wait, index);
 
-		currentFrame = (currentFrame + 1) % RenderData::IMAGES_IN_FLIGHT;
+		currentFrame = (currentFrame + 1) % RenderData::FRAMES_IN_FLIGHT;
 	}
 
 	std::vector<vk::Semaphore> RenderManager::drawOffscreen()
@@ -125,24 +125,22 @@ namespace Tristeon::Core::Rendering
 		//If we looped around too quick, wait for the current frame's fence to be completed
 		VULKAN_DEBUG(renderData.device.waitForFences(renderData.frame[currentFrame].fence, true, UINT64_MAX));
 		renderData.device.resetFences(renderData.frame[currentFrame].fence);
-		
+
 		//Render deferred pass
 		std::vector<vk::Semaphore> waitSemaphores;
 
+		SceneManager::current()->recordSceneCmd(renderData.frame[currentFrame].offscreen, currentFrame, renderData.frame[currentFrame].offscreenFramebuffer);
+		vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
+		vk::SubmitInfo deferred_submit{
+			1, &renderData.frame[currentFrame].imageAvailable,
+			&deferred_stage,
+			1, &renderData.frame[currentFrame].offscreen,
+			1, &renderData.frame[currentFrame].offscreenFinished
+		};
+		renderData.graphics.queue.submit(deferred_submit);
+		waitSemaphores.push_back(renderData.frame[currentFrame].offscreenFinished);
+
 		if (!Collector<Components::Camera>::all().empty())
-		{
-			SceneManager::current()->recordSceneCmd(renderData.frame[currentFrame].offscreen, currentFrame, renderData.frame[currentFrame].offscreenFramebuffer);
-			vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
-			vk::SubmitInfo deferred_submit{
-				1, &renderData.frame[currentFrame].imageAvailable,
-				&deferred_stage,
-				1, &renderData.frame[currentFrame].offscreen,
-				1, &renderData.frame[currentFrame].offscreenFinished
-			};
-			renderData.graphics.queue.submit(deferred_submit);
-			waitSemaphores.push_back(renderData.frame[currentFrame].offscreenFinished);
-		}
-		else
 			waitSemaphores.push_back(renderData.frame[currentFrame].imageAvailable);
 
 		return waitSemaphores;
@@ -308,16 +306,16 @@ namespace Tristeon::Core::Rendering
 	void RenderManager::createFrameData()
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating primary command buffers");
-		const vk::CommandBufferAllocateInfo alloc{ renderData.graphics.pool, vk::CommandBufferLevel::ePrimary, RenderData::IMAGES_IN_FLIGHT };
+		const vk::CommandBufferAllocateInfo alloc{ renderData.graphics.pool, vk::CommandBufferLevel::ePrimary, RenderData::FRAMES_IN_FLIGHT };
 		auto buffers = renderData.device.allocateCommandBuffers(alloc);
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating frame semaphores");
-		for (uint32_t i = 0; i < RenderData::IMAGES_IN_FLIGHT; i++)
+		for (uint32_t i = 0; i < RenderData::FRAMES_IN_FLIGHT; i++)
 		{
 			renderData.frame[i].imageAvailable = renderData.device.createSemaphore({});
 			renderData.frame[i].offscreenFinished = renderData.device.createSemaphore({});
 			renderData.frame[i].onscreenFinished = renderData.device.createSemaphore({});
-			
+
 			renderData.frame[i].offscreen = buffers[i];
 
 			renderData.frame[i].fence = renderData.device.createFence({ vk::FenceCreateFlagBits::eSignaled });

@@ -22,7 +22,7 @@ namespace Tristeon::Core
 	
 	struct RenderData
 	{
-		constexpr static uint8_t IMAGES_IN_FLIGHT = 2;
+		constexpr static uint8_t FRAMES_IN_FLIGHT = 2;
 		
 		GLFWwindow* window = nullptr;
 
@@ -69,7 +69,7 @@ namespace Tristeon::Core
 			vk::Framebuffer offscreenFramebuffer = nullptr;
 			FrameBufferAttachment offscreenColor, offscreenNormal, offscreenDepth;
 		};
-		std::array<Frame, IMAGES_IN_FLIGHT> frame;
+		std::array<Frame, FRAMES_IN_FLIGHT> frame;
 
 		vk::DescriptorPool descriptorPool = nullptr;
 

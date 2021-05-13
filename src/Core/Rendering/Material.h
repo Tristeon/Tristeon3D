@@ -73,6 +73,6 @@ namespace Tristeon::Core::Rendering
 		vk::Pipeline _pipeline = nullptr;
 
 		vk::DescriptorSetLayout _setLayout;
-		std::array<vk::DescriptorSet, RenderData::IMAGES_IN_FLIGHT> _sets;
+		std::array<vk::DescriptorSet, RenderData::FRAMES_IN_FLIGHT> _sets;
 	};
 }
