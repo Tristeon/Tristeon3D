@@ -1,7 +1,7 @@
 ﻿#include "MeshRenderer.h"
 #include <filesystem>
 
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Core/Engine.h"
 #include "Core/Transform.h"
 #include "Data/Resources.h"
@@ -44,7 +44,7 @@ namespace Tristeon::Core::Rendering
 		subMeshID = submeshIDValue;
 	}
 
-	void MeshRenderer::render(glm::mat4 proj, glm::mat4 view)
+	void MeshRenderer::render(vk::CommandBuffer cmd, const uint8_t& frameIndex, glm::mat4 proj, glm::mat4 view)
 	{
 		if (!material.get() || !vertices || !indices)
 			return;
@@ -53,16 +53,16 @@ namespace Tristeon::Core::Rendering
 
 		//Send data
 		void* data;
-		VULKAN_DEBUG(binding_data.device.mapMemory(transformBuffer->memory, 0, sizeof(ubo), {}, &data));
+		VULKAN_DEBUG(renderData.device.mapMemory(transformBuffer->memory, 0, sizeof(ubo), {}, &data));
 		memcpy(data, &ubo, sizeof ubo);
-		binding_data.device.unmapMemory(transformBuffer->memory);
+		renderData.device.unmapMemory(transformBuffer->memory);
 
-		std::array<vk::DescriptorSet, 2> sets{ transformSet, _material->set() };
-		binding_data.offscreenBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _material->layout(), 0, sets, {});
+		std::array<vk::DescriptorSet, 2> sets{ transformSet, _material->set(frameIndex) };
+		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, _material->layout(), 0, sets, {});
 
-		binding_data.offscreenBuffer.bindVertexBuffers(0, vertices->buffer, { 0 });
-		binding_data.offscreenBuffer.bindIndexBuffer(indices->buffer, 0, vk::IndexType::eUint16);
-		binding_data.offscreenBuffer.drawIndexed((uint32_t)_mesh.indices.size(), 1, 0, 0, 0);
+		cmd.bindVertexBuffers(0, vertices->buffer, { 0 });
+		cmd.bindIndexBuffer(indices->buffer, 0, vk::IndexType::eUint16);
+		cmd.drawIndexed((uint32_t)_mesh.indices.size(), 1, 0, 0, 0);
 	}
 
 	void MeshRenderer::createBuffers()

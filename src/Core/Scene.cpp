@@ -1,7 +1,7 @@
-﻿#include "Scene.h"
+﻿#include <Core/Scene.h>
 #include <iostream>
 #include <vulkan/vulkan.hpp>
-#include <Core/BindingData.h>
+#include <Core/RenderData.h>
 #include <Core/Rendering/RenderManager.h>
 
 #include "Collector.h"
@@ -10,8 +10,6 @@
 
 #include "Components/Camera.h"
 #include "Data/Resources.h"
-#include "Misc/Hardware/Mouse.h"
-#include "Misc/Hardware/Time.h"
 
 namespace Tristeon::Core
 {
@@ -51,12 +49,13 @@ namespace Tristeon::Core
 		name = nameValue;
 	}
 
-	void Scene::recordSceneCmd()
+	void Scene::recordSceneCmd(vk::CommandBuffer cmd, const uint8_t& frameIndex, vk::Framebuffer framebuffer)
 	{
+		//Empty submit
 		if (Collector<Components::Camera>::all().empty())
 		{
 			vk::CommandBufferBeginInfo begin{ {}, nullptr };
-			VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
+			VULKAN_DEBUG(cmd.begin(&begin));
 			{
 				std::array<vk::ClearValue, 3> clear{
 					vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} },
@@ -65,28 +64,27 @@ namespace Tristeon::Core
 				};
 
 				const vk::RenderPassBeginInfo pass_begin{
-					binding_data.offscreenPass,
-					binding_data.offscreenFramebuffer,
-					vk::Rect2D { vk::Offset2D { 0, 0 }, binding_data.extent },
+					renderData.offscreenPass,
+					framebuffer,
+					vk::Rect2D { vk::Offset2D { 0, 0 }, renderData.extent },
 					(uint32_t)clear.size(), clear.data()
 				};
 
-				binding_data.offscreenBuffer.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
-				binding_data.offscreenBuffer.endRenderPass();
+				cmd.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
+				cmd.endRenderPass();
 
 			}
-			binding_data.offscreenBuffer.end();
+			cmd.end();
 			return;
 		}
 
-		
 		auto* cam = Collector<Components::Camera>::all()[0];
-		auto projection = cam->getProjectionMatrix((float)binding_data.extent.width / (float)binding_data.extent.height);
+		auto projection = cam->getProjectionMatrix((float)renderData.extent.width / (float)renderData.extent.height);
 		projection[1][1] *= -1;
 		const auto view = cam->getViewMatrix();
 		
 		vk::CommandBufferBeginInfo begin{ {}, nullptr };
-		VULKAN_DEBUG(binding_data.offscreenBuffer.begin(&begin));
+		VULKAN_DEBUG(cmd.begin(&begin));
 		{
 			std::array<vk::ClearValue, 3> clear{
 				vk::ClearColorValue{std::array<float, 4>{0, 0, 0, 0} },
@@ -95,13 +93,13 @@ namespace Tristeon::Core
 			};
 
 			const vk::RenderPassBeginInfo pass_begin{
-				binding_data.offscreenPass,
-				binding_data.offscreenFramebuffer,
-				vk::Rect2D { vk::Offset2D { 0, 0 }, binding_data.extent },
+				renderData.offscreenPass,
+				framebuffer,
+				vk::Rect2D { vk::Offset2D { 0, 0 }, renderData.extent },
 				(uint32_t)clear.size(), clear.data()
 			};
 
-			binding_data.offscreenBuffer.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
+			cmd.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
 			{
 				auto renderers = Collector<Rendering::Renderer>::all();
 				for (auto* renderer : renderers)
@@ -110,13 +108,13 @@ namespace Tristeon::Core
 						continue;
 
 					auto* material = renderer->material.get();
-					binding_data.offscreenBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, material->pipeline());
-					renderer->render(projection, view);
+					cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, material->pipeline());
+					renderer->render(cmd, frameIndex, projection, view);
 				}
 			}
-			binding_data.offscreenBuffer.endRenderPass();
+			cmd.endRenderPass();
 		}
-		binding_data.offscreenBuffer.end();
+		cmd.end();
 	}
 
 	Scene::~Scene()

@@ -1,7 +1,7 @@
 ﻿#include "ShaderFile.h"
 #include <fstream>
 
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Core/Collector.h"
 
 namespace Tristeon::Core::Rendering
@@ -57,7 +57,7 @@ namespace Tristeon::Core::Rendering
 	vk::ShaderModule ShaderFile::create(const std::vector<char>& code)
 	{
 		const vk::ShaderModuleCreateInfo module_ci{ {}, code.size(), reinterpret_cast<const uint32_t*>(code.data()) };
-		return binding_data.device.createShaderModule(module_ci);
+		return renderData.device.createShaderModule(module_ci);
 	}
 
 	void ShaderFile::clean()
@@ -66,6 +66,6 @@ namespace Tristeon::Core::Rendering
 		_failed = false;
 
 		for (auto [stage, m] : _modules)
-			binding_data.device.destroyShaderModule(m);
+			renderData.device.destroyShaderModule(m);
 	}
 }

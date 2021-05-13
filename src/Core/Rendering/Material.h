@@ -1,7 +1,9 @@
 ﻿#pragma once
-#include "Core/TObject.h"
+#include <Core/TObject.h>
 #include "ShaderFile.h"
 #include <vulkan/vulkan.hpp>
+
+#include "Core/RenderData.h"
 
 namespace Tristeon::Core::Rendering
 {
@@ -55,11 +57,11 @@ namespace Tristeon::Core::Rendering
 			return _layout;
 		}
 
-		[[nodiscard]] vk::DescriptorSet set()
+		[[nodiscard]] vk::DescriptorSet set(const uint8_t& frameIndex)
 		{
-			if (!_set)
+			if (!_sets[frameIndex])
 				createDescriptorSets();
-			return _set;
+			return _sets[frameIndex];
 		}
 
 		virtual void createPipeline() = 0;
@@ -69,7 +71,8 @@ namespace Tristeon::Core::Rendering
 		PipelineProperties _properties{};
 		vk::PipelineLayout _layout = nullptr;
 		vk::Pipeline _pipeline = nullptr;
-		vk::DescriptorSet _set = nullptr;
+
 		vk::DescriptorSetLayout _setLayout;
+		std::array<vk::DescriptorSet, RenderData::IMAGES_IN_FLIGHT> _sets;
 	};
 }

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Renderer.h"
+#include <Core/Rendering/Components/Renderer.h>
 #include <Data/Mesh.h>
 #include <Misc/Property.h>
 
@@ -27,8 +27,8 @@ namespace Tristeon::Core::Rendering
 
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
-
-		void render(glm::mat4 proj, glm::mat4 view) override;
+		
+		void render(vk::CommandBuffer cmd, const uint8_t& frameIndex, glm::mat4 proj, glm::mat4 view) override;
 	private:
 		void createBuffers();
 		

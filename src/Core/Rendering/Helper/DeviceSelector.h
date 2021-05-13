@@ -12,6 +12,7 @@ namespace Tristeon::Core::Rendering
 		static uint32_t findGraphicsFamily();
 		static uint32_t findPresentFamily(uint32_t graphicsFamily);
 		static uint32_t findTransferFamily();
+		static uint32_t findComputeFamily();
 
 		constexpr static std::array<char*, 1> gpuExtensions{ "VK_KHR_swapchain" };
 

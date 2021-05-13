@@ -1,18 +1,14 @@
 ﻿#pragma once
 #include <glm/gtc/quaternion.hpp>
-#include <glm/glm.hpp>
-
-#include <misc/Property.h>
+#include <Misc/Property.h>
 #include "Core/TObject.h"
 #include <Core/TypeRegister.h>
-#include "Vector3.h"
+#include <Math/Vector3.h>
 
 namespace Tristeon
 {
 	namespace Math
 	{
-		class Vector3;
-
 		/**
 		 *  Quaternion dsescribes a 3D rotation. This way of describing 3D rotation prevents issues that are experienced with a euler approach like gimbal lock.
 		 *
@@ -111,6 +107,7 @@ namespace Tristeon
 
 			nlohmann::json serialize() override;
 			void deserialize(nlohmann::json json) override;
+
 		private:
 			glm::quat quaternion;
 			REGISTER_TYPE_H(Quaternion)

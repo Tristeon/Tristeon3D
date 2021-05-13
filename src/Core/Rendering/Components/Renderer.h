@@ -26,7 +26,7 @@ namespace Tristeon::Core
 			/**
 			 * \brief Render is the main rendering function of the renderer and must be overridden by subtypes.
 			 */
-			virtual void render(glm::mat4 proj, glm::mat4 view) = 0;
+			virtual void render(vk::CommandBuffer cmd, const uint8_t& frameIndex, glm::mat4 proj, glm::mat4 view) = 0;
 
 			/**
 			* \brief The (shared) material of the renderer

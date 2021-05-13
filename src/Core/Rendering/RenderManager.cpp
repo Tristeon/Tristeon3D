@@ -3,7 +3,7 @@
 #include <set>
 #include <vulkan/vulkan.hpp>
 
-#include <Core/BindingData.h>
+#include <Core/RenderData.h>
 #include <Core/MessageBus.h>
 #include <Core/Rendering/Helper/DeviceSelector.h>
 #include <Core/Rendering/Helper/ValidationLayers.h>
@@ -30,41 +30,48 @@ namespace Tristeon::Core::Rendering
 		MessageBus::subscribe(Message::Type::Render, [&](Message msg) { render(); });
 		MessageBus::subscribe(Message::Type::GameLogicStart, [&](Message msg) { inPlayMode = true; });
 		MessageBus::subscribe(Message::Type::GameLogicStop, [&](Message msg) { inPlayMode = false; });
-		MessageBus::subscribe(Message::Type::WindowResize, [&](Message msg) { resized = true; });
-		MessageBus::subscribe(Message::Type::Quitting, [&](Message msg) { binding_data.device.waitIdle(); });
+		MessageBus::subscribe(Message::Type::WindowResize, [&](Message msg) { shouldRebuildSwapchain = true; });
+		MessageBus::subscribe(Message::Type::Quitting, [&](Message msg) { renderData.device.waitIdle(); });
 
 		setup();
 	}
 
 	RenderManager::~RenderManager()
 	{
-		auto d = binding_data.device;
-		d.destroySemaphore(binding_data.semaImageAvailable);
-		d.destroySemaphore(binding_data.semaOutputFinished);
-		d.destroySemaphore(binding_data.semaOffscreenFinished);
+		const auto d = renderData.device;
 
-		d.destroyDescriptorSetLayout(binding_data.transformLayout);
-		
+		for (auto& frame : renderData.frame)
+		{
+			d.destroySemaphore(frame.imageAvailable);
+			d.destroySemaphore(frame.offscreenFinished);
+			d.destroySemaphore(frame.onscreenFinished);
+
+			d.destroyFence(frame.fence);
+		}
+
+		d.destroyDescriptorSetLayout(renderData.transformLayout);
+
 		cleanSwapchain();
 
 		screenMat.reset();
-		
+
 		for (auto* shader : Collector<ShaderFile>::all())
 			shader->clean();
 
-		d.destroyDescriptorPool(binding_data.descriptorPool);
+		d.destroyDescriptorPool(renderData.descriptorPool);
 
-		d.destroyCommandPool(binding_data.graphicsPool);
-		d.destroyCommandPool(binding_data.transferPool);
+		d.destroyCommandPool(renderData.graphics.pool);
+		d.destroyCommandPool(renderData.present.pool);
+		d.destroyCommandPool(renderData.transfer.pool);
 
 		d.destroy();
 
-		binding_data.instance.destroySurfaceKHR(binding_data.surface);
+		renderData.instance.destroySurfaceKHR(renderData.surface);
 
-		if (binding_data.debug_messenger_enabled)
-			ValidationLayers::destroyDebugUtilsMessenger(binding_data.instance, binding_data.debugMessenger);
+		if (renderData.debugMessengerEnabled)
+			ValidationLayers::destroyDebugUtilsMessenger(renderData.instance, renderData.debugMessenger);
 
-		binding_data.instance.destroy();
+		renderData.instance.destroy();
 	}
 
 	void RenderManager::setup()
@@ -82,73 +89,87 @@ namespace Tristeon::Core::Rendering
 		createCommandPools();
 
 		createOnscreenMaterial();
-		createOnscreenSemaphores();
 
-		createOffscreenSemaphores();
+		createFrameData();
+
 		createOffscreenTransformLayout();
-		allocateOffscreenCommandBuffer();
 
 		buildSwapchain();
 	}
 
 	void RenderManager::render()
 	{
-		if (resized)
+		if (shouldRebuildSwapchain)
 		{
-			resized = false;
+			shouldRebuildSwapchain = false;
 			buildSwapchain();
 		}
 
-		//Start acquiring the next image, this might sometimes take a moment so this will be a good time to start our deferred pass too
-		const auto result = binding_data.device.acquireNextImageKHR(binding_data.swapchain, UINT64_MAX, binding_data.semaImageAvailable, nullptr);
-		uint32_t index = result.value;
+		//Get next swapchain image
+		const auto result = renderData.device.acquireNextImageKHR(renderData.swapchain, UINT64_MAX, renderData.frame[currentFrame].imageAvailable, nullptr);
+		const auto index = result.value;
 		if (result.result == vk::Result::eErrorOutOfDateKHR)
 		{
-			resized = true;
+			shouldRebuildSwapchain = true;
 			return;
 		}
 
-		//Render deferred pass
-		std::vector<vk::Semaphore> offscreenWaitSemaphores;
+		const auto wait = drawOffscreen();
+		drawOnscreen(wait, index);
+
+		currentFrame = (currentFrame + 1) % RenderData::IMAGES_IN_FLIGHT;
+	}
+
+	std::vector<vk::Semaphore> RenderManager::drawOffscreen()
+	{
+		//If we looped around too quick, wait for the current frame's fence to be completed
+		VULKAN_DEBUG(renderData.device.waitForFences(renderData.frame[currentFrame].fence, true, UINT64_MAX));
+		renderData.device.resetFences(renderData.frame[currentFrame].fence);
 		
-		//if (!Collector<Components::Camera>::all().empty())
+		//Render deferred pass
+		std::vector<vk::Semaphore> waitSemaphores;
+
+		if (!Collector<Components::Camera>::all().empty())
 		{
-			SceneManager::current()->recordSceneCmd();
+			SceneManager::current()->recordSceneCmd(renderData.frame[currentFrame].offscreen, currentFrame, renderData.frame[currentFrame].offscreenFramebuffer);
 			vk::PipelineStageFlags deferred_stage = vk::PipelineStageFlagBits::eTopOfPipe;
 			vk::SubmitInfo deferred_submit{
-				1, &binding_data.semaImageAvailable,
+				1, &renderData.frame[currentFrame].imageAvailable,
 				&deferred_stage,
-				1, &binding_data.offscreenBuffer,
-				1, &binding_data.semaOffscreenFinished
+				1, &renderData.frame[currentFrame].offscreen,
+				1, &renderData.frame[currentFrame].offscreenFinished
 			};
-			binding_data.graphicsQueue.submit(deferred_submit);
-			offscreenWaitSemaphores.push_back(binding_data.semaOffscreenFinished);
+			renderData.graphics.queue.submit(deferred_submit);
+			waitSemaphores.push_back(renderData.frame[currentFrame].offscreenFinished);
 		}
-		//else
-			//offscreenWaitSemaphores.push_back(binding_data.semaImageAvailable);
+		else
+			waitSemaphores.push_back(renderData.frame[currentFrame].imageAvailable);
 
+		return waitSemaphores;
+	}
+
+	void RenderManager::drawOnscreen(std::vector<vk::Semaphore> wait, const uint32_t& swapchainIndex)
+	{
 		//Submit output cmd buffer
-		vk::PipelineStageFlags output_stage = vk::PipelineStageFlagBits::eTopOfPipe;
-		vk::SubmitInfo output_submit{
-			(uint32_t)offscreenWaitSemaphores.size(), offscreenWaitSemaphores.data(),
-			&output_stage,
-			1, &binding_data.outputCommandBuffers[index],
-			1, &binding_data.semaOutputFinished
+		vk::PipelineStageFlags outputStage = vk::PipelineStageFlagBits::eTopOfPipe;
+		vk::SubmitInfo outputSubmit{
+			(uint32_t)wait.size(), wait.data(),
+			&outputStage,
+			1, &renderData.onscreenCmds[swapchainIndex],
+			1, &renderData.frame[currentFrame].onscreenFinished
 		};
 
-		binding_data.graphicsQueue.submit(output_submit);
+		renderData.graphics.queue.submit(outputSubmit, renderData.frame[currentFrame].fence);
 
 		//Present the image to the screen
-		const vk::PresentInfoKHR present{ 1, &binding_data.semaOutputFinished, 1, &binding_data.swapchain, &index };
+		const vk::PresentInfoKHR present{ 1, &renderData.frame[currentFrame].onscreenFinished, 1, &renderData.swapchain, &swapchainIndex };
 		{
-			const vk::Result result = binding_data.presentQueue.presentKHR(present);
+			const auto result = renderData.present.queue.presentKHR(present);
 			if (result == vk::Result::eErrorOutOfDateKHR)
-				resized = true;
+				shouldRebuildSwapchain = true;
 			else if (result != vk::Result::eSuccess)
 				Misc::Console::write("[RENDERER] [ERROR] [VULKAN] [CODE: " + vk::to_string(result) + "] " + "data.presentQueue.presentKHR(present)");
 		}
-
-		binding_data.device.waitIdle();
 	}
 
 	std::vector<const char*> RenderManager::getInstanceExtensions()
@@ -163,7 +184,7 @@ namespace Tristeon::Core::Rendering
 
 #if defined(TRISTEON_LOGENABLED)
 		if (ValidationLayers::supported())
-			binding_data.debug_messenger_enabled = ext.add_optional(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			renderData.debugMessengerEnabled = ext.add_optional(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #else
 		data.debug_messenger_enabled = false;
 #endif
@@ -178,12 +199,12 @@ namespace Tristeon::Core::Rendering
 			ValidationLayers::supported() ? (uint32_t)ValidationLayers::layers.size() : 0u, ValidationLayers::layers.data(),
 			(uint32_t)extensions.size(), extensions.data()
 		};
-		binding_data.instance = vk::createInstance(instance_ci);
+		renderData.instance = vk::createInstance(instance_ci);
 	}
 
 	void RenderManager::createDebugMessenger()
 	{
-		if (binding_data.debug_messenger_enabled)
+		if (renderData.debugMessengerEnabled)
 		{
 			Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating debug messenger");
 
@@ -195,7 +216,7 @@ namespace Tristeon::Core::Rendering
 				vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation;
 
 			vk::DebugUtilsMessengerCreateInfoEXT messenger_ci{ {}, messageSeverity, messageTypes, ValidationLayers::debugCallback };
-			VULKAN_DEBUG(ValidationLayers::createDebugUtilsMessenger(binding_data.instance, &messenger_ci, &binding_data.debugMessenger));
+			VULKAN_DEBUG(ValidationLayers::createDebugUtilsMessenger(renderData.instance, &messenger_ci, &renderData.debugMessenger));
 		}
 	}
 
@@ -203,30 +224,33 @@ namespace Tristeon::Core::Rendering
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating window Surface");
 		VkSurfaceKHR tempSurface;
-		glfwCreateWindowSurface((VkInstance)binding_data.instance, binding_data.window, nullptr, &tempSurface);
-		binding_data.surface = (vk::SurfaceKHR)tempSurface;
+		glfwCreateWindowSurface((VkInstance)renderData.instance, renderData.window, nullptr, &tempSurface);
+		renderData.surface = (vk::SurfaceKHR)tempSurface;
 	}
 
 	void RenderManager::selectPhysicalDevice()
 	{
-		binding_data.physical = DeviceSelector::select();
+		renderData.physical = DeviceSelector::select();
 	}
 
 	std::set<uint32_t> RenderManager::selectQueueFamilies()
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Finding Queue families");
-		binding_data.graphicsFamily = DeviceSelector::findGraphicsFamily();
-		binding_data.presentFamily = DeviceSelector::findPresentFamily(binding_data.graphicsFamily);
-		binding_data.transferFamily = DeviceSelector::findTransferFamily();
+		renderData.graphics.family = DeviceSelector::findGraphicsFamily();
+		renderData.present.family = DeviceSelector::findPresentFamily(renderData.graphics.family);
+		renderData.transfer.family = DeviceSelector::findTransferFamily();
+		renderData.compute.family = DeviceSelector::findComputeFamily();
 
-		Misc::Console::write("\tGraphics Family: " + std::to_string(binding_data.graphicsFamily));
-		Misc::Console::write("\tPresent Family: " + std::to_string(binding_data.presentFamily));
-		Misc::Console::write("\tTransfer Family: " + std::to_string(binding_data.transferFamily));
-		
+		Misc::Console::write("\tGraphics Family: " + std::to_string(renderData.graphics.family));
+		Misc::Console::write("\tPresent Family: " + std::to_string(renderData.present.family));
+		Misc::Console::write("\tTransfer Family: " + std::to_string(renderData.transfer.family));
+		Misc::Console::write("\tCompute Family: " + std::to_string(renderData.compute.family));
+
 		std::set<uint32_t> families;
-		families.insert(binding_data.graphicsFamily);
-		families.insert(binding_data.presentFamily);
-		families.insert(binding_data.transferFamily);
+		families.insert(renderData.graphics.family);
+		families.insert(renderData.present.family);
+		families.insert(renderData.transfer.family);
+		families.insert(renderData.compute.family);
 		return families;
 	}
 
@@ -238,14 +262,15 @@ namespace Tristeon::Core::Rendering
 			queues.push_back(vk::DeviceQueueCreateInfo{ {}, family, 1, &priority });
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating virtual device");
-		auto features = binding_data.physical.getFeatures();
+		auto features = renderData.physical.getFeatures();
 		vk::DeviceCreateInfo device_ci{ {}, (uint32_t)families.size(), queues.data(), 0, nullptr, DeviceSelector::gpuExtensions.size(), DeviceSelector::gpuExtensions.data(), &features };
-		binding_data.device = binding_data.physical.createDevice(device_ci);
+		renderData.device = renderData.physical.createDevice(device_ci);
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Getting device queues");
-		binding_data.graphicsQueue = binding_data.device.getQueue(binding_data.graphicsFamily, 0);
-		binding_data.presentQueue = binding_data.device.getQueue(binding_data.presentFamily, 0);
-		binding_data.transferQueue = binding_data.device.getQueue(binding_data.transferFamily, 0);
+		renderData.graphics.queue = renderData.device.getQueue(renderData.graphics.family, 0);
+		renderData.present.queue = renderData.device.getQueue(renderData.present.family, 0);
+		renderData.transfer.queue = renderData.device.getQueue(renderData.transfer.family, 0);
+		renderData.compute.queue = renderData.device.getQueue(renderData.compute.family, 0);
 	}
 
 	void RenderManager::createDescriptorPool()
@@ -256,18 +281,22 @@ namespace Tristeon::Core::Rendering
 			vk::DescriptorPoolSize{ vk::DescriptorType::eCombinedImageSampler, 10 }
 		};
 		const vk::DescriptorPoolCreateInfo descriptor_ci{ vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, 50, descriptor_pool_sizes };
-		binding_data.descriptorPool = binding_data.device.createDescriptorPool(descriptor_ci);
+		renderData.descriptorPool = renderData.device.createDescriptorPool(descriptor_ci);
 	}
 
 	void RenderManager::createCommandPools()
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating command pool for graphics");
-		vk::CommandPoolCreateInfo graphics_pool_ci{ vk::CommandPoolCreateFlagBits::eResetCommandBuffer, binding_data.graphicsFamily };
-		binding_data.graphicsPool = binding_data.device.createCommandPool(graphics_pool_ci);
+		const vk::CommandPoolCreateInfo graphics_pool_ci{ vk::CommandPoolCreateFlagBits::eResetCommandBuffer, renderData.graphics.family };
+		renderData.graphics.pool = renderData.device.createCommandPool(graphics_pool_ci);
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating command pool for transfer operations");
-		vk::CommandPoolCreateInfo transfer_pool_ci{ {}, binding_data.transferFamily };
-		binding_data.transferPool = binding_data.device.createCommandPool(transfer_pool_ci);
+		const vk::CommandPoolCreateInfo transfer_pool_ci{ {}, renderData.transfer.family };
+		renderData.transfer.pool = renderData.device.createCommandPool(transfer_pool_ci);
+
+		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating command pool for compute operations");
+		const vk::CommandPoolCreateInfo compute_pool_ci{ {}, renderData.compute.family };
+		renderData.compute.pool = renderData.device.createCommandPool(compute_pool_ci);
 	}
 
 	void RenderManager::createOnscreenMaterial()
@@ -276,37 +305,37 @@ namespace Tristeon::Core::Rendering
 		screenMat = std::make_unique<ScreenMaterial>(PipelineProperties{});
 	}
 
-	void RenderManager::createOnscreenSemaphores()
+	void RenderManager::createFrameData()
 	{
-		binding_data.semaImageAvailable = binding_data.device.createSemaphore({});
-		binding_data.semaOutputFinished = binding_data.device.createSemaphore({});
-	}
+		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating primary command buffers");
+		const vk::CommandBufferAllocateInfo alloc{ renderData.graphics.pool, vk::CommandBufferLevel::ePrimary, RenderData::IMAGES_IN_FLIGHT };
+		auto buffers = renderData.device.allocateCommandBuffers(alloc);
 
-	void RenderManager::createOffscreenSemaphores()
-	{
-		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating offscreen semaphore");
-		binding_data.semaOffscreenFinished = binding_data.device.createSemaphore({});
+		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating frame semaphores");
+		for (uint32_t i = 0; i < RenderData::IMAGES_IN_FLIGHT; i++)
+		{
+			renderData.frame[i].imageAvailable = renderData.device.createSemaphore({});
+			renderData.frame[i].offscreenFinished = renderData.device.createSemaphore({});
+			renderData.frame[i].onscreenFinished = renderData.device.createSemaphore({});
+			
+			renderData.frame[i].offscreen = buffers[i];
+
+			renderData.frame[i].fence = renderData.device.createFence({ vk::FenceCreateFlagBits::eSignaled });
+		}
 	}
 
 	void RenderManager::createOffscreenTransformLayout()
 	{
 		vk::DescriptorSetLayoutBinding ubo{ 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex, nullptr };
-		binding_data.transformLayout = binding_data.device.createDescriptorSetLayout({ {}, ubo });
-	}
-
-	void RenderManager::allocateOffscreenCommandBuffer()
-	{
-		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating offscreen command buffer");
-		const vk::CommandBufferAllocateInfo alloc{ binding_data.graphicsPool, vk::CommandBufferLevel::ePrimary, 1 };
-		binding_data.offscreenBuffer = binding_data.device.allocateCommandBuffers(alloc)[0];
+		renderData.transformLayout = renderData.device.createDescriptorSetLayout({ {}, ubo });
 	}
 
 	void RenderManager::buildSwapchain() const
 	{
 		cleanSwapchain();
 
-		binding_data.swapchain = DeviceSelector::swapchain();
-		binding_data.swapchainImages = binding_data.device.getSwapchainImagesKHR(binding_data.swapchain);
+		renderData.swapchain = DeviceSelector::swapchain();
+		renderData.swapchainImages = renderData.device.getSwapchainImagesKHR(renderData.swapchain);
 
 		createOnscreenImageViews();
 		createOnscreenRenderpass();
@@ -322,60 +351,50 @@ namespace Tristeon::Core::Rendering
 
 	void RenderManager::cleanSwapchain()
 	{
-		if (!binding_data.swapchain)
+		if (!renderData.swapchain)
 			return;
 
-		binding_data.device.destroyFramebuffer(binding_data.offscreenFramebuffer);
+		for (auto frame : renderData.frame)
+		{
+			renderData.device.destroyFramebuffer(frame.offscreenFramebuffer);
+			frame.offscreenColor.destroy(renderData.device);
+			frame.offscreenDepth.destroy(renderData.device);
+			frame.offscreenNormal.destroy(renderData.device);
 
-		binding_data.device.destroyImage(binding_data.offscreenColor.image);
-		binding_data.device.destroyImage(binding_data.offscreenNormal.image);
-		binding_data.device.destroyImage(binding_data.offscreenDepth.image);
+			renderData.device.freeCommandBuffers(renderData.graphics.pool, 1, &frame.offscreen);
+		}
 
-		binding_data.device.destroyImageView(binding_data.offscreenColor.view);
-		binding_data.device.destroyImageView(binding_data.offscreenNormal.view);
-		binding_data.device.destroyImageView(binding_data.offscreenDepth.view);
+		renderData.device.destroyRenderPass(renderData.offscreenPass);
 
-		binding_data.device.freeMemory(binding_data.offscreenColor.memory);
-		binding_data.device.freeMemory(binding_data.offscreenNormal.memory);
-		binding_data.device.freeMemory(binding_data.offscreenDepth.memory);
+		for (auto fb : renderData.swapchainFramebuffers)
+			renderData.device.destroyFramebuffer(fb);
 
-		binding_data.device.destroySampler(binding_data.offscreenColor.sampler);
-		binding_data.device.destroySampler(binding_data.offscreenNormal.sampler);
-		binding_data.device.destroySampler(binding_data.offscreenDepth.sampler);
-		
-		binding_data.device.destroyRenderPass(binding_data.offscreenPass);
+		renderData.device.destroyRenderPass(renderData.outputPass);
 
-		for (auto fb : binding_data.swapchainFramebuffers)
-			binding_data.device.destroyFramebuffer(fb);
+		for (auto view : renderData.swapchainImageViews)
+			renderData.device.destroyImageView(view);
 
-		binding_data.device.freeCommandBuffers(binding_data.graphicsPool, (uint32_t)binding_data.outputCommandBuffers.size(), binding_data.outputCommandBuffers.data());
-
-		binding_data.device.destroyRenderPass(binding_data.outputPass);
-
-		for (auto view : binding_data.swapchainImageViews)
-			binding_data.device.destroyImageView(view);
-
-		binding_data.device.destroySwapchainKHR(binding_data.swapchain);
+		renderData.device.destroySwapchainKHR(renderData.swapchain);
 	}
 
 	void RenderManager::createOnscreenImageViews()
 	{
-		binding_data.swapchainImageViews.resize(binding_data.swapchainImages.size());
+		renderData.swapchainImageViews.resize(renderData.swapchainImages.size());
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating Swapchain image views");
-		for (auto i = 0; i < binding_data.swapchainImageViews.size(); i++)
+		for (auto i = 0; i < renderData.swapchainImageViews.size(); i++)
 		{
-			vk::ImageViewCreateInfo ci{ {}, binding_data.swapchainImages[i], vk::ImageViewType::e2D,
-				binding_data.format.format, {},
+			vk::ImageViewCreateInfo ci{ {}, renderData.swapchainImages[i], vk::ImageViewType::e2D,
+				renderData.format.format, {},
 				vk::ImageSubresourceRange{ vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 }
 			};
-			binding_data.swapchainImageViews[i] = binding_data.device.createImageView(ci);
+			renderData.swapchainImageViews[i] = renderData.device.createImageView(ci);
 		}
 	}
 
 	void RenderManager::createOnscreenRenderpass()
 	{
 		//Main renderpass
-		vk::AttachmentDescription color_output{ {}, binding_data.format.format, vk::SampleCountFlagBits::e1,
+		vk::AttachmentDescription color_output{ {}, renderData.format.format, vk::SampleCountFlagBits::e1,
 			vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore,
 			vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
 			vk::ImageLayout::eUndefined, vk::ImageLayout::ePresentSrcKHR
@@ -391,22 +410,22 @@ namespace Tristeon::Core::Rendering
 
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating output render pass");
 		const vk::RenderPassCreateInfo render_pass_ci{ {}, 1, &color_output, 1, &subpass, 0, nullptr };
-		binding_data.outputPass = binding_data.device.createRenderPass(render_pass_ci);
+		renderData.outputPass = renderData.device.createRenderPass(render_pass_ci);
 	}
 
 	void RenderManager::createOnscreenFramebuffers()
 	{
 		//Create framebuffers for the screen output
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating swapchain frame buffers");
-		binding_data.swapchainFramebuffers.resize(binding_data.swapchainImages.size());
-		for (auto i = 0; i < binding_data.swapchainFramebuffers.size(); i++)
+		renderData.swapchainFramebuffers.resize(renderData.swapchainImages.size());
+		for (auto i = 0; i < renderData.swapchainFramebuffers.size(); i++)
 		{
-			std::array<vk::ImageView, 1> attachments{ binding_data.swapchainImageViews[i] };
-			vk::FramebufferCreateInfo ci{ {}, binding_data.outputPass,
+			std::array<vk::ImageView, 1> attachments{ renderData.swapchainImageViews[i] };
+			vk::FramebufferCreateInfo ci{ {}, renderData.outputPass,
 				attachments.size(), attachments.data(),
-				binding_data.extent.width, binding_data.extent.height, 1
+				renderData.extent.width, renderData.extent.height, 1
 			};
-			binding_data.swapchainFramebuffers[i] = binding_data.device.createFramebuffer(ci);
+			renderData.swapchainFramebuffers[i] = renderData.device.createFramebuffer(ci);
 		}
 	}
 
@@ -415,7 +434,7 @@ namespace Tristeon::Core::Rendering
 		//Deferred render pass
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating deferred render pass with 3 output attachments");
 		std::array<vk::AttachmentDescription, 3> deferred_descriptions = {
-			vk::AttachmentDescription { {}, binding_data.format.format, vk::SampleCountFlagBits::e1,
+			vk::AttachmentDescription { {}, renderData.format.format, vk::SampleCountFlagBits::e1,
 				vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
 				vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
 				vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal
@@ -425,7 +444,7 @@ namespace Tristeon::Core::Rendering
 				vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
 				vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal
 			},
-			vk::AttachmentDescription { {}, binding_data.format.format, vk::SampleCountFlagBits::e1,
+			vk::AttachmentDescription { {}, renderData.format.format, vk::SampleCountFlagBits::e1,
 				vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore,
 				vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eDontCare,
 				vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal
@@ -447,21 +466,24 @@ namespace Tristeon::Core::Rendering
 		};
 
 		const vk::RenderPassCreateInfo deferred_rp_ci{ {}, (uint32_t)deferred_descriptions.size(), deferred_descriptions.data(), 1, &deferred_subpass, 0, nullptr };
-		binding_data.offscreenPass = binding_data.device.createRenderPass(deferred_rp_ci);
+		renderData.offscreenPass = renderData.device.createRenderPass(deferred_rp_ci);
 	}
 
 	void RenderManager::createOffscreenFramebuffer()
 	{
 		//Deferred frame buffer
-		binding_data.offscreenColor = createAttachment(binding_data.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
-		binding_data.offscreenDepth = createAttachment(vk::Format::eD32Sfloat, vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
-		binding_data.offscreenNormal = createAttachment(binding_data.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
+		for (auto& frame : renderData.frame)
+		{
+			frame.offscreenColor = createAttachment(renderData.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
+			frame.offscreenDepth = createAttachment(vk::Format::eD32Sfloat, vk::ImageAspectFlagBits::eDepth, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+			frame.offscreenNormal = createAttachment(renderData.format.format, vk::ImageAspectFlagBits::eColor, vk::ImageUsageFlagBits::eColorAttachment);
 
-		std::array<vk::ImageView, 3> offscreenViews{ binding_data.offscreenColor.view, binding_data.offscreenDepth.view, binding_data.offscreenNormal.view };
+			std::array<vk::ImageView, 3> offscreenViews{ frame.offscreenColor.view, frame.offscreenDepth.view, frame.offscreenNormal.view };
 
-		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating deferred framebuffer");
-		const vk::FramebufferCreateInfo deferred_fb_ci{ {}, binding_data.offscreenPass, offscreenViews, binding_data.extent.width, binding_data.extent.height, 1 };
-		binding_data.offscreenFramebuffer = binding_data.device.createFramebuffer(deferred_fb_ci);
+			Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating deferred framebuffer");
+			const vk::FramebufferCreateInfo deferred_fb_ci{ {}, renderData.offscreenPass, offscreenViews, renderData.extent.width, renderData.extent.height, 1 };
+			frame.offscreenFramebuffer = renderData.device.createFramebuffer(deferred_fb_ci);
+		}
 	}
 
 	void RenderManager::prepareMaterials()
@@ -478,23 +500,24 @@ namespace Tristeon::Core::Rendering
 	{
 		//Output command buffers
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Recording output command buffers");
-		const vk::CommandBufferAllocateInfo cmd_info{ binding_data.graphicsPool, vk::CommandBufferLevel::ePrimary, (uint32_t)binding_data.swapchainImages.size() };
-		binding_data.outputCommandBuffers = binding_data.device.allocateCommandBuffers(cmd_info);
 
-		for (int i = 0; i < binding_data.outputCommandBuffers.size(); i++)
+		const vk::CommandBufferAllocateInfo cmd_info{ renderData.graphics.pool, vk::CommandBufferLevel::ePrimary, (uint32_t)renderData.swapchainFramebuffers.size() };
+		renderData.onscreenCmds = renderData.device.allocateCommandBuffers(cmd_info);
+
+		for (uint8_t i = 0; i < renderData.swapchainFramebuffers.size(); i++)
 		{
-			vk::CommandBufferBeginInfo buffer_begin{ {}, nullptr };
-			auto cmd = binding_data.outputCommandBuffers[i];
+			auto cmd = renderData.onscreenCmds[i];
 
+			vk::CommandBufferBeginInfo buffer_begin{ {}, nullptr };
 			cmd.begin(buffer_begin);
 			{
 				vk::ClearValue clear = vk::ClearValue{};
 				clear.color = vk::ClearColorValue{ std::array<float, 4> { 0, 0, 1, 1 } };
 
 				vk::RenderPassBeginInfo pass_begin{
-					binding_data.outputPass,
-					binding_data.swapchainFramebuffers[i],
-					vk::Rect2D { vk::Offset2D { 0, 0 }, binding_data.extent },
+					renderData.outputPass,
+					renderData.swapchainFramebuffers[i],
+					vk::Rect2D { vk::Offset2D { 0, 0 }, renderData.extent },
 					1,
 					&clear
 				};
@@ -502,7 +525,7 @@ namespace Tristeon::Core::Rendering
 				cmd.beginRenderPass(pass_begin, vk::SubpassContents::eInline);
 				{
 					cmd.bindPipeline(vk::PipelineBindPoint::eGraphics, screenMat->pipeline());
-					cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, screenMat->layout(), 0, screenMat->set(), {});
+					cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, screenMat->layout(), 0, screenMat->set(currentFrame), {});
 					cmd.draw(3, 1, 0, 0);
 				}
 				cmd.endRenderPass();
@@ -517,20 +540,20 @@ namespace Tristeon::Core::Rendering
 		FrameBufferAttachment result;
 
 		const vk::ImageCreateInfo image_ci{ {}, vk::ImageType::e2D, format,
-			vk::Extent3D{ binding_data.extent, 1 }, 1, 1,
+			vk::Extent3D{ renderData.extent, 1 }, 1, 1,
 			vk::SampleCountFlagBits::e1,
 			vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eSampled | usage, vk::SharingMode::eExclusive,
 			0, nullptr , vk::ImageLayout::eUndefined
 		};
-		result.image = binding_data.device.createImage(image_ci);
+		result.image = renderData.device.createImage(image_ci);
 
-		const auto requirements = binding_data.device.getImageMemoryRequirements(result.image);
+		const auto requirements = renderData.device.getImageMemoryRequirements(result.image);
 		const vk::MemoryAllocateInfo memory_info{ requirements.size, DeviceSelector::getMemoryType(requirements.memoryTypeBits, vk::MemoryPropertyFlagBits::eDeviceLocal) };
-		result.memory = binding_data.device.allocateMemory(memory_info);
-		binding_data.device.bindImageMemory(result.image, result.memory, 0);
+		result.memory = renderData.device.allocateMemory(memory_info);
+		renderData.device.bindImageMemory(result.image, result.memory, 0);
 
 		const vk::ImageViewCreateInfo view_ci{ {}, result.image, vk::ImageViewType::e2D, format, vk::ComponentMapping{}, vk::ImageSubresourceRange { aspect, 0, 1, 0, 1 } };
-		result.view = binding_data.device.createImageView(view_ci);
+		result.view = renderData.device.createImageView(view_ci);
 
 		const auto sampler_ci = vk::SamplerCreateInfo({},
 			vk::Filter::eLinear, vk::Filter::eLinear,
@@ -542,7 +565,7 @@ namespace Tristeon::Core::Rendering
 			vk::BorderColor::eIntOpaqueBlack,
 			VK_FALSE
 		);
-		result.sampler = binding_data.device.createSampler(sampler_ci);
+		result.sampler = renderData.device.createSampler(sampler_ci);
 		return result;
 	}
 }

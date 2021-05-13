@@ -5,13 +5,13 @@
 #include "Misc/Hardware/Mouse.h"
 
 #include <GLFW/glfw3.h>
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 
 namespace Tristeon::Core::Managers
 {
 	InputManager::InputManager()
 	{
-		GLFWwindow* window = binding_data.window;
+		GLFWwindow* window = renderData.window;
 				
 		MessageBus::subscribe(Message::Type::AfterFrame, [&](Message msg) { resetInput(); });
 		Misc::Mouse::window = window;

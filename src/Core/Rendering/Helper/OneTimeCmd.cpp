@@ -1,7 +1,7 @@
 #include "OneTimeCmd.h"
 #include <vulkan/vulkan.hpp>
 
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Core/Engine.h"
 #include "Misc/Console.h"
 
@@ -11,7 +11,7 @@ namespace Tristeon::Core::Rendering
 	{
 		//Allocate
 		const auto alloc = vk::CommandBufferAllocateInfo(commandPool, vk::CommandBufferLevel::ePrimary, 1);
-		const auto cmd = binding_data.device.allocateCommandBuffers(alloc)[0];
+		const auto cmd = renderData.device.allocateCommandBuffers(alloc)[0];
 
 		//Begin
 		auto begin = vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -27,6 +27,6 @@ namespace Tristeon::Core::Rendering
 		VULKAN_DEBUG(queue.submit(1, &submit, nullptr));
 
 		queue.waitIdle(); //TODO: Reduce wait times by only waiting when the resources are needed
-		binding_data.device.freeCommandBuffers(pool, 1, &buffer); 
+		renderData.device.freeCommandBuffers(pool, 1, &buffer); 
 	}
 }

@@ -1,9 +1,7 @@
 #include "Material.h"
-#include <filesystem>
 
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Core/Engine.h"
-#include "Data/Mesh.h"
 
 namespace Tristeon::Core::Rendering
 {
@@ -61,7 +59,12 @@ namespace Tristeon::Core::Rendering
 	{
 		Collector<Material>::remove(this);
 
-		binding_data.device.destroyPipeline(_pipeline);
-		binding_data.device.destroyPipelineLayout(_layout);
+		renderData.device.destroyPipeline(_pipeline);
+		renderData.device.destroyPipelineLayout(_layout);
+
+		renderData.device.destroyDescriptorSetLayout(_setLayout);
+
+		for (auto set : _sets)
+			renderData.device.freeDescriptorSets(renderData.descriptorPool, set);
 	}
 }

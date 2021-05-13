@@ -1,6 +1,6 @@
 ﻿#include "Engine.h"
 
-#include <Core/BindingData.h>
+#include <Core/RenderData.h>
 #include <Core/MessageBus.h>
 #include <Misc/Hardware/Time.h>
 
@@ -35,7 +35,7 @@ namespace Tristeon::Core
 		int frames = 0;
 		double time = 0;
 
-		while (!glfwWindowShouldClose(binding_data.window))
+		while (!glfwWindowShouldClose(renderData.window))
 		{
 			glfwPollEvents();
 

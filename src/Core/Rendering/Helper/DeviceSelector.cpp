@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Misc/Console.h"
 #include <Core/Rendering/RenderManager.h>
 
@@ -14,68 +14,68 @@ namespace Tristeon::Core::Rendering
 	{
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Creating swapchain");
 
-		const auto formats = binding_data.physical.getSurfaceFormatsKHR(binding_data.surface);
-		binding_data.format = formats[0];
+		const auto formats = renderData.physical.getSurfaceFormatsKHR(renderData.surface);
+		renderData.format = formats[0];
 		for (const auto& format : formats)
 		{
 			if (format.format == vk::Format::eB8G8R8A8Srgb && //SRGB results in more accurate colors
 				format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-				binding_data.format = format;
+				renderData.format = format;
 		}
-		Misc::Console::write("\tImage format: " + vk::to_string(binding_data.format.format) + " with color space: " + vk::to_string(binding_data.format.colorSpace));
+		Misc::Console::write("\tImage format: " + vk::to_string(renderData.format.format) + " with color space: " + vk::to_string(renderData.format.colorSpace));
 
-		const auto modes = binding_data.physical.getSurfacePresentModesKHR(binding_data.surface);
-		binding_data.presentMode = vk::PresentModeKHR::eFifo;
+		const auto modes = renderData.physical.getSurfacePresentModesKHR(renderData.surface);
+		renderData.presentMode = vk::PresentModeKHR::eFifo;
 		for (const auto mode : modes)
 		{
 			if (mode == vk::PresentModeKHR::eMailbox)
-				binding_data.presentMode = mode;
+				renderData.presentMode = mode;
 		}
-		Misc::Console::write("\tPresent mode: " + vk::to_string(binding_data.presentMode));
+		Misc::Console::write("\tPresent mode: " + vk::to_string(renderData.presentMode));
 
-		const auto capabilities = binding_data.physical.getSurfaceCapabilitiesKHR(binding_data.surface);
+		const auto capabilities = renderData.physical.getSurfaceCapabilitiesKHR(renderData.surface);
 		if (capabilities.currentExtent.width != UINT32_MAX)
-			binding_data.extent = capabilities.currentExtent;
+			renderData.extent = capabilities.currentExtent;
 		else
 		{
 			int w = 0;
 			int h = 0;
-			glfwGetFramebufferSize(binding_data.window, &w, &h);
+			glfwGetFramebufferSize(renderData.window, &w, &h);
 
-			binding_data.extent = vk::Extent2D{
+			renderData.extent = vk::Extent2D{
 				std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, (unsigned int)w)),
 				std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, (unsigned int)h))
 			};
 		}
-		Misc::Console::write("\tSwap extent: " + std::to_string(binding_data.extent.width) + "x" + std::to_string(binding_data.extent.height));
+		Misc::Console::write("\tSwap extent: " + std::to_string(renderData.extent.width) + "x" + std::to_string(renderData.extent.height));
 
 		uint32_t image_count = capabilities.minImageCount + 1;
 		if (capabilities.maxImageCount > 0 && image_count > capabilities.maxImageCount)
 			image_count = capabilities.maxImageCount;
 		Misc::Console::write("\tImage count: " + std::to_string(image_count));
 
-		std::array<uint32_t, 2> families{ binding_data.graphicsFamily, binding_data.presentFamily };
-		Misc::Console::write("\tSwapchain operating in " + (std::string)((binding_data.graphicsFamily == binding_data.presentFamily) ? "exclusive" : "concurrent") + " mode");
+		std::array<uint32_t, 2> families{ renderData.graphics.family, renderData.present.family };
+		Misc::Console::write("\tSwapchain operating in " + (std::string)((renderData.graphics.family == renderData.present.family) ? "exclusive" : "concurrent") + " mode");
 
 		const vk::SwapchainCreateInfoKHR swapchain_ci(
 			{},
-			binding_data.surface,
+			renderData.surface,
 			image_count,
-			binding_data.format.format,
-			binding_data.format.colorSpace,
-			binding_data.extent,
+			renderData.format.format,
+			renderData.format.colorSpace,
+			renderData.extent,
 			1, //Image array layers, always 1 unless for stereoscopic 3D apps 
 			vk::ImageUsageFlagBits::eColorAttachment,
 			//Exclusive is more performant but handling multiple queues takes extra steps
-			binding_data.graphicsFamily != binding_data.presentFamily ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive,
-			binding_data.graphicsFamily != binding_data.presentFamily ? 0 : 2,
-			binding_data.graphicsFamily != binding_data.presentFamily ? families.data() : nullptr,
+			renderData.graphics.family != renderData.present.family ? vk::SharingMode::eConcurrent : vk::SharingMode::eExclusive,
+			renderData.graphics.family != renderData.present.family ? 0 : 2,
+			renderData.graphics.family != renderData.present.family ? families.data() : nullptr,
 			capabilities.currentTransform, //Should images be transformed? (e.g. flipped or rotated) - current does nothing
 			vk::CompositeAlphaFlagBitsKHR::eOpaque,
-			binding_data.presentMode,
+			renderData.presentMode,
 			VK_TRUE, nullptr);
 
-		return binding_data.device.createSwapchainKHR(swapchain_ci);
+		return renderData.device.createSwapchainKHR(swapchain_ci);
 	}
 
 	vk::PhysicalDevice DeviceSelector::select()
@@ -83,10 +83,10 @@ namespace Tristeon::Core::Rendering
 		Misc::Console::write("[RENDERER] [INIT] [VULKAN] Selecting physical device from the following:");
 
 		uint32_t count = 0;
-		VULKAN_DEBUG(binding_data.instance.enumeratePhysicalDevices(&count, nullptr));
+		VULKAN_DEBUG(renderData.instance.enumeratePhysicalDevices(&count, nullptr));
 
 		std::vector<vk::PhysicalDevice> devices(count);
-		VULKAN_DEBUG(binding_data.instance.enumeratePhysicalDevices(&count, devices.data()));
+		VULKAN_DEBUG(renderData.instance.enumeratePhysicalDevices(&count, devices.data()));
 
 		if (count == 0) {
 			Misc::Console::error("[RENDERER] [ERROR] [VULKAN] No GPU with Vulkan support found!");
@@ -132,7 +132,7 @@ namespace Tristeon::Core::Rendering
 
 	uint32_t DeviceSelector::findGraphicsFamily()
 	{
-		auto families = binding_data.physical.getQueueFamilyProperties();
+		auto families = renderData.physical.getQueueFamilyProperties();
 
 		for (int i = 0; i < families.size(); ++i)
 		{
@@ -146,14 +146,14 @@ namespace Tristeon::Core::Rendering
 	uint32_t DeviceSelector::findPresentFamily(uint32_t graphicsFamily)
 	{
 		//Ideally graphics & present family are the same
-		if (binding_data.physical.getSurfaceSupportKHR(graphicsFamily, binding_data.surface))
+		if (renderData.physical.getSurfaceSupportKHR(graphicsFamily, renderData.surface))
 			return graphicsFamily;
 
 		//If not, just find any that works
-		const auto families = binding_data.physical.getQueueFamilyProperties();
+		const auto families = renderData.physical.getQueueFamilyProperties();
 		for (int i = 0; i < families.size(); ++i)
 		{
-			if (binding_data.physical.getSurfaceSupportKHR(i, binding_data.surface))
+			if (renderData.physical.getSurfaceSupportKHR(i, renderData.surface))
 				return i;
 		}
 		
@@ -163,12 +163,13 @@ namespace Tristeon::Core::Rendering
 
 	uint32_t DeviceSelector::findTransferFamily()
 	{
-		auto families = binding_data.physical.getQueueFamilyProperties();
+		auto families = renderData.physical.getQueueFamilyProperties();
 
 		//Ideally we find an exclusive transfer queue
 		for (int i = 0; i < families.size(); ++i)
 		{
-			if ((families[i].queueFlags & vk::QueueFlagBits::eGraphics) == vk::QueueFlags{} &&
+			if ((families[i].queueFlags & vk::QueueFlagBits::eTransfer) == vk::QueueFlagBits::eTransfer &&
+				(families[i].queueFlags & vk::QueueFlagBits::eGraphics) == vk::QueueFlags{} &&
 				(families[i].queueFlags & vk::QueueFlagBits::eCompute) == vk::QueueFlags{})
 				return i;
 		}
@@ -177,6 +178,29 @@ namespace Tristeon::Core::Rendering
 		for (int i = 0; i < families.size(); ++i)
 		{
 			if (families[i].queueFlags & vk::QueueFlagBits::eTransfer)
+				return i;
+		}
+
+		return -1;
+	}
+
+	uint32_t DeviceSelector::findComputeFamily()
+	{
+		auto families = renderData.physical.getQueueFamilyProperties();
+
+		//Ideally we find an exclusive transfer queue
+		for (int i = 0; i < families.size(); ++i)
+		{
+			if ((families[i].queueFlags & vk::QueueFlagBits::eCompute) == vk::QueueFlagBits::eCompute &&
+				(families[i].queueFlags & vk::QueueFlagBits::eGraphics) == vk::QueueFlags{} &&
+				(families[i].queueFlags & vk::QueueFlagBits::eTransfer) == vk::QueueFlags{})
+				return i;
+		}
+
+		//Otherwise any transfer compatible queue will do
+		for (int i = 0; i < families.size(); ++i)
+		{
+			if (families[i].queueFlags & vk::QueueFlagBits::eCompute)
 				return i;
 		}
 
@@ -226,8 +250,8 @@ namespace Tristeon::Core::Rendering
 
 		if (extensionsSupported)
 		{
-			const auto formats = physical.getSurfaceFormatsKHR(binding_data.surface);
-			const auto modes = physical.getSurfacePresentModesKHR(binding_data.surface);
+			const auto formats = physical.getSurfaceFormatsKHR(renderData.surface);
+			const auto modes = physical.getSurfacePresentModesKHR(renderData.surface);
 			return !formats.empty() && !modes.empty();
 		}
 

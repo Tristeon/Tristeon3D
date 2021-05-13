@@ -5,13 +5,13 @@
 #include <GLFW/glfw3.h>
 #include <Math/Vector2.h>
 #include <Misc/Console.h>
-#include <Core/BindingData.h>
+#include <Core/RenderData.h>
 
 namespace Tristeon::Core::Rendering
 {
 	Window::~Window()
 	{
-		glfwDestroyWindow(binding_data.window);
+		glfwDestroyWindow(renderData.window);
 		glfwTerminate();
 	}
 
@@ -36,14 +36,14 @@ namespace Tristeon::Core::Rendering
 
 		//Create and call callbacks
 		Misc::Console::write("[WINDOW] [INIT] Creating GLFW window");
-		binding_data.window = glfwCreateWindow(width, height, "Tristeon", nullptr, nullptr);
-		if (binding_data.window == nullptr)
+		renderData.window = glfwCreateWindow(width, height, "Tristeon", nullptr, nullptr);
+		if (renderData.window == nullptr)
 			Misc::Console::error("Failed to open GLFW window!");
-		glfwMaximizeWindow(binding_data.window);
-		glfwSetWindowUserPointer(binding_data.window, this);
+		glfwMaximizeWindow(renderData.window);
+		glfwSetWindowUserPointer(renderData.window, this);
 
 		Misc::Console::write("[WINDOW] [INIT] Binding GLFW callbacks");
-		glfwSetWindowSizeCallback(binding_data.window, [](GLFWwindow* window, int w, int h) { static_cast<Window*>(glfwGetWindowUserPointer(window))->onResize(w, h); });
+		glfwSetWindowSizeCallback(renderData.window, [](GLFWwindow* window, int w, int h) { static_cast<Window*>(glfwGetWindowUserPointer(window))->onResize(w, h); });
 	}
 
 	void Window::onResize(int width, int height)

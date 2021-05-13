@@ -9,7 +9,6 @@ namespace Tristeon::Core::Rendering
 		REGISTER_TYPE_H(ScreenMaterial);
 	public:
 		ScreenMaterial() = default;
-		virtual ~ScreenMaterial() override;
 		explicit ScreenMaterial(PipelineProperties pProperties) : Material(pProperties) {}
 
 		ShaderFile* shader() override;

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <set>
 #include <Core/Rendering/Material.h>
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 
 namespace Tristeon
 {
@@ -26,6 +26,9 @@ namespace Tristeon
 				void setup();
 				void render();
 
+				std::vector<vk::Semaphore> drawOffscreen();
+				void drawOnscreen(std::vector<vk::Semaphore> wait, const uint32_t& swapchainIndex);
+
 				static std::vector<const char*> getInstanceExtensions();
 				static void createInstance(const std::vector<const char*>& extensions);
 				static void createDebugMessenger();
@@ -39,11 +42,9 @@ namespace Tristeon
 				static void createCommandPools();
 
 				void createOnscreenMaterial();
-				static void createOnscreenSemaphores();
 
-				static void createOffscreenSemaphores();
+				static void createFrameData();
 				static void createOffscreenTransformLayout();
-				static void allocateOffscreenCommandBuffer();
 
 				void buildSwapchain() const;
 				static void cleanSwapchain();
@@ -59,7 +60,9 @@ namespace Tristeon
 				void recordOnscreenCommandBuffers() const;
 				
 				bool inPlayMode = false;
-				bool resized = false;
+				bool shouldRebuildSwapchain = false;
+				uint8_t currentFrame = 0;
+				
 				/**
 				 * \brief The only instance of RenderManager ever. Used so that getMaterial() can access local variables
 				 */

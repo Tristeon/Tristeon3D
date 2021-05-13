@@ -1,7 +1,7 @@
 ﻿#include "Image.h"
 #include <stb_image.h>
 
-#include "Core/BindingData.h"
+#include "Core/RenderData.h"
 #include "Core/Rendering/Helper/Buffer.h"
 #include "Core/Rendering/Helper/ImageUtils.h"
 
@@ -16,10 +16,10 @@ namespace Tristeon::Data
 
 	Image::~Image()
 	{
-		Core::binding_data.device.freeMemory(_memory);
-		Core::binding_data.device.destroySampler(_sampler);
-		Core::binding_data.device.destroyImageView(_view);
-		Core::binding_data.device.destroyImage(_image);
+		Core::renderData.device.freeMemory(_memory);
+		Core::renderData.device.destroySampler(_sampler);
+		Core::renderData.device.destroyImageView(_view);
+		Core::renderData.device.destroyImage(_image);
 	}
 
 	unsigned char* Image::pixels() const
@@ -104,7 +104,7 @@ namespace Tristeon::Data
 
 		//Create image view
 		const vk::ImageViewCreateInfo viewCi{ {}, _image, vk::ImageViewType::e2D, vk::Format::eR8G8B8A8Unorm, {}, { vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 } };
-		_view = Core::binding_data.device.createImageView(viewCi);
+		_view = Core::renderData.device.createImageView(viewCi);
 
 		const auto ci = vk::SamplerCreateInfo({},
 			vk::Filter::eLinear, vk::Filter::eLinear,
@@ -116,6 +116,6 @@ namespace Tristeon::Data
 			vk::BorderColor::eIntOpaqueBlack,
 			VK_FALSE);
 		
-		_sampler = Core::binding_data.device.createSampler(ci);
+		_sampler = Core::renderData.device.createSampler(ci);
 	}
 }

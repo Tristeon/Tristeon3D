@@ -22,7 +22,6 @@ namespace Tristeon::Core::Rendering
 		};
 
 		PBRMaterial() = default;
-		virtual ~PBRMaterial() override;
 		explicit PBRMaterial(PipelineProperties pProperties);
 
 		ShaderFile* shader() override;

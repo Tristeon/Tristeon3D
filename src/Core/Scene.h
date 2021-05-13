@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <memory>
+#include <vulkan/vulkan.hpp>
 
 namespace Tristeon::Core
 {
@@ -42,7 +43,7 @@ namespace Tristeon::Core
 		nlohmann::json serialize() override;
 		void deserialize(nlohmann::json json) override;
 	private:
-		void recordSceneCmd();
+		void recordSceneCmd(vk::CommandBuffer cmd, const uint8_t& frameIndex, vk::Framebuffer framebuffer);
 		
 		std::vector<std::unique_ptr<GameObject>> gameObjects;
 		REGISTER_TYPE_H(Scene)

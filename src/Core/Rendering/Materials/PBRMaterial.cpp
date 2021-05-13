@@ -1,5 +1,5 @@
 #include "PBRMaterial.h"
-#include <Core/BindingData.h>
+#include <Core/RenderData.h>
 #include <Core/Engine.h>
 
 #include "Data/Mesh.h"
@@ -9,13 +9,7 @@ namespace Tristeon::Core::Rendering
 {
 	REGISTER_TYPE_CPP(PBRMaterial);
 
-	PBRMaterial::~PBRMaterial()
-	{
-		binding_data.device.destroyDescriptorSetLayout(_setLayout);
-		binding_data.device.freeDescriptorSets(binding_data.descriptorPool, _set);
-	}
-
-	PBRMaterial::PBRMaterial(PipelineProperties pProperties): Material(pProperties) { }
+	PBRMaterial::PBRMaterial(PipelineProperties pProperties) : Material(pProperties) { }
 
 	ShaderFile* PBRMaterial::shader()
 	{
@@ -26,11 +20,11 @@ namespace Tristeon::Core::Rendering
 	void PBRMaterial::createPipeline()
 	{
 		if ((VkPipeline)_pipeline != VK_NULL_HANDLE)
-			binding_data.device.destroyPipeline(_pipeline);
+			renderData.device.destroyPipeline(_pipeline);
 		if ((VkPipelineLayout)_layout != VK_NULL_HANDLE)
-			binding_data.device.destroyPipelineLayout(_layout);
+			renderData.device.destroyPipelineLayout(_layout);
 
-		if (!_set)
+		if (!_sets[0]) //any set will do
 			createDescriptorSets();
 
 		auto bindings = Data::Vertex::binding();
@@ -39,8 +33,8 @@ namespace Tristeon::Core::Rendering
 
 		vk::PipelineInputAssemblyStateCreateInfo stageAssembly{ {}, _properties.topology, VK_FALSE };
 
-		vk::Viewport viewport{ 0, 0, (float)binding_data.extent.width, (float)binding_data.extent.height, 0, 1.0f };
-		vk::Rect2D scissor{ vk::Offset2D { 0, 0 }, binding_data.extent };
+		vk::Viewport viewport{ 0, 0, (float)renderData.extent.width, (float)renderData.extent.height, 0, 1.0f };
+		vk::Rect2D scissor{ vk::Offset2D { 0, 0 }, renderData.extent };
 		vk::PipelineViewportStateCreateInfo stateViewport{ {}, 1, &viewport, 1, &scissor };
 
 		vk::PipelineRasterizationStateCreateInfo stateRasterization{ {},
@@ -69,9 +63,9 @@ namespace Tristeon::Core::Rendering
 
 		vk::PipelineDepthStencilStateCreateInfo stateDepth{ {}, true, true, vk::CompareOp::eGreater };
 
-		std::array<vk::DescriptorSetLayout, 2> layouts{ binding_data.transformLayout, _setLayout };
+		std::array<vk::DescriptorSetLayout, 2> layouts{ renderData.transformLayout, _setLayout };
 		vk::PipelineLayoutCreateInfo layoutCi{ {}, layouts };
-		_layout = binding_data.device.createPipelineLayout(layoutCi);
+		_layout = renderData.device.createPipelineLayout(layoutCi);
 
 		if (shader()->stages().empty())
 			throw std::runtime_error("Can't use a shader with 0 shaders");
@@ -91,13 +85,13 @@ namespace Tristeon::Core::Rendering
 			&stateBlend,
 			&stateDynamic,
 			_layout,
-			binding_data.offscreenPass,
+			renderData.offscreenPass,
 			0,
 			nullptr,
 			0
 		};
 
-		auto r = binding_data.device.createGraphicsPipeline(nullptr, pipeline_ci);
+		auto r = renderData.device.createGraphicsPipeline(nullptr, pipeline_ci);
 		VULKAN_DEBUG(r.result);
 		_pipeline = r.value;
 	}
@@ -105,9 +99,7 @@ namespace Tristeon::Core::Rendering
 	void PBRMaterial::createDescriptorSets()
 	{
 		if ((VkDescriptorSetLayout)_setLayout != VK_NULL_HANDLE)
-			binding_data.device.destroyDescriptorSetLayout(_setLayout);
-		if ((VkDescriptorSet)_set != VK_NULL_HANDLE)
-			binding_data.device.freeDescriptorSets(binding_data.descriptorPool, _set);
+			renderData.device.destroyDescriptorSetLayout(_setLayout);
 
 		std::array<vk::DescriptorSetLayoutBinding, 5> bindings{
 			vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment, nullptr }, //Albedo
@@ -118,38 +110,44 @@ namespace Tristeon::Core::Rendering
 		};
 
 		const vk::DescriptorSetLayoutCreateInfo layout_ci{ {}, bindings };
-		_setLayout = binding_data.device.createDescriptorSetLayout(layout_ci);
+		_setLayout = renderData.device.createDescriptorSetLayout(layout_ci);
+		
+		for (uint8_t i = 0; i < RenderData::IMAGES_IN_FLIGHT; i++)
+		{
+			if ((VkDescriptorSet)_sets[i] != VK_NULL_HANDLE)
+				renderData.device.freeDescriptorSets(renderData.descriptorPool, _sets[i]);
 
-		const vk::DescriptorSetAllocateInfo alloc{ binding_data.descriptorPool, 1, &_setLayout };
-		_set = binding_data.device.allocateDescriptorSets(alloc)[0];
+			const vk::DescriptorSetAllocateInfo alloc{ renderData.descriptorPool, 1, &_setLayout };
+			_sets[i] = renderData.device.allocateDescriptorSets(alloc)[0];
 
-		auto albedo_info = vk::DescriptorImageInfo(_albedo->sampler(), _albedo->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto normal_info = vk::DescriptorImageInfo(_normal->sampler(), _normal->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto metallic_info = vk::DescriptorImageInfo(_metallic->sampler(), _metallic->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto roughness_info = vk::DescriptorImageInfo(_roughness->sampler(), _roughness->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
-		auto ao_info = vk::DescriptorImageInfo(_ao->sampler(), _ao->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+			auto albedo_info = vk::DescriptorImageInfo(_albedo->sampler(), _albedo->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+			auto normal_info = vk::DescriptorImageInfo(_normal->sampler(), _normal->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+			auto metallic_info = vk::DescriptorImageInfo(_metallic->sampler(), _metallic->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+			auto roughness_info = vk::DescriptorImageInfo(_roughness->sampler(), _roughness->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
+			auto ao_info = vk::DescriptorImageInfo(_ao->sampler(), _ao->view(), vk::ImageLayout::eShaderReadOnlyOptimal);
 
-		std::array<vk::WriteDescriptorSet, 5> writes{
-			vk::WriteDescriptorSet{ _set, 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &albedo_info },
-			vk::WriteDescriptorSet{ _set, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &normal_info },
-			vk::WriteDescriptorSet{ _set, 2, 0, 1, vk::DescriptorType::eCombinedImageSampler, &metallic_info },
-			vk::WriteDescriptorSet{ _set, 3, 0, 1, vk::DescriptorType::eCombinedImageSampler, &roughness_info },
-			vk::WriteDescriptorSet{ _set, 4, 0, 1, vk::DescriptorType::eCombinedImageSampler, &ao_info },
-		};
-		binding_data.device.updateDescriptorSets(writes, {});
+			std::array<vk::WriteDescriptorSet, 5> writes{
+				vk::WriteDescriptorSet{ _sets[i], 0, 0, 1, vk::DescriptorType::eCombinedImageSampler, &albedo_info },
+				vk::WriteDescriptorSet{ _sets[i], 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &normal_info },
+				vk::WriteDescriptorSet{ _sets[i], 2, 0, 1, vk::DescriptorType::eCombinedImageSampler, &metallic_info },
+				vk::WriteDescriptorSet{ _sets[i], 3, 0, 1, vk::DescriptorType::eCombinedImageSampler, &roughness_info },
+				vk::WriteDescriptorSet{ _sets[i], 4, 0, 1, vk::DescriptorType::eCombinedImageSampler, &ao_info },
+			};
+			renderData.device.updateDescriptorSets(writes, {});
+		}
 	}
 
 	Data::Image* PBRMaterial::texture(TextureType type) const
 	{
-		switch(type)
+		switch (type)
 		{
-		case TextureType::Albedo: 
+		case TextureType::Albedo:
 			return _albedo;
-		case TextureType::Normal: 
+		case TextureType::Normal:
 			return _normal;
-		case TextureType::Metallic: 
+		case TextureType::Metallic:
 			return _metallic;
-		case TextureType::Roughness: 
+		case TextureType::Roughness:
 			return _roughness;
 		case TextureType::Ao:
 			return _ao;
@@ -163,7 +161,7 @@ namespace Tristeon::Core::Rendering
 	{
 		nlohmann::json j = Material::serialize();
 		j["typeID"] = Type<PBRMaterial>::fullName();
-		j["albedo"] = _albedoPath;	
+		j["albedo"] = _albedoPath;
 		j["normal"] = _normalPath;
 		j["metallic"] = _metallicPath;
 		j["roughness"] = _roughnessPath;
@@ -186,11 +184,11 @@ namespace Tristeon::Core::Rendering
 		_metallicPath = json.value("metallic", std::string());
 		_metallic = Data::Resources::assetLoad<Data::Image>(_metallicPath);
 		if (!_metallic) _metallic = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
-		
+
 		_roughnessPath = json.value("roughness", std::string());
 		_roughness = Data::Resources::assetLoad<Data::Image>(_roughnessPath);
 		if (!_roughness) _roughness = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
-		
+
 		_aoPath = json.value("ao", std::string());
 		_ao = Data::Resources::assetLoad<Data::Image>(_aoPath);
 		if (!_ao) _ao = Data::Resources::assetLoad<Data::Image>("Files/Textures/white.jpg");
