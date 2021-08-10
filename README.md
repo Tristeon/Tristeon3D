@@ -6,9 +6,6 @@ This project is now archived as it is no longer in active development in favor o
 ![screenshot of the editor](https://i.imgur.com/T663Nb6.png)
 
 # Features
-* Modular and clean engine framework
-* Entity-component system
-* Fully documented
 * Serialization
   * In-house type introspection
   * Scenes/Objects stored as json objects
@@ -34,14 +31,12 @@ This project is now archived as it is no longer in active development in favor o
 * Input
   * Mouse/keyboard support
   * Built in key/button mapping
-* Over 40 mesh file formats including FBX, OBJ, 3DS and blend
-* Supported image formats: JPG, PNG, TGA, BMP, PSD and more
 
 # Getting started
 You wish to try out Tristeon 3D? Great! Here's two ways to get started:
 
 ## Pre-built
-If you're just looking to test out Tristeon's current features without diving too much into the C++ side, then it'd be a good idea to go to the latest release: https://github.com/Tristeon/Tristeon3D/releases/tag/v1.0.0-pre-alpha
+If you're just looking to try out Tristeon's current features without diving too much into the C++ side, then it'd be a good idea to go to the latest release: https://github.com/Tristeon/Tristeon3D/releases/tag/v1.0.0-pre-alpha
 
 ## CMake project
 Tristeon3D uses CMake to configure the project. Please configure and build the project according to the CMake guidelines. We recommend to place the build folder outside of the repository as none of the IDE/compiler specific information needs to be shared across clients.
@@ -58,48 +53,7 @@ To run the project, select your desired build configuration:
 - Editor: Editor application without debug symbols, but with logging.
 
 # Why this project?
-Tristeon is a hobby/learning/portfolio project of Tristan Metz and Leon Brands. The project started as a 5 month school project with as focus to extend/improve our engine development skills and knowledge. As of now, it's being maintained and updated as a pure hobby and portfolio project.
-
-# Roadmap
-Near future:
-* In-engine shader compilation
-* Full shader reflection with complete type support
-* Rendering framework redesign
-* Debug draw manager optimizations + extended features
-* Dragging/dropping (file)items into the inspector
-* In-house physics engine implementation
-
-Planned (editor/serialization):
-* Optimized component serialization
-* Automized serialization
-* In-Editor console logging
-* Scene view object selection
-* Renaming items
-* Serialization wrappers for ease of use
-* Custom type editors
-
-Planned (rendering/engine):
-* Rework engine sub-systems into a module based system, allowing the user to add/remove modules at will
-* Image based lighting
-* Controllable point/spot/directional lights
-* Shadow mapping
-* Preview renderer for materials, meshes and images
-* Normal mapping
-* Image effect system
-
-# Known bugs
-* ~~#1 Scene view won't display properly until the engine's game mode has been run at least once.~~
-* #2 Asset browser deletion doesn't delete file
-* ~~#3 Material changes don't always get applied~~
-* ~~#4 Camera doesn't exist until pressing it (after scene load)~~
-* #5 New folders won't display until you reload the engine
-* #6 Material properties won't get applied properly with vectors
-* #7 The inspector breaks when there's multiple properties with the same name (e.g. having multiple Vector3s, their subcomponents are called the same)
-* #8 DebugDrawManager only ever uses the color from the last add...() call
-* #9 Editor doesn't recognize engine filetypes correctly when they haven't been created in-engine. Will default to AssetItem
-* #10 Deleting a component also deletes each component below said component
-* #11 The editor camera loses control at the minimum zoom distance
-* #12 The editor camera may flip, causing controls to be inverted
+Tristeon is a hobby/learning/portfolio project of Tristan Metz and Leon Brands. The project was a 5 month school project with a focus on extending/improving our engine development skills.
 
 # Showcase
 Watch the showcase video here:
@@ -108,13 +62,7 @@ https://www.youtube.com/watch?v=6kVTGHOJu-E
 
 # Authors
 Leon Brands - Engine/graphics programmer (https://leonbrandsprogrammer.wordpress.com/)
-
 Tristan Metz - Engine tool programmer (https://tristanmetz.software/)
-
-# Contribute
-We'd love your help! You can contribute to the development of Tristeon by:
-* Submitting an issue
-* Submitting a pull request
 
 # Credits
 
